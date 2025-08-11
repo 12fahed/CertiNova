@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -20,65 +20,91 @@ import { SendCertificatesModal } from "@/components/send-certificates-modal";
 import { Navbar } from "@/components/navbar";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { useAuth } from "@/context/AuthContext";
-
-interface Certificate {
-  id?: string;
-  name: string;
-  event: string;
-  date: string;
-  image?: string;
-  fields: {
-    recipientName?: { x: number; y: number; width: number; height: number };
-    organizationName?: { x: number; y: number; width: number; height: number };
-    certificateLink?: { x: number; y: number; width: number; height: number };
-    certificateQR?: { x: number; y: number; width: number; height: number };
-    rank?: { x: number; y: number; width: number; height: number };
-  };
-}
+import { useEvents } from "@/context/EventContext";
+import { useCertificates } from "@/context/CertificateContext";
+import { Event } from "@/types/event";
+import { CertificateConfig } from "@/types/certificate";
 
 export default function DashboardPage() {
   const { user } = useAuth();
-  const [certificates, setCertificates] = useState<Certificate[]>([]);
+  const { events, createEvent, fetchEvents } = useEvents();
+  const { 
+    createCertificateConfig, 
+    getCertificateConfig,
+    convertValidFieldsToEditorFields,
+    convertEditorFieldsToValidFields 
+  } = useCertificates();
+  
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditor, setShowEditor] = useState(false);
-  const [currentCertificate, setCurrentCertificate] = useState<Partial<Certificate> | null>(null);
+  const [currentEvent, setCurrentEvent] = useState<Event | null>(null);
+  const [currentCertificateConfig, setCurrentCertificateConfig] = useState<CertificateConfig | null>(null);
   const [showSendModal, setShowSendModal] = useState(false);
 
-  const handleCreateCertificate = (eventName: string, issuerName: string) => {
-    setCurrentCertificate({
-      id: Date.now().toString(),
-      name: eventName,
-      event: issuerName,
-      date: new Date().toLocaleDateString(),
-      image: '/placeholder-certificate.jpg',
-      fields: {},
-    });
-    setShowEditor(true);
-    setShowCreateModal(false);
-  };
+  // Load events when component mounts
+  useEffect(() => {
+    fetchEvents();
+  }, [fetchEvents]);
 
-  const handleSaveCertificate = (updatedCertificate: Certificate) => {
-    setCertificates(prev => {
-      const existingIndex = prev.findIndex(cert => cert.id === updatedCertificate.id);
-      if (existingIndex >= 0) {
-        const updated = [...prev];
-        updated[existingIndex] = updatedCertificate;
-        return updated;
+  const handleCreateCertificate = async (eventName: string, issuerName: string) => {
+    // First create the event
+    const newEvent = await createEvent({
+      eventName: eventName,
+      issuerName: issuerName,
+      date: new Date().toISOString(),
+    });
+
+    if (newEvent) {
+      setCurrentEvent(newEvent);
+      
+      // Check if certificate config already exists for this event
+      const existingConfig = await getCertificateConfig(newEvent.id);
+      if (existingConfig) {
+        setCurrentCertificateConfig(existingConfig);
       } else {
-        return [...prev, updatedCertificate];
+        // Create a new empty config
+        setCurrentCertificateConfig(null);
       }
-    });
-    setShowEditor(false);
-    setCurrentCertificate(null);
+      
+      setShowEditor(true);
+      setShowCreateModal(false);
+    }
   };
 
-  const handleEditCertificate = (certificate: Certificate) => {
-    setCurrentCertificate(certificate);
+  const handleSaveCertificate = async (updatedFields: Record<string, { x: number; y: number; width: number; height: number }>) => {
+    if (!currentEvent) return;
+
+    // Convert editor fields to API format
+    const validFields = convertEditorFieldsToValidFields(updatedFields);
+
+    try {
+      await createCertificateConfig({
+        eventId: currentEvent.id,
+        imagePath: '/placeholder-certificate.jpg', // Default image path
+        validFields,
+      });
+      
+      setShowEditor(false);
+      setCurrentEvent(null);
+      setCurrentCertificateConfig(null);
+    } catch (error) {
+      console.error('Error saving certificate:', error);
+    }
+  };
+
+  const handleEditCertificate = async (event: Event) => {
+    setCurrentEvent(event);
+    
+    // Load certificate config for this event
+    const config = await getCertificateConfig(event.id);
+    setCurrentCertificateConfig(config);
+    
     setShowEditor(true);
   };
 
   const handleDeleteCertificate = (id: string) => {
-    setCertificates(prev => prev.filter(cert => cert.id !== id));
+    // For now, we'll implement event deletion later
+    console.log('Delete event:', id);
   };
 
   return (
@@ -116,7 +142,7 @@ export default function DashboardPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-gray-600">Total Certificates</p>
-                      <p className="text-3xl font-bold text-gray-900">{certificates.length}</p>
+                      <p className="text-3xl font-bold text-gray-900">{events.length}</p>
                     </div>
                     <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                       <Award className="h-6 w-6 text-blue-600" />
@@ -225,7 +251,7 @@ export default function DashboardPage() {
               </Button>
             </div>
 
-            {certificates.length === 0 ? (
+            {events.length === 0 ? (
               <Card className="bg-white border-gray-200">
                 <CardContent className="p-12 text-center">
                   <Award className="h-16 w-16 text-gray-300 mx-auto mb-4" />
@@ -246,9 +272,9 @@ export default function DashboardPage() {
               </Card>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {certificates.map((certificate, index) => (
+                {events.map((event, index) => (
                   <motion.div
-                    key={certificate.id}
+                    key={event.id}
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: index * 0.1 }}
@@ -258,10 +284,10 @@ export default function DashboardPage() {
                         <div className="flex items-start justify-between mb-4">
                           <div>
                             <h3 className="font-semibold text-gray-900 mb-1">
-                              {certificate.name}
+                              {event.eventName}
                             </h3>
                             <p className="text-sm text-gray-600 mb-2">
-                              {certificate.event}
+                              {event.issuerName}
                             </p>
                           </div>
                           <Badge variant="secondary" className="text-xs">
@@ -271,12 +297,12 @@ export default function DashboardPage() {
 
                         <div className="flex items-center text-sm text-gray-500 mb-4">
                           <Calendar className="h-4 w-4 mr-1" />
-                          {certificate.date}
+                          {new Date(event.date).toLocaleDateString()}
                         </div>
 
                         <div className="flex space-x-2">
                           <Button
-                            onClick={() => handleEditCertificate(certificate)}
+                            onClick={() => handleEditCertificate(event)}
                             variant="outline"
                             size="sm"
                             className="flex-1"
@@ -285,7 +311,7 @@ export default function DashboardPage() {
                             Edit
                           </Button>
                           <Button
-                            onClick={() => certificate.id && handleDeleteCertificate(certificate.id)}
+                            onClick={() => handleDeleteCertificate(event.id)}
                             variant="outline"
                             size="sm"
                             className="text-red-600 border-red-200 hover:bg-red-50"
@@ -309,20 +335,39 @@ export default function DashboardPage() {
           onSubmit={handleCreateCertificate}
         />
 
-        {showEditor && currentCertificate && (
+        {showEditor && currentEvent && (
           <CertificateEditor
-            certificate={currentCertificate as Certificate}
-            onSave={handleSaveCertificate}
+            certificate={{
+              id: currentEvent.id,
+              name: currentEvent.eventName,
+              event: currentEvent.issuerName,
+              date: new Date(currentEvent.date).toLocaleDateString(),
+              image: '/placeholder-certificate.jpg',
+              fields: currentCertificateConfig ? 
+                convertValidFieldsToEditorFields(currentCertificateConfig.validFields) : 
+                {}
+            }}
+            onSave={(updatedCertificate) => {
+              handleSaveCertificate(updatedCertificate.fields);
+            }}
             onClose={() => {
               setShowEditor(false);
-              setCurrentCertificate(null);
+              setCurrentEvent(null);
+              setCurrentCertificateConfig(null);
             }}
           />
         )}
 
         <SendCertificatesModal
           open={showSendModal}
-          certificates={certificates}
+          certificates={events.map(event => ({
+            id: event.id,
+            name: event.eventName,
+            event: event.issuerName,
+            date: new Date(event.date).toLocaleDateString(),
+            image: '/placeholder-certificate.jpg',
+            fields: {}
+          }))}
           onClose={() => setShowSendModal(false)}
         />
       </div>

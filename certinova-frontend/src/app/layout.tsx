@@ -3,6 +3,8 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import { AuthProvider } from "@/context/AuthContext"
+import { EventProvider } from "@/context/EventContext"
+import { CertificateProvider } from "@/context/CertificateContext"
 import { Toaster } from "sonner"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -21,8 +23,12 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <AuthProvider>
-          {children}
-          <Toaster position="top-right" />
+          <EventProvider>
+            <CertificateProvider>
+              {children}
+              <Toaster position="top-right" />
+            </CertificateProvider>
+          </EventProvider>
         </AuthProvider>
       </body>
     </html>
