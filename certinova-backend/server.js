@@ -2,6 +2,8 @@ import express from 'express';
 import dotenv from 'dotenv';
 import connectDB from './src/config/database.js';
 import authRoutes from './src/routes/authRoutes.js';
+import eventRoutes from './src/routes/eventRoutes.js';
+import certificateRoutes from './src/routes/certificateRoutes.js';
 import { errorHandler, notFound } from './src/middleware/errorMiddleware.js';
 import { logger, cors } from './src/middleware/appMiddleware.js';
 
@@ -30,12 +32,23 @@ app.get('/', (req, res) => {
       auth: {
         signup: 'POST /api/auth/signup',
         login: 'POST /api/auth/login'
+      },
+      events: {
+        addEvent: 'POST /api/events/addEvent',
+        getEvents: 'GET /api/events/:organisationID'
+      },
+      certificates: {
+        addConfig: 'POST /api/certificates/addCertificateConfig',
+        getConfig: 'GET /api/certificates/config/:eventId',
+        updateConfig: 'PUT /api/certificates/config/:configId'
       }
     }
   });
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api/events', eventRoutes);
+app.use('/api/certificates', certificateRoutes);
 
 // Error handling middleware
 app.use(notFound);
