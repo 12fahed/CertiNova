@@ -50,7 +50,7 @@ export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
       </DialogTrigger>
       <DialogContent className="sm:max-w-md bg-white border border-gray-200">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-center text-gray-900">Welcome to CertifyPro</DialogTitle>
+          <DialogTitle className="text-2xl font-bold text-center text-gray-900">Welcome to CertiNova</DialogTitle>
         </DialogHeader>
 
         <Tabs defaultValue="signin" className="w-full">

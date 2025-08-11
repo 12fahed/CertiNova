@@ -30,7 +30,7 @@ export function Navbar({ onCreateNew, onSendCertificates }: NavbarProps) {
             <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
               <Award className="h-6 w-6 text-white" />
             </div>
-            <span className="text-2xl font-bold text-gray-900">CertifyPro</span>
+            <span className="text-2xl font-bold text-gray-900">CertiNova</span>
           </div>
 
           <div className="flex items-center space-x-4">

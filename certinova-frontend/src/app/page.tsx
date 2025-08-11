@@ -142,7 +142,7 @@ export default function HomePage() {
                 <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
                   <Award className="h-6 w-6 text-white" />
                 </div>
-                <span className="text-2xl font-bold text-gray-900">CertifyPro</span>
+                <span className="text-2xl font-bold text-gray-900">CertiNova</span>
               </motion.div>
 
               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
@@ -217,7 +217,7 @@ export default function HomePage() {
         <section className="py-20 bg-gray-50">
           <div className="container mx-auto px-6">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-16">
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">Why Choose CertifyPro?</h2>
+              <h2 className="text-4xl font-bold text-gray-900 mb-4">Why Choose CertiNova?</h2>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto">
                 Built for organizations that value efficiency, security, and professional quality.
               </p>
@@ -257,7 +257,7 @@ export default function HomePage() {
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-3xl mx-auto">
               <h2 className="text-4xl font-bold text-white mb-6">Ready to Transform Your Certificate Process?</h2>
               <p className="text-xl text-blue-100 mb-8">
-                Join thousands of organizations already using CertifyPro to streamline their certification workflows.
+                Join thousands of organizations already using CertiNova to streamline their certification workflows.
               </p>
               <AuthModal onLogin={handleLogin} triggerText="Get Started Today" />
             </motion.div>
