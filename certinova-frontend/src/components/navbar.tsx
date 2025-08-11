@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { useAuth } from "@/context/AuthContext"
 
 interface NavbarProps {
   onCreateNew: () => void
@@ -18,6 +19,16 @@ interface NavbarProps {
 }
 
 export function Navbar({ onCreateNew, onSendCertificates }: NavbarProps) {
+  const { user, logout } = useAuth()
+  
+  const getUserInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase())
+      .join('')
+      .slice(0, 2)
+  }
+
   return (
     <motion.nav
       initial={{ opacity: 0, y: -20 }}
@@ -52,11 +63,18 @@ export function Navbar({ onCreateNew, onSendCertificates }: NavbarProps) {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                   <Avatar className="h-10 w-10">
-                    <AvatarFallback className="bg-gray-100 text-gray-700">JD</AvatarFallback>
+                    <AvatarFallback className="bg-gray-100 text-gray-700">
+                      {user ? getUserInitials(user.organisation) : 'U'}
+                    </AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56" align="end">
+                <div className="px-2 py-1.5 text-sm">
+                  <div className="font-medium">{user?.organisation}</div>
+                  <div className="text-xs text-gray-500">{user?.email}</div>
+                </div>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem>
                   <User className="mr-2 h-4 w-4" />
                   Profile
@@ -66,7 +84,7 @@ export function Navbar({ onCreateNew, onSendCertificates }: NavbarProps) {
                   Settings
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={logout}>
                   <LogOut className="mr-2 h-4 w-4" />
                   Log out
                 </DropdownMenuItem>

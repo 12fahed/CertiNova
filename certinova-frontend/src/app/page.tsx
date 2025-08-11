@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -25,6 +26,7 @@ import { CreateCertificateModal } from "@/components/create-certificate-modal"
 import { CertificateEditor } from "@/components/certificate-editor"
 import { SendCertificatesModal } from "@/components/send-certificates-modal"
 import { Navbar } from "@/components/navbar"
+import { useAuth } from "@/context/AuthContext"
 
 interface Certificate {
   id: string
@@ -42,13 +44,33 @@ interface Certificate {
 }
 
 export default function HomePage() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const { isAuthenticated, isLoading } = useAuth()
+  const router = useRouter()
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [certificates, setCertificates] = useState<Certificate[]>([])
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showEditor, setShowEditor] = useState(false)
   const [currentCertificate, setCurrentCertificate] = useState<Partial<Certificate> | null>(null)
   const [showSendModal, setShowSendModal] = useState(false)
+
+  // Redirect to dashboard if user is authenticated
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      router.push('/dashboard')
+    }
+  }, [isAuthenticated, isLoading, router])
+
+  // Show loading screen while checking authentication
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    )
+  }
 
   const stats = [
     { label: "Certificates Generated", value: "50,000+", icon: Award, color: "text-blue-600" },
@@ -102,11 +124,8 @@ export default function HomePage() {
     },
   ]
 
-  const handleLogin = (isNewUser: boolean) => {
-    setIsLoggedIn(true)
-    if (isNewUser) {
-      setShowOnboarding(true)
-    }
+  const handleLogin = () => {
+    // This will be handled by the redirect useEffect
   }
 
   const handleCreateCertificate = (eventName: string, issuerName: string) => {
@@ -127,7 +146,7 @@ export default function HomePage() {
     setCurrentCertificate(null)
   }
 
-  if (!isLoggedIn) {
+  if (!isAuthenticated && !isLoading) {
     return (
       <div className="min-h-screen bg-white">
         {/* Navigation */}

@@ -9,27 +9,65 @@ import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Separator } from "@/components/ui/separator"
 import { Mail, Lock, User, Chrome } from "lucide-react"
+import { useAuth } from "@/context/AuthContext"
 
 interface AuthModalProps {
-  onLogin: (isNewUser: boolean) => void
+  onLogin?: () => void
   triggerText?: string
 }
 
 export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
   const [open, setOpen] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    organisation: ""
+  })
+  
+  const { login, signup, isLoading } = useAuth()
 
-  const handleAuth = async (isNewUser: boolean) => {
-    setIsLoading(true)
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    setIsLoading(false)
-    setOpen(false)
-    onLogin(isNewUser)
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }))
+  }
+
+  const handleLogin = async () => {
+    if (!formData.email || !formData.password) {
+      return
+    }
+
+    const success = await login({
+      email: formData.email,
+      password: formData.password
+    })
+
+    if (success) {
+      setOpen(false)
+      setFormData({ email: "", password: "", organisation: "" })
+      onLogin?.()
+    }
+  }
+
+  const handleSignup = async () => {
+    if (!formData.email || !formData.password || !formData.organisation) {
+      return
+    }
+
+    const success = await signup({
+      email: formData.email,
+      password: formData.password,
+      organisation: formData.organisation
+    })
+
+    if (success) {
+      setOpen(false)
+      setFormData({ email: "", password: "", organisation: "" })
+      onLogin?.()
+    }
   }
 
   const handleGoogleAuth = () => {
-    handleAuth(false) // Assume existing user for demo
+    // TODO: Implement Google OAuth
+    console.log("Google auth not implemented yet")
   }
 
   return (
@@ -91,7 +129,14 @@ export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
                   </Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                    <Input id="email" type="email" placeholder="Enter your email" className="pl-10 border-gray-200" />
+                    <Input 
+                      id="email" 
+                      type="email" 
+                      placeholder="Enter your email" 
+                      className="pl-10 border-gray-200"
+                      value={formData.email}
+                      onChange={(e) => handleInputChange("email", e.target.value)}
+                    />
                   </div>
                 </div>
                 <div className="space-y-2">
@@ -105,11 +150,13 @@ export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
                       type="password"
                       placeholder="Enter your password"
                       className="pl-10 border-gray-200"
+                      value={formData.password}
+                      onChange={(e) => handleInputChange("password", e.target.value)}
                     />
                   </div>
                 </div>
                 <Button
-                  onClick={() => handleAuth(false)}
+                  onClick={handleLogin}
                   className="w-full bg-blue-600 hover:bg-blue-700"
                   disabled={isLoading}
                 >
@@ -142,12 +189,18 @@ export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
 
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name" className="text-gray-700">
-                    Full Name
+                  <Label htmlFor="organisation-name" className="text-gray-700">
+                    Organisation Name
                   </Label>
                   <div className="relative">
                     <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                    <Input id="name" placeholder="Enter your full name" className="pl-10 border-gray-200" />
+                    <Input 
+                      id="organisation-name" 
+                      placeholder="Enter your organisation name" 
+                      className="pl-10 border-gray-200"
+                      value={formData.organisation}
+                      onChange={(e) => handleInputChange("organisation", e.target.value)}
+                    />
                   </div>
                 </div>
                 <div className="space-y-2">
@@ -161,6 +214,8 @@ export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
                       type="email"
                       placeholder="Enter your email"
                       className="pl-10 border-gray-200"
+                      value={formData.email}
+                      onChange={(e) => handleInputChange("email", e.target.value)}
                     />
                   </div>
                 </div>
@@ -175,11 +230,13 @@ export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
                       type="password"
                       placeholder="Create a password"
                       className="pl-10 border-gray-200"
+                      value={formData.password}
+                      onChange={(e) => handleInputChange("password", e.target.value)}
                     />
                   </div>
                 </div>
                 <Button
-                  onClick={() => handleAuth(true)}
+                  onClick={handleSignup}
                   className="w-full bg-blue-600 hover:bg-blue-700"
                   disabled={isLoading}
                 >
