@@ -1,5 +1,6 @@
 import Event from '../models/Event.js';
 import User from '../models/User.js';
+import CertificateConfig from '../models/CertificateConfig.js';
 import mongoose from 'mongoose';
 
 // @desc    Add a new event
@@ -115,12 +116,27 @@ export const getEventsByOrganisation = async (req, res) => {
       .populate('organisationID', 'organisation email')
       .sort({ createdAt: -1 });
 
+    // Get certificate configs for all events
+    const eventsWithCertificates = await Promise.all(
+      events.map(async (event) => {
+        const certificateConfig = await CertificateConfig.findOne({ eventId: event._id });
+        return {
+          ...event.toObject(),
+          certificateConfig: certificateConfig ? {
+            id: certificateConfig._id,
+            imagePath: certificateConfig.imagePath,
+            validFields: certificateConfig.validFields
+          } : null
+        };
+      })
+    );
+
     res.status(200).json({
       success: true,
       message: 'Events retrieved successfully',
       data: {
-        events,
-        count: events.length
+        events: eventsWithCertificates,
+        count: eventsWithCertificates.length
       }
     });
 

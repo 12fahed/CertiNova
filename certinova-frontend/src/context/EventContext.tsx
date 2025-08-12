@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useCallback } from 'react';
 import { Event, EventRequest } from '@/types/event';
 import { eventService } from '@/services/event';
 import { toast } from 'sonner';
@@ -67,7 +67,7 @@ export const EventProvider: React.FC<EventProviderProps> = ({ children }) => {
     }
   };
 
-  const fetchEvents = async (): Promise<void> => {
+  const fetchEvents = useCallback(async (): Promise<void> => {
     if (!user) {
       return;
     }
@@ -89,11 +89,11 @@ export const EventProvider: React.FC<EventProviderProps> = ({ children }) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [user]);
 
-  const refreshEvents = async (): Promise<void> => {
+  const refreshEvents = useCallback(async (): Promise<void> => {
     await fetchEvents();
-  };
+  }, [fetchEvents]);
 
   const value: EventContextType = {
     events,

@@ -44,33 +44,22 @@ export default function DashboardPage() {
   const [certificateImages, setCertificateImages] = useState<Record<string, string>>({});
 
   // Load events when component mounts
-  // useEffect(() => {
-  //   fetchEvents();
-  // }, [fetchEvents]);
-
-  // Load certificate images for all events
   useEffect(() => {
-    const loadCertificateImages = async () => {
-      const images: Record<string, string> = {};
-      
-      for (const event of events) {
-        try {
-          const config = await getCertificateConfig(event.id);
-          if (config && config.imagePath) {
-            images[event.id] = `http://localhost:5000${config.imagePath}`;
-          }
-        } catch (error) {
-          console.error(`Error loading certificate for event ${event.id}:`, error);
-        }
-      }
-      
-      setCertificateImages(images);
-    };
+    fetchEvents();
+  }, [fetchEvents]);
+
+  // Create certificate images mapping from events data
+  useEffect(() => {
+    const images: Record<string, string> = {};
     
-    if (events.length > 0) {
-      loadCertificateImages();
-    }
-  }, [events, getCertificateConfig]);
+    events.forEach(event => {
+      if (event.certificateConfig?.imagePath) {
+        images[event.id] = `http://localhost:5000${event.certificateConfig.imagePath}`;
+      }
+    });
+    
+    setCertificateImages(images);
+  }, [events]);
 
   const handleCreateCertificate = async (eventName: string, issuerName: string) => {
     // First create the event
