@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useRef, useCallback } from "react"
+import { useState, useRef, useCallback, useMemo } from "react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -53,7 +53,7 @@ export function CertificateEditor({ certificate, onSave, onClose }: CertificateE
   const canvasRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const fieldOptions = [
+  const fieldOptions = useMemo(() => [
     {
       key: "recipientName" as FieldType,
       label: "Recipient Name",
@@ -83,7 +83,7 @@ export function CertificateEditor({ certificate, onSave, onClose }: CertificateE
       bgColor: "bg-orange-50",
     },
     { key: "rank" as FieldType, label: "Rank", icon: Trophy, color: "text-red-600", bgColor: "bg-red-50" },
-  ]
+  ], [])
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -132,17 +132,36 @@ export function CertificateEditor({ certificate, onSave, onClose }: CertificateE
       if (!isSelecting || !selectedField || !canvasRef.current) return
 
       const rect = canvasRef.current.getBoundingClientRect()
-      const x = e.clientX - rect.left
-      const y = e.clientY - rect.top
+      const img = canvasRef.current.querySelector('img')
+      
+      if (!img) return
+
+      // Get the actual displayed image dimensions and position
+      const imgRect = img.getBoundingClientRect()
+      const imgDisplayedWidth = imgRect.width
+      const imgDisplayedHeight = imgRect.height
+      
+      // Calculate the click position relative to the displayed image
+      const clickX = e.clientX - imgRect.left
+      const clickY = e.clientY - imgRect.top
+      
+      // Calculate the scaling factors to convert to actual image dimensions
+      const scaleX = img.naturalWidth / imgDisplayedWidth
+      const scaleY = img.naturalHeight / imgDisplayedHeight
+      
+      // Convert to actual image coordinates
+      const actualX = clickX * scaleX
+      const actualY = clickY * scaleY
 
       if (!selectionStart) {
-        setSelectionStart({ x, y })
+        setSelectionStart({ x: actualX, y: actualY })
       } else {
-        const width = Math.abs(x - selectionStart.x)
-        const height = Math.abs(y - selectionStart.y)
-        const finalX = Math.min(x, selectionStart.x)
-        const finalY = Math.min(y, selectionStart.y)
+        const width = Math.abs(actualX - selectionStart.x)
+        const height = Math.abs(actualY - selectionStart.y)
+        const finalX = Math.min(actualX, selectionStart.x)
+        const finalY = Math.min(actualY, selectionStart.y)
 
+        // Store coordinates in actual image dimensions
         setFields((prev) => ({
           ...prev,
           [selectedField]: { x: finalX, y: finalY, width, height },
@@ -158,7 +177,7 @@ export function CertificateEditor({ certificate, onSave, onClose }: CertificateE
         })
       }
     },
-    [isSelecting, selectedField, selectionStart],
+    [isSelecting, selectedField, selectionStart, fieldOptions],
   )
 
   const handleSave = () => {
@@ -344,15 +363,37 @@ export function CertificateEditor({ certificate, onSave, onClose }: CertificateE
                   {/* Render field overlays */}
                   {Object.entries(fields).map(([fieldType, position]) => {
                     const option = fieldOptions.find((f) => f.key === fieldType)
+                    
+                    // Get the displayed image for scaling calculation
+                    const img = canvasRef.current?.querySelector('img')
+                    if (!img) return null
+                    
+                    // Calculate scaling factors to convert actual coordinates to display coordinates
+                    const imgRect = img.getBoundingClientRect()
+                    const containerRect = canvasRef.current?.getBoundingClientRect()
+                    
+                    const displayScaleX = imgRect.width / img.naturalWidth
+                    const displayScaleY = imgRect.height / img.naturalHeight
+                    
+                    // Convert stored actual coordinates to display coordinates
+                    const displayX = position.x * displayScaleX
+                    const displayY = position.y * displayScaleY
+                    const displayWidth = position.width * displayScaleX
+                    const displayHeight = position.height * displayScaleY
+                    
+                    // Calculate offset from container to image
+                    const offsetX = containerRect ? imgRect.left - containerRect.left : 0
+                    const offsetY = containerRect ? imgRect.top - containerRect.top : 0
+                    
                     return (
                       <div
                         key={fieldType}
                         className={`absolute border-2 border-dashed border-blue-400 bg-blue-50/50 flex items-center justify-center`}
                         style={{
-                          left: position.x,
-                          top: position.y,
-                          width: position.width,
-                          height: position.height,
+                          left: offsetX + displayX,
+                          top: offsetY + displayY,
+                          width: displayWidth,
+                          height: displayHeight,
                         }}
                       >
                         <Badge variant="secondary" className="text-xs bg-white border border-gray-200">

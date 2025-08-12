@@ -69,7 +69,7 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
           const config = await getCertificateConfig(selectedCertificate);
           if (config) {
             setCertificateConfig(config);
-            console.log("Certificate configuration loaded:", config);
+            // console.log("Certificate configuration loaded:", config);
           }
         } catch (error) {
           console.error("Error fetching certificate config:", error);
@@ -201,11 +201,16 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
         // Draw the background image
         ctx.drawImage(img, 0, 0);
         
+        console.log("Image dimensions:", img.width, img.height);
+        
         // Apply recipient name if coordinates exist
         if (certificateConfig.validFields.recipientName) {
+          console.log("Recipient name coordinates:", certificateConfig.validFields.recipientName);
           ctx.font = "bold 36px Arial";
           ctx.fillStyle = "#000000";
           const [x, y] = certificateConfig.validFields.recipientName;
+          
+          // Use coordinates directly since they're stored in actual image dimensions
           ctx.fillText(recipient.name, x, y);
         }
         
@@ -214,6 +219,8 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
           ctx.font = "bold 24px Arial";
           ctx.fillStyle = "#000000";
           const [x, y] = certificateConfig.validFields.rank;
+          
+          // Use coordinates directly since they're stored in actual image dimensions
           ctx.fillText(recipient.rank, x, y);
         }
         
