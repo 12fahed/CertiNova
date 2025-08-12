@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useRef, useCallback, useMemo } from "react"
+import { useState, useRef, useCallback, useMemo, useEffect } from "react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -50,6 +50,16 @@ export function CertificateEditor({ certificate, onSave, onClose }: CertificateE
   const [isSelecting, setIsSelecting] = useState(false);
   const [selectionStart, setSelectionStart] = useState<{ x: number; y: number } | null>(null);
   const [fields, setFields] = useState(certificate.fields || {});
+  const [imageLoaded, setImageLoaded] = useState(false);
+
+  // Update fields when certificate prop changes
+  useEffect(() => {
+    if (certificate.fields) {
+      setFields(certificate.fields);
+    }
+    // Reset image loaded state when certificate changes
+    setImageLoaded(false);
+  }, [certificate.fields]);
   const canvasRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -89,6 +99,8 @@ export function CertificateEditor({ certificate, onSave, onClose }: CertificateE
     const file = e.target.files?.[0];
     if (file) {
       try {
+        setImageLoaded(false); // Reset image loaded state
+        
         // First, show a local preview for immediate feedback
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -131,7 +143,6 @@ export function CertificateEditor({ certificate, onSave, onClose }: CertificateE
     (e: React.MouseEvent<HTMLDivElement>) => {
       if (!isSelecting || !selectedField || !canvasRef.current) return
 
-      const rect = canvasRef.current.getBoundingClientRect()
       const img = canvasRef.current.querySelector('img')
       
       if (!img) return
@@ -374,66 +385,65 @@ export function CertificateEditor({ certificate, onSave, onClose }: CertificateE
                   onClick={handleCanvasClick}
                   style={{ maxWidth: "100%", maxHeight: "100%" }}
                 >
-                  <img
-                    src={uploadedImage || "/placeholder.svg"}
-                    alt="Certificate Template"
-                    className="max-w-full max-h-full object-contain"
-                    draggable={false}
-                  />
+                  <div className="relative inline-block">
+                    <img
+                      src={uploadedImage || "/placeholder.svg"}
+                      alt="Certificate Template"
+                      className="max-w-full max-h-full object-contain"
+                      draggable={false}
+                      onLoad={() => setImageLoaded(true)}
+                      onError={() => setImageLoaded(false)}
+                    />
 
-                  {/* Render field overlays */}
-                  {Object.entries(fields).map(([fieldType, position]) => {
-                    const option = fieldOptions.find((f) => f.key === fieldType)
-                    
-                    // Get the displayed image for scaling calculation
-                    const img = canvasRef.current?.querySelector('img')
-                    if (!img) return null
-                    
-                    // Calculate scaling factors to convert actual coordinates to display coordinates
-                    const imgRect = img.getBoundingClientRect()
-                    const containerRect = canvasRef.current?.getBoundingClientRect()
-                    
-                    const displayScaleX = imgRect.width / img.naturalWidth
-                    const displayScaleY = imgRect.height / img.naturalHeight
-                    
-                    // Convert stored actual coordinates to display coordinates
-                    const displayX = position.x * displayScaleX
-                    const displayY = position.y * displayScaleY
-                    const displayWidth = position.width * displayScaleX
-                    const displayHeight = position.height * displayScaleY
-                    
-                    // Calculate offset from container to image
-                    const offsetX = containerRect ? imgRect.left - containerRect.left : 0
-                    const offsetY = containerRect ? imgRect.top - containerRect.top : 0
-                    
-                    return (
-                      <div
-                        key={fieldType}
-                        className={`absolute border-2 border-dashed border-blue-400 bg-blue-50/50 flex items-center justify-center`}
-                        style={{
-                          left: offsetX + displayX,
-                          top: offsetY + displayY,
-                          width: displayWidth,
-                          height: displayHeight,
-                        }}
-                      >
-                        <Badge variant="secondary" className="text-xs bg-white border border-gray-200">
-                          {option?.label}
-                        </Badge>
-                      </div>
-                    )
-                  })}
+                    {/* Render field overlays */}
+                    {imageLoaded && Object.entries(fields).map(([fieldType, position]) => {
+                      const option = fieldOptions.find((f) => f.key === fieldType)
+                      
+                      // Get the displayed image for scaling calculation
+                      const img = canvasRef.current?.querySelector('img')
+                      if (!img || !img.complete || img.naturalWidth === 0) {
+                        return null;
+                      }
+                      
+                      // Calculate scaling factors to convert from actual image coordinates to display coordinates
+                      const displayScaleX = img.offsetWidth / img.naturalWidth
+                      const displayScaleY = img.offsetHeight / img.naturalHeight
+                      
+                      // Convert stored actual coordinates to display coordinates
+                      const displayX = position.x * displayScaleX
+                      const displayY = position.y * displayScaleY
+                      const displayWidth = position.width * displayScaleX
+                      const displayHeight = position.height * displayScaleY
+                      
+                      return (
+                        <div
+                          key={fieldType}
+                          className={`absolute border-2 border-dashed border-blue-400 bg-blue-50/50 flex items-center justify-center`}
+                          style={{
+                            left: displayX,
+                            top: displayY,
+                            width: displayWidth,
+                            height: displayHeight,
+                          }}
+                        >
+                          <Badge variant="secondary" className="text-xs bg-white border border-gray-200">
+                            {option?.label}
+                          </Badge>
+                        </div>
+                      )
+                    })}
 
-                  {/* Selection indicator */}
-                  {isSelecting && selectedField && (
-                    <div className="absolute inset-0 bg-blue-500/10 border-2 border-blue-500 border-dashed">
-                      <div className="absolute top-2 left-2">
-                        <Badge className="bg-blue-600">
-                          Selecting: {fieldOptions.find((f) => f.key === selectedField)?.label}
-                        </Badge>
+                    {/* Selection indicator */}
+                    {isSelecting && selectedField && (
+                      <div className="absolute inset-0 bg-blue-500/10 border-2 border-blue-500 border-dashed">
+                        <div className="absolute top-2 left-2">
+                          <Badge className="bg-blue-600">
+                            Selecting: {fieldOptions.find((f) => f.key === selectedField)?.label}
+                          </Badge>
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               ) : (
                 <div className="text-center text-gray-500">

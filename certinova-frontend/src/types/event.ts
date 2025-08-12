@@ -8,6 +8,8 @@ export interface CertificateConfigData {
     certificateQR?: [number, number, number, number];
     rank?: [number, number, number, number];
   };
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Event {

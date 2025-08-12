@@ -127,18 +127,21 @@ export default function DashboardPage() {
   const handleEditCertificate = async (event: Event) => {
     setCurrentEvent(event);
     
-    // Load certificate config for this event
-    const config = await getCertificateConfig(event.id);
-    setCurrentCertificateConfig(config);
-    
-    // Set the image path if available
-    if (config && config.imagePath) {
-      console.log('Certificate image path:', config.imagePath);
-      // Update the certificate images map
-      setCertificateImages(prev => ({
-        ...prev,
-        [event.id]: `http://localhost:5000${config.imagePath}`
-      }));
+    // Use certificate config from event data (new backend response includes this)
+    if (event.certificateConfig) {
+      const config: CertificateConfig = {
+        id: event.certificateConfig.id,
+        eventId: event.id,
+        imagePath: event.certificateConfig.imagePath,
+        validFields: event.certificateConfig.validFields,
+        createdAt: event.certificateConfig.createdAt,
+        updatedAt: event.certificateConfig.updatedAt
+      };
+      setCurrentCertificateConfig(config);
+    } else {
+      // Fallback to API call if config not in event data (legacy support)
+      const config = await getCertificateConfig(event.id);
+      setCurrentCertificateConfig(config);
     }
     
     setShowEditor(true);

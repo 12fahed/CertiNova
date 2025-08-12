@@ -125,7 +125,9 @@ export const getEventsByOrganisation = async (req, res) => {
           certificateConfig: certificateConfig ? {
             id: certificateConfig._id,
             imagePath: certificateConfig.imagePath,
-            validFields: certificateConfig.validFields
+            validFields: certificateConfig.validFields,
+            createdAt: certificateConfig.createdAt,
+            updatedAt: certificateConfig.updatedAt
           } : null
         };
       })
