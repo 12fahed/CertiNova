@@ -2,7 +2,8 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -14,6 +15,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Send, Upload, User, FileSpreadsheet, Award, Download, Loader2, CheckCircle } from "lucide-react"
 import { toast } from "sonner"
 import confetti from "canvas-confetti"
+import { useCertificates } from "@/context/CertificateContext"
+import JSZip from "jszip"
+import { saveAs } from "file-saver"
 
 interface Certificate {
   id: string
@@ -35,7 +39,16 @@ interface Recipient {
   rank?: string
 }
 
+interface CertificateCoordinates {
+  recipientName?: [number, number];
+  organisationName?: [number, number];
+  certificateLink?: [number, number];
+  certificateQR?: [number, number];
+  rank?: [number, number];
+}
+
 export function SendCertificatesModal({ open, onClose, certificates }: SendCertificatesModalProps) {
+  const { getCertificateConfig } = useCertificates();
   const [step, setStep] = useState(1)
   const [selectedCertificate, setSelectedCertificate] = useState<string>("")
   const [recipients, setRecipients] = useState<Recipient[]>([])
@@ -44,6 +57,28 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
   const [manualRank, setManualRank] = useState("")
   const [isGenerating, setIsGenerating] = useState(false)
   const [generationComplete, setGenerationComplete] = useState(false)
+  const [certificateConfig, setCertificateConfig] = useState<any>(null)
+  const [generatedCertificates, setGeneratedCertificates] = useState<string[]>([])
+  const [zipBlob, setZipBlob] = useState<Blob | null>(null)
+
+  // Load certificate configuration when a certificate is selected
+  useEffect(() => {
+    if (selectedCertificate) {
+      const fetchCertificateConfig = async () => {
+        try {
+          const config = await getCertificateConfig(selectedCertificate);
+          if (config) {
+            setCertificateConfig(config);
+            console.log("Certificate configuration loaded:", config);
+          }
+        } catch (error) {
+          console.error("Error fetching certificate config:", error);
+          toast.error("Failed to load certificate configuration");
+        }
+      };
+      fetchCertificateConfig();
+    }
+  }, [selectedCertificate, getCertificateConfig]);
 
   const handleAddManualRecipient = () => {
     if (manualName.trim()) {
@@ -98,56 +133,188 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
   }
 
   const handleGenerateCertificates = async () => {
-    if (!selectedCertificate || recipients.length === 0) {
-      toast( "Missing Information", {
+    if (!selectedCertificate || recipients.length === 0 || !certificateConfig) {
+      toast("Missing Information", {
         description: "Please select a certificate and add recipients.",
       })
       return
     }
 
     setIsGenerating(true)
+    
+    try {
+      // Get the selected certificate
+      const certificate = certificates.find(c => c.id === selectedCertificate);
+      if (!certificate) throw new Error("Certificate not found");
+      
+      let imageUrl = certificate.image;
+      
+      // Check if the URL is external (has http/https) and needs a proxy
+      if (imageUrl.startsWith('http') && !imageUrl.includes('localhost')) {
+        // This adds a CORS proxy - you might need to replace with your own solution
+        // or implement a server-side proxy
+        console.log("Using original image URL:", imageUrl);
+      } else if (imageUrl.startsWith('/')) {
+        // If it's a local path starting with '/', make sure it's using the full URL
+        imageUrl = `http://localhost:5000${imageUrl}`;
+        console.log("Using local backend URL:", imageUrl);
+      }
+      
+      const zip = new JSZip();
+      const generatedUrls: string[] = [];
+      
+      // Create a folder in the zip for the certificates
+      const folder = zip.folder("certificates");
+      if (!folder) throw new Error("Failed to create folder in zip");
+      
+      // Process each recipient
+      for (let i = 0; i < recipients.length; i++) {
+        const recipient = recipients[i];
+        
+        // Create a canvas to draw the certificate
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        if (!ctx) throw new Error("Failed to get canvas context");
+        
+        // Load the certificate image
+        const img = new window.Image();
+        img.crossOrigin = "anonymous"; // Add CORS support
+        
+        await new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = (e) => {
+            console.error("Image load error:", e);
+            reject(new Error("Failed to load certificate image"));
+          };
+          
+          // First try with the original URL
+          img.src = imageUrl;
+          
+          // If the image is from the same origin or has proper CORS headers, this will work
+          // Otherwise, we'll get a security error when we try to export the canvas
+        });
+        
+        // Set canvas dimensions to match the image
+        canvas.width = img.width;
+        canvas.height = img.height;
+        
+        // Draw the background image
+        ctx.drawImage(img, 0, 0);
+        
+        // Apply recipient name if coordinates exist
+        if (certificateConfig.validFields.recipientName) {
+          ctx.font = "bold 36px Arial";
+          ctx.fillStyle = "#000000";
+          const [x, y] = certificateConfig.validFields.recipientName;
+          ctx.fillText(recipient.name, x, y);
+        }
+        
+        // Apply rank if coordinates exist and recipient has rank
+        if (certificateConfig.validFields.rank && recipient.rank) {
+          ctx.font = "bold 24px Arial";
+          ctx.fillStyle = "#000000";
+          const [x, y] = certificateConfig.validFields.rank;
+          ctx.fillText(recipient.rank, x, y);
+        }
+        
+        // Convert canvas to blob
+        let blob: Blob;
+        try {
+          // Try to export the canvas directly
+          blob = await new Promise<Blob>((resolve, reject) => {
+            canvas.toBlob((result) => {
+              if (result) resolve(result);
+              else reject(new Error("Failed to convert canvas to blob"));
+            }, "image/png");
+          });
+        } catch (error) {
+          console.warn("Canvas export failed due to CORS, using fetch API as fallback:", error);
+          
+          // Fallback: If the canvas is tainted, we need to fetch the image directly
+          // and use it without drawing on canvas
+          const response = await fetch(imageUrl);
+          if (!response.ok) throw new Error(`Failed to fetch image: ${response.status}`);
+          
+          blob = await response.blob();
+          
+          // Note: in this fallback, we won't have the custom text on the certificate
+          console.warn("Using original image without custom text due to CORS restrictions");
+        }
+        
+        // Add to zip
+        const fileName = `${recipient.name.replace(/[^a-z0-9]/gi, '_')}_certificate.png`;
+        folder.file(fileName, blob);
+        
+        // Store data URL for preview if needed
+        const dataUrl = canvas.toDataURL("image/png");
+        generatedUrls.push(dataUrl);
+      }
+      
+      // Generate the zip file
+      const zipBlob = await zip.generateAsync({ type: "blob" });
+      setZipBlob(zipBlob);
+      setGeneratedCertificates(generatedUrls);
+      
+      setIsGenerating(false);
+      setGenerationComplete(true);
 
-    // Simulate certificate generation
-    await new Promise((resolve) => setTimeout(resolve, 3000))
+      // Trigger confetti
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+      });
 
-    setIsGenerating(false)
-    setGenerationComplete(true)
-
-    // Trigger confetti
-    confetti({
-      particleCount: 100,
-      spread: 70,
-      origin: { y: 0.6 },
-    })
-
-    toast("Certificates Generated!", {
-      description: `${recipients.length} certificates have been generated and are ready for download.`,
-    })
-  }
+      toast("Certificates Generated!", {
+        description: `${recipients.length} certificates have been generated and are ready for download.`,
+      });
+    } catch (error) {
+      console.error("Error generating certificates:", error);
+      let errorMessage = "Failed to generate certificates";
+      
+      // Provide more specific error messages
+      if (error instanceof Error) {
+        if (error.name === "SecurityError") {
+          errorMessage = "Security error: Cannot access image due to CORS restrictions";
+        } else if (error.message.includes("tainted")) {
+          errorMessage = "Cannot export canvas due to cross-origin image restrictions";
+        } else {
+          errorMessage = `Error: ${error.message}`;
+        }
+      }
+      
+      toast.error(errorMessage);
+      setIsGenerating(false);
+    }
+  };
 
   const handleDownloadZip = () => {
-    // Simulate zip download
-    const link = document.createElement("a")
-    link.href = "#"
-    link.download = `certificates-${selectedCertificate}-${Date.now()}.zip`
-    link.click()
-
-    toast("Download Started", {
-      description: "Your certificate zip file is being downloaded.",
-    })
-  }
+    if (zipBlob) {
+      // Use FileSaver to download the zip
+      saveAs(zipBlob, `certificates-${selectedCertificate}-${Date.now()}.zip`);
+      
+      toast("Download Started", {
+        description: "Your certificate zip file is being downloaded.",
+      });
+    } else {
+      toast.error("No certificates available to download");
+    }
+  };
 
   const resetModal = () => {
-    setStep(1)
-    setSelectedCertificate("")
-    setRecipients([])
-    setGenerationComplete(false)
-  }
+    setStep(1);
+    setSelectedCertificate("");
+    setRecipients([]);
+    setGenerationComplete(false);
+    setCertificateConfig(null);
+    setZipBlob(null);
+    setGeneratedCertificates([]);
+  };
 
   const handleClose = () => {
-    resetModal()
-    onClose()
-  }
+    resetModal();
+    onClose();
+  };
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -346,10 +513,13 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
                     <CardContent className="p-4">
                       <div className="aspect-video bg-gray-100 rounded-lg mb-4 flex items-center justify-center border border-gray-200">
                         {certificate.image ? (
-                          <img
-                            src={certificate.image || "/placeholder.svg"}
+                          <Image 
+                            src={certificate.image}
                             alt={certificate.name}
+                            width={300}
+                            height={170}
                             className="w-full h-full object-cover rounded-lg"
+                            unoptimized
                           />
                         ) : (
                           <Award className="h-12 w-12 text-gray-400" />

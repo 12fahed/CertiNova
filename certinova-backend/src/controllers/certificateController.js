@@ -58,7 +58,14 @@ export const addCertificateConfig = async (req, res) => {
     const certificateConfig = new CertificateConfig({
       eventId,
       imagePath,
-      validFields
+      validFields: Object.fromEntries(
+        // Filter out any empty arrays or invalid coordinates
+        Object.entries(validFields).filter(([_, coords]) => 
+          Array.isArray(coords) && 
+          coords.length === 2 && 
+          coords.every(c => typeof c === 'number' && !isNaN(c) && c >= 0)
+        )
+      )
     });
 
     await certificateConfig.save();
@@ -186,6 +193,11 @@ export const updateCertificateConfig = async (req, res) => {
         }
 
         const coordinates = validFields[field];
+        if (coordinates === null || coordinates === undefined) {
+          // This is fine - field will be removed
+          continue;
+        }
+
         if (!Array.isArray(coordinates) || coordinates.length !== 2) {
           return res.status(400).json({
             success: false,
@@ -208,7 +220,14 @@ export const updateCertificateConfig = async (req, res) => {
         }
       }
 
-      certificateConfig.validFields = validFields;
+      // Filter out any invalid coordinates before saving
+      certificateConfig.validFields = Object.fromEntries(
+        Object.entries(validFields).filter(([_, coords]) => 
+          Array.isArray(coords) && 
+          coords.length === 2 && 
+          coords.every(c => typeof c === 'number' && !isNaN(c) && c >= 0)
+        )
+      );
     }
 
     await certificateConfig.save();

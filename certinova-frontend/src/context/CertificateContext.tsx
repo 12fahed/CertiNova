@@ -143,12 +143,15 @@ export const CertificateProvider: React.FC<CertificateProviderProps> = ({ childr
           typeof field.x === 'number' && 
           typeof field.y === 'number' && 
           !isNaN(field.x) && 
-          !isNaN(field.y)) {
+          !isNaN(field.y) &&
+          field.x >= 0 && 
+          field.y >= 0) {
         const fieldKey = key === 'organizationName' ? 'organisationName' : key as keyof ValidFields;
         validFields[fieldKey] = [field.x, field.y];
         console.log(`Added field ${fieldKey}:`, [field.x, field.y]);
       } else {
         console.log(`Skipping field ${key} - invalid or missing coordinates:`, field);
+        // Don't add anything to validFields for this key
       }
     });
 

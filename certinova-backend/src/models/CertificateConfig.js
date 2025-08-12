@@ -17,27 +17,58 @@ const validFieldsSchema = new mongoose.Schema({
   recipientName: {
     type: [Number],
     required: false,
-    default: undefined
+    default: undefined,
+    validate: {
+      validator: function(v) {
+        // Either undefined or an array with exactly 2 numbers
+        return v === undefined || (Array.isArray(v) && v.length === 2 && v.every(n => typeof n === 'number' && !isNaN(n) && n >= 0));
+      },
+      message: props => `${props.path} must be an array with exactly 2 non-negative numbers or undefined`
+    }
   },
   organisationName: {
     type: [Number],
     required: false,
-    default: undefined
+    default: undefined,
+    validate: {
+      validator: function(v) {
+        return v === undefined || (Array.isArray(v) && v.length === 2 && v.every(n => typeof n === 'number' && !isNaN(n) && n >= 0));
+      },
+      message: props => `${props.path} must be an array with exactly 2 non-negative numbers or undefined`
+    }
   },
   certificateLink: {
     type: [Number],
     required: false,
-    default: undefined
+    default: undefined,
+    validate: {
+      validator: function(v) {
+        return v === undefined || (Array.isArray(v) && v.length === 2 && v.every(n => typeof n === 'number' && !isNaN(n) && n >= 0));
+      },
+      message: props => `${props.path} must be an array with exactly 2 non-negative numbers or undefined`
+    }
   },
   certificateQR: {
     type: [Number],
     required: false,
-    default: undefined
+    default: undefined,
+    validate: {
+      validator: function(v) {
+        return v === undefined || (Array.isArray(v) && v.length === 2 && v.every(n => typeof n === 'number' && !isNaN(n) && n >= 0));
+      },
+      message: props => `${props.path} must be an array with exactly 2 non-negative numbers or undefined`
+    }
   },
   rank: {
     type: [Number],
     required: false,
-    default: undefined
+    default: undefined,
+    validate: {
+      validator: function(v) {
+        return v === undefined || (Array.isArray(v) && v.length === 2 && v.every(n => typeof n === 'number' && !isNaN(n) && n >= 0));
+      },
+      message: props => `${props.path} must be an array with exactly 2 non-negative numbers or undefined`
+    }
   }
 }, { _id: false });
 

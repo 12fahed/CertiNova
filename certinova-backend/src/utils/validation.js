@@ -18,6 +18,11 @@ export const VALID_FIELD_NAMES = [
  * @returns {Object} - { isValid: boolean, error: string }
  */
 export const validateCoordinates = (coordinates, fieldName) => {
+  // If the field is not provided (undefined or null), it's valid - will be removed
+  if (coordinates === undefined || coordinates === null) {
+    return { isValid: true, error: null };
+  }
+  
   if (!Array.isArray(coordinates)) {
     return {
       isValid: false,
