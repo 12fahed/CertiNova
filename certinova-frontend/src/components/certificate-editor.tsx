@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Upload, User, Building, Link, QrCode, Trophy, Download, Save, X } from "lucide-react"
 import { toast } from "sonner"
+import { useCertificates } from "@/context/CertificateContext"
 
 interface Certificate {
   id?: string
@@ -34,13 +35,15 @@ interface CertificateEditorProps {
 type FieldType = "recipientName" | "organizationName" | "certificateLink" | "certificateQR" | "rank"
 
 export function CertificateEditor({ certificate, onSave, onClose }: CertificateEditorProps) {
-  const [uploadedImage, setUploadedImage] = useState<string | null>(null)
-  const [selectedField, setSelectedField] = useState<FieldType | null>(null)
-  const [isSelecting, setIsSelecting] = useState(false)
-  const [selectionStart, setSelectionStart] = useState<{ x: number; y: number } | null>(null)
-  const [fields, setFields] = useState(certificate.fields || {})
-  const canvasRef = useRef<HTMLDivElement>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const { uploadTemplate, isLoading } = useCertificates();
+  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const [uploadedImagePath, setUploadedImagePath] = useState<string | null>(null);
+  const [selectedField, setSelectedField] = useState<FieldType | null>(null);
+  const [isSelecting, setIsSelecting] = useState(false);
+  const [selectionStart, setSelectionStart] = useState<{ x: number; y: number } | null>(null);
+  const [fields, setFields] = useState(certificate.fields || {});
+  const canvasRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fieldOptions = [
     {
@@ -74,16 +77,31 @@ export function CertificateEditor({ certificate, onSave, onClose }: CertificateE
     { key: "rank" as FieldType, label: "Rank", icon: Trophy, color: "text-red-600", bgColor: "bg-red-50" },
   ]
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        setUploadedImage(e.target?.result as string)
+      try {
+        // First, show a local preview for immediate feedback
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          setUploadedImage(e.target?.result as string);
+        };
+        reader.readAsDataURL(file);
+
+        // Upload to server and get the path
+        const imagePath = await uploadTemplate(file);
+        if (imagePath) {
+          setUploadedImagePath(imagePath);
+          // Update the image to use the server URL
+          const serverUrl = `http://localhost:5000${imagePath}`;
+          setUploadedImage(serverUrl);
+        }
+      } catch (error) {
+        console.error('Failed to upload template:', error);
+        toast.error('Failed to upload certificate template');
       }
-      reader.readAsDataURL(file)
     }
-  }
+  };
 
   const handleFieldSelect = (fieldType: FieldType) => {
     if (!uploadedImage) {
@@ -148,7 +166,7 @@ export function CertificateEditor({ certificate, onSave, onClose }: CertificateE
       name: certificate.name || "Untitled Certificate",
       event: certificate.event || "Unknown Event",
       date: certificate.date || new Date().toLocaleDateString(),
-      image: uploadedImage,
+      image: uploadedImagePath || uploadedImage || "/placeholder-certificate.jpg",
       fields,
     }
 

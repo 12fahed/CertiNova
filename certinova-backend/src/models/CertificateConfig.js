@@ -16,48 +16,28 @@ const coordinateSchema = new mongoose.Schema({
 const validFieldsSchema = new mongoose.Schema({
   recipientName: {
     type: [Number],
-    validate: {
-      validator: function(arr) {
-        return arr.length === 2;
-      },
-      message: 'recipientName coordinates must contain exactly 2 numbers [x, y]'
-    }
+    required: false,
+    default: undefined
   },
   organisationName: {
     type: [Number],
-    validate: {
-      validator: function(arr) {
-        return arr.length === 2;
-      },
-      message: 'organisationName coordinates must contain exactly 2 numbers [x, y]'
-    }
+    required: false,
+    default: undefined
   },
   certificateLink: {
     type: [Number],
-    validate: {
-      validator: function(arr) {
-        return arr.length === 2;
-      },
-      message: 'certificateLink coordinates must contain exactly 2 numbers [x, y]'
-    }
+    required: false,
+    default: undefined
   },
   certificateQR: {
     type: [Number],
-    validate: {
-      validator: function(arr) {
-        return arr.length === 2;
-      },
-      message: 'certificateQR coordinates must contain exactly 2 numbers [x, y]'
-    }
+    required: false,
+    default: undefined
   },
   rank: {
     type: [Number],
-    validate: {
-      validator: function(arr) {
-        return arr.length === 2;
-      },
-      message: 'rank coordinates must contain exactly 2 numbers [x, y]'
-    }
+    required: false,
+    default: undefined
   }
 }, { _id: false });
 

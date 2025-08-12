@@ -42,9 +42,9 @@ export default function DashboardPage() {
   const [showSendModal, setShowSendModal] = useState(false);
 
   // Load events when component mounts
-  useEffect(() => {
-    fetchEvents();
-  }, [fetchEvents]);
+  // useEffect(() => {
+  //   fetchEvents();
+  // }, [fetchEvents]);
 
   const handleCreateCertificate = async (eventName: string, issuerName: string) => {
     // First create the event
@@ -71,16 +71,25 @@ export default function DashboardPage() {
     }
   };
 
-  const handleSaveCertificate = async (updatedFields: Record<string, { x: number; y: number; width: number; height: number }>) => {
+  const handleSaveCertificate = async (updatedCertificate: { fields: Record<string, { x: number; y: number; width: number; height: number }>; image?: string }) => {
     if (!currentEvent) return;
 
+    console.log('handleSaveCertificate - updatedCertificate:', updatedCertificate);
+
+    // Extract the image path and fields from the certificate
+    const { fields: editorFields, image } = updatedCertificate;
+    
+    console.log('handleSaveCertificate - editorFields:', editorFields);
+    
     // Convert editor fields to API format
-    const validFields = convertEditorFieldsToValidFields(updatedFields);
+    const validFields = convertEditorFieldsToValidFields(editorFields);
+
+    console.log('handleSaveCertificate - validFields:', validFields);
 
     try {
       await createCertificateConfig({
         eventId: currentEvent.id,
-        imagePath: '/placeholder-certificate.jpg', // Default image path
+        imagePath: image || '/placeholder-certificate.jpg',
         validFields,
       });
       
@@ -348,7 +357,7 @@ export default function DashboardPage() {
                 {}
             }}
             onSave={(updatedCertificate) => {
-              handleSaveCertificate(updatedCertificate.fields);
+              handleSaveCertificate(updatedCertificate);
             }}
             onClose={() => {
               setShowEditor(false);

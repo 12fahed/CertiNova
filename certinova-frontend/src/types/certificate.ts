@@ -37,6 +37,19 @@ export interface CertificateConfigResponse {
   errors?: string[];
 }
 
+export interface UploadResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    filename: string;
+    originalName: string;
+    path: string;
+    fullUrl: string;
+    size: number;
+    mimetype: string;
+  };
+}
+
 // For the frontend editor compatibility
 export interface CertificateEditorField {
   x: number;

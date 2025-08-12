@@ -11,6 +11,7 @@ interface CertificateContextType {
   createCertificateConfig: (configData: CertificateConfigRequest) => Promise<CertificateConfig | null>;
   getCertificateConfig: (eventId: string) => Promise<CertificateConfig | null>;
   updateCertificateConfig: (configId: string, configData: Partial<CertificateConfigRequest>) => Promise<CertificateConfig | null>;
+  uploadTemplate: (file: File) => Promise<string | null>;
   convertEditorFieldsToValidFields: (editorFields: CertificateEditorFields) => ValidFields;
   convertValidFieldsToEditorFields: (validFields: ValidFields) => CertificateEditorFields;
 }
@@ -105,18 +106,53 @@ export const CertificateProvider: React.FC<CertificateProviderProps> = ({ childr
     }
   };
 
+  const uploadTemplate = async (file: File): Promise<string | null> => {
+    try {
+      setIsLoading(true);
+      const response = await certificateService.uploadTemplate(file);
+
+      if (response.success && response.data?.path) {
+        toast.success('Certificate template uploaded successfully!');
+        return response.data.path;
+      } else {
+        toast.error(response.message || 'Failed to upload certificate template');
+        return null;
+      }
+    } catch (error: unknown) {
+      console.error('Upload template error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to upload certificate template';
+      toast.error(errorMessage);
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Helper function to convert editor fields to API valid fields format
   const convertEditorFieldsToValidFields = (editorFields: CertificateEditorFields): ValidFields => {
+    console.log('convertEditorFieldsToValidFields - input:', editorFields);
+    
     const validFields: ValidFields = {};
     
     // Convert each field from {x, y, width, height} to [x, y] format
     Object.entries(editorFields).forEach(([key, field]) => {
-      if (field) {
+      console.log(`Processing field ${key}:`, field);
+      
+      // Only include fields that have valid coordinates
+      if (field && 
+          typeof field.x === 'number' && 
+          typeof field.y === 'number' && 
+          !isNaN(field.x) && 
+          !isNaN(field.y)) {
         const fieldKey = key === 'organizationName' ? 'organisationName' : key as keyof ValidFields;
         validFields[fieldKey] = [field.x, field.y];
+        console.log(`Added field ${fieldKey}:`, [field.x, field.y]);
+      } else {
+        console.log(`Skipping field ${key} - invalid or missing coordinates:`, field);
       }
     });
 
+    console.log('convertEditorFieldsToValidFields - output:', validFields);
     return validFields;
   };
 
@@ -146,6 +182,7 @@ export const CertificateProvider: React.FC<CertificateProviderProps> = ({ childr
     createCertificateConfig,
     getCertificateConfig,
     updateCertificateConfig,
+    uploadTemplate,
     convertEditorFieldsToValidFields,
     convertValidFieldsToEditorFields,
   };

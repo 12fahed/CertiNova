@@ -9,7 +9,7 @@ import { validateValidFields, isValidObjectId } from '../utils/validation.js';
 export const addCertificateConfig = async (req, res) => {
   try {
     const { eventId, imagePath, validFields } = req.body;
-
+    console.log(eventId,  " " , imagePath, " ", validFields)
     // Validation
     if (!eventId || !imagePath || !validFields) {
       return res.status(400).json({
@@ -237,6 +237,47 @@ export const updateCertificateConfig = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Internal server error'
+    });
+  }
+};
+
+// @desc    Upload certificate template image
+// @route   POST /api/certificates/upload-template
+// @access  Protected (should be protected later with JWT)
+export const uploadCertificateTemplate = async (req, res) => {
+  try {
+    // Check if file was uploaded
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'No file uploaded. Please select a certificate template image.'
+      });
+    }
+
+    // Generate the file URL
+    const fileUrl = `/uploads/${req.file.filename}`;
+    const fullPath = `${req.protocol}://${req.get('host')}${fileUrl}`;
+
+    res.status(200).json({
+      success: true,
+      message: 'Certificate template uploaded successfully',
+      data: {
+        filename: req.file.filename,
+        originalName: req.file.originalname,
+        path: fileUrl,
+        fullUrl: fullPath,
+        size: req.file.size,
+        mimetype: req.file.mimetype
+      }
+    });
+
+  } catch (error) {
+    console.error('Upload certificate template error:', error);
+
+    res.status(500).json({
+      success: false,
+      message: 'Failed to upload certificate template',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     });
   }
 };

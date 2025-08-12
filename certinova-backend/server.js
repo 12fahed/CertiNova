@@ -1,4 +1,5 @@
 import express from 'express';
+import path from 'path';
 import dotenv from 'dotenv';
 import connectDB from './src/config/database.js';
 import authRoutes from './src/routes/authRoutes.js';
@@ -22,6 +23,9 @@ app.use(logger);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+// Serve static files from uploads directory
+app.use('/uploads', express.static(path.join(process.cwd(), 'public', 'uploads')));
+
 // Routes
 app.get('/', (req, res) => {
   res.json({
@@ -40,7 +44,8 @@ app.get('/', (req, res) => {
       certificates: {
         addConfig: 'POST /api/certificates/addCertificateConfig',
         getConfig: 'GET /api/certificates/config/:eventId',
-        updateConfig: 'PUT /api/certificates/config/:configId'
+        updateConfig: 'PUT /api/certificates/config/:configId',
+        uploadTemplate: 'POST /api/certificates/upload-template'
       }
     }
   });
