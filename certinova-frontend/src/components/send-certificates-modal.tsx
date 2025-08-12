@@ -55,6 +55,7 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
 
   // Load certificate configuration when a certificate is selected
   useEffect(() => {
+    console.log("Selected certificate:", selectedCertificate);
     if (selectedCertificate) {
       const fetchCertificateConfig = async () => {
         try {
@@ -71,6 +72,14 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
       fetchCertificateConfig();
     }
   }, [selectedCertificate, getCertificateConfig]);
+
+  // Reset state when modal opens
+  useEffect(() => {
+    if (open) {
+      console.log("Modal opened with certificates:", certificates);
+      console.log("Certificate IDs:", certificates.map(c => ({ id: c.id, name: c.name })));
+    }
+  }, [open, certificates]);
 
   const handleAddManualRecipient = () => {
     if (manualName.trim()) {
@@ -533,7 +542,10 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
                         ? "border-blue-500 bg-blue-50"
                         : "border-gray-200 hover:border-gray-300 hover:shadow-sm"
                     }`}
-                    onClick={() => setSelectedCertificate(certificate.id)}
+                    onClick={() => {
+                      console.log('Selecting certificate:', certificate.id);
+                      setSelectedCertificate(certificate.id);
+                    }}
                   >
                     <CardContent className="p-4">
                       <div className="aspect-video bg-gray-100 rounded-lg mb-4 flex items-center justify-center border border-gray-200">
@@ -580,7 +592,7 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
                   disabled={!selectedCertificate}
                   className="flex-1 bg-blue-600 hover:bg-blue-700"
                 >
-                  Generate Certificates
+                  Generate Certificates {selectedCertificate && `(${selectedCertificate.slice(0, 8)}...)`}
                 </Button>
               </div>
             </motion.div>

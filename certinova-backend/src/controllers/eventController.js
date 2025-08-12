@@ -121,7 +121,14 @@ export const getEventsByOrganisation = async (req, res) => {
       events.map(async (event) => {
         const certificateConfig = await CertificateConfig.findOne({ eventId: event._id });
         return {
-          ...event.toObject(),
+          id: event._id, // Map _id to id
+          organisation: event.organisation,
+          organisationID: event.organisationID,
+          date: event.date,
+          eventName: event.eventName,
+          issuerName: event.issuerName,
+          createdAt: event.createdAt,
+          updatedAt: event.updatedAt,
           certificateConfig: certificateConfig ? {
             id: certificateConfig._id,
             imagePath: certificateConfig.imagePath,

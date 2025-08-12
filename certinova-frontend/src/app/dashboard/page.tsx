@@ -414,14 +414,16 @@ export default function DashboardPage() {
 
         <SendCertificatesModal
           open={showSendModal}
-          certificates={events.map(event => ({
-            id: event.id,
-            name: event.eventName,
-            event: event.issuerName,
-            date: new Date(event.date).toLocaleDateString(),
-            image: certificateImages[event.id] || '/placeholder-certificate.jpg',
-            fields: {}
-          }))}
+          certificates={events
+            .filter(event => event.certificateConfig) // Only include events with certificate configs
+            .map(event => ({
+              id: event.id,
+              name: event.eventName,
+              event: event.issuerName,
+              date: new Date(event.date).toLocaleDateString(),
+              image: certificateImages[event.id] || '/placeholder-certificate.jpg',
+              fields: {}
+            }))}
           onClose={() => setShowSendModal(false)}
         />
       </div>
