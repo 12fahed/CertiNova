@@ -396,7 +396,7 @@ export default function DashboardPage() {
               name: currentEvent.eventName,
               event: currentEvent.issuerName,
               date: new Date(currentEvent.date).toLocaleDateString(),
-              image: currentCertificateConfig?.imagePath || '/placeholder-certificate.jpg',
+              image: currentCertificateConfig?.imagePath,
               fields: currentCertificateConfig ? 
                 convertValidFieldsToEditorFields(currentCertificateConfig.validFields) : 
                 {}

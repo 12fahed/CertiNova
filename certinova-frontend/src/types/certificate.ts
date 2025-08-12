@@ -66,12 +66,67 @@ export interface CertificateEditorFields {
   rank?: CertificateEditorField;
 }
 
-export interface Certificate {
-  id?: string;
-  name: string;
-  event: string;
-  date: string;
-  image?: string;
-  eventId?: string;
-  fields: CertificateEditorFields;
+interface Certificate {
+  id?: string
+  name: string
+  event: string
+  date: string
+  image?: string
+  fields: {
+    recipientName?: {
+      x: number
+      y: number
+      width: number
+      height: number
+      fontSize?: number
+      fontFamily?: string
+      fontWeight?: string
+      fontStyle?: string
+      textDecoration?: string
+    }
+    organizationName?: {
+      x: number
+      y: number
+      width: number
+      height: number
+      fontSize?: number
+      fontFamily?: string
+      fontWeight?: string
+      fontStyle?: string
+      textDecoration?: string
+    }
+    certificateLink?: {
+      x: number
+      y: number
+      width: number
+      height: number
+      fontSize?: number
+      fontFamily?: string
+      fontWeight?: string
+      fontStyle?: string
+      textDecoration?: string
+    }
+    certificateQR?: {
+      x: number
+      y: number
+      width: number
+      height: number
+      fontSize?: number
+      fontFamily?: string
+      fontWeight?: string
+      fontStyle?: string
+      textDecoration?: string
+    }
+    rank?: {
+      x: number
+      y: number
+      width: number
+      height: number
+      fontSize?: number
+      fontFamily?: string
+      fontWeight?: string
+      fontStyle?: string
+      textDecoration?: string
+    }
+  }
 }
