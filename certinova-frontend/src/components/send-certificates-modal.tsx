@@ -205,42 +205,161 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
         console.log("Image dimensions:", img.width, img.height);
         
         // Helper function to calculate optimal font size and center text
-        const drawCenteredText = (text: string, boundingBox: [number, number, number, number], fontFamily: string = "Arial", maxFontSize: number = 72) => {
-          const [x, y, width, height] = boundingBox;
-          
-          // Start with a large font size and scale down until text fits
-          let fontSize = maxFontSize;
-          ctx.font = `${fontSize}px ${fontFamily}`;
-          
-          // Measure text and reduce font size until it fits within the bounding box
-          let textMetrics = ctx.measureText(text);
-          while ((textMetrics.width > width * 0.9 || fontSize > height * 0.8) && fontSize > 8) {
-            fontSize -= 2;
-            ctx.font = `${fontSize}px ${fontFamily}`;
-            textMetrics = ctx.measureText(text);
+        const drawTextInBox = (
+          text: string,
+          boundingBox: [number, number, number, number], // [x, y, width, height]
+          options: {
+            fontFamily?: string
+            fontWeight?: string
+            maxFontSize?: number
+            minFontSize?: number
+            padding?: number
+            lineHeight?: number
+            textAlign?: 'left' | 'center' | 'right'
+            verticalAlign?: 'top' | 'middle' | 'bottom'
+          } = {}
+        ) => {
+          const [x, y, width, height] = boundingBox
+          const {
+            fontFamily = 'Arial',
+            fontWeight = 'normal',
+            maxFontSize = 72,
+            minFontSize = 8,
+            padding = 0,
+            lineHeight = 1.2,
+            textAlign = 'center',
+            verticalAlign = 'middle'
+          } = options
+
+          // Calculate available space after padding
+          const availableWidth = width - padding * 2
+          const availableHeight = height - padding * 2
+
+          // Split text into words
+          const words = text.split(' ')
+          let lines: string[] = []
+          let currentLine = words[0]
+
+          // Function to measure text width
+          const measureText = (font: string, text: string) => {
+            ctx.font = font
+            return ctx.measureText(text).width
           }
-          
-          // Calculate centered position
-          const textX = x + (width - textMetrics.width) / 2;
-          const textY = y + (height + fontSize * 0.3) / 2; // 0.3 accounts for font baseline
-          
-          // Draw the text
-          ctx.fillText(text, textX, textY);
-          
-          console.log(`Drew "${text}" at (${textX}, ${textY}) with font size ${fontSize}px in bounding box [${x}, ${y}, ${width}, ${height}]`);
-        };
+
+          // Find optimal font size and line breaks
+          let fontSize = maxFontSize
+          let fits = false
+
+          while (fontSize >= minFontSize && !fits) {
+            // Test if single line fits
+            const testFont = `${fontWeight} ${fontSize}px ${fontFamily}`
+            const singleLineWidth = measureText(testFont, text)
+
+            if (singleLineWidth <= availableWidth) {
+              lines = [text]
+              fits = true
+            } else {
+              // Need to break into multiple lines
+              lines = []
+              currentLine = words[0]
+
+              for (let i = 1; i < words.length; i++) {
+                const testLine = currentLine + ' ' + words[i]
+                const testWidth = measureText(testFont, testLine)
+
+                if (testWidth <= availableWidth) {
+                  currentLine = testLine
+                } else {
+                  lines.push(currentLine)
+                  currentLine = words[i]
+                }
+              }
+              lines.push(currentLine)
+
+              // Check if all lines fit vertically
+              const totalHeight = fontSize * lines.length * lineHeight
+              fits = totalHeight <= availableHeight
+            }
+
+            if (!fits) {
+              fontSize -= 1
+            }
+          }
+
+          // If we couldn't make it fit even at min font size, use min size and truncate
+          if (!fits && fontSize <= minFontSize) {
+            fontSize = minFontSize
+            lines = [text.substring(0, Math.floor(availableWidth / (fontSize * 0.6))) + '...']
+          }
+
+          // Set final font
+          ctx.font = `${fontWeight} ${fontSize}px ${fontFamily}`
+          ctx.textAlign = textAlign
+          ctx.textBaseline = 'alphabetic'
+
+          // Calculate vertical position
+          const lineHeightPx = fontSize * lineHeight
+          const totalTextHeight = lines.length * lineHeightPx
+          let verticalPos = y + padding
+
+          if (verticalAlign === 'middle') {
+            verticalPos += (availableHeight - totalTextHeight) / 2 + fontSize
+          } else if (verticalAlign === 'bottom') {
+            verticalPos += availableHeight - totalTextHeight + fontSize
+          } else {
+            verticalPos += fontSize // Top alignment
+          }
+
+          // Draw each line
+          lines.forEach((line, i) => {
+            let horizontalPos = x + padding
+            if (textAlign === 'center') {
+              horizontalPos += availableWidth / 2
+            } else if (textAlign === 'right') {
+              horizontalPos += availableWidth
+            }
+
+            ctx.fillText(line, horizontalPos, verticalPos + i * lineHeightPx)
+          })
+
+          return {
+            fontSize,
+            lines,
+            actualHeight: lines.length * lineHeightPx,
+            boundingBox: [x, y, width, height]
+          }
+}
+
+        
+
         
         // Apply recipient name if coordinates exist
         if (certificateConfig.validFields.recipientName) {
           console.log("Recipient name coordinates:", certificateConfig.validFields.recipientName);
           ctx.fillStyle = "#000000";
-          drawCenteredText(recipient.name, certificateConfig.validFields.recipientName, "Arial", 72);
+          // drawCenteredText(recipient.name, certificateConfig.validFields.recipientName, "Arial", 72);
+          drawTextInBox(recipient.name, certificateConfig.validFields.recipientName, {
+            fontFamily: "Arial",
+            fontWeight: "bold",
+            maxFontSize: 72,
+            minFontSize: 12,
+            padding: 10,
+            textAlign: "center",
+            verticalAlign: "middle"
+          });
         }
         
         // Apply rank if coordinates exist and recipient has rank
         if (certificateConfig.validFields.rank && recipient.rank) {
           ctx.fillStyle = "#000000";
-          drawCenteredText(recipient.rank, certificateConfig.validFields.rank, "Arial", 48);
+          drawTextInBox(recipient.rank, certificateConfig.validFields.rank, {
+            fontFamily: "Arial",
+            maxFontSize: 48,
+            minFontSize: 10,
+            padding: 5,
+            textAlign: "center",
+            verticalAlign: "middle"
+          });
         }
         
         // Apply organisation name if coordinates exist
@@ -248,7 +367,14 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
           // You can get organisation name from the certificate config or make it configurable
           const orgName = certificateConfig.eventId?.organisation || "Sample Organization";
           ctx.fillStyle = "#000000";
-          drawCenteredText(orgName, certificateConfig.validFields.organisationName, "Arial", 36);
+          drawTextInBox(orgName, certificateConfig.validFields.organisationName, {
+            fontFamily: "Arial",
+            maxFontSize: 48,
+            minFontSize: 10,
+            padding: 5,
+            textAlign: "center",
+            verticalAlign: "middle"
+          });
         }
         
         // Convert canvas to blob
