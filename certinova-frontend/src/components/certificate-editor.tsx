@@ -36,8 +36,16 @@ type FieldType = "recipientName" | "organizationName" | "certificateLink" | "cer
 
 export function CertificateEditor({ certificate, onSave, onClose }: CertificateEditorProps) {
   const { uploadTemplate, isLoading } = useCertificates();
-  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
-  const [uploadedImagePath, setUploadedImagePath] = useState<string | null>(null);
+  const [uploadedImage, setUploadedImage] = useState<string | null>(
+    certificate.image && certificate.image.startsWith('/uploads') 
+      ? `http://localhost:5000${certificate.image}` 
+      : certificate.image || null
+  );
+  const [uploadedImagePath, setUploadedImagePath] = useState<string | null>(
+    certificate.image && certificate.image.startsWith('/uploads') 
+      ? certificate.image 
+      : null
+  );
   const [selectedField, setSelectedField] = useState<FieldType | null>(null);
   const [isSelecting, setIsSelecting] = useState(false);
   const [selectionStart, setSelectionStart] = useState<{ x: number; y: number } | null>(null);

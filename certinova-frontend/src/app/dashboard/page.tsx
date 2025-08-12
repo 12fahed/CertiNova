@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -40,11 +41,36 @@ export default function DashboardPage() {
   const [currentEvent, setCurrentEvent] = useState<Event | null>(null);
   const [currentCertificateConfig, setCurrentCertificateConfig] = useState<CertificateConfig | null>(null);
   const [showSendModal, setShowSendModal] = useState(false);
+  const [certificateImages, setCertificateImages] = useState<Record<string, string>>({});
 
   // Load events when component mounts
   // useEffect(() => {
   //   fetchEvents();
   // }, [fetchEvents]);
+
+  // Load certificate images for all events
+  useEffect(() => {
+    const loadCertificateImages = async () => {
+      const images: Record<string, string> = {};
+      
+      for (const event of events) {
+        try {
+          const config = await getCertificateConfig(event.id);
+          if (config && config.imagePath) {
+            images[event.id] = `http://localhost:5000${config.imagePath}`;
+          }
+        } catch (error) {
+          console.error(`Error loading certificate for event ${event.id}:`, error);
+        }
+      }
+      
+      setCertificateImages(images);
+    };
+    
+    if (events.length > 0) {
+      loadCertificateImages();
+    }
+  }, [events, getCertificateConfig]);
 
   const handleCreateCertificate = async (eventName: string, issuerName: string) => {
     // First create the event
@@ -87,11 +113,19 @@ export default function DashboardPage() {
     console.log('handleSaveCertificate - validFields:', validFields);
 
     try {
-      await createCertificateConfig({
+      const config = await createCertificateConfig({
         eventId: currentEvent.id,
         imagePath: image || '/placeholder-certificate.jpg',
         validFields,
       });
+
+      if (config && image) {
+        // Update the image in our local state
+        setCertificateImages(prev => ({
+          ...prev,
+          [currentEvent.id]: `http://localhost:5000${image}`
+        }));
+      }
       
       setShowEditor(false);
       setCurrentEvent(null);
@@ -107,6 +141,16 @@ export default function DashboardPage() {
     // Load certificate config for this event
     const config = await getCertificateConfig(event.id);
     setCurrentCertificateConfig(config);
+    
+    // Set the image path if available
+    if (config && config.imagePath) {
+      console.log('Certificate image path:', config.imagePath);
+      // Update the certificate images map
+      setCertificateImages(prev => ({
+        ...prev,
+        [event.id]: `http://localhost:5000${config.imagePath}`
+      }));
+    }
     
     setShowEditor(true);
   };
@@ -304,6 +348,20 @@ export default function DashboardPage() {
                           </Badge>
                         </div>
 
+                        {/* Certificate Image Preview */}
+                        {certificateImages[event.id] && (
+                          <div className="mb-4 rounded-md overflow-hidden border border-gray-200">
+                            <Image 
+                              src={certificateImages[event.id]} 
+                              alt={`Certificate for ${event.eventName}`}
+                              width={400}
+                              height={200}
+                              className="w-full h-48 object-cover object-center" 
+                              unoptimized // Use this for external images
+                            />
+                          </div>
+                        )}
+
                         <div className="flex items-center text-sm text-gray-500 mb-4">
                           <Calendar className="h-4 w-4 mr-1" />
                           {new Date(event.date).toLocaleDateString()}
@@ -351,7 +409,7 @@ export default function DashboardPage() {
               name: currentEvent.eventName,
               event: currentEvent.issuerName,
               date: new Date(currentEvent.date).toLocaleDateString(),
-              image: '/placeholder-certificate.jpg',
+              image: currentCertificateConfig?.imagePath || '/placeholder-certificate.jpg',
               fields: currentCertificateConfig ? 
                 convertValidFieldsToEditorFields(currentCertificateConfig.validFields) : 
                 {}
@@ -374,7 +432,7 @@ export default function DashboardPage() {
             name: event.eventName,
             event: event.issuerName,
             date: new Date(event.date).toLocaleDateString(),
-            image: '/placeholder-certificate.jpg',
+            image: certificateImages[event.id] || '/placeholder-certificate.jpg',
             fields: {}
           }))}
           onClose={() => setShowSendModal(false)}
