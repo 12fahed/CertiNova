@@ -71,16 +71,7 @@ export default function DashboardPage() {
 
     if (newEvent) {
       setCurrentEvent(newEvent);
-      
-      // Check if certificate config already exists for this event
-      const existingConfig = await getCertificateConfig(newEvent.id);
-      if (existingConfig) {
-        setCurrentCertificateConfig(existingConfig);
-      } else {
-        // Create a new empty config
-        setCurrentCertificateConfig(null);
-      }
-      
+      setCurrentCertificateConfig(null);
       setShowEditor(true);
       setShowCreateModal(false);
     }
@@ -110,6 +101,7 @@ export default function DashboardPage() {
 
       if (config && image) {
         // Update the image in our local state
+
         setCertificateImages(prev => ({
           ...prev,
           [currentEvent.id]: `http://localhost:5000${image}`
@@ -118,7 +110,9 @@ export default function DashboardPage() {
       
       setShowEditor(false);
       setCurrentEvent(null);
+      console.log("IN NEW: ", config)
       setCurrentCertificateConfig(null);
+      await fetchEvents();
     } catch (error) {
       console.error('Error saving certificate:', error);
     }
@@ -126,7 +120,7 @@ export default function DashboardPage() {
 
   const handleEditCertificate = async (event: Event) => {
     setCurrentEvent(event);
-    
+    console.log("BEGORE IF: ", event)
     // Use certificate config from event data (new backend response includes this)
     if (event.certificateConfig) {
       const config: CertificateConfig = {
@@ -141,6 +135,7 @@ export default function DashboardPage() {
     } else {
       // Fallback to API call if config not in event data (legacy support)
       const config = await getCertificateConfig(event.id);
+      console.log("IN EDIT: ", config)
       setCurrentCertificateConfig(config);
     }
     
