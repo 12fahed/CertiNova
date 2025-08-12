@@ -39,14 +39,6 @@ interface Recipient {
   rank?: string
 }
 
-interface CertificateCoordinates {
-  recipientName?: [number, number];
-  organisationName?: [number, number];
-  certificateLink?: [number, number];
-  certificateQR?: [number, number];
-  rank?: [number, number];
-}
-
 export function SendCertificatesModal({ open, onClose, certificates }: SendCertificatesModalProps) {
   const { getCertificateConfig } = useCertificates();
   const [step, setStep] = useState(1)
@@ -203,25 +195,51 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
         
         console.log("Image dimensions:", img.width, img.height);
         
+        // Helper function to calculate optimal font size and center text
+        const drawCenteredText = (text: string, boundingBox: [number, number, number, number], fontFamily: string = "Arial", maxFontSize: number = 72) => {
+          const [x, y, width, height] = boundingBox;
+          
+          // Start with a large font size and scale down until text fits
+          let fontSize = maxFontSize;
+          ctx.font = `${fontSize}px ${fontFamily}`;
+          
+          // Measure text and reduce font size until it fits within the bounding box
+          let textMetrics = ctx.measureText(text);
+          while ((textMetrics.width > width * 0.9 || fontSize > height * 0.8) && fontSize > 8) {
+            fontSize -= 2;
+            ctx.font = `${fontSize}px ${fontFamily}`;
+            textMetrics = ctx.measureText(text);
+          }
+          
+          // Calculate centered position
+          const textX = x + (width - textMetrics.width) / 2;
+          const textY = y + (height + fontSize * 0.3) / 2; // 0.3 accounts for font baseline
+          
+          // Draw the text
+          ctx.fillText(text, textX, textY);
+          
+          console.log(`Drew "${text}" at (${textX}, ${textY}) with font size ${fontSize}px in bounding box [${x}, ${y}, ${width}, ${height}]`);
+        };
+        
         // Apply recipient name if coordinates exist
         if (certificateConfig.validFields.recipientName) {
           console.log("Recipient name coordinates:", certificateConfig.validFields.recipientName);
-          ctx.font = "bold 36px Arial";
           ctx.fillStyle = "#000000";
-          const [x, y] = certificateConfig.validFields.recipientName;
-          
-          // Use coordinates directly since they're stored in actual image dimensions
-          ctx.fillText(recipient.name, x, y);
+          drawCenteredText(recipient.name, certificateConfig.validFields.recipientName, "Arial", 72);
         }
         
         // Apply rank if coordinates exist and recipient has rank
         if (certificateConfig.validFields.rank && recipient.rank) {
-          ctx.font = "bold 24px Arial";
           ctx.fillStyle = "#000000";
-          const [x, y] = certificateConfig.validFields.rank;
-          
-          // Use coordinates directly since they're stored in actual image dimensions
-          ctx.fillText(recipient.rank, x, y);
+          drawCenteredText(recipient.rank, certificateConfig.validFields.rank, "Arial", 48);
+        }
+        
+        // Apply organisation name if coordinates exist
+        if (certificateConfig.validFields.organisationName) {
+          // You can get organisation name from the certificate config or make it configurable
+          const orgName = certificateConfig.eventId?.organisation || "Sample Organization";
+          ctx.fillStyle = "#000000";
+          drawCenteredText(orgName, certificateConfig.validFields.organisationName, "Arial", 36);
         }
         
         // Convert canvas to blob

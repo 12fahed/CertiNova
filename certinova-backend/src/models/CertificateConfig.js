@@ -20,10 +20,12 @@ const validFieldsSchema = new mongoose.Schema({
     default: undefined,
     validate: {
       validator: function(v) {
-        // Either undefined or an array with exactly 2 numbers
-        return v === undefined || (Array.isArray(v) && v.length === 2 && v.every(n => typeof n === 'number' && !isNaN(n) && n >= 0));
+        // Either undefined or an array with exactly 4 numbers [x, y, width, height]
+        return v === undefined || (Array.isArray(v) && v.length === 4 && 
+               v.slice(0, 2).every(n => typeof n === 'number' && !isNaN(n) && n >= 0) &&
+               v.slice(2, 4).every(n => typeof n === 'number' && !isNaN(n) && n > 0));
       },
-      message: props => `${props.path} must be an array with exactly 2 non-negative numbers or undefined`
+      message: props => `${props.path} must be an array with exactly 4 numbers [x, y, width, height] where x,y >= 0 and width,height > 0`
     }
   },
   organisationName: {
@@ -32,9 +34,11 @@ const validFieldsSchema = new mongoose.Schema({
     default: undefined,
     validate: {
       validator: function(v) {
-        return v === undefined || (Array.isArray(v) && v.length === 2 && v.every(n => typeof n === 'number' && !isNaN(n) && n >= 0));
+        return v === undefined || (Array.isArray(v) && v.length === 4 && 
+               v.slice(0, 2).every(n => typeof n === 'number' && !isNaN(n) && n >= 0) &&
+               v.slice(2, 4).every(n => typeof n === 'number' && !isNaN(n) && n > 0));
       },
-      message: props => `${props.path} must be an array with exactly 2 non-negative numbers or undefined`
+      message: props => `${props.path} must be an array with exactly 4 numbers [x, y, width, height] where x,y >= 0 and width,height > 0`
     }
   },
   certificateLink: {
@@ -43,9 +47,11 @@ const validFieldsSchema = new mongoose.Schema({
     default: undefined,
     validate: {
       validator: function(v) {
-        return v === undefined || (Array.isArray(v) && v.length === 2 && v.every(n => typeof n === 'number' && !isNaN(n) && n >= 0));
+        return v === undefined || (Array.isArray(v) && v.length === 4 && 
+               v.slice(0, 2).every(n => typeof n === 'number' && !isNaN(n) && n >= 0) &&
+               v.slice(2, 4).every(n => typeof n === 'number' && !isNaN(n) && n > 0));
       },
-      message: props => `${props.path} must be an array with exactly 2 non-negative numbers or undefined`
+      message: props => `${props.path} must be an array with exactly 4 numbers [x, y, width, height] where x,y >= 0 and width,height > 0`
     }
   },
   certificateQR: {
@@ -54,9 +60,11 @@ const validFieldsSchema = new mongoose.Schema({
     default: undefined,
     validate: {
       validator: function(v) {
-        return v === undefined || (Array.isArray(v) && v.length === 2 && v.every(n => typeof n === 'number' && !isNaN(n) && n >= 0));
+        return v === undefined || (Array.isArray(v) && v.length === 4 && 
+               v.slice(0, 2).every(n => typeof n === 'number' && !isNaN(n) && n >= 0) &&
+               v.slice(2, 4).every(n => typeof n === 'number' && !isNaN(n) && n > 0));
       },
-      message: props => `${props.path} must be an array with exactly 2 non-negative numbers or undefined`
+      message: props => `${props.path} must be an array with exactly 4 numbers [x, y, width, height] where x,y >= 0 and width,height > 0`
     }
   },
   rank: {
@@ -65,9 +73,11 @@ const validFieldsSchema = new mongoose.Schema({
     default: undefined,
     validate: {
       validator: function(v) {
-        return v === undefined || (Array.isArray(v) && v.length === 2 && v.every(n => typeof n === 'number' && !isNaN(n) && n >= 0));
+        return v === undefined || (Array.isArray(v) && v.length === 4 && 
+               v.slice(0, 2).every(n => typeof n === 'number' && !isNaN(n) && n >= 0) &&
+               v.slice(2, 4).every(n => typeof n === 'number' && !isNaN(n) && n > 0));
       },
-      message: props => `${props.path} must be an array with exactly 2 non-negative numbers or undefined`
+      message: props => `${props.path} must be an array with exactly 4 numbers [x, y, width, height] where x,y >= 0 and width,height > 0`
     }
   }
 }, { _id: false });

@@ -134,21 +134,27 @@ export const CertificateProvider: React.FC<CertificateProviderProps> = ({ childr
     
     const validFields: ValidFields = {};
     
-    // Convert each field from {x, y, width, height} to [x, y] format
+    // Convert each field from {x, y, width, height} to [x, y, width, height] format
     Object.entries(editorFields).forEach(([key, field]) => {
       console.log(`Processing field ${key}:`, field);
       
-      // Only include fields that have valid coordinates
+      // Only include fields that have valid coordinates and dimensions
       if (field && 
           typeof field.x === 'number' && 
           typeof field.y === 'number' && 
+          typeof field.width === 'number' && 
+          typeof field.height === 'number' &&
           !isNaN(field.x) && 
           !isNaN(field.y) &&
+          !isNaN(field.width) && 
+          !isNaN(field.height) &&
           field.x >= 0 && 
-          field.y >= 0) {
+          field.y >= 0 &&
+          field.width > 0 && 
+          field.height > 0) {
         const fieldKey = key === 'organizationName' ? 'organisationName' : key as keyof ValidFields;
-        validFields[fieldKey] = [field.x, field.y];
-        console.log(`Added field ${fieldKey}:`, [field.x, field.y]);
+        validFields[fieldKey] = [field.x, field.y, field.width, field.height];
+        console.log(`Added field ${fieldKey}:`, [field.x, field.y, field.width, field.height]);
       } else {
         console.log(`Skipping field ${key} - invalid or missing coordinates:`, field);
         // Don't add anything to validFields for this key
@@ -163,15 +169,15 @@ export const CertificateProvider: React.FC<CertificateProviderProps> = ({ childr
   const convertValidFieldsToEditorFields = (validFields: ValidFields): CertificateEditorFields => {
     const editorFields: CertificateEditorFields = {};
     
-    // Convert each field from [x, y] to {x, y, width, height} format
+    // Convert each field from [x, y, width, height] to {x, y, width, height} format
     Object.entries(validFields).forEach(([key, coords]) => {
-      if (coords) {
+      if (coords && coords.length === 4) {
         const fieldKey = key === 'organisationName' ? 'organizationName' : key as keyof CertificateEditorFields;
         editorFields[fieldKey] = {
           x: coords[0],
           y: coords[1],
-          width: 200, // Default width
-          height: 40, // Default height
+          width: coords[2],
+          height: coords[3],
         };
       }
     });

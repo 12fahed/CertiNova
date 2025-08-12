@@ -8,11 +8,11 @@ export interface CertificateConfig {
 }
 
 export interface ValidFields {
-  recipientName?: [number, number];
-  organisationName?: [number, number];
-  certificateLink?: [number, number];
-  certificateQR?: [number, number];
-  rank?: [number, number];
+  recipientName?: [number, number, number, number]; // [x, y, width, height]
+  organisationName?: [number, number, number, number];
+  certificateLink?: [number, number, number, number];
+  certificateQR?: [number, number, number, number];
+  rank?: [number, number, number, number];
 }
 
 export interface CertificateConfigRequest {

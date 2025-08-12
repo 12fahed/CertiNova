@@ -13,7 +13,7 @@ export const VALID_FIELD_NAMES = [
 
 /**
  * Validate coordinate pair format and values
- * @param {Array} coordinates - Array of [x, y] coordinates
+ * @param {Array} coordinates - Array of [x, y, width, height] coordinates
  * @param {string} fieldName - Name of the field being validated
  * @returns {Object} - { isValid: boolean, error: string }
  */
@@ -30,10 +30,10 @@ export const validateCoordinates = (coordinates, fieldName) => {
     };
   }
 
-  if (coordinates.length !== 2) {
+  if (coordinates.length !== 4) {
     return {
       isValid: false,
-      error: `Field ${fieldName} must have exactly 2 coordinates [x, y]`
+      error: `Field ${fieldName} must have exactly 4 coordinates [x, y, width, height]`
     };
   }
 
@@ -44,10 +44,17 @@ export const validateCoordinates = (coordinates, fieldName) => {
     };
   }
 
-  if (coordinates.some(coord => coord < 0)) {
+  if (coordinates.slice(0, 2).some(coord => coord < 0)) {
     return {
       isValid: false,
-      error: `Field ${fieldName} coordinates must be non-negative`
+      error: `Field ${fieldName} x and y coordinates must be non-negative`
+    };
+  }
+
+  if (coordinates.slice(2, 4).some(coord => coord <= 0)) {
+    return {
+      isValid: false,
+      error: `Field ${fieldName} width and height must be positive`
     };
   }
 

@@ -216,8 +216,29 @@ export function CertificateEditor({ certificate, onSave, onClose }: CertificateE
 
       // Add sample text to each field
       if (ctx) {
-        ctx.font = "24px Arial"
         ctx.fillStyle = "#000000"
+
+        // Helper function to draw centered text (same as in send-certificates-modal)
+        const drawCenteredText = (text: string, position: { x: number; y: number; width: number; height: number }, maxFontSize: number = 72) => {
+          // Start with a font size and scale down until text fits
+          let fontSize = maxFontSize;
+          ctx.font = `${fontSize}px Arial`;
+          
+          // Measure text and reduce font size until it fits within the bounding box
+          let textMetrics = ctx.measureText(text);
+          while ((textMetrics.width > position.width * 0.9 || fontSize > position.height * 0.8) && fontSize > 8) {
+            fontSize -= 2;
+            ctx.font = `${fontSize}px Arial`;
+            textMetrics = ctx.measureText(text);
+          }
+          
+          // Calculate centered position
+          const textX = position.x + (position.width - textMetrics.width) / 2;
+          const textY = position.y + (position.height + fontSize * 0.3) / 2; // 0.3 accounts for font baseline
+          
+          // Draw the text
+          ctx.fillText(text, textX, textY);
+        };
 
         Object.entries(fields).forEach(([fieldType, position]) => {
           let sampleText = ""
@@ -239,7 +260,7 @@ export function CertificateEditor({ certificate, onSave, onClose }: CertificateE
               break
           }
 
-          ctx.fillText(sampleText, position.x, position.y + 20)
+          drawCenteredText(sampleText, position, 72)
         })
       }
 

@@ -62,8 +62,9 @@ export const addCertificateConfig = async (req, res) => {
         // Filter out any empty arrays or invalid coordinates
         Object.entries(validFields).filter(([_, coords]) => 
           Array.isArray(coords) && 
-          coords.length === 2 && 
-          coords.every(c => typeof c === 'number' && !isNaN(c) && c >= 0)
+          coords.length === 4 && 
+          coords.slice(0, 2).every(c => typeof c === 'number' && !isNaN(c) && c >= 0) &&
+          coords.slice(2, 4).every(c => typeof c === 'number' && !isNaN(c) && c > 0)
         )
       )
     });
@@ -198,10 +199,10 @@ export const updateCertificateConfig = async (req, res) => {
           continue;
         }
 
-        if (!Array.isArray(coordinates) || coordinates.length !== 2) {
+        if (!Array.isArray(coordinates) || coordinates.length !== 4) {
           return res.status(400).json({
             success: false,
-            message: `Field ${field} must be an array with exactly 2 numbers [x, y]`
+            message: `Field ${field} must be an array with exactly 4 numbers [x, y, width, height]`
           });
         }
 
@@ -212,10 +213,17 @@ export const updateCertificateConfig = async (req, res) => {
           });
         }
 
-        if (coordinates.some(coord => coord < 0)) {
+        if (coordinates.slice(0, 2).some(coord => coord < 0)) {
           return res.status(400).json({
             success: false,
-            message: `Field ${field} coordinates must be non-negative`
+            message: `Field ${field} x and y coordinates must be non-negative`
+          });
+        }
+
+        if (coordinates.slice(2, 4).some(coord => coord <= 0)) {
+          return res.status(400).json({
+            success: false,
+            message: `Field ${field} width and height must be positive`
           });
         }
       }
@@ -224,8 +232,9 @@ export const updateCertificateConfig = async (req, res) => {
       certificateConfig.validFields = Object.fromEntries(
         Object.entries(validFields).filter(([_, coords]) => 
           Array.isArray(coords) && 
-          coords.length === 2 && 
-          coords.every(c => typeof c === 'number' && !isNaN(c) && c >= 0)
+          coords.length === 4 && 
+          coords.slice(0, 2).every(c => typeof c === 'number' && !isNaN(c) && c >= 0) &&
+          coords.slice(2, 4).every(c => typeof c === 'number' && !isNaN(c) && c > 0)
         )
       );
     }
