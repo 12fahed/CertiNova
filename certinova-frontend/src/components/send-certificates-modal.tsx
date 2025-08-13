@@ -360,8 +360,19 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
         
         // Apply organisation name if coordinates exist
         if (certificateConfig.validFields.organisationName) {
-          // You can get organisation name from user context or make it configurable
-          const orgName = "Sample Organization"; // TODO: Make this configurable
+          // Get organisation name from localStorage
+          let orgName = "Sample Organization"; // Default fallback
+          try {
+            const userDataString = localStorage.getItem("certinova_user");
+            if (userDataString) {
+              const userData = JSON.parse(userDataString);
+              if (userData && userData.organisation) {
+                orgName = userData.organisation;
+              }
+            }
+          } catch (error) {
+            console.error("Error reading organization from localStorage:", error);
+          }
           drawCenteredText(orgName, certificateConfig.validFields.organisationName, 72, 'organisationName');
         }
 
