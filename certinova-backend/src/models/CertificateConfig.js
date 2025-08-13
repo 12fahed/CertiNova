@@ -1,84 +1,111 @@
 import mongoose from 'mongoose';
 
-// Schema for valid field coordinates
-const coordinateSchema = new mongoose.Schema({
+// Schema for field styling properties
+const fieldStyleSchema = new mongoose.Schema({
+  fontSize: {
+    type: Number,
+    default: 24,
+    min: 8,
+    max: 200
+  },
+  fontFamily: {
+    type: String,
+    default: 'Arial',
+    enum: ['Arial', 'Times New Roman', 'Helvetica', 'Georgia', 'Verdana', 'Trebuchet MS', 'Comic Sans MS', 'Impact', 'Lucida Console', 'Tahoma']
+  },
+  fontWeight: {
+    type: String,
+    default: 'normal',
+    enum: ['normal', 'bold']
+  },
+  fontStyle: {
+    type: String,
+    default: 'normal',
+    enum: ['normal', 'italic']
+  },
+  textDecoration: {
+    type: String,
+    default: 'none',
+    enum: ['none', 'underline']
+  }
+}, { _id: false });
+
+// Schema for individual field with coordinates and styling
+const fieldSchema = new mongoose.Schema({
   x: {
     type: Number,
-    required: true
+    required: true,
+    min: 0
   },
   y: {
     type: Number,
-    required: true
+    required: true,
+    min: 0
+  },
+  width: {
+    type: Number,
+    required: true,
+    min: 1
+  },
+  height: {
+    type: Number,
+    required: true,
+    min: 1
+  },
+  fontSize: {
+    type: Number,
+    default: 24,
+    min: 8,
+    max: 200
+  },
+  fontFamily: {
+    type: String,
+    default: 'Arial',
+    enum: ['Arial', 'Times New Roman', 'Helvetica', 'Georgia', 'Verdana', 'Trebuchet MS', 'Comic Sans MS', 'Impact', 'Lucida Console', 'Tahoma']
+  },
+  fontWeight: {
+    type: String,
+    default: 'normal',
+    enum: ['normal', 'bold']
+  },
+  fontStyle: {
+    type: String,
+    default: 'normal',
+    enum: ['normal', 'italic']
+  },
+  textDecoration: {
+    type: String,
+    default: 'none',
+    enum: ['none', 'underline']
   }
 }, { _id: false });
 
 // Schema for valid fields with optional fields
 const validFieldsSchema = new mongoose.Schema({
   recipientName: {
-    type: [Number],
+    type: fieldSchema,
     required: false,
-    default: undefined,
-    validate: {
-      validator: function(v) {
-        // Either undefined or an array with exactly 4 numbers [x, y, width, height]
-        return v === undefined || (Array.isArray(v) && v.length === 4 && 
-               v.slice(0, 2).every(n => typeof n === 'number' && !isNaN(n) && n >= 0) &&
-               v.slice(2, 4).every(n => typeof n === 'number' && !isNaN(n) && n > 0));
-      },
-      message: props => `${props.path} must be an array with exactly 4 numbers [x, y, width, height] where x,y >= 0 and width,height > 0`
-    }
+    default: undefined
   },
   organisationName: {
-    type: [Number],
+    type: fieldSchema,
     required: false,
-    default: undefined,
-    validate: {
-      validator: function(v) {
-        return v === undefined || (Array.isArray(v) && v.length === 4 && 
-               v.slice(0, 2).every(n => typeof n === 'number' && !isNaN(n) && n >= 0) &&
-               v.slice(2, 4).every(n => typeof n === 'number' && !isNaN(n) && n > 0));
-      },
-      message: props => `${props.path} must be an array with exactly 4 numbers [x, y, width, height] where x,y >= 0 and width,height > 0`
-    }
+    default: undefined
   },
   certificateLink: {
-    type: [Number],
+    type: fieldSchema,
     required: false,
-    default: undefined,
-    validate: {
-      validator: function(v) {
-        return v === undefined || (Array.isArray(v) && v.length === 4 && 
-               v.slice(0, 2).every(n => typeof n === 'number' && !isNaN(n) && n >= 0) &&
-               v.slice(2, 4).every(n => typeof n === 'number' && !isNaN(n) && n > 0));
-      },
-      message: props => `${props.path} must be an array with exactly 4 numbers [x, y, width, height] where x,y >= 0 and width,height > 0`
-    }
+    default: undefined
   },
   certificateQR: {
-    type: [Number],
+    type: fieldSchema,
     required: false,
-    default: undefined,
-    validate: {
-      validator: function(v) {
-        return v === undefined || (Array.isArray(v) && v.length === 4 && 
-               v.slice(0, 2).every(n => typeof n === 'number' && !isNaN(n) && n >= 0) &&
-               v.slice(2, 4).every(n => typeof n === 'number' && !isNaN(n) && n > 0));
-      },
-      message: props => `${props.path} must be an array with exactly 4 numbers [x, y, width, height] where x,y >= 0 and width,height > 0`
-    }
+    default: undefined
   },
   rank: {
-    type: [Number],
+    type: fieldSchema,
     required: false,
-    default: undefined,
-    validate: {
-      validator: function(v) {
-        return v === undefined || (Array.isArray(v) && v.length === 4 && 
-               v.slice(0, 2).every(n => typeof n === 'number' && !isNaN(n) && n >= 0) &&
-               v.slice(2, 4).every(n => typeof n === 'number' && !isNaN(n) && n > 0));
-      },
-      message: props => `${props.path} must be an array with exactly 4 numbers [x, y, width, height] where x,y >= 0 and width,height > 0`
-    }
+    default: undefined
   }
 }, { _id: false });
 

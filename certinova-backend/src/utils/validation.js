@@ -11,58 +11,116 @@ export const VALID_FIELD_NAMES = [
   'rank'
 ];
 
+// Valid font families
+export const VALID_FONT_FAMILIES = [
+  'Arial',
+  'Times New Roman',
+  'Helvetica',
+  'Georgia',
+  'Verdana',
+  'Trebuchet MS',
+  'Comic Sans MS',
+  'Impact',
+  'Lucida Console',
+  'Tahoma'
+];
+
 /**
- * Validate coordinate pair format and values
- * @param {Array} coordinates - Array of [x, y, width, height] coordinates
+ * Validate field object format and values
+ * @param {Object} field - Field object with coordinates and styling
  * @param {string} fieldName - Name of the field being validated
  * @returns {Object} - { isValid: boolean, error: string }
  */
-export const validateCoordinates = (coordinates, fieldName) => {
+export const validateField = (field, fieldName) => {
   // If the field is not provided (undefined or null), it's valid - will be removed
-  if (coordinates === undefined || coordinates === null) {
+  if (field === undefined || field === null) {
     return { isValid: true, error: null };
   }
   
-  if (!Array.isArray(coordinates)) {
+  if (typeof field !== 'object' || Array.isArray(field)) {
     return {
       isValid: false,
-      error: `Field ${fieldName} must be an array`
+      error: `Field ${fieldName} must be an object`
     };
   }
 
-  if (coordinates.length !== 4) {
-    return {
-      isValid: false,
-      error: `Field ${fieldName} must have exactly 4 coordinates [x, y, width, height]`
-    };
+  // Validate required coordinate properties
+  const requiredProps = ['x', 'y', 'width', 'height'];
+  for (const prop of requiredProps) {
+    if (typeof field[prop] !== 'number') {
+      return {
+        isValid: false,
+        error: `Field ${fieldName}.${prop} must be a number`
+      };
+    }
+    
+    if (!Number.isFinite(field[prop])) {
+      return {
+        isValid: false,
+        error: `Field ${fieldName}.${prop} must be a finite number`
+      };
+    }
   }
 
-  if (!coordinates.every(coord => typeof coord === 'number')) {
-    return {
-      isValid: false,
-      error: `Field ${fieldName} coordinates must be numbers`
-    };
-  }
-
-  if (coordinates.slice(0, 2).some(coord => coord < 0)) {
+  // Validate coordinate values
+  if (field.x < 0 || field.y < 0) {
     return {
       isValid: false,
       error: `Field ${fieldName} x and y coordinates must be non-negative`
     };
   }
 
-  if (coordinates.slice(2, 4).some(coord => coord <= 0)) {
+  if (field.width <= 0 || field.height <= 0) {
     return {
       isValid: false,
       error: `Field ${fieldName} width and height must be positive`
     };
   }
 
-  if (coordinates.some(coord => !Number.isFinite(coord))) {
-    return {
-      isValid: false,
-      error: `Field ${fieldName} coordinates must be finite numbers`
-    };
+  // Validate optional styling properties
+  if (field.fontSize !== undefined) {
+    if (typeof field.fontSize !== 'number' || field.fontSize < 8 || field.fontSize > 200) {
+      return {
+        isValid: false,
+        error: `Field ${fieldName}.fontSize must be a number between 8 and 200`
+      };
+    }
+  }
+
+  if (field.fontFamily !== undefined) {
+    if (typeof field.fontFamily !== 'string' || !VALID_FONT_FAMILIES.includes(field.fontFamily)) {
+      return {
+        isValid: false,
+        error: `Field ${fieldName}.fontFamily must be one of: ${VALID_FONT_FAMILIES.join(', ')}`
+      };
+    }
+  }
+
+  if (field.fontWeight !== undefined) {
+    if (!['normal', 'bold'].includes(field.fontWeight)) {
+      return {
+        isValid: false,
+        error: `Field ${fieldName}.fontWeight must be 'normal' or 'bold'`
+      };
+    }
+  }
+
+  if (field.fontStyle !== undefined) {
+    if (!['normal', 'italic'].includes(field.fontStyle)) {
+      return {
+        isValid: false,
+        error: `Field ${fieldName}.fontStyle must be 'normal' or 'italic'`
+      };
+    }
+  }
+
+  if (field.textDecoration !== undefined) {
+    if (!['none', 'underline'].includes(field.textDecoration)) {
+      return {
+        isValid: false,
+        error: `Field ${fieldName}.textDecoration must be 'none' or 'underline'`
+      };
+    }
   }
 
   return { isValid: true, error: null };
@@ -70,7 +128,7 @@ export const validateCoordinates = (coordinates, fieldName) => {
 
 /**
  * Validate entire validFields object
- * @param {Object} validFields - Object containing field coordinates
+ * @param {Object} validFields - Object containing field objects
  * @returns {Object} - { isValid: boolean, errors: Array }
  */
 export const validateValidFields = (validFields) => {
@@ -98,10 +156,10 @@ export const validateValidFields = (validFields) => {
     errors.push(`Invalid field names: ${invalidFields.join(', ')}. Allowed fields: ${VALID_FIELD_NAMES.join(', ')}`);
   }
 
-  // Validate each field's coordinates
+  // Validate each field object
   for (const field of providedFields) {
     if (VALID_FIELD_NAMES.includes(field)) {
-      const validation = validateCoordinates(validFields[field], field);
+      const validation = validateField(validFields[field], field);
       if (!validation.isValid) {
         errors.push(validation.error);
       }

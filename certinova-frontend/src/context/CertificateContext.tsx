@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState } from 'react';
-import { CertificateConfig, CertificateConfigRequest, ValidFields, CertificateEditorFields } from '@/types/certificate';
+import { CertificateConfig, CertificateConfigRequest, ValidFields, ValidField, CertificateEditorFields } from '@/types/certificate';
 import { certificateService } from '@/services/certificate';
 import { toast } from 'sonner';
 
@@ -134,7 +134,7 @@ export const CertificateProvider: React.FC<CertificateProviderProps> = ({ childr
     
     const validFields: ValidFields = {};
     
-    // Convert each field from {x, y, width, height} to [x, y, width, height] format
+    // Convert each field from editor format to API format (keeping all properties)
     Object.entries(editorFields).forEach(([key, field]) => {
       console.log(`Processing field ${key}:`, field);
       
@@ -152,12 +152,38 @@ export const CertificateProvider: React.FC<CertificateProviderProps> = ({ childr
           field.y >= 0 &&
           field.width > 0 && 
           field.height > 0) {
+        
         const fieldKey = key === 'organizationName' ? 'organisationName' : key as keyof ValidFields;
-        validFields[fieldKey] = [field.x, field.y, field.width, field.height];
-        console.log(`Added field ${fieldKey}:`, [field.x, field.y, field.width, field.height]);
+        
+        // Create the complete field object with styling properties
+        const validField: ValidField = {
+          x: field.x,
+          y: field.y,
+          width: field.width,
+          height: field.height,
+        };
+
+        // Add styling properties if they exist
+        if (field.fontSize !== undefined) {
+          validField.fontSize = field.fontSize;
+        }
+        if (field.fontFamily !== undefined) {
+          validField.fontFamily = field.fontFamily;
+        }
+        if (field.fontWeight !== undefined) {
+          validField.fontWeight = field.fontWeight;
+        }
+        if (field.fontStyle !== undefined) {
+          validField.fontStyle = field.fontStyle;
+        }
+        if (field.textDecoration !== undefined) {
+          validField.textDecoration = field.textDecoration;
+        }
+
+        validFields[fieldKey] = validField;
+        console.log(`Added field ${fieldKey}:`, validField);
       } else {
         console.log(`Skipping field ${key} - invalid or missing coordinates:`, field);
-        // Don't add anything to validFields for this key
       }
     });
 
@@ -169,15 +195,20 @@ export const CertificateProvider: React.FC<CertificateProviderProps> = ({ childr
   const convertValidFieldsToEditorFields = (validFields: ValidFields): CertificateEditorFields => {
     const editorFields: CertificateEditorFields = {};
     
-    // Convert each field from [x, y, width, height] to {x, y, width, height} format
-    Object.entries(validFields).forEach(([key, coords]) => {
-      if (coords && coords.length === 4) {
+    // Convert each field from API format to editor format
+    Object.entries(validFields).forEach(([key, field]) => {
+      if (field && typeof field === 'object' && 'x' in field) {
         const fieldKey = key === 'organisationName' ? 'organizationName' : key as keyof CertificateEditorFields;
         editorFields[fieldKey] = {
-          x: coords[0],
-          y: coords[1],
-          width: coords[2],
-          height: coords[3],
+          x: field.x,
+          y: field.y,
+          width: field.width,
+          height: field.height,
+          fontSize: field.fontSize,
+          fontFamily: field.fontFamily,
+          fontWeight: field.fontWeight,
+          fontStyle: field.fontStyle,
+          textDecoration: field.textDecoration,
         };
       }
     });

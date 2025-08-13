@@ -59,12 +59,19 @@ export const addCertificateConfig = async (req, res) => {
       eventId,
       imagePath,
       validFields: Object.fromEntries(
-        // Filter out any empty arrays or invalid coordinates
-        Object.entries(validFields).filter(([_, coords]) => 
-          Array.isArray(coords) && 
-          coords.length === 4 && 
-          coords.slice(0, 2).every(c => typeof c === 'number' && !isNaN(c) && c >= 0) &&
-          coords.slice(2, 4).every(c => typeof c === 'number' && !isNaN(c) && c > 0)
+        // Filter out any invalid field objects
+        Object.entries(validFields).filter(([_, fieldObj]) => 
+          fieldObj && 
+          typeof fieldObj === 'object' && 
+          !Array.isArray(fieldObj) &&
+          typeof fieldObj.x === 'number' && 
+          typeof fieldObj.y === 'number' && 
+          typeof fieldObj.width === 'number' && 
+          typeof fieldObj.height === 'number' &&
+          fieldObj.x >= 0 && 
+          fieldObj.y >= 0 && 
+          fieldObj.width > 0 && 
+          fieldObj.height > 0
         )
       )
     });
@@ -181,60 +188,30 @@ export const updateCertificateConfig = async (req, res) => {
     }
 
     if (validFields) {
-      // Validate validFields structure (same validation as in addCertificateConfig)
-      const allowedFields = ['recipientName', 'organisationName', 'certificateLink', 'certificateQR', 'rank'];
-      const providedFields = Object.keys(validFields);
-      
-      for (const field of providedFields) {
-        if (!allowedFields.includes(field)) {
-          return res.status(400).json({
-            success: false,
-            message: `Invalid field: ${field}. Allowed fields are: ${allowedFields.join(', ')}`
-          });
-        }
-
-        const coordinates = validFields[field];
-        if (coordinates === null || coordinates === undefined) {
-          // This is fine - field will be removed
-          continue;
-        }
-
-        if (!Array.isArray(coordinates) || coordinates.length !== 4) {
-          return res.status(400).json({
-            success: false,
-            message: `Field ${field} must be an array with exactly 4 numbers [x, y, width, height]`
-          });
-        }
-
-        if (!coordinates.every(coord => typeof coord === 'number')) {
-          return res.status(400).json({
-            success: false,
-            message: `Field ${field} coordinates must be numbers`
-          });
-        }
-
-        if (coordinates.slice(0, 2).some(coord => coord < 0)) {
-          return res.status(400).json({
-            success: false,
-            message: `Field ${field} x and y coordinates must be non-negative`
-          });
-        }
-
-        if (coordinates.slice(2, 4).some(coord => coord <= 0)) {
-          return res.status(400).json({
-            success: false,
-            message: `Field ${field} width and height must be positive`
-          });
-        }
+      // Validate validFields structure using the updated validation
+      const validation = validateValidFields(validFields);
+      if (!validation.isValid) {
+        return res.status(400).json({
+          success: false,
+          message: 'Validation error',
+          errors: validation.errors
+        });
       }
 
-      // Filter out any invalid coordinates before saving
+      // Filter out any invalid field objects before saving
       certificateConfig.validFields = Object.fromEntries(
-        Object.entries(validFields).filter(([_, coords]) => 
-          Array.isArray(coords) && 
-          coords.length === 4 && 
-          coords.slice(0, 2).every(c => typeof c === 'number' && !isNaN(c) && c >= 0) &&
-          coords.slice(2, 4).every(c => typeof c === 'number' && !isNaN(c) && c > 0)
+        Object.entries(validFields).filter(([_, fieldObj]) => 
+          fieldObj && 
+          typeof fieldObj === 'object' && 
+          !Array.isArray(fieldObj) &&
+          typeof fieldObj.x === 'number' && 
+          typeof fieldObj.y === 'number' && 
+          typeof fieldObj.width === 'number' && 
+          typeof fieldObj.height === 'number' &&
+          fieldObj.x >= 0 && 
+          fieldObj.y >= 0 && 
+          fieldObj.width > 0 && 
+          fieldObj.height > 0
         )
       );
     }

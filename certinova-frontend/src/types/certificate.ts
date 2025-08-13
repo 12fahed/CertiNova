@@ -8,11 +8,23 @@ export interface CertificateConfig {
 }
 
 export interface ValidFields {
-  recipientName?: [number, number, number, number]; // [x, y, width, height]
-  organisationName?: [number, number, number, number];
-  certificateLink?: [number, number, number, number];
-  certificateQR?: [number, number, number, number];
-  rank?: [number, number, number, number];
+  recipientName?: ValidField;
+  organisationName?: ValidField;
+  certificateLink?: ValidField;
+  certificateQR?: ValidField;
+  rank?: ValidField;
+}
+
+export interface ValidField {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  fontSize?: number;
+  fontFamily?: string;
+  fontWeight?: string;
+  fontStyle?: string;
+  textDecoration?: string;
 }
 
 export interface CertificateConfigRequest {
@@ -56,6 +68,11 @@ export interface CertificateEditorField {
   y: number;
   width: number;
   height: number;
+  fontSize?: number;
+  fontFamily?: string;
+  fontWeight?: string;
+  fontStyle?: string;
+  textDecoration?: string;
 }
 
 export interface CertificateEditorFields {
@@ -66,67 +83,3 @@ export interface CertificateEditorFields {
   rank?: CertificateEditorField;
 }
 
-interface Certificate {
-  id?: string
-  name: string
-  event: string
-  date: string
-  image?: string
-  fields: {
-    recipientName?: {
-      x: number
-      y: number
-      width: number
-      height: number
-      fontSize?: number
-      fontFamily?: string
-      fontWeight?: string
-      fontStyle?: string
-      textDecoration?: string
-    }
-    organizationName?: {
-      x: number
-      y: number
-      width: number
-      height: number
-      fontSize?: number
-      fontFamily?: string
-      fontWeight?: string
-      fontStyle?: string
-      textDecoration?: string
-    }
-    certificateLink?: {
-      x: number
-      y: number
-      width: number
-      height: number
-      fontSize?: number
-      fontFamily?: string
-      fontWeight?: string
-      fontStyle?: string
-      textDecoration?: string
-    }
-    certificateQR?: {
-      x: number
-      y: number
-      width: number
-      height: number
-      fontSize?: number
-      fontFamily?: string
-      fontWeight?: string
-      fontStyle?: string
-      textDecoration?: string
-    }
-    rank?: {
-      x: number
-      y: number
-      width: number
-      height: number
-      fontSize?: number
-      fontFamily?: string
-      fontWeight?: string
-      fontStyle?: string
-      textDecoration?: string
-    }
-  }
-}
