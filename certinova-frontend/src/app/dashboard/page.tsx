@@ -34,12 +34,14 @@ export default function DashboardPage() {
   const { 
     createCertificateConfig, 
     getCertificateConfig,
+    updateCertificateConfig,
     convertValidFieldsToEditorFields,
     convertEditorFieldsToValidFields 
   } = useCertificates();
   
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditor, setShowEditor] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [currentEvent, setCurrentEvent] = useState<Event | null>(null);
   const [currentCertificateConfig, setCurrentCertificateConfig] = useState<CertificateConfig | null>(null);
   const [showSendModal, setShowSendModal] = useState(false);
@@ -74,6 +76,7 @@ export default function DashboardPage() {
     if (newEvent) {
       setCurrentEvent(newEvent);
       setCurrentCertificateConfig(null);
+      setIsEditing(false); // Set to false for new certificate creation
       setShowEditor(true);
       setShowCreateModal(false);
     }
@@ -114,13 +117,23 @@ export default function DashboardPage() {
     };
     
     console.log('handleSaveCertificate - Final API payload:', JSON.stringify(requestPayload, null, 2));
+    console.log('handleSaveCertificate - isEditing:', isEditing);
 
     try {
-      const config = await createCertificateConfig(requestPayload);
+      let config;
+      
+      if (isEditing && currentCertificateConfig) {
+        // Update existing certificate configuration
+        console.log('Updating certificate config with ID:', currentCertificateConfig.id);
+        config = await updateCertificateConfig(currentCertificateConfig.id, requestPayload);
+      } else {
+        // Create new certificate configuration
+        console.log('Creating new certificate config');
+        config = await createCertificateConfig(requestPayload);
+      }
 
       if (config && image) {
         // Update the image in our local state
-
         setCertificateImages(prev => ({
           ...prev,
           [currentEvent.id]: `http://localhost:5000${image}`
@@ -129,7 +142,8 @@ export default function DashboardPage() {
       
       setShowEditor(false);
       setCurrentEvent(null);
-      console.log("IN NEW: ", config)
+      setIsEditing(false);
+      console.log("Certificate config result: ", config);
       setCurrentCertificateConfig(null);
       await fetchEvents();
     } catch (error) {
@@ -139,7 +153,9 @@ export default function DashboardPage() {
 
   const handleEditCertificate = async (event: Event) => {
     setCurrentEvent(event);
-    console.log("BEGORE IF: ", event)
+    setIsEditing(true); // Set to true for editing existing certificate
+    console.log("BEFORE IF: ", event);
+    
     // Use certificate config from event data (new backend response includes this)
     if (event.certificateConfig) {
       const config: CertificateConfig = {
@@ -154,7 +170,7 @@ export default function DashboardPage() {
     } else {
       // Fallback to API call if config not in event data (legacy support)
       const config = await getCertificateConfig(event.id);
-      console.log("IN EDIT: ", config)
+      console.log("IN EDIT: ", config);
       setCurrentCertificateConfig(config);
     }
     
@@ -586,6 +602,7 @@ export default function DashboardPage() {
                 convertValidFieldsToEditorFields(currentCertificateConfig.validFields) : 
                 {}
             }}
+            isEditing={isEditing}
             onSave={(updatedCertificate) => {
               handleSaveCertificate(updatedCertificate);
             }}
@@ -593,6 +610,7 @@ export default function DashboardPage() {
               setShowEditor(false);
               setCurrentEvent(null);
               setCurrentCertificateConfig(null);
+              setIsEditing(false);
             }}
           />
         )}

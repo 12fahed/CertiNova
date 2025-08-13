@@ -97,11 +97,12 @@ interface CertificateEditorProps {
   certificate: Partial<Certificate>
   onSave: (certificate: Certificate) => void
   onClose: () => void
+  isEditing?: boolean
 }
 
 type FieldType = "recipientName" | "organizationName" | "certificateLink" | "certificateQR" | "rank"
 
-export function CertificateEditor({ certificate, onSave, onClose }: CertificateEditorProps) {
+export function CertificateEditor({ certificate, onSave, onClose, isEditing = false }: CertificateEditorProps) {
   const { uploadTemplate, isLoading } = useCertificates()
   const [uploadedImage, setUploadedImage] = useState<string | null>(
     certificate.image && certificate.image.startsWith("/uploads")
@@ -433,8 +434,10 @@ export function CertificateEditor({ certificate, onSave, onClose }: CertificateE
 
     console.log("FOR COLOR:", savedCertificate.fields)
     onSave(savedCertificate)
-    toast("Certificate Saved", {
-      description: "Your certificate template has been saved successfully.",
+    toast(isEditing ? "Certificate Updated" : "Certificate Saved", {
+      description: isEditing 
+        ? "Your certificate template has been updated successfully." 
+        : "Your certificate template has been saved successfully.",
     })
   }
 
@@ -642,7 +645,7 @@ export function CertificateEditor({ certificate, onSave, onClose }: CertificateE
               <div className="space-y-3">
                 <Button onClick={handleSave} className="w-full bg-green-600 hover:bg-green-700">
                   <Save className="h-4 w-4 mr-2" />
-                  Save Certificate
+                  {isEditing ? "Update Certificate" : "Save Certificate"}
                 </Button>
               </div>
             </motion.div>
