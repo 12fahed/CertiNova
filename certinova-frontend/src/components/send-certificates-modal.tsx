@@ -271,87 +271,87 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
         const drawCenteredText = (
           text: string,
           position: {
-            x: number
-            y: number
-            width: number
-            height: number
-            fontFamily?: string
-            fontWeight?: string
-            fontStyle?: string
-            textDecoration?: string
+            x: number;
+            y: number;
+            width: number;
+            height: number;
+            fontFamily?: string;
+            fontWeight?: string;
+            fontStyle?: string;
+            textDecoration?: string;
           },
           maxFontSize = 72,
           fieldType?: string
         ) => {
-          // Apply rule-based styling if fieldType is provided
           const styledPosition = fieldType 
             ? applyRuleBasedStyling(fieldType, text, position)
             : position;
 
-          // Calculate font size based on field dimensions and text content
-          const calculatedFontSize = Math.min(
-            position.width / text.length * 1.5, // Width-based calculation
-            position.height * 0.8, // Height-based calculation
-            maxFontSize // Maximum allowed
+          const fontFamily = styledPosition.fontFamily || "Arial";
+          const fontWeight = styledPosition.fontWeight || "normal";
+          const fontStyle = styledPosition.fontStyle || "normal";
+          const textDecoration = styledPosition.textDecoration || "none";
+
+          // 1. Smarter initial estimate (accounts for avg. character width)
+          const avgCharWidthFactor = 0.6; // Adjust based on font (e.g., 0.5 for monospace)
+          let fontSize = Math.min(
+            position.width / (text.length * avgCharWidthFactor),
+            position.height * 0.8,
+            maxFontSize
           );
-          const fontSize = Math.max(calculatedFontSize, 8); // Minimum font size of 8
-          
-          const fontFamily = styledPosition.fontFamily || "Arial"
-          const fontWeight = styledPosition.fontWeight || "normal"
-          const fontStyle = styledPosition.fontStyle || "normal"
-          const textDecoration = styledPosition.textDecoration || "none"
+          fontSize = Math.max(fontSize, 8); // Enforce minimum
 
-          ctx.font = `${fontStyle} ${fontWeight} ${fontSize}px ${fontFamily}`
+          // 2. Measure and scale proportionally (faster than fixed-step loops)
+          ctx.font = `${fontStyle} ${fontWeight} ${fontSize}px ${fontFamily}`;
+          let textMetrics = ctx.measureText(text);
+          const maxWidth = position.width * 0.9;
+          const maxHeight = position.height * 0.8;
 
-          // Measure text and reduce font size until it fits within the bounding box
-          let textMetrics = ctx.measureText(text)
-          let adjustedFontSize = fontSize
-          while (
-            (textMetrics.width > position.width * 0.9 || adjustedFontSize > position.height * 0.8) &&
-            adjustedFontSize > 8
-          ) {
-            adjustedFontSize -= 2
-            ctx.font = `${fontStyle} ${fontWeight} ${adjustedFontSize}px ${fontFamily}`
-            textMetrics = ctx.measureText(text)
+          if (textMetrics.width > maxWidth || fontSize > maxHeight) {
+            // Scale down proportionally to the overflow ratio
+            const widthRatio = maxWidth / textMetrics.width;
+            const heightRatio = maxHeight / fontSize;
+            fontSize *= Math.min(widthRatio, heightRatio);
+            ctx.font = `${fontStyle} ${fontWeight} ${fontSize}px ${fontFamily}`;
+            textMetrics = ctx.measureText(text);
           }
 
-          // Calculate centered position
-          const textX = position.x + (position.width - textMetrics.width) / 2
-          const textY = position.y + (position.height + adjustedFontSize * 0.3) / 2 // 0.3 accounts for font baseline
+          // 3. Precise vertical centering using actualBoundingBoxAscent
+          const textX = position.x + (position.width - textMetrics.width) / 2;
+          const textY = position.y + 
+            (position.height + textMetrics.actualBoundingBoxAscent) / 2;
 
-          // Set text color (you can make this configurable later)
-          ctx.fillStyle = "#000000"
+          // Draw
+          ctx.fillStyle = "#000000";
+          ctx.fillText(text, textX, textY);
 
-          // Draw the text
-          ctx.fillText(text, textX, textY)
-
-          // Handle text decoration
+          // Text decoration (underline)
           if (textDecoration === "underline") {
-            const lineY = textY + 2
-            ctx.beginPath()
-            ctx.moveTo(textX, lineY)
-            ctx.lineTo(textX + textMetrics.width, lineY)
-            ctx.lineWidth = Math.max(1, adjustedFontSize / 20) // Scale line width with font size
-            ctx.stroke()
+            const underlineY = textY + 2;
+            ctx.beginPath();
+            ctx.moveTo(textX, underlineY);
+            ctx.lineTo(textX + textMetrics.width, underlineY);
+            ctx.lineWidth = Math.max(1, fontSize / 20);
+            ctx.stroke();
           }
-        }
+        };
 
         // Apply recipient name if coordinates exist
         if (certificateConfig.validFields.recipientName) {
           console.log("Recipient name coordinates:", certificateConfig.validFields.recipientName);
-          drawCenteredText(recipient.name, certificateConfig.validFields.recipientName, 72, 'recipientName');
+          drawCenteredText(recipient.name, certificateConfig.validFields.recipientName, 100, 'recipientName');
         }
         
         // Apply rank if coordinates exist and recipient has rank
         if (certificateConfig.validFields.rank && recipient.rank) {
-          drawCenteredText(recipient.rank, certificateConfig.validFields.rank, 48, 'rank');
+          drawCenteredText(recipient.rank, certificateConfig.validFields.rank, 150, 'rank');
         }
         
         // Apply organisation name if coordinates exist
         if (certificateConfig.validFields.organisationName) {
           // You can get organisation name from user context or make it configurable
           const orgName = "Sample Organization"; // TODO: Make this configurable
-          drawCenteredText(orgName, certificateConfig.validFields.organisationName, 48, 'organisationName');
+          drawCenteredText(orgName, certificateConfig.validFields.organisationName, 72, 'organisationName');
         }
 
         // Apply certificate link if coordinates exist (optional)
