@@ -171,38 +171,35 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
       // Process each recipient
       for (let i = 0; i < recipients.length; i++) {
         const recipient = recipients[i];
+        console.log(`Processing recipient ${i + 1}/${recipients.length}:`, recipient.name);
         
-        // Create a canvas to draw the certificate
+        // Create a fresh canvas for each certificate
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
         if (!ctx) throw new Error("Failed to get canvas context");
         
-        // Load the certificate image
+        // Create a fresh image object for each certificate
         const img = new window.Image();
-        img.crossOrigin = "anonymous"; // Add CORS support
+        img.crossOrigin = "anonymous";
         
         await new Promise((resolve, reject) => {
-          img.onload = resolve;
+          img.onload = () => {
+            console.log(`Image loaded for ${recipient.name}`);
+            resolve(undefined);
+          };
           img.onerror = (e) => {
-            console.error("Image load error:", e);
+            console.error(`Image load error for ${recipient.name}:`, e);
             reject(new Error("Failed to load certificate image"));
           };
-          
-          // First try with the original URL
           img.src = imageUrl;
-          
-          // If the image is from the same origin or has proper CORS headers, this will work
-          // Otherwise, we'll get a security error when we try to export the canvas
         });
         
-        // Set canvas dimensions to match the image
+        // Set canvas dimensions and draw background
         canvas.width = img.width;
         canvas.height = img.height;
-        
-        // Draw the background image
         ctx.drawImage(img, 0, 0);
         
-        console.log("Image dimensions:", img.width, img.height);
+        console.log(`Canvas setup complete for ${recipient.name} - dimensions:`, img.width, img.height);
         
         // Helper function to apply rule-based styling based on field type and content
         const applyRuleBasedStyling = (
@@ -349,12 +346,13 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
 
         // Apply recipient name if coordinates exist
         if (certificateConfig.validFields.recipientName) {
-          console.log("Recipient name coordinates:", certificateConfig.validFields.recipientName);
+          console.log(`Drawing recipient name for ${recipient.name}:`, certificateConfig.validFields.recipientName);
           drawCenteredText(recipient.name, certificateConfig.validFields.recipientName, 100, 'recipientName');
         }
         
         // Apply rank if coordinates exist and recipient has rank
         if (certificateConfig.validFields.rank && recipient.rank) {
+          console.log(`Drawing rank for ${recipient.name}: ${recipient.rank}`);
           drawCenteredText(recipient.rank, certificateConfig.validFields.rank, 150, 'rank');
         }
         
@@ -373,6 +371,7 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
           } catch (error) {
             console.error("Error reading organization from localStorage:", error);
           }
+          console.log(`Drawing organization name for ${recipient.name}: ${orgName}`);
           drawCenteredText(orgName, certificateConfig.validFields.organisationName, 72, 'organisationName');
         }
 
@@ -415,6 +414,7 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
         // Add to zip
         const fileName = `${recipient.name.replace(/[^a-z0-9]/gi, '_')}_certificate.png`;
         folder.file(fileName, blob);
+        console.log(`Added certificate to zip: ${fileName} for recipient: ${recipient.name}`);
         
         // Store data URL for preview if needed
         const dataUrl = canvas.toDataURL("image/png");
