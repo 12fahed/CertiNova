@@ -14,7 +14,6 @@ import {
   Link,
   QrCode,
   Trophy,
-  Download,
   Save,
   X,
   Bold,
@@ -439,120 +438,6 @@ export function CertificateEditor({ certificate, onSave, onClose }: CertificateE
     })
   }
 
-  const handleDownloadSample = () => {
-    // Create a sample certificate with placeholder data
-    const canvas = document.createElement("canvas")
-    const ctx = canvas.getContext("2d")
-    const img = new Image()
-
-    img.onload = () => {
-      canvas.width = img.width
-      canvas.height = img.height
-      ctx?.drawImage(img, 0, 0)
-
-      // Add sample text to each field
-      if (ctx) {
-        ctx.fillStyle = "#000000"
-
-        // Helper function to draw centered text (same as in send-certificates-modal)
-        const drawCenteredText = (
-          text: string,
-          position: {
-            x: number
-            y: number
-            width: number
-            height: number
-            fontFamily?: string
-            fontWeight?: string
-            fontStyle?: string
-            textDecoration?: string
-            color?: string
-          },
-          maxFontSize = 72
-        ) => {
-          // Set text color
-          console.log(position.color)
-          ctx.fillStyle = position.color || "#000000"
-          
-          // Calculate font size based on field dimensions
-          const calculatedFontSize = Math.min(
-            position.width / text.length * 1.5, // Width-based calculation
-            position.height * 0.8, // Height-based calculation
-            maxFontSize // Maximum allowed
-          );
-          const fontSize = Math.max(calculatedFontSize, 8); // Minimum font size of 8
-          
-          const fontFamily = position.fontFamily || "Inter" // Use Google Font as fallback
-          const fontWeight = position.fontWeight || "normal"
-          const fontStyle = position.fontStyle || "normal"
-
-          ctx.font = `${fontStyle} ${fontWeight} ${fontSize}px ${fontFamily}`
-
-          // Measure text and reduce font size until it fits within the bounding box
-          let textMetrics = ctx.measureText(text)
-          let adjustedFontSize = fontSize
-          while (
-            (textMetrics.width > position.width * 0.9 || adjustedFontSize > position.height * 0.8) &&
-            adjustedFontSize > 8
-          ) {
-            adjustedFontSize -= 2
-            ctx.font = `${fontStyle} ${fontWeight} ${adjustedFontSize}px ${fontFamily}`
-            textMetrics = ctx.measureText(text)
-          }
-
-          // Calculate centered position
-          const textX = position.x + (position.width - textMetrics.width) / 2
-          const textY = position.y + (position.height + adjustedFontSize * 0.3) / 2
-
-          // Draw the text
-          ctx.fillText(text, textX, textY)
-
-          // Handle text decoration
-          if (position.textDecoration === "underline") {
-            ctx.strokeStyle = position.color || "#000000"
-            ctx.beginPath()
-            ctx.moveTo(textX, textY + 2)
-            ctx.lineTo(textX + textMetrics.width, textY + 2)
-            ctx.stroke()
-          }
-        }
-
-        Object.entries(fields).forEach(([fieldType, position]) => {
-          let sampleText = ""
-          switch (fieldType) {
-            case "recipientName":
-              sampleText = "John Doe"
-              break
-            case "organizationName":
-              sampleText = "Sample Organization"
-              break
-            case "certificateLink":
-              sampleText = "https://example.com/cert/123"
-              break
-            case "certificateQR":
-              sampleText = "[QR Code]"
-              break
-            case "rank":
-              sampleText = "1st Place"
-              break
-          }
-
-          drawCenteredText(sampleText, position, 72)
-        })
-      }
-
-      // Download the canvas as image
-      const link = document.createElement("a")
-      link.download = "sample-certificate.png"
-      link.href = canvas.toDataURL()
-      link.click()
-    }
-
-    if (uploadedImage) {
-      img.src = uploadedImage
-    }
-  }
-
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <motion.div
@@ -758,14 +643,6 @@ export function CertificateEditor({ certificate, onSave, onClose }: CertificateE
                 <Button onClick={handleSave} className="w-full bg-green-600 hover:bg-green-700">
                   <Save className="h-4 w-4 mr-2" />
                   Save Certificate
-                </Button>
-                <Button
-                  onClick={handleDownloadSample}
-                  variant="outline"
-                  className="w-full border-gray-200 hover:bg-gray-50 bg-transparent"
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  Download Sample
                 </Button>
               </div>
             </motion.div>

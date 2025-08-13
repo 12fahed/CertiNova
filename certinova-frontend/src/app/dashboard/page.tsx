@@ -14,6 +14,7 @@ import {
   Plus,
   FileText,
   TrendingUp,
+  Download,
 } from "lucide-react";
 import { CreateCertificateModal } from "@/components/create-certificate-modal";
 import { CertificateEditor } from "@/components/certificate-editor";
@@ -163,6 +164,158 @@ export default function DashboardPage() {
   const handleDeleteCertificate = (id: string) => {
     // For now, we'll implement event deletion later
     console.log('Delete event:', id);
+  };
+
+  const handleDownloadSample = async (event: Event) => {
+    if (!event.certificateConfig) {
+      console.error('No certificate config available for this event');
+      return;
+    }
+
+    try {
+      // Create a sample certificate with the actual certificate config data
+      const canvas = document.createElement("canvas")
+      const ctx = canvas.getContext("2d")
+      
+      // Fetch the image as blob to avoid CORS issues
+      const imageUrl = certificateImages[event.id]
+      if (!imageUrl) {
+        console.error('No certificate image available for this event');
+        return;
+      }
+
+      const response = await fetch(imageUrl)
+      const blob = await response.blob()
+      const img = new window.Image()
+      
+      // Create object URL from blob and set as image source
+      const objectUrl = URL.createObjectURL(blob)
+      
+      img.onload = () => {
+        canvas.width = img.width
+        canvas.height = img.height
+        ctx?.drawImage(img, 0, 0)
+
+        // Add sample text to each field using the actual config
+        if (ctx && event.certificateConfig) {
+          ctx.fillStyle = "#000000"
+
+          // Helper function to draw centered text
+          const drawCenteredText = (
+            text: string,
+            position: {
+              x: number
+              y: number
+              width: number
+              height: number
+              fontFamily?: string
+              fontWeight?: string
+              fontStyle?: string
+              textDecoration?: string
+              color?: string
+            },
+            maxFontSize = 72
+          ) => {
+            // Set text color
+            ctx.fillStyle = position.color || "#000000"
+            
+            // Calculate font size based on field dimensions
+            const calculatedFontSize = Math.min(
+              position.width / text.length * 1.5, // Width-based calculation
+              position.height * 0.8, // Height-based calculation
+              maxFontSize // Maximum allowed
+            );
+            const fontSize = Math.max(calculatedFontSize, 8); // Minimum font size of 8
+            
+            const fontFamily = position.fontFamily || "Inter" // Use Google Font as fallback
+            const fontWeight = position.fontWeight || "normal"
+            const fontStyle = position.fontStyle || "normal"
+
+            ctx.font = `${fontStyle} ${fontWeight} ${fontSize}px ${fontFamily}`
+
+            // Measure text and reduce font size until it fits within the bounding box
+            let textMetrics = ctx.measureText(text)
+            let adjustedFontSize = fontSize
+            while (
+              (textMetrics.width > position.width * 0.9 || adjustedFontSize > position.height * 0.8) &&
+              adjustedFontSize > 8
+            ) {
+              adjustedFontSize -= 2
+              ctx.font = `${fontStyle} ${fontWeight} ${adjustedFontSize}px ${fontFamily}`
+              textMetrics = ctx.measureText(text)
+            }
+
+            // Calculate centered position
+            const textX = position.x + (position.width - textMetrics.width) / 2
+            const textY = position.y + (position.height + adjustedFontSize * 0.3) / 2
+
+            // Draw the text
+            ctx.fillText(text, textX, textY)
+
+            // Handle text decoration
+            if (position.textDecoration === "underline") {
+              ctx.strokeStyle = position.color || "#000000"
+              ctx.beginPath()
+              ctx.moveTo(textX, textY + 2)
+              ctx.lineTo(textX + textMetrics.width, textY + 2)
+              ctx.stroke()
+            }
+          }
+
+          // Use the actual certificate config fields
+          Object.entries(event.certificateConfig.validFields).forEach(([fieldType, position]) => {
+            let sampleText = ""
+            switch (fieldType) {
+              case "recipientName":
+                sampleText = "John Doe"
+                break
+              case "organisationName":
+                sampleText = event.issuerName || "Sample Organization"
+                break
+              case "certificateLink":
+                sampleText = "https://example.com/cert/123"
+                break
+              case "certificateQR":
+                sampleText = "[QR Code]"
+                break
+              case "rank":
+                sampleText = "1st Place"
+                break
+            }
+
+            if (position) {
+              drawCenteredText(sampleText, position, 72)
+            }
+          })
+        }
+
+        // Download the canvas as image
+        try {
+          const link = document.createElement("a")
+          link.download = `${event.eventName}-sample-certificate.png`
+          link.href = canvas.toDataURL()
+          link.click()
+        } catch (error) {
+          console.error('Error generating sample certificate:', error)
+          alert('Error generating sample certificate. This may be due to CORS restrictions. Please try again or contact support.')
+        }
+
+        // Clean up object URL
+        URL.revokeObjectURL(objectUrl)
+      }
+
+      img.onerror = () => {
+        console.error('Failed to load certificate image')
+        alert('Failed to load certificate image. Please try again.')
+        URL.revokeObjectURL(objectUrl)
+      }
+
+      img.src = objectUrl
+      
+    } catch (error) {
+      console.error('Error downloading sample certificate:', error)
+      alert('Error downloading sample certificate. Please try again or contact support.')
+    }
   };
 
   return (
@@ -385,6 +538,17 @@ export default function DashboardPage() {
                             <FileText className="h-4 w-4 mr-2" />
                             Edit
                           </Button>
+                          {event.certificateConfig && (
+                            <Button
+                              onClick={() => handleDownloadSample(event)}
+                              variant="outline"
+                              size="sm"
+                              className="text-green-600 border-green-200 hover:bg-green-50"
+                            >
+                              <Download className="h-4 w-4 mr-2" />
+                              Download Sample
+                            </Button>
+                          )}
                           <Button
                             onClick={() => handleDeleteCertificate(event.id)}
                             variant="outline"
