@@ -176,6 +176,9 @@ export const CertificateProvider: React.FC<CertificateProviderProps> = ({ childr
         if (field.textDecoration !== undefined) {
           validField.textDecoration = field.textDecoration;
         }
+        if (field.color !== undefined) {
+          validField.color = field.color;
+        }
 
         validFields[fieldKey] = validField;
         console.log(`Added field ${fieldKey}:`, validField);
@@ -205,6 +208,7 @@ export const CertificateProvider: React.FC<CertificateProviderProps> = ({ childr
           fontWeight: field.fontWeight,
           fontStyle: field.fontStyle,
           textDecoration: field.textDecoration,
+          color: field.color,
         };
       }
     });

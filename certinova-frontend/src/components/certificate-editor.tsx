@@ -23,6 +23,7 @@ import {
   AlignLeft,
   AlignCenter,
   AlignRight,
+  Palette,
 } from "lucide-react"
 import { toast } from "sonner"
 import { useCertificates } from "@/context/CertificateContext"
@@ -44,6 +45,7 @@ interface Certificate {
       fontWeight?: string
       fontStyle?: string
       textDecoration?: string
+      color?: string
     }
     organizationName?: {
       x: number
@@ -54,6 +56,7 @@ interface Certificate {
       fontWeight?: string
       fontStyle?: string
       textDecoration?: string
+      color?: string
     }
     certificateLink?: {
       x: number
@@ -64,6 +67,7 @@ interface Certificate {
       fontWeight?: string
       fontStyle?: string
       textDecoration?: string
+      color?: string
     }
     certificateQR?: {
       x: number
@@ -74,6 +78,7 @@ interface Certificate {
       fontWeight?: string
       fontStyle?: string
       textDecoration?: string
+      color?: string
     }
     rank?: {
       x: number
@@ -84,6 +89,7 @@ interface Certificate {
       fontWeight?: string
       fontStyle?: string
       textDecoration?: string
+      color?: string
     }
   }
 }
@@ -334,6 +340,7 @@ export function CertificateEditor({ certificate, onSave, onClose }: CertificateE
             fontWeight: "normal",
             fontStyle: "normal",
             textDecoration: "none",
+            color: "#000000", // Default black color
           },
         }))
 
@@ -425,6 +432,7 @@ export function CertificateEditor({ certificate, onSave, onClose }: CertificateE
       fields,
     }
 
+    console.log("FOR COLOR:", savedCertificate.fields)
     onSave(savedCertificate)
     toast("Certificate Saved", {
       description: "Your certificate template has been saved successfully.",
@@ -458,9 +466,14 @@ export function CertificateEditor({ certificate, onSave, onClose }: CertificateE
             fontWeight?: string
             fontStyle?: string
             textDecoration?: string
+            color?: string
           },
           maxFontSize = 72
         ) => {
+          // Set text color
+          console.log(position.color)
+          ctx.fillStyle = position.color || "#000000"
+          
           // Calculate font size based on field dimensions
           const calculatedFontSize = Math.min(
             position.width / text.length * 1.5, // Width-based calculation
@@ -496,6 +509,7 @@ export function CertificateEditor({ certificate, onSave, onClose }: CertificateE
 
           // Handle text decoration
           if (position.textDecoration === "underline") {
+            ctx.strokeStyle = position.color || "#000000"
             ctx.beginPath()
             ctx.moveTo(textX, textY + 2)
             ctx.lineTo(textX + textMetrics.width, textY + 2)
@@ -618,6 +632,20 @@ export function CertificateEditor({ certificate, onSave, onClose }: CertificateE
                   >
                     <Underline className="h-4 w-4" />
                   </Button>
+                </div>
+
+                {/* Color Picker */}
+                <div className="flex items-center gap-2">
+                  <Palette className="h-4 w-4 text-gray-600" />
+                  <div className="relative">
+                    <input
+                      type="color"
+                      value={fields[selectedFieldForToolbar]?.color || "#000000"}
+                      onChange={(e) => updateFieldStyle(selectedFieldForToolbar, "color", e.target.value)}
+                      className="w-8 h-8 rounded border border-gray-300 cursor-pointer bg-transparent"
+                      title="Text Color"
+                    />
+                  </div>
                 </div>
 
                 {/* Alignment Buttons */}

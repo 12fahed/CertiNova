@@ -24,6 +24,7 @@ export interface ValidField {
   fontWeight?: string;
   fontStyle?: string;
   textDecoration?: string;
+  color?: string;
 }
 
 export interface CertificateConfigRequest {
@@ -71,6 +72,7 @@ export interface CertificateEditorField {
   fontWeight?: string;
   fontStyle?: string;
   textDecoration?: string;
+  color?: string;
 }
 
 export interface CertificateEditorFields {

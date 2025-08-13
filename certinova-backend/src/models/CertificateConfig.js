@@ -92,6 +92,17 @@ const fieldSchema = new mongoose.Schema({
     type: String,
     default: 'none',
     enum: ['none', 'underline']
+  },
+  color: {
+    type: String,
+    default: '#000000',
+    validate: {
+      validator: function(value) {
+        // Validate hex color code format
+        return /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(value);
+      },
+      message: 'Color must be a valid hex color code (e.g., #000000 or #000)'
+    }
   }
 }, { _id: false });
 

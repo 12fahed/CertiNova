@@ -154,6 +154,23 @@ export const validateField = (field, fieldName) => {
     }
   }
 
+  if (field.color !== undefined) {
+    if (typeof field.color !== 'string') {
+      return {
+        isValid: false,
+        error: `Field ${fieldName}.color must be a string`
+      };
+    }
+    
+    // Validate hex color code format
+    if (!/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(field.color)) {
+      return {
+        isValid: false,
+        error: `Field ${fieldName}.color must be a valid hex color code (e.g., #000000 or #000)`
+      };
+    }
+  }
+
   return { isValid: true, error: null };
 };
 

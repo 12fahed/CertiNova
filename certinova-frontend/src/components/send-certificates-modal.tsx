@@ -217,6 +217,7 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
             fontWeight?: string
             fontStyle?: string
             textDecoration?: string
+            color?: string
           }
         ) => {
           const position = { ...basePosition };
@@ -227,12 +228,14 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
               // Names should be prominent and bold if not specified
               if (!position.fontWeight) position.fontWeight = 'bold';
               if (!position.fontFamily) position.fontFamily = 'Montserrat'; // Modern, elegant font for names
+              if (!position.color) position.color = '#000000'; // Default black
               break;
 
             case 'rank':
               // Ranks should be attention-grabbing
               if (!position.fontWeight) position.fontWeight = 'bold';
               if (!position.fontFamily) position.fontFamily = 'Roboto';
+              if (!position.color) position.color = '#000000'; // Default black
               
               // Special styling for rank positions
               if (text.toLowerCase().includes('1st') || text.toLowerCase().includes('first')) {
@@ -244,23 +247,27 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
               // Organization names should be formal
               if (!position.fontFamily) position.fontFamily = 'Inter'; // Clean, professional font
               if (!position.fontWeight) position.fontWeight = 'normal';
+              if (!position.color) position.color = '#000000'; // Default black
               break;
 
             case 'certificateLink':
               // Links should be smaller and understated
               if (!position.fontFamily) position.fontFamily = 'Open Sans'; // Readable for URLs
               if (!position.textDecoration) position.textDecoration = 'underline';
+              if (!position.color) position.color = '#000000'; // Default black
               break;
 
             case 'certificateQR':
               // QR placeholder should be centered and clear
               if (!position.fontFamily) position.fontFamily = 'Inter';
               if (!position.fontWeight) position.fontWeight = 'bold';
+              if (!position.color) position.color = '#000000'; // Default black
               break;
 
             default:
               // Default styling
               if (!position.fontFamily) position.fontFamily = 'Inter'; // Clean default
+              if (!position.color) position.color = '#000000'; // Default black
               break;
           }
 
@@ -279,6 +286,7 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
             fontWeight?: string;
             fontStyle?: string;
             textDecoration?: string;
+            color?: string;
           },
           maxFontSize = 72,
           fieldType?: string
@@ -292,6 +300,7 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
           const fontWeight = styledPosition.fontWeight || "normal";
           const fontStyle = styledPosition.fontStyle || "normal";
           const textDecoration = styledPosition.textDecoration || "none";
+          const color = styledPosition.color || "#000000"; // Use stored color or default to black
 
           // 1. Smarter initial estimate (accounts for avg. character width)
           const avgCharWidthFactor = 0.6; // Adjust based on font (e.g., 0.5 for monospace)
@@ -322,13 +331,14 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
           const textY = position.y + 
             (position.height + textMetrics.actualBoundingBoxAscent) / 2;
 
-          // Draw
-          ctx.fillStyle = "#000000";
+          // Draw with color
+          ctx.fillStyle = color;
           ctx.fillText(text, textX, textY);
 
           // Text decoration (underline)
           if (textDecoration === "underline") {
             const underlineY = textY + 2;
+            ctx.strokeStyle = color; // Use same color for underline
             ctx.beginPath();
             ctx.moveTo(textX, underlineY);
             ctx.lineTo(textX + textMetrics.width, underlineY);

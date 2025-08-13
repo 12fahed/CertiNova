@@ -77,7 +77,20 @@ export default function DashboardPage() {
     }
   };
 
-  const handleSaveCertificate = async (updatedCertificate: { fields: Record<string, { x: number; y: number; width: number; height: number }>; image?: string }) => {
+  const handleSaveCertificate = async (updatedCertificate: { 
+    fields: Record<string, { 
+      x: number; 
+      y: number; 
+      width: number; 
+      height: number;
+      fontFamily?: string;
+      fontWeight?: string;
+      fontStyle?: string;
+      textDecoration?: string;
+      color?: string;
+    }>; 
+    image?: string 
+  }) => {
     if (!currentEvent) return;
 
     console.log('handleSaveCertificate - updatedCertificate:', updatedCertificate);
