@@ -20,6 +20,7 @@ import { CertificateEditor } from "@/components/certificate-editor";
 import { SendCertificatesModal } from "@/components/send-certificates-modal";
 import { Navbar } from "@/components/navbar";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { ViewHistoryButton } from "@/components/view-history-button";
 import { useAuth } from "@/context/AuthContext";
 import { useEvents } from "@/context/EventContext";
 import { useCertificates } from "@/context/CertificateContext";
@@ -299,13 +300,16 @@ export default function DashboardPage() {
           >
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-gray-900">Your Certificates</h2>
-              <Button
-                onClick={() => setShowCreateModal(true)}
-                className="bg-blue-600 hover:bg-blue-700 text-white"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Create New
-              </Button>
+              <div className="flex space-x-3">
+                <ViewHistoryButton />
+                <Button
+                  onClick={() => setShowCreateModal(true)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create New
+                </Button>
+              </div>
             </div>
 
             {events.length === 0 ? (

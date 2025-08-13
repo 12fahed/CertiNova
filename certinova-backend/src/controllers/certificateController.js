@@ -433,3 +433,148 @@ export const storeGeneratedCertificate = async (req, res) => {
     });
   }
 };
+
+// @desc    Get all generated certificates with pagination and filtering
+// @route   GET /api/certificates/generated
+// @access  Protected (should be protected later with JWT)
+export const getGeneratedCertificates = async (req, res) => {
+  try {
+    const { 
+      page = 1, 
+      limit = 10, 
+      search = '', 
+      filter = 'all',
+      sortBy = 'date',
+      sortOrder = 'desc'
+    } = req.query;
+
+    console.log('=== GET GENERATED CERTIFICATES REQUEST ===');
+    console.log('Query parameters:', { page, limit, search, filter, sortBy, sortOrder });
+
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+    const skip = (pageNum - 1) * limitNum;
+
+    // Build search query
+    let searchQuery = {};
+    if (search && search.trim() !== '') {
+      const searchRegex = new RegExp(search.trim(), 'i');
+      searchQuery = {
+        $or: [
+          { 'recipients.name': searchRegex },
+          { 'recipients.email': searchRegex }
+        ]
+      };
+    }
+
+    // Build filter query
+    let filterQuery = {};
+    const currentDate = new Date();
+    
+    switch (filter) {
+      case 'recent':
+        const sevenDaysAgo = new Date(currentDate.getTime() - 7 * 24 * 60 * 60 * 1000);
+        filterQuery.date = { $gte: sevenDaysAgo };
+        break;
+      case 'high-recipients':
+        filterQuery.noOfRecipient = { $gt: 2 };
+        break;
+      case 'with-rank':
+        filterQuery.rank = true;
+        break;
+      case 'without-rank':
+        filterQuery.rank = false;
+        break;
+      default:
+        // 'all' - no additional filter
+        break;
+    }
+
+    // Combine search and filter queries
+    const query = { ...searchQuery, ...filterQuery };
+
+    // Build sort object
+    let sortObject = {};
+    switch (sortBy) {
+      case 'date':
+        sortObject.date = sortOrder === 'asc' ? 1 : -1;
+        break;
+      case 'recipients':
+        sortObject.noOfRecipient = sortOrder === 'asc' ? 1 : -1;
+        break;
+      case 'certificateId':
+        sortObject.certificateId = sortOrder === 'asc' ? 1 : -1;
+        break;
+      default:
+        sortObject.date = -1; // Default sort by date descending
+        break;
+    }
+
+    // Execute queries
+    const [generatedCertificates, totalCount] = await Promise.all([
+      GeneratedCertificate.find(query)
+        .populate('certificateId', 'eventId imagePath')
+        .populate({
+          path: 'certificateId',
+          populate: {
+            path: 'eventId',
+            select: 'eventName organisation issuerName'
+          }
+        })
+        .populate('generatedBy', 'name email organisation')
+        .sort(sortObject)
+        .skip(skip)
+        .limit(limitNum)
+        .lean(),
+      GeneratedCertificate.countDocuments(query)
+    ]);
+
+    // Transform data for frontend
+    const transformedData = generatedCertificates.map((cert, index) => ({
+      id: cert._id,
+      serialNumber: skip + index + 1, // Calculate serial number based on pagination
+      date: cert.date,
+      certificateId: cert.certificateId?.eventId?.eventName || 'Unknown Event',
+      eventDetails: cert.certificateId?.eventId || null,
+      recipients: cert.recipients || [],
+      noOfRecipient: cert.noOfRecipient || 0,
+      rank: cert.rank || false,
+      generatedId: cert._id.toString().slice(-8).toUpperCase(), // Last 8 chars of MongoDB ObjectId
+      generatedBy: cert.generatedBy || null,
+      createdAt: cert.createdAt,
+      updatedAt: cert.updatedAt
+    }));
+
+    // Calculate pagination info
+    const totalPages = Math.ceil(totalCount / limitNum);
+    const hasNextPage = pageNum < totalPages;
+    const hasPrevPage = pageNum > 1;
+
+    console.log(`Found ${totalCount} total certificates, returning ${transformedData.length} for page ${pageNum}`);
+
+    res.status(200).json({
+      success: true,
+      message: 'Generated certificates retrieved successfully',
+      data: {
+        certificates: transformedData,
+        pagination: {
+          currentPage: pageNum,
+          totalPages,
+          totalCount,
+          hasNextPage,
+          hasPrevPage,
+          limit: limitNum
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error('Get generated certificates error:', error);
+
+    res.status(500).json({
+      success: false,
+      message: 'Failed to retrieve generated certificates',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+    });
+  }
+};

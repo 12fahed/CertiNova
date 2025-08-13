@@ -5,7 +5,8 @@ import {
   getCertificateConfig, 
   updateCertificateConfig,
   uploadCertificateTemplate,
-  storeGeneratedCertificate
+  storeGeneratedCertificate,
+  getGeneratedCertificates
 } from '../controllers/certificateController.js';
 
 const router = express.Router();
@@ -20,5 +21,8 @@ router.post('/upload-template', upload.single('certificate'), uploadCertificateT
 
 // Generated certificate data storage route
 router.post('/storeGenerated', storeGeneratedCertificate);
+
+// Get generated certificates with filtering and pagination
+router.get('/generated', getGeneratedCertificates);
 
 export default router;

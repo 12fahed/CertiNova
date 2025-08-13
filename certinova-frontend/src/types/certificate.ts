@@ -111,3 +111,49 @@ export interface GeneratedCertificateResponse {
   data?: GeneratedCertificateData;
 }
 
+// Types for the certificates page
+export interface EventDetails {
+  _id: string;
+  eventName: string;
+  organisation: string;
+  issuerName: string;
+}
+
+export interface GeneratedByUser {
+  _id: string;
+  name: string;
+  email: string;
+  organisation: string;
+}
+
+export interface CertificateListItem {
+  id: string;
+  serialNumber: number;
+  date: string;
+  certificateId: string;
+  eventDetails: EventDetails | null;
+  recipients: GeneratedCertificateRecipient[];
+  noOfRecipient: number;
+  rank: boolean;
+  generatedId: string;
+  generatedBy: GeneratedByUser | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CertificatesListResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    certificates: CertificateListItem[];
+    pagination: {
+      currentPage: number;
+      totalPages: number;
+      totalCount: number;
+      hasNextPage: boolean;
+      hasPrevPage: boolean;
+      limit: number;
+    };
+  };
+}
+

@@ -2,8 +2,8 @@ import {
   CertificateConfigRequest, 
   CertificateConfigResponse, 
   UploadResponse,
-  GeneratedCertificateRequest,
-  GeneratedCertificateResponse
+  GeneratedCertificateResponse,
+  CertificatesListResponse
 } from '@/types/certificate';
 
 const API_BASE_URL = 'http://localhost:5000/api';
@@ -94,6 +94,32 @@ class CertificateService {
       method: 'POST',
       body: JSON.stringify(data),
     }) as Promise<GeneratedCertificateResponse>;
+  }
+
+  // Get generated certificates with filtering and pagination
+  async getGeneratedCertificates(params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    filter?: 'all' | 'recent' | 'high-recipients' | 'with-rank' | 'without-rank';
+    sortBy?: 'date' | 'recipients' | 'certificateId';
+    sortOrder?: 'asc' | 'desc';
+  }): Promise<CertificatesListResponse> {
+    const searchParams = new URLSearchParams();
+    
+    if (params?.page) searchParams.append('page', params.page.toString());
+    if (params?.limit) searchParams.append('limit', params.limit.toString());
+    if (params?.search) searchParams.append('search', params.search);
+    if (params?.filter) searchParams.append('filter', params.filter);
+    if (params?.sortBy) searchParams.append('sortBy', params.sortBy);
+    if (params?.sortOrder) searchParams.append('sortOrder', params.sortOrder);
+
+    const queryString = searchParams.toString();
+    const url = queryString ? `/certificates/generated?${queryString}` : '/certificates/generated';
+
+    return this.makeRequest(url, {
+      method: 'GET',
+    }) as Promise<CertificatesListResponse>;
   }
 }
 
