@@ -17,6 +17,7 @@ import { toast } from "sonner"
 import confetti from "canvas-confetti"
 import { useCertificates } from "@/context/CertificateContext"
 import { CertificateConfig } from "@/types/certificate"
+import { certificateService } from "@/services/certificate"
 import JSZip from "jszip"
 import { saveAs } from "file-saver"
 
@@ -59,10 +60,24 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
     if (selectedCertificate) {
       const fetchCertificateConfig = async () => {
         try {
+          console.log("Fetching certificate config for eventId:", selectedCertificate);
           const config = await getCertificateConfig(selectedCertificate);
           if (config) {
+            console.log("Certificate configuration loaded:", config);
+            console.log("Certificate config ID:", config.id);
             setCertificateConfig(config);
-            // console.log("Certificate configuration loaded:", config);
+            
+            // Clear rank field if the certificate doesn't support rank
+            if (!config.validFields?.rank) {
+              setManualRank("");
+              // Also clear rank from existing recipients if switching to a certificate without rank support
+              setRecipients(prev => prev.map(recipient => ({
+                name: recipient.name,
+                email: recipient.email
+              })));
+            }
+          } else {
+            console.log("No certificate configuration found for eventId:", selectedCertificate);
           }
         } catch (error) {
           console.error("Error fetching certificate config:", error);
@@ -83,17 +98,20 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
 
   const handleAddManualRecipient = () => {
     if (manualName.trim()) {
-      setRecipients((prev) => [
-        ...prev,
-        {
-          name: manualName.trim(),
-          email: manualEmail.trim() || undefined,
-          rank: manualRank.trim() || undefined,
-        },
-      ])
-      setManualName("")
-      setManualEmail("")
-      setManualRank("")
+      const recipient: Recipient = {
+        name: manualName.trim(),
+        email: manualEmail.trim() || undefined,
+      };
+
+      // Only include rank if the certificate configuration supports it and rank is provided
+      if (certificateConfig?.validFields?.rank && manualRank.trim()) {
+        recipient.rank = manualRank.trim();
+      }
+
+      setRecipients((prev) => [...prev, recipient]);
+      setManualName("");
+      setManualEmail("");
+      setManualRank("");
     }
   }
 
@@ -115,7 +133,10 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
             headers.forEach((header, index) => {
               if (header.includes("name")) recipient.name = values[index]
               if (header.includes("email")) recipient.email = values[index]
-              if (header.includes("rank")) recipient.rank = values[index]
+              // Only include rank if certificate configuration supports it
+              if (header.includes("rank") && certificateConfig?.validFields?.rank) {
+                recipient.rank = values[index]
+              }
             })
 
             if (recipient.name) {
@@ -428,6 +449,45 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
       setIsGenerating(false);
       setGenerationComplete(true);
 
+      // Store the generated certificate data in database
+      try {
+        // Get user ID from localStorage
+        let generatedBy = "";
+        try {
+          const userDataString = localStorage.getItem("certinova_user");
+          if (userDataString) {
+            const userData = JSON.parse(userDataString);
+            if (userData && userData.id) {
+              generatedBy = userData.id;
+            }
+          }
+        } catch (error) {
+          console.error("Error reading user from localStorage:", error);
+        }
+
+        if (generatedBy && certificateConfig && certificateConfig.id) {
+          console.log("Storing generated certificate data in database...");
+          console.log("Certificate config object:", certificateConfig);
+          console.log("Using certificateConfig.id:", certificateConfig.id);
+          console.log("Selected certificate (eventId):", selectedCertificate);
+          await certificateService.storeGeneratedCertificate({
+            certificateId: certificateConfig.id, // Use the actual CertificateConfig ObjectId
+            recipients: recipients,
+            generatedBy: generatedBy
+          });
+          console.log("Generated certificate data stored successfully");
+        } else {
+          console.warn("Cannot store generated certificate data - missing user ID or certificate config:", {
+            generatedBy: !!generatedBy,
+            certificateConfig: !!certificateConfig,
+            certificateConfigId: certificateConfig?.id
+          });
+        }
+      } catch (storageError) {
+        console.error("Error storing generated certificate data:", storageError);
+        // Don't show error to user as the main operation was successful
+      }
+
       // Trigger confetti
       confetti({
         particleCount: 100,
@@ -528,7 +588,11 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className={`grid grid-cols-1 gap-4 ${
+                        certificateConfig?.validFields?.rank 
+                          ? 'md:grid-cols-3' 
+                          : 'md:grid-cols-2'
+                      }`}>
                         <div className="space-y-2">
                           <Label htmlFor="manualName" className="text-gray-700">
                             Name *
@@ -554,18 +618,21 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
                             className="border-gray-200"
                           />
                         </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="manualRank" className="text-gray-700">
-                            Rank (Optional)
-                          </Label>
-                          <Input
-                            id="manualRank"
-                            value={manualRank}
-                            onChange={(e) => setManualRank(e.target.value)}
-                            placeholder="e.g., 1st Place"
-                            className="border-gray-200"
-                          />
-                        </div>
+                        {/* Only show rank field if certificate has rank coordinates */}
+                        {certificateConfig?.validFields?.rank && (
+                          <div className="space-y-2">
+                            <Label htmlFor="manualRank" className="text-gray-700">
+                              Rank (Optional)
+                            </Label>
+                            <Input
+                              id="manualRank"
+                              value={manualRank}
+                              onChange={(e) => setManualRank(e.target.value)}
+                              placeholder="e.g., 1st Place"
+                              className="border-gray-200"
+                            />
+                          </div>
+                        )}
                       </div>
                       <Button onClick={handleAddManualRecipient} className="w-full bg-blue-600 hover:bg-blue-700">
                         Add Recipient
@@ -596,7 +663,8 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
                             <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
                             <p className="text-sm text-gray-600">Click to upload CSV file</p>
                             <p className="text-xs text-gray-500 mt-1">
-                              Expected columns: name, email (optional), rank (optional)
+                              Expected columns: name, email (optional)
+                              {certificateConfig?.validFields?.rank && ", rank (optional)"}
                             </p>
                           </label>
                         </div>

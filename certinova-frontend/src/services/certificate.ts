@@ -1,4 +1,10 @@
-import { CertificateConfigRequest, CertificateConfigResponse, UploadResponse } from '@/types/certificate';
+import { 
+  CertificateConfigRequest, 
+  CertificateConfigResponse, 
+  UploadResponse,
+  GeneratedCertificateRequest,
+  GeneratedCertificateResponse
+} from '@/types/certificate';
 
 const API_BASE_URL = 'http://localhost:5000/api';
 
@@ -72,6 +78,22 @@ class CertificateService {
       method: 'PUT',
       body: JSON.stringify(configData),
     }) as Promise<CertificateConfigResponse>;
+  }
+
+  // Store generated certificate data
+  async storeGeneratedCertificate(data: {
+    certificateId: string;
+    recipients: Array<{
+      name: string;
+      email?: string;
+      rank?: string;
+    }>;
+    generatedBy: string;
+  }): Promise<GeneratedCertificateResponse> {
+    return this.makeRequest('/certificates/storeGenerated', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }) as Promise<GeneratedCertificateResponse>;
   }
 }
 

@@ -83,3 +83,31 @@ export interface CertificateEditorFields {
   rank?: CertificateEditorField;
 }
 
+// Generated certificate types
+export interface GeneratedCertificateRecipient {
+  name: string;
+  email?: string;
+  rank?: string;
+}
+
+export interface GeneratedCertificateRequest {
+  certificateId: string;
+  recipients: GeneratedCertificateRecipient[];
+  generatedBy: string;
+}
+
+export interface GeneratedCertificateData {
+  id: string;
+  certificateId: string;
+  noOfRecipient: number;
+  rank: boolean;
+  date: string;
+  recipients: GeneratedCertificateRecipient[];
+}
+
+export interface GeneratedCertificateResponse {
+  success: boolean;
+  message: string;
+  data?: GeneratedCertificateData;
+}
+
