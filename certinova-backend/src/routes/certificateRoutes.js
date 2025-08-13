@@ -6,7 +6,8 @@ import {
   updateCertificateConfig,
   uploadCertificateTemplate,
   storeGeneratedCertificate,
-  getGeneratedCertificates
+  getGeneratedCertificates,
+  getDecryptedGeneratedCertificates
 } from '../controllers/certificateController.js';
 
 const router = express.Router();
@@ -24,5 +25,8 @@ router.post('/storeGenerated', storeGeneratedCertificate);
 
 // Get generated certificates with filtering and pagination
 router.get('/generated', getGeneratedCertificates);
+
+// Decrypt and get generated certificates with password
+router.post('/generated/decrypt', getDecryptedGeneratedCertificates);
 
 export default router;

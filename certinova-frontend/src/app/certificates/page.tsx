@@ -8,10 +8,12 @@ import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Search, Filter, Users, Calendar, FileText, Hash, Eye, Loader2, AlertCircle, ChevronLeft, ChevronRight } from "lucide-react"
+import { Search, Filter, Users, Calendar, FileText, Hash, Eye, Loader2, AlertCircle, ChevronLeft, ChevronRight, Lock, Unlock } from "lucide-react"
 import { certificateService } from "@/services/certificate"
 import { CertificateListItem, GeneratedCertificateRecipient } from "@/types/certificate"
 import { toast } from "sonner"
+import { PasswordDialog } from "@/components/password-dialog"
+import { EncryptedCache } from "@/utils/crypto"
 
 export default function CertificatesPage() {
   const [searchTerm, setSearchTerm] = useState("")
@@ -23,6 +25,11 @@ export default function CertificatesPage() {
   const [certificates, setCertificates] = useState<CertificateListItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isDecrypted, setIsDecrypted] = useState(false)
+  
+  // Password dialog states
+  const [showPasswordDialog, setShowPasswordDialog] = useState(false)
+  const [isDecrypting, setIsDecrypting] = useState(false)
   
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1)
@@ -31,7 +38,7 @@ export default function CertificatesPage() {
   const [hasNextPage, setHasNextPage] = useState(false)
   const [hasPrevPage, setHasPrevPage] = useState(false)
 
-  // Fetch certificates data
+  // Fetch certificates data (encrypted by default)
   const fetchCertificates = useCallback(async () => {
     try {
       setIsLoading(true)
@@ -52,6 +59,16 @@ export default function CertificatesPage() {
         setTotalCount(response.data.pagination.totalCount)
         setHasNextPage(response.data.pagination.hasNextPage)
         setHasPrevPage(response.data.pagination.hasPrevPage)
+        
+        // Check if data requires decryption
+        if (response.data.requiresDecryption) {
+          setIsDecrypted(false)
+          toast.info("Password required for search", {
+            description: "Enter your password to decrypt and search certificate data."
+          })
+        } else {
+          setIsDecrypted(response.data.certificates[0]?.encrypted === false)
+        }
       } else {
         throw new Error(response.message || 'Failed to fetch certificates')
       }
@@ -65,6 +82,70 @@ export default function CertificatesPage() {
       setIsLoading(false)
     }
   }, [currentPage, searchTerm, filterBy])
+
+  // Fetch decrypted certificates with password
+  const fetchDecryptedCertificates = useCallback(async (password: string) => {
+    try {
+      setIsDecrypting(true)
+      setError(null)
+      
+      const response = await certificateService.getDecryptedGeneratedCertificates({
+        password,
+        page: currentPage,
+        limit: 10,
+        search: searchTerm,
+        filter: filterBy as 'all' | 'recent' | 'high-recipients' | 'with-rank' | 'without-rank',
+        sortBy: 'date',
+        sortOrder: 'desc'
+      })
+
+      if (response.success && response.data) {
+        setCertificates(response.data.certificates)
+        setTotalPages(response.data.pagination.totalPages)
+        setTotalCount(response.data.pagination.totalCount)
+        setHasNextPage(response.data.pagination.hasNextPage)
+        setHasPrevPage(response.data.pagination.hasPrevPage)
+        setIsDecrypted(true)
+        
+        // Cache password for future use
+        const cache = EncryptedCache.getInstance()
+        cache.setPassword(password)
+        
+        toast.success("Data decrypted successfully!", {
+          description: `Found ${response.data.certificates.length} matching certificates.`
+        })
+      } else {
+        throw new Error(response.message || 'Failed to decrypt certificates')
+      }
+    } catch (err) {
+      console.error('Error decrypting certificates:', err)
+      const errorMessage = err instanceof Error ? err.message : 'Failed to decrypt data'
+      setError(errorMessage)
+      
+      if (errorMessage.includes('password')) {
+        toast.error("Invalid password", {
+          description: "Please check your password and try again."
+        })
+      } else {
+        toast.error(errorMessage)
+      }
+      
+      setCertificates([])
+    } finally {
+      setIsDecrypting(false)
+      setShowPasswordDialog(false)
+    }
+  }, [currentPage, searchTerm, filterBy])
+
+  // Handle password dialog confirmation
+  const handlePasswordConfirm = (password: string) => {
+    fetchDecryptedCertificates(password)
+  }
+
+  // Handle unlock button click
+  const handleUnlockData = () => {
+    setShowPasswordDialog(true)
+  }
 
   // Fetch data on component mount and when dependencies change
   useEffect(() => {
@@ -120,8 +201,31 @@ export default function CertificatesPage() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Certificates Dashboard</h1>
-          <p className="text-gray-600">Manage and view all generated certificates</p>
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Certificates Dashboard</h1>
+              <p className="text-gray-600">Manage and view all generated certificates</p>
+            </div>
+            
+            {/* Unlock/Decrypt Button */}
+            {!isDecrypted && (
+              <Button
+                onClick={handleUnlockData}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+                disabled={isLoading}
+              >
+                <Unlock className="h-4 w-4 mr-2" />
+                Unlock Data
+              </Button>
+            )}
+            
+            {isDecrypted && (
+              <Badge variant="secondary" className="bg-green-100 text-green-700">
+                <Lock className="h-4 w-4 mr-1" />
+                Data Unlocked
+              </Badge>
+            )}
+          </div>
         </div>
 
         {/* Search and Filter Controls */}
@@ -368,6 +472,16 @@ export default function CertificatesPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Password Dialog for decrypting certificate data */}
+      <PasswordDialog
+        open={showPasswordDialog}
+        onClose={() => setShowPasswordDialog(false)}
+        onConfirm={handlePasswordConfirm}
+        title="Enter password to decrypt certificate data"
+        description="Enter your login password to decrypt and view detailed certificate information including recipient data."
+        isLoading={isDecrypting}
+      />
     </div>
   )
 }

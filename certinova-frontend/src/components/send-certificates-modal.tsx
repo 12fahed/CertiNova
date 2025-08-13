@@ -20,6 +20,8 @@ import { CertificateConfig } from "@/types/certificate"
 import { certificateService } from "@/services/certificate"
 import JSZip from "jszip"
 import { saveAs } from "file-saver"
+import { PasswordDialog } from "@/components/password-dialog"
+import { EncryptedCache, encryptData } from "@/utils/crypto"
 
 interface CertificateForSending {
   id: string
@@ -53,6 +55,8 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
   const [generationComplete, setGenerationComplete] = useState(false)
   const [certificateConfig, setCertificateConfig] = useState<CertificateConfig | null>(null)
   const [zipBlob, setZipBlob] = useState<Blob | null>(null)
+  const [showPasswordDialog, setShowPasswordDialog] = useState(false)
+  const [isStoringData, setIsStoringData] = useState(false)
 
   // Load certificate configuration when a certificate is selected
   useEffect(() => {
@@ -449,44 +453,8 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
       setIsGenerating(false);
       setGenerationComplete(true);
 
-      // Store the generated certificate data in database
-      try {
-        // Get user ID from localStorage
-        let generatedBy = "";
-        try {
-          const userDataString = localStorage.getItem("certinova_user");
-          if (userDataString) {
-            const userData = JSON.parse(userDataString);
-            if (userData && userData.id) {
-              generatedBy = userData.id;
-            }
-          }
-        } catch (error) {
-          console.error("Error reading user from localStorage:", error);
-        }
-
-        if (generatedBy && certificateConfig && certificateConfig.id) {
-          console.log("Storing generated certificate data in database...");
-          console.log("Certificate config object:", certificateConfig);
-          console.log("Using certificateConfig.id:", certificateConfig.id);
-          console.log("Selected certificate (eventId):", selectedCertificate);
-          await certificateService.storeGeneratedCertificate({
-            certificateId: certificateConfig.id, // Use the actual CertificateConfig ObjectId
-            recipients: recipients,
-            generatedBy: generatedBy
-          });
-          console.log("Generated certificate data stored successfully");
-        } else {
-          console.warn("Cannot store generated certificate data - missing user ID or certificate config:", {
-            generatedBy: !!generatedBy,
-            certificateConfig: !!certificateConfig,
-            certificateConfigId: certificateConfig?.id
-          });
-        }
-      } catch (storageError) {
-        console.error("Error storing generated certificate data:", storageError);
-        // Don't show error to user as the main operation was successful
-      }
+      // Show password dialog to store the generated certificate data in database
+      setShowPasswordDialog(true);
 
       // Trigger confetti
       confetti({
@@ -515,6 +483,72 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
       
       toast.error(errorMessage);
       setIsGenerating(false);
+    }
+  };
+
+  // Handle password confirmation and store data
+  const handlePasswordConfirm = async (password: string) => {
+    if (!certificateConfig) return;
+
+    setIsStoringData(true);
+    
+    try {
+      // Get user ID from localStorage
+      let generatedBy = "";
+      try {
+        const userDataString = localStorage.getItem("certinova_user");
+        if (userDataString) {
+          const userData = JSON.parse(userDataString);
+          if (userData && userData.id) {
+            generatedBy = userData.id;
+          }
+        }
+      } catch (error) {
+        console.error("Error reading user from localStorage:", error);
+      }
+
+      if (generatedBy && certificateConfig && certificateConfig.id) {
+        console.log("Storing generated certificate data in database with encryption...");
+        console.log("Certificate config object:", certificateConfig);
+        console.log("Using certificateConfig.id:", certificateConfig.id);
+        console.log("Selected certificate (eventId):", selectedCertificate);
+        
+        await certificateService.storeGeneratedCertificate({
+          certificateId: certificateConfig.id, // Use the actual CertificateConfig ObjectId
+          recipients: recipients,
+          generatedBy: generatedBy,
+          password: password
+        });
+
+        console.log("Generated certificate data stored successfully with encryption");
+        
+        // Cache the data for local use
+        const cache = EncryptedCache.getInstance();
+        cache.setPassword(password);
+        
+        // Encrypt and cache the data locally
+        const encryptedData = encryptData(recipients, password);
+        cache.set(`certificate_${certificateConfig.id}`, recipients);
+        
+        toast.success("Certificate data stored securely!", {
+          description: "Your certificate data has been encrypted and stored in the database."
+        });
+      } else {
+        console.warn("Cannot store generated certificate data - missing user ID or certificate config:", {
+          generatedBy: !!generatedBy,
+          certificateConfig: !!certificateConfig,
+          certificateConfigId: certificateConfig?.id
+        });
+        throw new Error("Missing user ID or certificate configuration");
+      }
+    } catch (storageError) {
+      console.error("Error storing generated certificate data:", storageError);
+      toast.error("Failed to store certificate data", {
+        description: storageError instanceof Error ? storageError.message : "Unknown error occurred"
+      });
+    } finally {
+      setIsStoringData(false);
+      setShowPasswordDialog(false);
     }
   };
 
@@ -896,6 +930,16 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Password Dialog for storing certificate data */}
+        <PasswordDialog
+          open={showPasswordDialog}
+          onClose={() => setShowPasswordDialog(false)}
+          onConfirm={handlePasswordConfirm}
+          title="Enter the login password to store the data securely"
+          description="Your certificate data will be encrypted using SHA-256 before storing in the database for maximum security."
+          isLoading={isStoringData}
+        />
       </DialogContent>
     </Dialog>
   )

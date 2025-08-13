@@ -139,6 +139,7 @@ export interface CertificateListItem {
   generatedBy: GeneratedByUser | null;
   createdAt: string;
   updatedAt: string;
+  encrypted?: boolean; // Indicates if data is encrypted
 }
 
 export interface CertificatesListResponse {
@@ -154,6 +155,7 @@ export interface CertificatesListResponse {
       hasPrevPage: boolean;
       limit: number;
     };
+    requiresDecryption?: boolean;
   };
 }
 

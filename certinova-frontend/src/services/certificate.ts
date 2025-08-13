@@ -80,7 +80,7 @@ class CertificateService {
     }) as Promise<CertificateConfigResponse>;
   }
 
-  // Store generated certificate data
+  // Store generated certificate data with password encryption
   async storeGeneratedCertificate(data: {
     certificateId: string;
     recipients: Array<{
@@ -89,6 +89,7 @@ class CertificateService {
       rank?: string;
     }>;
     generatedBy: string;
+    password: string;
   }): Promise<GeneratedCertificateResponse> {
     return this.makeRequest('/certificates/storeGenerated', {
       method: 'POST',
@@ -96,7 +97,7 @@ class CertificateService {
     }) as Promise<GeneratedCertificateResponse>;
   }
 
-  // Get generated certificates with filtering and pagination
+  // Get generated certificates (encrypted data, no password required)
   async getGeneratedCertificates(params?: {
     page?: number;
     limit?: number;
@@ -119,6 +120,22 @@ class CertificateService {
 
     return this.makeRequest(url, {
       method: 'GET',
+    }) as Promise<CertificatesListResponse>;
+  }
+
+  // Decrypt and get generated certificates with password
+  async getDecryptedGeneratedCertificates(params: {
+    password: string;
+    page?: number;
+    limit?: number;
+    search?: string;
+    filter?: 'all' | 'recent' | 'high-recipients' | 'with-rank' | 'without-rank';
+    sortBy?: 'date' | 'recipients' | 'certificateId';
+    sortOrder?: 'asc' | 'desc';
+  }): Promise<CertificatesListResponse> {
+    return this.makeRequest('/certificates/generated/decrypt', {
+      method: 'POST',
+      body: JSON.stringify(params),
     }) as Promise<CertificatesListResponse>;
   }
 }

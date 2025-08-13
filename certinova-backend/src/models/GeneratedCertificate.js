@@ -19,10 +19,25 @@ const generatedCertificateSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
+  // Store encrypted recipient data
+  encryptedRecipients: {
+    encryptedData: {
+      type: String,
+      required: true
+    },
+    salt: {
+      type: String,
+      required: true
+    },
+    iv: {
+      type: String,
+      required: true
+    }
+  },
+  // Legacy recipients field - keep for backward compatibility but mark as optional
   recipients: [{
     name: {
       type: String,
-      required: true,
       trim: true
     },
     email: {

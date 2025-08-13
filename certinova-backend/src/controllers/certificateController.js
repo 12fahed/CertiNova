@@ -3,6 +3,7 @@ import GeneratedCertificate from '../models/GeneratedCertificate.js';
 import Event from '../models/Event.js';
 import mongoose from 'mongoose';
 import { validateValidFields, isValidObjectId } from '../utils/validation.js';
+import { encryptData, decryptData, hashPassword } from '../utils/crypto.js';
 
 // @desc    Add certificate configuration
 // @route   POST /api/certificates/addCertificateConfig
@@ -304,16 +305,17 @@ export const uploadCertificateTemplate = async (req, res) => {
   }
 };
 
-// @desc    Store generated certificate data
+// @desc    Store generated certificate data with encryption
 // @route   POST /api/certificates/storeGenerated
 // @access  Protected (should be protected later with JWT)
 export const storeGeneratedCertificate = async (req, res) => {
   try {
-    const { certificateId, recipients, generatedBy } = req.body;
+    const { certificateId, recipients, generatedBy, password } = req.body;
     console.log('=== STORE GENERATED CERTIFICATE REQUEST ===');
     console.log('certificateId:', certificateId);
     console.log('recipients count:', recipients?.length);
     console.log('generatedBy:', generatedBy);
+    console.log('password provided:', !!password);
     
     // Validation
     if (!certificateId || !recipients || !Array.isArray(recipients) || recipients.length === 0) {
@@ -327,6 +329,13 @@ export const storeGeneratedCertificate = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: 'Please provide generatedBy (user ID)'
+      });
+    }
+
+    if (!password || typeof password !== 'string' || password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password is required and must be at least 6 characters long'
       });
     }
 
@@ -397,34 +406,47 @@ export const storeGeneratedCertificate = async (req, res) => {
       processedRecipients.push(processedRecipient);
     }
 
-    // Create the generated certificate record
+    // Encrypt the recipients data
+    console.log('Encrypting recipients data...');
+    const encryptedRecipients = encryptData(processedRecipients, password);
+    console.log('Recipients data encrypted successfully');
+
+    // Create the generated certificate record with encrypted data
     const generatedCertificate = new GeneratedCertificate({
       certificateId,
       noOfRecipient: processedRecipients.length,
       rank: hasRankData,
-      recipients: processedRecipients,
+      encryptedRecipients,
       generatedBy
     });
 
     await generatedCertificate.save();
 
-    console.log('Generated certificate stored successfully:', generatedCertificate._id);
+    console.log('Generated certificate stored successfully with encryption:', generatedCertificate._id);
 
     res.status(201).json({
       success: true,
-      message: 'Generated certificate data stored successfully',
+      message: 'Generated certificate data stored securely with encryption',
       data: {
         id: generatedCertificate._id,
         certificateId: generatedCertificate.certificateId,
         noOfRecipient: generatedCertificate.noOfRecipient,
         rank: generatedCertificate.rank,
         date: generatedCertificate.date,
-        recipients: generatedCertificate.recipients
+        // Don't return encrypted data in response for security
+        encrypted: true
       }
     });
 
   } catch (error) {
     console.error('Store generated certificate error:', error);
+
+    if (error.message.includes('encrypt')) {
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to encrypt certificate data'
+      });
+    }
 
     res.status(500).json({
       success: false,
@@ -434,7 +456,7 @@ export const storeGeneratedCertificate = async (req, res) => {
   }
 };
 
-// @desc    Get all generated certificates with pagination and filtering
+// @desc    Get all generated certificates with pagination and filtering (returns encrypted data)
 // @route   GET /api/certificates/generated
 // @access  Protected (should be protected later with JWT)
 export const getGeneratedCertificates = async (req, res) => {
@@ -454,18 +476,6 @@ export const getGeneratedCertificates = async (req, res) => {
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
     const skip = (pageNum - 1) * limitNum;
-
-    // Build search query
-    let searchQuery = {};
-    if (search && search.trim() !== '') {
-      const searchRegex = new RegExp(search.trim(), 'i');
-      searchQuery = {
-        $or: [
-          { 'recipients.name': searchRegex },
-          { 'recipients.email': searchRegex }
-        ]
-      };
-    }
 
     // Build filter query
     let filterQuery = {};
@@ -490,9 +500,6 @@ export const getGeneratedCertificates = async (req, res) => {
         break;
     }
 
-    // Combine search and filter queries
-    const query = { ...searchQuery, ...filterQuery };
-
     // Build sort object
     let sortObject = {};
     switch (sortBy) {
@@ -512,7 +519,7 @@ export const getGeneratedCertificates = async (req, res) => {
 
     // Execute queries
     const [generatedCertificates, totalCount] = await Promise.all([
-      GeneratedCertificate.find(query)
+      GeneratedCertificate.find(filterQuery)
         .populate('certificateId', 'eventId imagePath')
         .populate({
           path: 'certificateId',
@@ -526,23 +533,48 @@ export const getGeneratedCertificates = async (req, res) => {
         .skip(skip)
         .limit(limitNum)
         .lean(),
-      GeneratedCertificate.countDocuments(query)
+      GeneratedCertificate.countDocuments(filterQuery)
     ]);
 
-    // Transform data for frontend
-    const transformedData = generatedCertificates.map((cert, index) => ({
+    // For search, we need to handle it after getting all documents since we can't search encrypted data
+    let filteredData = generatedCertificates;
+    if (search && search.trim() !== '') {
+      // Return empty results for search when data is encrypted
+      // Frontend will need to use the decrypt endpoint with password to search
+      console.log('Search requested but data is encrypted. Returning message.');
+      return res.status(200).json({
+        success: true,
+        message: 'Search requires password to decrypt data. Please use the decrypt endpoint.',
+        data: {
+          certificates: [],
+          pagination: {
+            currentPage: pageNum,
+            totalPages: 0,
+            totalCount: 0,
+            hasNextPage: false,
+            hasPrevPage: false,
+            limit: limitNum
+          },
+          requiresDecryption: true
+        }
+      });
+    }
+
+    // Transform data for frontend (without decrypted recipient data)
+    const transformedData = filteredData.map((cert, index) => ({
       id: cert._id,
-      serialNumber: skip + index + 1, // Calculate serial number based on pagination
+      serialNumber: skip + index + 1,
       date: cert.date,
       certificateId: cert.certificateId?.eventId?.eventName || 'Unknown Event',
       eventDetails: cert.certificateId?.eventId || null,
-      recipients: cert.recipients || [],
+      recipients: [], // Don't return encrypted recipients
       noOfRecipient: cert.noOfRecipient || 0,
       rank: cert.rank || false,
-      generatedId: cert._id.toString().slice(-8).toUpperCase(), // Last 8 chars of MongoDB ObjectId
+      generatedId: cert._id.toString().slice(-8).toUpperCase(),
       generatedBy: cert.generatedBy || null,
       createdAt: cert.createdAt,
-      updatedAt: cert.updatedAt
+      updatedAt: cert.updatedAt,
+      encrypted: true // Indicate that this data is encrypted
     }));
 
     // Calculate pagination info
@@ -554,7 +586,7 @@ export const getGeneratedCertificates = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: 'Generated certificates retrieved successfully',
+      message: 'Generated certificates retrieved successfully (encrypted)',
       data: {
         certificates: transformedData,
         pagination: {
@@ -574,6 +606,198 @@ export const getGeneratedCertificates = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to retrieve generated certificates',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+    });
+  }
+};
+
+// @desc    Decrypt and get generated certificates with password
+// @route   POST /api/certificates/generated/decrypt
+// @access  Protected (should be protected later with JWT)
+export const getDecryptedGeneratedCertificates = async (req, res) => {
+  try {
+    const { 
+      password,
+      page = 1, 
+      limit = 10, 
+      search = '', 
+      filter = 'all',
+      sortBy = 'date',
+      sortOrder = 'desc'
+    } = req.body;
+
+    console.log('=== DECRYPT GENERATED CERTIFICATES REQUEST ===');
+    console.log('Query parameters:', { page, limit, search, filter, sortBy, sortOrder });
+
+    if (!password || typeof password !== 'string' || password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'Valid password is required for decryption'
+      });
+    }
+
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+    const skip = (pageNum - 1) * limitNum;
+
+    // Build filter query
+    let filterQuery = {};
+    const currentDate = new Date();
+    
+    switch (filter) {
+      case 'recent':
+        const sevenDaysAgo = new Date(currentDate.getTime() - 7 * 24 * 60 * 60 * 1000);
+        filterQuery.date = { $gte: sevenDaysAgo };
+        break;
+      case 'high-recipients':
+        filterQuery.noOfRecipient = { $gt: 2 };
+        break;
+      case 'with-rank':
+        filterQuery.rank = true;
+        break;
+      case 'without-rank':
+        filterQuery.rank = false;
+        break;
+      default:
+        break;
+    }
+
+    // Build sort object
+    let sortObject = {};
+    switch (sortBy) {
+      case 'date':
+        sortObject.date = sortOrder === 'asc' ? 1 : -1;
+        break;
+      case 'recipients':
+        sortObject.noOfRecipient = sortOrder === 'asc' ? 1 : -1;
+        break;
+      case 'certificateId':
+        sortObject.certificateId = sortOrder === 'asc' ? 1 : -1;
+        break;
+      default:
+        sortObject.date = -1;
+        break;
+    }
+
+    // Get all matching documents first (for search functionality)
+    const allCertificates = await GeneratedCertificate.find(filterQuery)
+      .populate('certificateId', 'eventId imagePath')
+      .populate({
+        path: 'certificateId',
+        populate: {
+          path: 'eventId',
+          select: 'eventName organisation issuerName'
+        }
+      })
+      .populate('generatedBy', 'name email organisation')
+      .sort(sortObject)
+      .lean();
+
+    // Decrypt and filter data
+    let decryptedCertificates = [];
+    const failedDecryptions = [];
+
+    for (const cert of allCertificates) {
+      try {
+        let recipients = [];
+        
+        if (cert.encryptedRecipients) {
+          // Decrypt the recipients data
+          recipients = decryptData(cert.encryptedRecipients, password);
+        } else if (cert.recipients) {
+          // Fallback to legacy unencrypted data
+          recipients = cert.recipients;
+        }
+
+        // Apply search filter after decryption
+        let includeInResults = true;
+        if (search && search.trim() !== '') {
+          const searchRegex = new RegExp(search.trim(), 'i');
+          const hasMatch = recipients.some(recipient => 
+            searchRegex.test(recipient.name) || 
+            (recipient.email && searchRegex.test(recipient.email)) ||
+            (recipient.rank && searchRegex.test(recipient.rank))
+          ) || searchRegex.test(cert.certificateId?.eventId?.eventName || '');
+          
+          includeInResults = hasMatch;
+        }
+
+        if (includeInResults) {
+          decryptedCertificates.push({
+            ...cert,
+            recipients
+          });
+        }
+      } catch (decryptError) {
+        console.error(`Failed to decrypt certificate ${cert._id}:`, decryptError.message);
+        failedDecryptions.push(cert._id);
+      }
+    }
+
+    // Apply pagination to filtered results
+    const totalCount = decryptedCertificates.length;
+    const paginatedCertificates = decryptedCertificates.slice(skip, skip + limitNum);
+
+    // Transform data for frontend
+    const transformedData = paginatedCertificates.map((cert, index) => ({
+      id: cert._id,
+      serialNumber: skip + index + 1,
+      date: cert.date,
+      certificateId: cert.certificateId?.eventId?.eventName || 'Unknown Event',
+      eventDetails: cert.certificateId?.eventId || null,
+      recipients: cert.recipients || [],
+      noOfRecipient: cert.noOfRecipient || 0,
+      rank: cert.rank || false,
+      generatedId: cert._id.toString().slice(-8).toUpperCase(),
+      generatedBy: cert.generatedBy || null,
+      createdAt: cert.createdAt,
+      updatedAt: cert.updatedAt,
+      encrypted: false // Indicate that this data has been decrypted
+    }));
+
+    // Calculate pagination info
+    const totalPages = Math.ceil(totalCount / limitNum);
+    const hasNextPage = pageNum < totalPages;
+    const hasPrevPage = pageNum > 1;
+
+    console.log(`Decrypted ${allCertificates.length} certificates, found ${totalCount} matching search, returning ${transformedData.length} for page ${pageNum}`);
+    if (failedDecryptions.length > 0) {
+      console.warn(`Failed to decrypt ${failedDecryptions.length} certificates:`, failedDecryptions);
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Generated certificates decrypted and retrieved successfully',
+      data: {
+        certificates: transformedData,
+        pagination: {
+          currentPage: pageNum,
+          totalPages,
+          totalCount,
+          hasNextPage,
+          hasPrevPage,
+          limit: limitNum
+        },
+        decryption: {
+          successful: allCertificates.length - failedDecryptions.length,
+          failed: failedDecryptions.length
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error('Decrypt generated certificates error:', error);
+
+    if (error.message.includes('decrypt') || error.message.includes('password')) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid password or failed to decrypt data'
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      message: 'Failed to decrypt and retrieve certificates',
       error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     });
   }
