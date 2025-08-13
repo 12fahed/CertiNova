@@ -92,12 +92,16 @@ export default function DashboardPage() {
 
     console.log('handleSaveCertificate - validFields:', validFields);
 
+    const requestPayload = {
+      eventId: currentEvent.id,
+      imagePath: image || '/placeholder-certificate.jpg',
+      validFields,
+    };
+    
+    console.log('handleSaveCertificate - Final API payload:', JSON.stringify(requestPayload, null, 2));
+
     try {
-      const config = await createCertificateConfig({
-        eventId: currentEvent.id,
-        imagePath: image || '/placeholder-certificate.jpg',
-        validFields,
-      });
+      const config = await createCertificateConfig(requestPayload);
 
       if (config && image) {
         // Update the image in our local state

@@ -118,6 +118,10 @@ export function CertificateEditor({ certificate, onSave, onClose }: CertificateE
   const [dragStartPos, setDragStartPos] = useState<{ x: number; y: number } | null>(null)
 
   const fontFamilies = [
+    "Inter",
+    "Roboto", 
+    "Open Sans",
+    "Montserrat",
     "Arial",
     "Times New Roman",
     "Helvetica",
@@ -128,6 +132,42 @@ export function CertificateEditor({ certificate, onSave, onClose }: CertificateE
     "Impact",
     "Lucida Console",
     "Tahoma",
+    "Poppins",
+    "Lato",
+    "Playfair Display",
+    "Raleway",
+    "Nunito",
+    "Oswald",
+    "Source Sans 3",
+    "Ubuntu",
+    "Merriweather",
+    "Noto Sans",
+    "Rubik",
+    "Fira Sans",
+    "Dosis",
+    "Archivo",
+    "Cabin",
+    "Quicksand",
+    "Josefin Sans",
+    "Work Sans",
+    "Manrope",
+    "Dancing Script",
+    "Pacifico",
+    "Great Vibes",
+    "Allura",
+    "Lobster",
+    "Satisfy",
+    "Cookie",
+    "Tangerine",
+    "Parisienne",
+    "Sacramento",
+    "Alex Brush",
+    "Mr Dafoe",
+    "Zeyada",
+    "Petit Formal Script",
+    "Qwigley",
+    "Rouge Script",
+    "Herr Von Muellerhoff",
   ]
 
   // Update fields when certificate prop changes
@@ -290,7 +330,7 @@ export function CertificateEditor({ certificate, onSave, onClose }: CertificateE
             y: finalY,
             width,
             height,
-            fontFamily: "Arial",
+            fontFamily: "Inter", // Use Google Font as default
             fontWeight: "normal",
             fontStyle: "normal",
             textDecoration: "none",
@@ -429,7 +469,7 @@ export function CertificateEditor({ certificate, onSave, onClose }: CertificateE
           );
           const fontSize = Math.max(calculatedFontSize, 8); // Minimum font size of 8
           
-          const fontFamily = position.fontFamily || "Arial"
+          const fontFamily = position.fontFamily || "Inter" // Use Google Font as fallback
           const fontWeight = position.fontWeight || "normal"
           const fontStyle = position.fontStyle || "normal"
 

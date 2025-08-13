@@ -226,13 +226,13 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
             case 'recipientName':
               // Names should be prominent and bold if not specified
               if (!position.fontWeight) position.fontWeight = 'bold';
-              if (!position.fontFamily) position.fontFamily = 'Georgia'; // Elegant serif for names
+              if (!position.fontFamily) position.fontFamily = 'Montserrat'; // Modern, elegant font for names
               break;
 
             case 'rank':
               // Ranks should be attention-grabbing
               if (!position.fontWeight) position.fontWeight = 'bold';
-              if (!position.fontFamily) position.fontFamily = 'Arial';
+              if (!position.fontFamily) position.fontFamily = 'Roboto';
               
               // Special styling for rank positions
               if (text.toLowerCase().includes('1st') || text.toLowerCase().includes('first')) {
@@ -242,25 +242,25 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
 
             case 'organisationName':
               // Organization names should be formal
-              if (!position.fontFamily) position.fontFamily = 'Times New Roman';
+              if (!position.fontFamily) position.fontFamily = 'Inter'; // Clean, professional font
               if (!position.fontWeight) position.fontWeight = 'normal';
               break;
 
             case 'certificateLink':
               // Links should be smaller and understated
-              if (!position.fontFamily) position.fontFamily = 'Arial';
+              if (!position.fontFamily) position.fontFamily = 'Open Sans'; // Readable for URLs
               if (!position.textDecoration) position.textDecoration = 'underline';
               break;
 
             case 'certificateQR':
               // QR placeholder should be centered and clear
-              if (!position.fontFamily) position.fontFamily = 'Arial';
+              if (!position.fontFamily) position.fontFamily = 'Inter';
               if (!position.fontWeight) position.fontWeight = 'bold';
               break;
 
             default:
               // Default styling
-              if (!position.fontFamily) position.fontFamily = 'Arial';
+              if (!position.fontFamily) position.fontFamily = 'Inter'; // Clean default
               break;
           }
 
@@ -283,11 +283,12 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
           maxFontSize = 72,
           fieldType?: string
         ) => {
+          // Apply rule-based styling if fieldType is provided
           const styledPosition = fieldType 
             ? applyRuleBasedStyling(fieldType, text, position)
             : position;
 
-          const fontFamily = styledPosition.fontFamily || "Arial";
+          const fontFamily = styledPosition.fontFamily || "Inter"; // Use Google Font as fallback
           const fontWeight = styledPosition.fontWeight || "normal";
           const fontStyle = styledPosition.fontStyle || "normal";
           const textDecoration = styledPosition.textDecoration || "none";

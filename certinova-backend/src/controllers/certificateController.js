@@ -9,9 +9,14 @@ import { validateValidFields, isValidObjectId } from '../utils/validation.js';
 export const addCertificateConfig = async (req, res) => {
   try {
     const { eventId, imagePath, validFields } = req.body;
-    console.log(eventId,  " " , imagePath, " ", validFields)
+    console.log('=== ADD CERTIFICATE CONFIG REQUEST ===');
+    console.log('eventId:', eventId);
+    console.log('imagePath:', imagePath);
+    console.log('validFields:', JSON.stringify(validFields, null, 2));
+    
     // Validation
     if (!eventId || !imagePath || !validFields) {
+      console.log('Missing required fields - eventId:', !!eventId, 'imagePath:', !!imagePath, 'validFields:', !!validFields);
       return res.status(400).json({
         success: false,
         message: 'Please provide eventId, imagePath, and validFields'
@@ -36,8 +41,12 @@ export const addCertificateConfig = async (req, res) => {
     }
 
     // Validate validFields structure
+    console.log('Starting validFields validation...');
     const validation = validateValidFields(validFields);
+    console.log('Validation result:', validation);
+    
     if (!validation.isValid) {
+      console.log('Validation failed with errors:', validation.errors);
       return res.status(400).json({
         success: false,
         message: 'Validation error',

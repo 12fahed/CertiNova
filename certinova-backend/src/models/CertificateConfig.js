@@ -1,35 +1,5 @@
 import mongoose from 'mongoose';
 
-// Schema for field styling properties
-const fieldStyleSchema = new mongoose.Schema({
-  fontSize: {
-    type: Number,
-    default: 24,
-    min: 8,
-    max: 200
-  },
-  fontFamily: {
-    type: String,
-    default: 'Arial',
-    enum: ['Arial', 'Times New Roman', 'Helvetica', 'Georgia', 'Verdana', 'Trebuchet MS', 'Comic Sans MS', 'Impact', 'Lucida Console', 'Tahoma']
-  },
-  fontWeight: {
-    type: String,
-    default: 'normal',
-    enum: ['normal', 'bold']
-  },
-  fontStyle: {
-    type: String,
-    default: 'normal',
-    enum: ['normal', 'italic']
-  },
-  textDecoration: {
-    type: String,
-    default: 'none',
-    enum: ['none', 'underline']
-  }
-}, { _id: false });
-
 // Schema for individual field with coordinates and styling
 const fieldSchema = new mongoose.Schema({
   x: {
@@ -54,8 +24,59 @@ const fieldSchema = new mongoose.Schema({
   },
   fontFamily: {
     type: String,
-    default: 'Arial',
-    enum: ['Arial', 'Times New Roman', 'Helvetica', 'Georgia', 'Verdana', 'Trebuchet MS', 'Comic Sans MS', 'Impact', 'Lucida Console', 'Tahoma']
+    default: 'Inter',
+    enum: [
+      'Inter',
+      'Roboto', 
+      'Open Sans',
+      'Montserrat',
+      'Arial',
+      'Times New Roman',
+      'Helvetica',
+      'Georgia',
+      'Verdana',
+      'Trebuchet MS',
+      'Comic Sans MS',
+      'Impact',
+      'Lucida Console',
+      'Tahoma',
+      'Poppins',
+      'Lato',
+      'Playfair Display',
+      'Raleway',
+      'Nunito',
+      'Oswald',
+      'Source Sans 3',
+      'Ubuntu',
+      'Merriweather',
+      'Noto Sans',
+      'Rubik',
+      'Fira Sans',
+      'Dosis',
+      'Archivo',
+      'Cabin',
+      'Quicksand',
+      'Josefin Sans',
+      'Work Sans',
+      'Manrope',
+      'Dancing Script',
+      'Pacifico',
+      'Great Vibes',
+      'Allura',
+      'Lobster',
+      'Satisfy',
+      'Cookie',
+      'Tangerine',
+      'Parisienne',
+      'Sacramento',
+      'Alex Brush',
+      'Mr Dafoe',
+      'Zeyada',
+      'Petit Formal Script',
+      'Qwigley',
+      'Rouge Script',
+      'Herr Von Muellerhoff',
+    ]
   },
   fontWeight: {
     type: String,
