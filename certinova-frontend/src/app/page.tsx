@@ -28,18 +28,18 @@ import { SendCertificatesModal } from "@/components/send-certificates-modal"
 import { Navbar } from "@/components/navbar"
 import { useAuth } from "@/context/AuthContext"
 
-interface Certificate {
-  id: string
+interface DisplayCertificate {
+  id?: string
   name: string
   event: string
   date: string
-  image: string
+  image?: string
   fields: {
-    recipientName?: { x: number; y: number; width: number; height: number }
-    organizationName?: { x: number; y: number; width: number; height: number }
-    certificateLink?: { x: number; y: number; width: number; height: number }
-    certificateQR?: { x: number; y: number; width: number; height: number }
-    rank?: { x: number; y: number; width: number; height: number }
+    recipientName?: { x: number; y: number; width: number; height: number; fontSize?: number; fontFamily?: string; fontWeight?: string; fontStyle?: string; textDecoration?: string }
+    organizationName?: { x: number; y: number; width: number; height: number; fontSize?: number; fontFamily?: string; fontWeight?: string; fontStyle?: string; textDecoration?: string }
+    certificateLink?: { x: number; y: number; width: number; height: number; fontSize?: number; fontFamily?: string; fontWeight?: string; fontStyle?: string; textDecoration?: string }
+    certificateQR?: { x: number; y: number; width: number; height: number; fontSize?: number; fontFamily?: string; fontWeight?: string; fontStyle?: string; textDecoration?: string }
+    rank?: { x: number; y: number; width: number; height: number; fontSize?: number; fontFamily?: string; fontWeight?: string; fontStyle?: string; textDecoration?: string }
   }
 }
 
@@ -47,10 +47,10 @@ export default function HomePage() {
   const { isAuthenticated, isLoading } = useAuth()
   const router = useRouter()
   const [showOnboarding, setShowOnboarding] = useState(false)
-  const [certificates, setCertificates] = useState<Certificate[]>([])
+  const [certificates, setCertificates] = useState<DisplayCertificate[]>([])
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showEditor, setShowEditor] = useState(false)
-  const [currentCertificate, setCurrentCertificate] = useState<Partial<Certificate> | null>(null)
+  const [currentCertificate, setCurrentCertificate] = useState<Partial<DisplayCertificate> | null>(null)
   const [showSendModal, setShowSendModal] = useState(false)
 
   // Redirect to dashboard if user is authenticated
@@ -140,7 +140,7 @@ export default function HomePage() {
     setShowEditor(true)
   }
 
-  const handleSaveCertificate = (certificate: Certificate) => {
+  const handleSaveCertificate = (certificate: DisplayCertificate) => {
     setCertificates((prev) => [...prev, certificate])
     setShowEditor(false)
     setCurrentCertificate(null)
@@ -386,7 +386,17 @@ export default function HomePage() {
         />
       )}
 
-      <SendCertificatesModal open={showSendModal} onClose={() => setShowSendModal(false)} certificates={certificates} />
+      <SendCertificatesModal 
+        open={showSendModal} 
+        onClose={() => setShowSendModal(false)} 
+        certificates={certificates.filter(cert => cert.id).map(cert => ({
+          id: cert.id!,
+          name: cert.name,
+          event: cert.event,
+          date: cert.date,
+          image: cert.image || ''
+        }))} 
+      />
     </div>
   )
 }

@@ -53,10 +53,10 @@ export function OnboardingModal({ open, onClose }: OnboardingModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={() => {}}>
-      <DialogContent className="sm:max-w-lg bg-white border border-gray-200" hideClose>
+      <DialogContent className="sm:max-w-lg bg-white border border-gray-200" showCloseButton={false}>
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-center text-gray-900">
-            Welcome! Let's get you set up
+            Welcome! Let&apos;s get you set up
           </DialogTitle>
           <div className="mt-4">
             <Progress value={progress} className="h-2" />
@@ -80,7 +80,7 @@ export function OnboardingModal({ open, onClose }: OnboardingModalProps) {
                   <User className="h-8 w-8 text-blue-600" />
                 </div>
                 <h3 className="text-lg font-semibold mb-2 text-gray-900">Tell us about yourself</h3>
-                <p className="text-gray-600">We'd like to know who we're working with</p>
+                <p className="text-gray-600">We&apos;d like to know who we&apos;re working with</p>
               </div>
 
               <div className="space-y-4">

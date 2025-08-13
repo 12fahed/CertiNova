@@ -46,7 +46,7 @@ export function CreateCertificateModal({ open, onClose, onSubmit }: CreateCertif
             <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
               <Award className="h-8 w-8 text-blue-600" />
             </div>
-            <p className="text-gray-600">Let's start by setting up your certificate details</p>
+            <p className="text-gray-600">Let&apos;s start by setting up your certificate details</p>
           </div>
 
           <div className="space-y-4">

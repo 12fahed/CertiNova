@@ -1,13 +1,9 @@
+import { ValidFields } from './certificate';
+
 export interface CertificateConfigData {
   id: string;
   imagePath: string;
-  validFields: {
-    recipientName?: [number, number, number, number];
-    organisationName?: [number, number, number, number];
-    certificateLink?: [number, number, number, number];
-    certificateQR?: [number, number, number, number];
-    rank?: [number, number, number, number];
-  };
+  validFields: ValidFields;
   createdAt: string;
   updatedAt: string;
 }

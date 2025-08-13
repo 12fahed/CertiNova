@@ -16,10 +16,11 @@ import { Send, Upload, User, FileSpreadsheet, Award, Download, Loader2, CheckCir
 import { toast } from "sonner"
 import confetti from "canvas-confetti"
 import { useCertificates } from "@/context/CertificateContext"
+import { CertificateConfig } from "@/types/certificate"
 import JSZip from "jszip"
 import { saveAs } from "file-saver"
 
-interface Certificate {
+interface CertificateForSending {
   id: string
   name: string
   event: string
@@ -30,7 +31,7 @@ interface Certificate {
 interface SendCertificatesModalProps {
   open: boolean
   onClose: () => void
-  certificates: Certificate[]
+  certificates: CertificateForSending[]
 }
 
 interface Recipient {
@@ -49,8 +50,7 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
   const [manualRank, setManualRank] = useState("")
   const [isGenerating, setIsGenerating] = useState(false)
   const [generationComplete, setGenerationComplete] = useState(false)
-  const [certificateConfig, setCertificateConfig] = useState<any>(null)
-  const [generatedCertificates, setGeneratedCertificates] = useState<string[]>([])
+  const [certificateConfig, setCertificateConfig] = useState<CertificateConfig | null>(null)
   const [zipBlob, setZipBlob] = useState<Blob | null>(null)
 
   // Load certificate configuration when a certificate is selected
@@ -204,177 +204,179 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
         
         console.log("Image dimensions:", img.width, img.height);
         
-        // Helper function to calculate optimal font size and center text
-        const drawTextInBox = (
+        // Helper function to apply rule-based styling based on field type and content
+        const applyRuleBasedStyling = (
+          fieldType: string,
           text: string,
-          boundingBox: [number, number, number, number], // [x, y, width, height]
-          options: {
+          basePosition: {
+            x: number
+            y: number
+            width: number
+            height: number
+            fontSize?: number
             fontFamily?: string
             fontWeight?: string
-            maxFontSize?: number
-            minFontSize?: number
-            padding?: number
-            lineHeight?: number
-            textAlign?: 'left' | 'center' | 'right'
-            verticalAlign?: 'top' | 'middle' | 'bottom'
-          } = {}
+            fontStyle?: string
+            textDecoration?: string
+          }
         ) => {
-          const [x, y, width, height] = boundingBox
-          const {
-            fontFamily = 'Arial',
-            fontWeight = 'normal',
-            maxFontSize = 72,
-            minFontSize = 8,
-            padding = 0,
-            lineHeight = 1.2,
-            textAlign = 'center',
-            verticalAlign = 'middle'
-          } = options
+          const position = { ...basePosition };
 
-          // Calculate available space after padding
-          const availableWidth = width - padding * 2
-          const availableHeight = height - padding * 2
+          // Rule-based styling logic
+          switch (fieldType) {
+            case 'recipientName':
+              // Names should be prominent and bold if not specified
+              if (!position.fontWeight) position.fontWeight = 'bold';
+              if (!position.fontSize) position.fontSize = Math.min(72, basePosition.height * 0.6);
+              if (!position.fontFamily) position.fontFamily = 'Georgia'; // Elegant serif for names
+              break;
 
-          // Split text into words
-          const words = text.split(' ')
-          let lines: string[] = []
-          let currentLine = words[0]
-
-          // Function to measure text width
-          const measureText = (font: string, text: string) => {
-            ctx.font = font
-            return ctx.measureText(text).width
-          }
-
-          // Find optimal font size and line breaks
-          let fontSize = maxFontSize
-          let fits = false
-
-          while (fontSize >= minFontSize && !fits) {
-            // Test if single line fits
-            const testFont = `${fontWeight} ${fontSize}px ${fontFamily}`
-            const singleLineWidth = measureText(testFont, text)
-
-            if (singleLineWidth <= availableWidth) {
-              lines = [text]
-              fits = true
-            } else {
-              // Need to break into multiple lines
-              lines = []
-              currentLine = words[0]
-
-              for (let i = 1; i < words.length; i++) {
-                const testLine = currentLine + ' ' + words[i]
-                const testWidth = measureText(testFont, testLine)
-
-                if (testWidth <= availableWidth) {
-                  currentLine = testLine
-                } else {
-                  lines.push(currentLine)
-                  currentLine = words[i]
-                }
+            case 'rank':
+              // Ranks should be attention-grabbing
+              if (!position.fontWeight) position.fontWeight = 'bold';
+              if (!position.fontSize) position.fontSize = Math.min(48, basePosition.height * 0.7);
+              if (!position.fontFamily) position.fontFamily = 'Arial';
+              
+              // Special styling for rank positions
+              if (text.toLowerCase().includes('1st') || text.toLowerCase().includes('first')) {
+                if (!position.fontStyle) position.fontStyle = 'italic';
               }
-              lines.push(currentLine)
+              break;
 
-              // Check if all lines fit vertically
-              const totalHeight = fontSize * lines.length * lineHeight
-              fits = totalHeight <= availableHeight
-            }
+            case 'organisationName':
+              // Organization names should be formal
+              if (!position.fontSize) position.fontSize = Math.min(40, basePosition.height * 0.5);
+              if (!position.fontFamily) position.fontFamily = 'Times New Roman';
+              if (!position.fontWeight) position.fontWeight = 'normal';
+              break;
 
-            if (!fits) {
-              fontSize -= 1
-            }
+            case 'certificateLink':
+              // Links should be smaller and understated
+              if (!position.fontSize) position.fontSize = Math.min(16, basePosition.height * 0.4);
+              if (!position.fontFamily) position.fontFamily = 'Arial';
+              if (!position.textDecoration) position.textDecoration = 'underline';
+              break;
+
+            case 'certificateQR':
+              // QR placeholder should be centered and clear
+              if (!position.fontSize) position.fontSize = Math.min(24, basePosition.height * 0.5);
+              if (!position.fontFamily) position.fontFamily = 'Arial';
+              if (!position.fontWeight) position.fontWeight = 'bold';
+              break;
+
+            default:
+              // Default styling
+              if (!position.fontSize) position.fontSize = Math.min(32, basePosition.height * 0.6);
+              if (!position.fontFamily) position.fontFamily = 'Arial';
+              break;
           }
 
-          // If we couldn't make it fit even at min font size, use min size and truncate
-          if (!fits && fontSize <= minFontSize) {
-            fontSize = minFontSize
-            lines = [text.substring(0, Math.floor(availableWidth / (fontSize * 0.6))) + '...']
+          // Additional rules based on text content
+          if (text.length > 30) {
+            // Long text should be smaller
+            position.fontSize = Math.min(position.fontSize, 24);
           }
 
-          // Set final font
-          ctx.font = `${fontWeight} ${fontSize}px ${fontFamily}`
-          ctx.textAlign = textAlign
-          ctx.textBaseline = 'alphabetic'
-
-          // Calculate vertical position
-          const lineHeightPx = fontSize * lineHeight
-          const totalTextHeight = lines.length * lineHeightPx
-          let verticalPos = y + padding
-
-          if (verticalAlign === 'middle') {
-            verticalPos += (availableHeight - totalTextHeight) / 2 + fontSize
-          } else if (verticalAlign === 'bottom') {
-            verticalPos += availableHeight - totalTextHeight + fontSize
-          } else {
-            verticalPos += fontSize // Top alignment
+          if (/^[A-Z\s]+$/.test(text)) {
+            // All caps text might benefit from letter spacing (simulated by slightly larger font)
+            position.fontSize = Math.min(position.fontSize * 1.1, position.fontSize + 4);
           }
 
-          // Draw each line
-          lines.forEach((line, i) => {
-            let horizontalPos = x + padding
-            if (textAlign === 'center') {
-              horizontalPos += availableWidth / 2
-            } else if (textAlign === 'right') {
-              horizontalPos += availableWidth
-            }
+          return position;
+        };
 
-            ctx.fillText(line, horizontalPos, verticalPos + i * lineHeightPx)
-          })
+        // Helper function to draw centered text with stored styling (updated version)
+        const drawCenteredText = (
+          text: string,
+          position: {
+            x: number
+            y: number
+            width: number
+            height: number
+            fontSize?: number
+            fontFamily?: string
+            fontWeight?: string
+            fontStyle?: string
+            textDecoration?: string
+          },
+          maxFontSize = 72,
+          fieldType?: string
+        ) => {
+          // Apply rule-based styling if fieldType is provided
+          const styledPosition = fieldType 
+            ? applyRuleBasedStyling(fieldType, text, position)
+            : position;
 
-          return {
-            fontSize,
-            lines,
-            actualHeight: lines.length * lineHeightPx,
-            boundingBox: [x, y, width, height]
+          // Apply font styles from database or use rule-based defaults
+          const fontSize = styledPosition.fontSize || maxFontSize
+          const fontFamily = styledPosition.fontFamily || "Arial"
+          const fontWeight = styledPosition.fontWeight || "normal"
+          const fontStyle = styledPosition.fontStyle || "normal"
+          const textDecoration = styledPosition.textDecoration || "none"
+
+          ctx.font = `${fontStyle} ${fontWeight} ${fontSize}px ${fontFamily}`
+
+          // Measure text and reduce font size until it fits within the bounding box
+          let textMetrics = ctx.measureText(text)
+          let adjustedFontSize = fontSize
+          while (
+            (textMetrics.width > position.width * 0.9 || adjustedFontSize > position.height * 0.8) &&
+            adjustedFontSize > 8
+          ) {
+            adjustedFontSize -= 2
+            ctx.font = `${fontStyle} ${fontWeight} ${adjustedFontSize}px ${fontFamily}`
+            textMetrics = ctx.measureText(text)
           }
-}
 
-        
+          // Calculate centered position
+          const textX = position.x + (position.width - textMetrics.width) / 2
+          const textY = position.y + (position.height + adjustedFontSize * 0.3) / 2 // 0.3 accounts for font baseline
 
-        
+          // Set text color (you can make this configurable later)
+          ctx.fillStyle = "#000000"
+
+          // Draw the text
+          ctx.fillText(text, textX, textY)
+
+          // Handle text decoration
+          if (textDecoration === "underline") {
+            const lineY = textY + 2
+            ctx.beginPath()
+            ctx.moveTo(textX, lineY)
+            ctx.lineTo(textX + textMetrics.width, lineY)
+            ctx.lineWidth = Math.max(1, adjustedFontSize / 20) // Scale line width with font size
+            ctx.stroke()
+          }
+        }
+
         // Apply recipient name if coordinates exist
         if (certificateConfig.validFields.recipientName) {
           console.log("Recipient name coordinates:", certificateConfig.validFields.recipientName);
-          ctx.fillStyle = "#000000";
-          // drawCenteredText(recipient.name, certificateConfig.validFields.recipientName, "Arial", 72);
-          drawTextInBox(recipient.name, certificateConfig.validFields.recipientName, {
-            fontFamily: "Arial",
-            fontWeight: "bold",
-            maxFontSize: 72,
-            minFontSize: 12,
-            padding: 10,
-            textAlign: "center",
-            verticalAlign: "middle"
-          });
+          drawCenteredText(recipient.name, certificateConfig.validFields.recipientName, 72, 'recipientName');
         }
         
         // Apply rank if coordinates exist and recipient has rank
         if (certificateConfig.validFields.rank && recipient.rank) {
-          ctx.fillStyle = "#000000";
-          drawTextInBox(recipient.rank, certificateConfig.validFields.rank, {
-            fontFamily: "Arial",
-            maxFontSize: 48,
-            minFontSize: 10,
-            padding: 5,
-            textAlign: "center",
-            verticalAlign: "middle"
-          });
+          drawCenteredText(recipient.rank, certificateConfig.validFields.rank, 48, 'rank');
         }
         
         // Apply organisation name if coordinates exist
         if (certificateConfig.validFields.organisationName) {
-          // You can get organisation name from the certificate config or make it configurable
-          const orgName = certificateConfig.eventId?.organisation || "Sample Organization";
-          ctx.fillStyle = "#000000";
-          drawTextInBox(orgName, certificateConfig.validFields.organisationName, {
-            fontFamily: "Arial",
-            maxFontSize: 48,
-            minFontSize: 10,
-            padding: 5,
-            textAlign: "center",
-            verticalAlign: "middle"
-          });
+          // You can get organisation name from user context or make it configurable
+          const orgName = "Sample Organization"; // TODO: Make this configurable
+          drawCenteredText(orgName, certificateConfig.validFields.organisationName, 48, 'organisationName');
+        }
+
+        // Apply certificate link if coordinates exist (optional)
+        if (certificateConfig.validFields.certificateLink) {
+          const certLink = `https://certificates.com/verify/${recipient.name.replace(/\s+/g, '-').toLowerCase()}`;
+          drawCenteredText(certLink, certificateConfig.validFields.certificateLink, 24, 'certificateLink');
+        }
+
+        // Apply certificate QR placeholder if coordinates exist (optional)
+        if (certificateConfig.validFields.certificateQR) {
+          const qrPlaceholder = "[QR CODE]";
+          drawCenteredText(qrPlaceholder, certificateConfig.validFields.certificateQR, 32, 'certificateQR');
         }
         
         // Convert canvas to blob
@@ -413,7 +415,6 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
       // Generate the zip file
       const zipBlob = await zip.generateAsync({ type: "blob" });
       setZipBlob(zipBlob);
-      setGeneratedCertificates(generatedUrls);
       
       setIsGenerating(false);
       setGenerationComplete(true);
@@ -468,7 +469,6 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
     setGenerationComplete(false);
     setCertificateConfig(null);
     setZipBlob(null);
-    setGeneratedCertificates([]);
   };
 
   const handleClose = () => {
