@@ -164,9 +164,6 @@ export const CertificateProvider: React.FC<CertificateProviderProps> = ({ childr
         };
 
         // Add styling properties if they exist
-        if (field.fontSize !== undefined) {
-          validField.fontSize = field.fontSize;
-        }
         if (field.fontFamily !== undefined) {
           validField.fontFamily = field.fontFamily;
         }
@@ -204,7 +201,6 @@ export const CertificateProvider: React.FC<CertificateProviderProps> = ({ childr
           y: field.y,
           width: field.width,
           height: field.height,
-          fontSize: field.fontSize,
           fontFamily: field.fontFamily,
           fontWeight: field.fontWeight,
           fontStyle: field.fontStyle,

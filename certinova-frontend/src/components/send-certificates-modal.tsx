@@ -213,7 +213,6 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
             y: number
             width: number
             height: number
-            fontSize?: number
             fontFamily?: string
             fontWeight?: string
             fontStyle?: string
@@ -227,14 +226,12 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
             case 'recipientName':
               // Names should be prominent and bold if not specified
               if (!position.fontWeight) position.fontWeight = 'bold';
-              if (!position.fontSize) position.fontSize = Math.min(72, basePosition.height * 0.6);
               if (!position.fontFamily) position.fontFamily = 'Georgia'; // Elegant serif for names
               break;
 
             case 'rank':
               // Ranks should be attention-grabbing
               if (!position.fontWeight) position.fontWeight = 'bold';
-              if (!position.fontSize) position.fontSize = Math.min(48, basePosition.height * 0.7);
               if (!position.fontFamily) position.fontFamily = 'Arial';
               
               // Special styling for rank positions
@@ -245,41 +242,26 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
 
             case 'organisationName':
               // Organization names should be formal
-              if (!position.fontSize) position.fontSize = Math.min(40, basePosition.height * 0.5);
               if (!position.fontFamily) position.fontFamily = 'Times New Roman';
               if (!position.fontWeight) position.fontWeight = 'normal';
               break;
 
             case 'certificateLink':
               // Links should be smaller and understated
-              if (!position.fontSize) position.fontSize = Math.min(16, basePosition.height * 0.4);
               if (!position.fontFamily) position.fontFamily = 'Arial';
               if (!position.textDecoration) position.textDecoration = 'underline';
               break;
 
             case 'certificateQR':
               // QR placeholder should be centered and clear
-              if (!position.fontSize) position.fontSize = Math.min(24, basePosition.height * 0.5);
               if (!position.fontFamily) position.fontFamily = 'Arial';
               if (!position.fontWeight) position.fontWeight = 'bold';
               break;
 
             default:
               // Default styling
-              if (!position.fontSize) position.fontSize = Math.min(32, basePosition.height * 0.6);
               if (!position.fontFamily) position.fontFamily = 'Arial';
               break;
-          }
-
-          // Additional rules based on text content
-          if (text.length > 30) {
-            // Long text should be smaller
-            position.fontSize = Math.min(position.fontSize, 24);
-          }
-
-          if (/^[A-Z\s]+$/.test(text)) {
-            // All caps text might benefit from letter spacing (simulated by slightly larger font)
-            position.fontSize = Math.min(position.fontSize * 1.1, position.fontSize + 4);
           }
 
           return position;
@@ -293,7 +275,6 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
             y: number
             width: number
             height: number
-            fontSize?: number
             fontFamily?: string
             fontWeight?: string
             fontStyle?: string
@@ -307,8 +288,14 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
             ? applyRuleBasedStyling(fieldType, text, position)
             : position;
 
-          // Apply font styles from database or use rule-based defaults
-          const fontSize = styledPosition.fontSize || maxFontSize
+          // Calculate font size based on field dimensions and text content
+          const calculatedFontSize = Math.min(
+            position.width / text.length * 1.5, // Width-based calculation
+            position.height * 0.8, // Height-based calculation
+            maxFontSize // Maximum allowed
+          );
+          const fontSize = Math.max(calculatedFontSize, 8); // Minimum font size of 8
+          
           const fontFamily = styledPosition.fontFamily || "Arial"
           const fontWeight = styledPosition.fontWeight || "normal"
           const fontStyle = styledPosition.fontStyle || "normal"

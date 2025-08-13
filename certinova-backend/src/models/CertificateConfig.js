@@ -52,12 +52,6 @@ const fieldSchema = new mongoose.Schema({
     required: true,
     min: 1
   },
-  fontSize: {
-    type: Number,
-    default: 24,
-    min: 8,
-    max: 200
-  },
   fontFamily: {
     type: String,
     default: 'Arial',

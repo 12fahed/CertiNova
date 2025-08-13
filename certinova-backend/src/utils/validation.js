@@ -78,15 +78,6 @@ export const validateField = (field, fieldName) => {
   }
 
   // Validate optional styling properties
-  if (field.fontSize !== undefined) {
-    if (typeof field.fontSize !== 'number' || field.fontSize < 8 || field.fontSize > 200) {
-      return {
-        isValid: false,
-        error: `Field ${fieldName}.fontSize must be a number between 8 and 200`
-      };
-    }
-  }
-
   if (field.fontFamily !== undefined) {
     if (typeof field.fontFamily !== 'string' || !VALID_FONT_FAMILIES.includes(field.fontFamily)) {
       return {

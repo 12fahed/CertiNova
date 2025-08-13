@@ -20,7 +20,6 @@ export interface ValidField {
   y: number;
   width: number;
   height: number;
-  fontSize?: number;
   fontFamily?: string;
   fontWeight?: string;
   fontStyle?: string;
@@ -68,7 +67,6 @@ export interface CertificateEditorField {
   y: number;
   width: number;
   height: number;
-  fontSize?: number;
   fontFamily?: string;
   fontWeight?: string;
   fontStyle?: string;

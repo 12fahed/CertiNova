@@ -7,7 +7,6 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
 import {
   Upload,
   User,
@@ -21,8 +20,6 @@ import {
   Bold,
   Italic,
   Underline,
-  Minus,
-  Plus,
   AlignLeft,
   AlignCenter,
   AlignRight,
@@ -43,7 +40,6 @@ interface Certificate {
       y: number
       width: number
       height: number
-      fontSize?: number
       fontFamily?: string
       fontWeight?: string
       fontStyle?: string
@@ -54,7 +50,6 @@ interface Certificate {
       y: number
       width: number
       height: number
-      fontSize?: number
       fontFamily?: string
       fontWeight?: string
       fontStyle?: string
@@ -65,7 +60,6 @@ interface Certificate {
       y: number
       width: number
       height: number
-      fontSize?: number
       fontFamily?: string
       fontWeight?: string
       fontStyle?: string
@@ -76,7 +70,6 @@ interface Certificate {
       y: number
       width: number
       height: number
-      fontSize?: number
       fontFamily?: string
       fontWeight?: string
       fontStyle?: string
@@ -87,7 +80,6 @@ interface Certificate {
       y: number
       width: number
       height: number
-      fontSize?: number
       fontFamily?: string
       fontWeight?: string
       fontStyle?: string
@@ -137,8 +129,6 @@ export function CertificateEditor({ certificate, onSave, onClose }: CertificateE
     "Lucida Console",
     "Tahoma",
   ]
-
-  const fontSizes = [12, 14, 16, 18, 20, 24, 28, 32, 36, 48, 60, 72]
 
   // Update fields when certificate prop changes
   useEffect(() => {
@@ -244,7 +234,7 @@ export function CertificateEditor({ certificate, onSave, onClose }: CertificateE
         const clickY = e.clientY - imgRect.top
 
         // Check if clicking on an existing field
-        const clickedField = Object.entries(fields).find(([fieldType, position]) => {
+        const clickedField = Object.entries(fields).find(([, position]) => {
           const displayScaleX = img.offsetWidth / img.naturalWidth
           const displayScaleY = img.offsetHeight / img.naturalHeight
           const displayX = position.x * displayScaleX
@@ -300,7 +290,6 @@ export function CertificateEditor({ certificate, onSave, onClose }: CertificateE
             y: finalY,
             width,
             height,
-            fontSize: 24,
             fontFamily: "Arial",
             fontWeight: "normal",
             fontStyle: "normal",
@@ -379,13 +368,6 @@ export function CertificateEditor({ certificate, onSave, onClose }: CertificateE
     }))
   }
 
-  const handleFontSizeChange = (fieldType: FieldType, value: string) => {
-    const numValue = Number.parseInt(value)
-    if (!isNaN(numValue) && numValue > 0 && numValue <= 200) {
-      updateFieldStyle(fieldType, "fontSize", numValue)
-    }
-  }
-
   const handleSave = () => {
     if (!uploadedImage) {
       toast("Upload Required", {
@@ -432,16 +414,21 @@ export function CertificateEditor({ certificate, onSave, onClose }: CertificateE
             y: number
             width: number
             height: number
-            fontSize?: number
             fontFamily?: string
             fontWeight?: string
             fontStyle?: string
             textDecoration?: string
           },
-          maxFontSize = 72,
+          maxFontSize = 72
         ) => {
-          // Apply font styles
-          const fontSize = position.fontSize || maxFontSize
+          // Calculate font size based on field dimensions
+          const calculatedFontSize = Math.min(
+            position.width / text.length * 1.5, // Width-based calculation
+            position.height * 0.8, // Height-based calculation
+            maxFontSize // Maximum allowed
+          );
+          const fontSize = Math.max(calculatedFontSize, 8); // Minimum font size of 8
+          
           const fontFamily = position.fontFamily || "Arial"
           const fontWeight = position.fontWeight || "normal"
           const fontStyle = position.fontStyle || "normal"
@@ -462,7 +449,7 @@ export function CertificateEditor({ certificate, onSave, onClose }: CertificateE
 
           // Calculate centered position
           const textX = position.x + (position.width - textMetrics.width) / 2
-          const textY = position.y + (position.height + adjustedFontSize * 0.3) / 2 // 0.3 accounts for font baseline
+          const textY = position.y + (position.height + adjustedFontSize * 0.3) / 2
 
           // Draw the text
           ctx.fillText(text, textX, textY)
@@ -549,42 +536,6 @@ export function CertificateEditor({ certificate, onSave, onClose }: CertificateE
                     ))}
                   </DropdownMenuContent>
                 </DropdownMenu>
-
-                {/* Font Size Controls */}
-                <div className="flex items-center gap-1">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      const currentSize = fields[selectedFieldForToolbar]?.fontSize || 24
-                      if (currentSize > 8) {
-                        updateFieldStyle(selectedFieldForToolbar, "fontSize", currentSize - 2)
-                      }
-                    }}
-                  >
-                    <Minus className="h-3 w-3" />
-                  </Button>
-                  <Input
-                    type="number"
-                    value={fields[selectedFieldForToolbar]?.fontSize || 24}
-                    onChange={(e) => handleFontSizeChange(selectedFieldForToolbar, e.target.value)}
-                    className="w-16 text-center"
-                    min="8"
-                    max="200"
-                  />
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      const currentSize = fields[selectedFieldForToolbar]?.fontSize || 24
-                      if (currentSize < 200) {
-                        updateFieldStyle(selectedFieldForToolbar, "fontSize", currentSize + 2)
-                      }
-                    }}
-                  >
-                    <Plus className="h-3 w-3" />
-                  </Button>
-                </div>
 
                 {/* Text Style Buttons */}
                 <div className="flex items-center gap-1">
