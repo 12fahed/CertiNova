@@ -12,6 +12,7 @@ interface EventContextType {
   createEvent: (eventData: Omit<EventRequest, 'organisationID' | 'organisation'>) => Promise<Event | null>;
   fetchEvents: () => Promise<void>;
   refreshEvents: () => Promise<void>;
+  deleteEvent: (eventId: string) => Promise<boolean>;
 }
 
 const EventContext = createContext<EventContextType | undefined>(undefined);
@@ -95,12 +96,37 @@ export const EventProvider: React.FC<EventProviderProps> = ({ children }) => {
     await fetchEvents();
   }, [fetchEvents]);
 
+  const deleteEvent = async (eventId: string): Promise<boolean> => {
+    try {
+      setIsLoading(true);
+      const response = await eventService.deleteEvent(eventId);
+
+      if (response.success) {
+        // Remove the event from local state
+        setEvents(prev => prev.filter(event => event.id !== eventId));
+        toast.success(response.message || 'Event deleted successfully!');
+        return true;
+      } else {
+        toast.error(response.message || 'Failed to delete event');
+        return false;
+      }
+    } catch (error: unknown) {
+      console.error('Delete event error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to delete event';
+      toast.error(errorMessage);
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const value: EventContextType = {
     events,
     isLoading,
     createEvent,
     fetchEvents,
     refreshEvents,
+    deleteEvent,
   };
 
   return <EventContext.Provider value={value}>{children}</EventContext.Provider>;

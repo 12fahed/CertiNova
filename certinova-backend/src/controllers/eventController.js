@@ -1,7 +1,10 @@
 import Event from '../models/Event.js';
 import User from '../models/User.js';
 import CertificateConfig from '../models/CertificateConfig.js';
+import GeneratedCertificate from '../models/GeneratedCertificate.js';
 import mongoose from 'mongoose';
+import fs from 'fs';
+import path from 'path';
 
 // @desc    Add a new event
 // @route   POST /api/events/addEvent
@@ -154,6 +157,120 @@ export const getEventsByOrganisation = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Internal server error'
+    });
+  }
+};
+
+// @desc    Delete an event and all related data
+// @route   DELETE /api/events/:eventId
+// @access  Protected (should be protected later with JWT)
+export const deleteEvent = async (req, res) => {
+  try {
+    const { eventId } = req.params;
+
+    console.log('=== DELETE EVENT REQUEST ===');
+    console.log('Event ID:', eventId);
+
+    // Validate eventId format
+    if (!mongoose.Types.ObjectId.isValid(eventId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid event ID format'
+      });
+    }
+
+    // Check if event exists
+    const event = await Event.findById(eventId);
+    if (!event) {
+      return res.status(404).json({
+        success: false,
+        message: 'Event not found'
+      });
+    }
+
+    console.log('Found event:', event.eventName);
+
+    // Track what we've deleted for the response
+    let deletedCertificateConfig = false;
+    let deletedGeneratedCertificatesCount = 0;
+    let deletedTemplateFile = false;
+
+    try {
+      // 1. Find and delete certificate configuration
+      const certificateConfig = await CertificateConfig.findOne({ eventId });
+      
+      if (certificateConfig) {
+        console.log('Found certificate config:', certificateConfig._id);
+        
+        // Delete certificate template file if it exists
+        if (certificateConfig.imagePath) {
+          try {
+            const filePath = path.join(process.cwd(), 'public', certificateConfig.imagePath);
+            if (fs.existsSync(filePath)) {
+              fs.unlinkSync(filePath);
+              deletedTemplateFile = true;
+              console.log('Deleted template file:', certificateConfig.imagePath);
+            }
+          } catch (fileError) {
+            console.warn('Failed to delete template file:', fileError.message);
+            // Continue with deletion even if file deletion fails
+          }
+        }
+
+        // 2. Delete all generated certificates for this certificate config
+        const deleteResult = await GeneratedCertificate.deleteMany({ 
+          certificateId: certificateConfig._id 
+        });
+        deletedGeneratedCertificatesCount = deleteResult.deletedCount;
+        console.log(`Deleted ${deletedGeneratedCertificatesCount} generated certificate records`);
+
+        // 3. Delete certificate config from database
+        await CertificateConfig.deleteOne({ _id: certificateConfig._id });
+        deletedCertificateConfig = true;
+        console.log('Deleted certificate config');
+      } else {
+        console.log('No certificate config found for this event');
+      }
+
+      // 4. Delete the event itself
+      await Event.deleteOne({ _id: eventId });
+      console.log('Deleted event');
+
+      res.status(200).json({
+        success: true,
+        message: `Event "${event.eventName}" and all related data have been successfully deleted`,
+        data: {
+          deletedEvent: {
+            id: event._id,
+            eventName: event.eventName,
+            issuerName: event.issuerName
+          },
+          deletedCertificateConfig,
+          deletedGeneratedCertificatesCount,
+          deletedTemplateFile
+        }
+      });
+
+    } catch (deletionError) {
+      console.error('Error during deletion process:', deletionError);
+      throw new Error(`Deletion process failed: ${deletionError.message}`);
+    }
+
+  } catch (error) {
+    console.error('Delete event error:', error);
+
+    // Handle specific error cases
+    if (error.name === 'CastError') {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid event ID format'
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      message: 'Failed to delete event',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     });
   }
 };

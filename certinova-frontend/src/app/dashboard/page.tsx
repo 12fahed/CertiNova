@@ -19,6 +19,7 @@ import {
 import { CreateCertificateModal } from "@/components/create-certificate-modal";
 import { CertificateEditor } from "@/components/certificate-editor";
 import { SendCertificatesModal } from "@/components/send-certificates-modal";
+import { DeleteConfirmationModal } from "@/components/delete-confirmation-modal";
 import { Navbar } from "@/components/navbar";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { ViewHistoryButton } from "@/components/view-history-button";
@@ -30,7 +31,7 @@ import { CertificateConfig } from "@/types/certificate";
 
 export default function DashboardPage() {
   const { user } = useAuth();
-  const { events, createEvent, fetchEvents } = useEvents();
+  const { events, createEvent, fetchEvents, deleteEvent } = useEvents();
   const { 
     createCertificateConfig, 
     getCertificateConfig,
@@ -45,6 +46,8 @@ export default function DashboardPage() {
   const [currentEvent, setCurrentEvent] = useState<Event | null>(null);
   const [currentCertificateConfig, setCurrentCertificateConfig] = useState<CertificateConfig | null>(null);
   const [showSendModal, setShowSendModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [eventToDelete, setEventToDelete] = useState<Event | null>(null);
   const [certificateImages, setCertificateImages] = useState<Record<string, string>>({});
 
   // Load events when component mounts
@@ -177,9 +180,24 @@ export default function DashboardPage() {
     setShowEditor(true);
   };
 
-  const handleDeleteCertificate = (id: string) => {
-    // For now, we'll implement event deletion later
-    console.log('Delete event:', id);
+  const handleDeleteCertificate = (event: Event) => {
+    setEventToDelete(event);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDeleteCertificate = async () => {
+    if (!eventToDelete) return;
+    
+    const success = await deleteEvent(eventToDelete.id);
+    if (success) {
+      // Remove from certificate images
+      setCertificateImages(prev => {
+        const updated = { ...prev };
+        delete updated[eventToDelete.id];
+        return updated;
+      });
+      setEventToDelete(null);
+    }
   };
 
   const handleDownloadSample = async (event: Event) => {
@@ -566,7 +584,7 @@ export default function DashboardPage() {
                             </Button>
                           )}
                           <Button
-                            onClick={() => handleDeleteCertificate(event.id)}
+                            onClick={() => handleDeleteCertificate(event)}
                             variant="outline"
                             size="sm"
                             className="text-red-600 border-red-200 hover:bg-red-50"
@@ -628,6 +646,16 @@ export default function DashboardPage() {
               fields: {}
             }))}
           onClose={() => setShowSendModal(false)}
+        />
+
+        <DeleteConfirmationModal
+          open={showDeleteModal}
+          eventName={eventToDelete?.eventName || ''}
+          onClose={() => {
+            setShowDeleteModal(false);
+            setEventToDelete(null);
+          }}
+          onConfirm={confirmDeleteCertificate}
         />
       </div>
     </ProtectedRoute>

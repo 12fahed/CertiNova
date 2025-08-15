@@ -38,6 +38,12 @@ class EventService {
       method: 'GET',
     }) as Promise<EventsListResponse>;
   }
+
+  async deleteEvent(eventId: string): Promise<{ success: boolean; message: string }> {
+    return this.makeRequest(`/events/${eventId}`, {
+      method: 'DELETE',
+    }) as Promise<{ success: boolean; message: string }>;
+  }
 }
 
 export const eventService = new EventService();
