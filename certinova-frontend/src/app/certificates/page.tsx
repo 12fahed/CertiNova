@@ -467,11 +467,19 @@ export default function CertificatesPage() {
                 </TableBody>
               </Table>
 
-              {filteredRecipients.length === 0 && (
+              {isDecrypted ? (
+                  filteredRecipients.length === 0 && (
+                  <div className="text-center py-8">
+                    <Users className="h-8 w-8 text-gray-300 mx-auto mb-2" />
+                    <p className="text-gray-500">No recipients found</p>
+                    <p className="text-gray-400 text-sm">Try adjusting your search criteria</p>
+                  </div>
+                )
+              ): (
                 <div className="text-center py-8">
                   <Users className="h-8 w-8 text-gray-300 mx-auto mb-2" />
-                  <p className="text-gray-500">No recipients found</p>
-                  <p className="text-gray-400 text-sm">Try adjusting your search criteria</p>
+                  <p className="text-red-400">Cannot Display Details</p>
+                  <p className="text-red-300 text-sm">Please Enter Login Password</p>
                 </div>
               )}
             </div>
