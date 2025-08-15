@@ -170,7 +170,8 @@ export default function CertificatesPage() {
       (recipient) =>
         recipient.name.toLowerCase().includes(recipientSearchTerm.toLowerCase()) ||
         (recipient.email && recipient.email.toLowerCase().includes(recipientSearchTerm.toLowerCase())) ||
-        (recipient.rank && recipient.rank.toLowerCase().includes(recipientSearchTerm.toLowerCase())),
+        (recipient.rank && recipient.rank.toLowerCase().includes(recipientSearchTerm.toLowerCase())) ||
+        (recipient.uuid && recipient.uuid.toLowerCase().includes(recipientSearchTerm.toLowerCase())),
     )
   }, [selectedCertificate, recipientSearchTerm])
 
@@ -296,7 +297,7 @@ export default function CertificatesPage() {
                   <TableRow className="border-gray-200">
                     <TableHead className="text-gray-700">Serial No.</TableHead>
                     <TableHead className="text-gray-700">Date</TableHead>
-                    <TableHead className="text-gray-700">Certificate ID</TableHead>
+                    <TableHead className="text-gray-700">Event Name</TableHead>
                     <TableHead className="text-gray-700">No. of Recipients</TableHead>
                     <TableHead className="text-gray-700">Generated ID</TableHead>
                     <TableHead className="text-gray-700">Actions</TableHead>
@@ -402,7 +403,7 @@ export default function CertificatesPage() {
 
       {/* Recipients Modal */}
       <Dialog open={!!selectedCertificate} onOpenChange={closeModal}>
-        <DialogContent className="max-w-4xl max-h-[80vh] bg-white border-gray-200">
+        <DialogContent className="min-w-2xl max-h-[80vh] bg-white border-gray-200">
           <DialogHeader className="border-b border-gray-200 pb-4">
             <DialogTitle className="text-xl font-bold text-gray-900 flex items-center gap-2">
               <Users className="h-5 w-5" />
@@ -415,7 +416,7 @@ export default function CertificatesPage() {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
-                placeholder="Search recipients by name, email, or rank..."
+                placeholder="Search recipients by name, email, rank, or UUID..."
                 value={recipientSearchTerm}
                 onChange={(e) => setRecipientSearchTerm(e.target.value)}
                 className="pl-10 border-gray-200 bg-white"
@@ -430,6 +431,7 @@ export default function CertificatesPage() {
                     <TableHead className="text-gray-700">Name</TableHead>
                     <TableHead className="text-gray-700">Email</TableHead>
                     <TableHead className="text-gray-700">Rank</TableHead>
+                    <TableHead className="text-gray-700">UUID</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -444,6 +446,20 @@ export default function CertificatesPage() {
                           </Badge>
                         ) : (
                           <span className="text-gray-400">No rank</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {recipient.uuid ? (
+                          <div className="flex items-center gap-2">
+                            <code className="text-xs bg-gray-100 px-2 py-1 rounded font-mono border">
+                              {recipient.uuid}
+                            </code>
+                            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-300 text-xs">
+                              Verified
+                            </Badge>
+                          </div>
+                        ) : (
+                          <span className="text-gray-400">No UUID</span>
                         )}
                       </TableCell>
                     </TableRow>

@@ -88,6 +88,7 @@ export interface GeneratedCertificateRecipient {
   name: string;
   email?: string;
   rank?: string;
+  uuid?: string;
 }
 
 export interface GeneratedCertificateRequest {
