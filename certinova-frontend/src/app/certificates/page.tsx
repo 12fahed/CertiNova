@@ -300,7 +300,6 @@ export default function CertificatesPage() {
                     <TableHead className="text-gray-700">Event Name</TableHead>
                     <TableHead className="text-gray-700">No. of Recipients</TableHead>
                     <TableHead className="text-gray-700">Generated ID</TableHead>
-                    <TableHead className="text-gray-700">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -308,7 +307,6 @@ export default function CertificatesPage() {
                     // Loading skeleton rows
                     Array.from({ length: 5 }).map((_, i) => (
                       <TableRow key={i} className="border-gray-200">
-                        <TableCell><div className="h-4 bg-gray-200 rounded animate-pulse"></div></TableCell>
                         <TableCell><div className="h-4 bg-gray-200 rounded animate-pulse"></div></TableCell>
                         <TableCell><div className="h-4 bg-gray-200 rounded animate-pulse"></div></TableCell>
                         <TableCell><div className="h-4 bg-gray-200 rounded animate-pulse"></div></TableCell>
@@ -342,12 +340,6 @@ export default function CertificatesPage() {
                             <Hash className="h-4 w-4 text-gray-400" />
                             <code className="text-sm bg-gray-100 px-2 py-1 rounded">{certificate.generatedId}</code>
                           </div>
-                        </TableCell>
-                        <TableCell>
-                          <Button variant="outline" size="sm" className="border-gray-200 hover:bg-gray-50 bg-transparent">
-                            <Eye className="h-4 w-4 mr-1" />
-                            View
-                          </Button>
                         </TableCell>
                       </TableRow>
                     ))
