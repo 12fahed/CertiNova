@@ -87,6 +87,7 @@ class CertificateService {
       name: string;
       email?: string;
       rank?: string;
+      uuid?: string;
     }>;
     generatedBy: string;
     password: string;

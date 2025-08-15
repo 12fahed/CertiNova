@@ -21,6 +21,8 @@ import { certificateService } from "@/services/certificate"
 import JSZip from "jszip"
 import { saveAs } from "file-saver"
 import * as XLSX from "xlsx"
+import { v4 as uuidv4 } from "uuid"
+import QRCode from "qrcode"
 import { PasswordDialog } from "@/components/password-dialog"
 import { EncryptedCache } from "@/utils/crypto"
 
@@ -42,6 +44,7 @@ interface Recipient {
   name: string
   email?: string
   rank?: string
+  uuid?: string
 }
 
 export function SendCertificatesModal({ open, onClose, certificates }: SendCertificatesModalProps) {
@@ -120,6 +123,7 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
     const recipient: Recipient = {
       name: manualName.trim(),
       email: manualEmail.trim() || undefined,
+      uuid: uuidv4(), // Generate unique UUID for each recipient
     };
 
     // Only include rank if the certificate configuration supports it and rank is provided
@@ -179,6 +183,9 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
               })
 
               if (recipient.name) {
+                // Generate UUID for each recipient
+                recipient.uuid = uuidv4();
+                
                 // Validate if rank is required but missing
                 if (certificateConfig?.validFields?.rank && !recipient.rank) {
                   toast.error(`Missing rank for ${recipient.name}`, {
@@ -236,6 +243,9 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
               })
 
               if (recipient.name) {
+                // Generate UUID for each recipient
+                recipient.uuid = uuidv4();
+                
                 // Validate if rank is required but missing
                 if (certificateConfig?.validFields?.rank && !recipient.rank) {
                   toast.error(`Missing rank for ${recipient.name}`, {
@@ -476,6 +486,49 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
           }
         };
 
+        // Helper function to draw QR code on canvas
+        const drawQRCode = async (
+          data: string,
+          position: {
+            x: number;
+            y: number;
+            width: number;
+            height: number;
+          }
+        ) => {
+          try {
+            // Generate QR code as data URL
+            const qrDataUrl = await QRCode.toDataURL(data, {
+              width: Math.min(position.width, position.height),
+              margin: 1,
+              color: {
+                dark: '#000000',
+                light: '#FFFFFF'
+              }
+            });
+
+            // Create image from QR code data URL
+            const qrImg = new window.Image();
+            await new Promise<void>((resolve, reject) => {
+              qrImg.onload = () => resolve();
+              qrImg.onerror = reject;
+              qrImg.src = qrDataUrl;
+            });
+
+            // Calculate QR code dimensions (square, centered)
+            const qrSize = Math.min(position.width, position.height) * 0.8; // 80% of available space
+            const qrX = position.x + (position.width - qrSize) / 2;
+            const qrY = position.y + (position.height - qrSize) / 2;
+
+            // Draw QR code on canvas
+            ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
+          } catch (error) {
+            console.error('Error generating QR code:', error);
+            // Fallback to text if QR generation fails
+            drawCenteredText(`[QR: ${data}]`, position, 16, 'certificateQR');
+          }
+        };
+
         // Apply recipient name if coordinates exist
         if (certificateConfig.validFields.recipientName) {
           console.log(`Drawing recipient name for ${recipient.name}:`, certificateConfig.validFields.recipientName);
@@ -508,15 +561,15 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
         }
 
         // Apply certificate link if coordinates exist (optional)
-        if (certificateConfig.validFields.certificateLink) {
-          const certLink = `https://certificates.com/verify/${recipient.name.replace(/\s+/g, '-').toLowerCase()}`;
-          drawCenteredText(certLink, certificateConfig.validFields.certificateLink, 24, 'certificateLink');
+        if (certificateConfig.validFields.certificateLink && recipient.uuid) {
+          console.log(`Drawing certificate link for ${recipient.name}: ${recipient.uuid}`);
+          drawCenteredText(recipient.uuid, certificateConfig.validFields.certificateLink, 24, 'certificateLink');
         }
 
-        // Apply certificate QR placeholder if coordinates exist (optional)
-        if (certificateConfig.validFields.certificateQR) {
-          const qrPlaceholder = "[QR CODE]";
-          drawCenteredText(qrPlaceholder, certificateConfig.validFields.certificateQR, 32, 'certificateQR');
+        // Apply certificate QR code if coordinates exist (optional)
+        if (certificateConfig.validFields.certificateQR && recipient.uuid) {
+          console.log(`Drawing QR code for ${recipient.name}: ${recipient.uuid}`);
+          await drawQRCode(recipient.uuid, certificateConfig.validFields.certificateQR);
         }
         
         // Convert canvas to blob
@@ -959,6 +1012,11 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
                             {recipient.rank && (
                               <Badge variant="secondary" className="ml-2 bg-blue-100 text-blue-700">
                                 {recipient.rank}
+                              </Badge>
+                            )}
+                            {recipient.uuid && (
+                              <Badge variant="outline" className="ml-2 bg-green-50 text-green-700 border-green-300">
+                                UUID: {recipient.uuid.substring(0, 8)}...
                               </Badge>
                             )}
                           </div>

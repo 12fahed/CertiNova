@@ -397,6 +397,12 @@ export const storeGeneratedCertificate = async (req, res) => {
         email: recipient.email ? recipient.email.trim().toLowerCase() : undefined
       };
 
+      // Include UUID if provided
+      if (recipient.uuid && typeof recipient.uuid === 'string' && recipient.uuid.trim() !== '') {
+        console.log(recipient.uuid)
+        processedRecipient.uuid = recipient.uuid.trim();
+      }
+
       // Only include rank if coordinates exist and data is provided
       if (hasRankCoordinates && recipient.rank && typeof recipient.rank === 'string' && recipient.rank.trim() !== '') {
         processedRecipient.rank = recipient.rank.trim();
