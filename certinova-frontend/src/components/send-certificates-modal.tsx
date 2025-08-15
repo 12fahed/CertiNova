@@ -21,7 +21,7 @@ import { certificateService } from "@/services/certificate"
 import JSZip from "jszip"
 import { saveAs } from "file-saver"
 import { PasswordDialog } from "@/components/password-dialog"
-import { EncryptedCache, encryptData } from "@/utils/crypto"
+import { EncryptedCache } from "@/utils/crypto"
 
 interface CertificateForSending {
   id: string
@@ -101,22 +101,39 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
   }, [open, certificates]);
 
   const handleAddManualRecipient = () => {
-    if (manualName.trim()) {
-      const recipient: Recipient = {
-        name: manualName.trim(),
-        email: manualEmail.trim() || undefined,
-      };
-
-      // Only include rank if the certificate configuration supports it and rank is provided
-      if (certificateConfig?.validFields?.rank && manualRank.trim()) {
-        recipient.rank = manualRank.trim();
-      }
-
-      setRecipients((prev) => [...prev, recipient]);
-      setManualName("");
-      setManualEmail("");
-      setManualRank("");
+    if (!manualName.trim()) {
+      toast.error("Name is required", {
+        description: "Please enter a recipient name.",
+      });
+      return;
     }
+
+    // Check if rank is required but not provided
+    if (certificateConfig?.validFields?.rank && !manualRank.trim()) {
+      toast.error("Rank is required", {
+        description: "This certificate template requires a rank for each recipient.",
+      });
+      return;
+    }
+
+    const recipient: Recipient = {
+      name: manualName.trim(),
+      email: manualEmail.trim() || undefined,
+    };
+
+    // Only include rank if the certificate configuration supports it and rank is provided
+    if (certificateConfig?.validFields?.rank && manualRank.trim()) {
+      recipient.rank = manualRank.trim();
+    }
+
+    setRecipients((prev) => [...prev, recipient]);
+    setManualName("");
+    setManualEmail("");
+    setManualRank("");
+    
+    toast.success("Recipient added", {
+      description: `${recipient.name} has been added to the list.`,
+    });
   }
 
   const handleCSVUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -526,8 +543,7 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
         const cache = EncryptedCache.getInstance();
         cache.setPassword(password);
         
-        // Encrypt and cache the data locally
-        const encryptedData = encryptData(recipients, password);
+        // Cache the data locally (encryption is handled internally)
         cache.set(`certificate_${certificateConfig.id}`, recipients);
         
         toast.success("Certificate data stored securely!", {
@@ -597,11 +613,110 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
             >
               <div className="text-center">
                 <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Send className="h-8 w-8 text-blue-600" />
+                  <Award className="h-8 w-8 text-blue-600" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2 text-gray-900">Select Certificate Template</h3>
+                <p className="text-gray-600">Choose which certificate to use for generation</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {certificates.map((certificate) => (
+                  <Card
+                    key={certificate.id}
+                    className={`cursor-pointer transition-all duration-200 border-2 ${
+                      selectedCertificate === certificate.id
+                        ? "border-blue-500 bg-blue-50"
+                        : "border-gray-200 hover:border-gray-300 hover:shadow-sm"
+                    }`}
+                    onClick={() => {
+                      console.log('Selecting certificate:', certificate.id);
+                      setSelectedCertificate(certificate.id);
+                    }}
+                  >
+                    <CardContent className="p-4">
+                      <div className="aspect-video bg-gray-100 rounded-lg mb-4 flex items-center justify-center border border-gray-200">
+                        {certificate.image ? (
+                          <Image 
+                            src={certificate.image}
+                            alt={certificate.name}
+                            width={300}
+                            height={170}
+                            className="w-full h-full object-cover rounded-lg"
+                            unoptimized
+                          />
+                        ) : (
+                          <Award className="h-12 w-12 text-gray-400" />
+                        )}
+                      </div>
+                      <h4 className="font-semibold mb-1 text-gray-900">{certificate.name}</h4>
+                      <p className="text-sm text-gray-600 mb-2">{certificate.event}</p>
+                      <Badge variant="secondary" className="bg-gray-100 text-gray-700">
+                        {certificate.date}
+                      </Badge>
+                      {/* Show rank indicator if certificate supports rankings */}
+                      {selectedCertificate === certificate.id && certificateConfig?.validFields?.rank && (
+                        <Badge variant="default" className="mt-2 bg-green-100 text-green-700">
+                          Supports Rankings
+                        </Badge>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              {certificates.length === 0 && (
+                <div className="text-center py-8">
+                  <Award className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-500">No certificates available. Create one first.</p>
+                </div>
+              )}
+
+              <Button
+                onClick={() => setStep(2)}
+                disabled={!selectedCertificate}
+                className="w-full bg-blue-600 hover:bg-blue-700"
+              >
+                Continue to Input Method
+              </Button>
+            </motion.div>
+          )}
+
+          {step === 2 && (
+            <motion.div
+              key="step2"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-6 py-4"
+            >
+              <div className="text-center">
+                <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Send className="h-8 w-8 text-green-600" />
                 </div>
                 <h3 className="text-lg font-semibold mb-2 text-gray-900">Choose Input Method</h3>
                 <p className="text-gray-600">How would you like to add recipients?</p>
               </div>
+
+              {/* Show selected certificate info */}
+              {selectedCertificate && (
+                <Card className="border-blue-200 bg-blue-50">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-medium text-blue-900">Selected Certificate:</h4>
+                        <p className="text-sm text-blue-700">
+                          {certificates.find((c) => c.id === selectedCertificate)?.name}
+                        </p>
+                      </div>
+                      {certificateConfig?.validFields?.rank && (
+                        <Badge variant="default" className="bg-green-100 text-green-700">
+                          Supports Rankings
+                        </Badge>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
               <Tabs defaultValue="manual" className="w-full">
                 <TabsList className="grid w-full grid-cols-2 bg-gray-100">
@@ -656,7 +771,7 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
                         {certificateConfig?.validFields?.rank && (
                           <div className="space-y-2">
                             <Label htmlFor="manualRank" className="text-gray-700">
-                              Rank (Optional)
+                              Rank (Required)
                             </Label>
                             <Input
                               id="manualRank"
@@ -664,6 +779,7 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
                               onChange={(e) => setManualRank(e.target.value)}
                               placeholder="e.g., 1st Place"
                               className="border-gray-200"
+                              required
                             />
                           </div>
                         )}
@@ -744,78 +860,6 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
                 </Card>
               )}
 
-              <Button
-                onClick={() => setStep(2)}
-                disabled={recipients.length === 0}
-                className="w-full bg-blue-600 hover:bg-blue-700"
-              >
-                Continue to Certificate Selection
-              </Button>
-            </motion.div>
-          )}
-
-          {step === 2 && (
-            <motion.div
-              key="step2"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="space-y-6 py-4"
-            >
-              <div className="text-center">
-                <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Award className="h-8 w-8 text-green-600" />
-                </div>
-                <h3 className="text-lg font-semibold mb-2 text-gray-900">Select Certificate Template</h3>
-                <p className="text-gray-600">Choose which certificate to use for generation</p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {certificates.map((certificate) => (
-                  <Card
-                    key={certificate.id}
-                    className={`cursor-pointer transition-all duration-200 border-2 ${
-                      selectedCertificate === certificate.id
-                        ? "border-blue-500 bg-blue-50"
-                        : "border-gray-200 hover:border-gray-300 hover:shadow-sm"
-                    }`}
-                    onClick={() => {
-                      console.log('Selecting certificate:', certificate.id);
-                      setSelectedCertificate(certificate.id);
-                    }}
-                  >
-                    <CardContent className="p-4">
-                      <div className="aspect-video bg-gray-100 rounded-lg mb-4 flex items-center justify-center border border-gray-200">
-                        {certificate.image ? (
-                          <Image 
-                            src={certificate.image}
-                            alt={certificate.name}
-                            width={300}
-                            height={170}
-                            className="w-full h-full object-cover rounded-lg"
-                            unoptimized
-                          />
-                        ) : (
-                          <Award className="h-12 w-12 text-gray-400" />
-                        )}
-                      </div>
-                      <h4 className="font-semibold mb-1 text-gray-900">{certificate.name}</h4>
-                      <p className="text-sm text-gray-600 mb-2">{certificate.event}</p>
-                      <Badge variant="secondary" className="bg-gray-100 text-gray-700">
-                        {certificate.date}
-                      </Badge>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-
-              {certificates.length === 0 && (
-                <div className="text-center py-8">
-                  <Award className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-500">No certificates available. Create one first.</p>
-                </div>
-              )}
-
               <div className="flex space-x-3">
                 <Button
                   variant="outline"
@@ -826,10 +870,10 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
                 </Button>
                 <Button
                   onClick={() => setStep(3)}
-                  disabled={!selectedCertificate}
+                  disabled={recipients.length === 0}
                   className="flex-1 bg-blue-600 hover:bg-blue-700"
                 >
-                  Generate Certificates {selectedCertificate && `(${selectedCertificate.slice(0, 8)}...)`}
+                  Continue to Generation
                 </Button>
               </div>
             </motion.div>
@@ -849,17 +893,17 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
                     <CheckCircle className="h-8 w-8 text-green-600" />
                   </div>
                 ) : (
-                  <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Loader2 className="h-8 w-8 text-blue-600 animate-spin" />
+                  <div className="w-16 h-16 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Loader2 className="h-8 w-8 text-purple-600 animate-spin" />
                   </div>
                 )}
                 <h3 className="text-lg font-semibold mb-2 text-gray-900">
-                  {generationComplete ? "Certificates Generated!" : "Generating Certificates..."}
+                  {generationComplete ? "Certificates Generated!" : "Generate Certificates"}
                 </h3>
                 <p className="text-gray-600">
                   {generationComplete
                     ? "Your certificates are ready for download"
-                    : "Please wait while we generate your certificates"}
+                    : "Review your settings and generate certificates"}
                 </p>
               </div>
 
@@ -880,12 +924,27 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
                       <span className="font-medium text-gray-900">{recipients.length}</span>
                     </div>
                     <div className="flex justify-between">
+                      <span className="text-gray-600">Supports Rankings:</span>
+                      <Badge
+                        variant={certificateConfig?.validFields?.rank ? "default" : "secondary"}
+                        className={certificateConfig?.validFields?.rank ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"}
+                      >
+                        {certificateConfig?.validFields?.rank ? "Yes" : "No"}
+                      </Badge>
+                    </div>
+                    <div className="flex justify-between">
                       <span className="text-gray-600">Status:</span>
                       <Badge
-                        variant={generationComplete ? "default" : "secondary"}
-                        className={generationComplete ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"}
+                        variant={generationComplete ? "default" : isGenerating ? "secondary" : "outline"}
+                        className={
+                          generationComplete 
+                            ? "bg-green-100 text-green-700" 
+                            : isGenerating 
+                            ? "bg-blue-100 text-blue-700" 
+                            : "bg-gray-100 text-gray-700"
+                        }
                       >
-                        {generationComplete ? "Complete" : "Processing..."}
+                        {generationComplete ? "Complete" : isGenerating ? "Processing..." : "Ready"}
                       </Badge>
                     </div>
                   </div>
@@ -893,23 +952,32 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
               </Card>
 
               {!generationComplete && (
-                <Button
-                  onClick={handleGenerateCertificates}
-                  disabled={isGenerating}
-                  className="w-full bg-green-600 hover:bg-green-700"
-                >
-                  {isGenerating ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Generating...
-                    </>
-                  ) : (
-                    <>
-                      <Send className="h-4 w-4 mr-2" />
-                      Start Generation
-                    </>
-                  )}
-                </Button>
+                <div className="space-y-3">
+                  <Button
+                    variant="outline"
+                    onClick={() => setStep(2)}
+                    className="w-full border-gray-300 text-gray-700 hover:bg-gray-50"
+                  >
+                    Back to Recipients
+                  </Button>
+                  <Button
+                    onClick={handleGenerateCertificates}
+                    disabled={isGenerating}
+                    className="w-full bg-green-600 hover:bg-green-700"
+                  >
+                    {isGenerating ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="h-4 w-4 mr-2" />
+                        Start Generation
+                      </>
+                    )}
+                  </Button>
+                </div>
               )}
 
               {generationComplete && (
