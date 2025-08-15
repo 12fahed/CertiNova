@@ -1,5 +1,6 @@
 import CertificateConfig from '../models/CertificateConfig.js';
 import GeneratedCertificate from '../models/GeneratedCertificate.js';
+import VerifyUUID from '../models/VerifyUUID.js';
 import Event from '../models/Event.js';
 import mongoose from 'mongoose';
 import { validateValidFields, isValidObjectId } from '../utils/validation.js';
@@ -430,6 +431,30 @@ export const storeGeneratedCertificate = async (req, res) => {
 
     console.log('Generated certificate stored successfully with encryption:', generatedCertificate._id);
 
+    // Create UUID verification documents for each recipient with a UUID
+    console.log('Creating UUID verification documents...');
+    const uuidVerifications = [];
+    
+    for (const recipient of processedRecipients) {
+      if (recipient.uuid) {
+        try {
+          const verifyUUID = new VerifyUUID({
+            generatedCertificateId: generatedCertificate._id,
+            uuid: recipient.uuid
+          });
+          
+          const savedVerification = await verifyUUID.save();
+          uuidVerifications.push(savedVerification);
+          console.log(`UUID verification created for UUID: ${recipient.uuid}`);
+        } catch (uuidError) {
+          console.error(`Failed to create UUID verification for ${recipient.uuid}:`, uuidError);
+          // Continue with other UUIDs even if one fails
+        }
+      }
+    }
+    
+    console.log(`Created ${uuidVerifications.length} UUID verification documents`);
+
     res.status(201).json({
       success: true,
       message: 'Generated certificate data stored securely with encryption',
@@ -804,6 +829,117 @@ export const getDecryptedGeneratedCertificates = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to decrypt and retrieve certificates',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+    });
+  }
+};
+
+// @desc    Verify UUID and get certificate information
+// @route   GET /api/certificates/verify/:uuid
+// @access  Public
+export const verifyUUID = async (req, res) => {
+  try {
+    const { uuid } = req.params;
+
+    if (!uuid) {
+      return res.status(400).json({
+        success: false,
+        message: 'UUID is required'
+      });
+    }
+
+    console.log('Verifying UUID:', uuid);
+
+    // Find the UUID verification document
+    const verifyRecord = await VerifyUUID.findOne({ uuid }).populate('generatedCertificateId');
+
+    if (!verifyRecord) {
+      return res.status(404).json({
+        success: false,
+        message: 'UUID not found or invalid',
+        verified: false
+      });
+    }
+
+    console.log('UUID verification found:', verifyRecord._id);
+
+    // Get the associated generated certificate
+    const generatedCertificate = verifyRecord.generatedCertificateId;
+
+    if (!generatedCertificate) {
+      return res.status(404).json({
+        success: false,
+        message: 'Associated certificate not found',
+        verified: false
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'UUID verified successfully',
+      verified: true,
+      data: {
+        uuid: verifyRecord.uuid,
+        certificateId: generatedCertificate.certificateId,
+        generatedDate: generatedCertificate.date,
+        verificationId: verifyRecord._id,
+        isValid: true
+      }
+    });
+
+  } catch (error) {
+    console.error('UUID verification error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to verify UUID',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
+      verified: false
+    });
+  }
+};
+
+// @desc    Get all UUID verifications for a specific generated certificate
+// @route   GET /api/certificates/generated/:id/uuids
+// @access  Protected
+export const getCertificateUUIDs = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!isValidObjectId(id)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid certificate ID format'
+      });
+    }
+
+    console.log('Getting UUIDs for certificate:', id);
+
+    // Find all UUID verifications for this certificate
+    const uuidVerifications = await VerifyUUID.find({ generatedCertificateId: id })
+      .select('uuid createdAt')
+      .sort({ createdAt: -1 });
+
+    console.log(`Found ${uuidVerifications.length} UUID verifications`);
+
+    res.status(200).json({
+      success: true,
+      message: 'UUID verifications retrieved successfully',
+      data: {
+        certificateId: id,
+        totalUUIDs: uuidVerifications.length,
+        uuids: uuidVerifications.map(verification => ({
+          uuid: verification.uuid,
+          verificationId: verification._id,
+          createdAt: verification.createdAt
+        }))
+      }
+    });
+
+  } catch (error) {
+    console.error('Get certificate UUIDs error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to retrieve certificate UUIDs',
       error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     });
   }

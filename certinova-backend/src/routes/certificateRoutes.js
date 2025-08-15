@@ -7,7 +7,9 @@ import {
   uploadCertificateTemplate,
   storeGeneratedCertificate,
   getGeneratedCertificates,
-  getDecryptedGeneratedCertificates
+  getDecryptedGeneratedCertificates,
+  verifyUUID,
+  getCertificateUUIDs
 } from '../controllers/certificateController.js';
 
 const router = express.Router();
@@ -28,5 +30,9 @@ router.get('/generated', getGeneratedCertificates);
 
 // Decrypt and get generated certificates with password
 router.post('/generated/decrypt', getDecryptedGeneratedCertificates);
+
+// UUID verification routes
+router.get('/verify/:uuid', verifyUUID);
+router.get('/generated/:id/uuids', getCertificateUUIDs);
 
 export default router;
