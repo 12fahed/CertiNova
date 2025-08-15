@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Send, Upload, User, FileSpreadsheet, Award, Download, Loader2, CheckCircle } from "lucide-react"
+import { Send, Upload, User, FileSpreadsheet, Award, Download, Loader2, CheckCircle, FileDown } from "lucide-react"
 import { toast } from "sonner"
 import confetti from "canvas-confetti"
 import { useCertificates } from "@/context/CertificateContext"
@@ -20,6 +20,7 @@ import { CertificateConfig } from "@/types/certificate"
 import { certificateService } from "@/services/certificate"
 import JSZip from "jszip"
 import { saveAs } from "file-saver"
+import * as XLSX from "xlsx"
 import { PasswordDialog } from "@/components/password-dialog"
 import { EncryptedCache } from "@/utils/crypto"
 
@@ -136,42 +137,131 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
     });
   }
 
+  const handleDownloadSample = () => {
+    const link = document.createElement('a');
+    link.href = '/uploads/sample.csv';
+    link.download = 'sample_recipients.csv';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    toast.success("Sample CSV Downloaded", {
+      description: "Edit this file and upload it to add recipients quickly.",
+    });
+  };
+
   const handleCSVUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        const csv = e.target?.result as string
-        const lines = csv.split("\n")
-        const headers = lines[0].split(",").map((h) => h.trim().toLowerCase())
+      const fileExtension = file.name.split('.').pop()?.toLowerCase();
+      
+      if (fileExtension === 'csv') {
+        // Handle CSV files
+        const reader = new FileReader()
+        reader.onload = (e) => {
+          const csv = e.target?.result as string
+          const lines = csv.split("\n")
+          const headers = lines[0].split(",").map((h) => h.trim().toLowerCase())
 
-        const newRecipients: Recipient[] = []
-        for (let i = 1; i < lines.length; i++) {
-          const values = lines[i].split(",").map((v) => v.trim())
-          if (values.length >= headers.length && values[0]) {
-            const recipient: Recipient = { name: "" }
+          const newRecipients: Recipient[] = []
+          for (let i = 1; i < lines.length; i++) {
+            const values = lines[i].split(",").map((v) => v.trim())
+            if (values.length >= headers.length && values[0]) {
+              const recipient: Recipient = { name: "" }
 
-            headers.forEach((header, index) => {
-              if (header.includes("name")) recipient.name = values[index]
-              if (header.includes("email")) recipient.email = values[index]
-              // Only include rank if certificate configuration supports it
-              if (header.includes("rank") && certificateConfig?.validFields?.rank) {
-                recipient.rank = values[index]
+              headers.forEach((header, index) => {
+                if (header.includes("name")) recipient.name = values[index]
+                if (header.includes("email") && values[index]) recipient.email = values[index]
+                // Only include rank if certificate configuration supports it
+                if (header.includes("rank") && certificateConfig?.validFields?.rank && values[index]) {
+                  recipient.rank = values[index]
+                }
+              })
+
+              if (recipient.name) {
+                // Validate if rank is required but missing
+                if (certificateConfig?.validFields?.rank && !recipient.rank) {
+                  toast.error(`Missing rank for ${recipient.name}`, {
+                    description: "This certificate template requires a rank for each recipient.",
+                  });
+                  return; // Stop processing and show error
+                }
+                newRecipients.push(recipient)
               }
-            })
-
-            if (recipient.name) {
-              newRecipients.push(recipient)
             }
           }
-        }
 
-        setRecipients(newRecipients)
-        toast("CSV Uploaded", {
-          description: `${newRecipients.length} recipients loaded from CSV.`,
+          setRecipients(newRecipients)
+          toast.success("CSV Uploaded", {
+            description: `${newRecipients.length} recipients loaded from CSV file.`,
+          })
+        }
+        reader.readAsText(file)
+      } else if (fileExtension === 'xlsx' || fileExtension === 'xls') {
+        // Handle Excel files
+        const reader = new FileReader()
+        reader.onload = (e) => {
+          const data = new Uint8Array(e.target?.result as ArrayBuffer)
+          const workbook = XLSX.read(data, { type: 'array' })
+          
+          // Get first worksheet
+          const firstSheetName = workbook.SheetNames[0]
+          const worksheet = workbook.Sheets[firstSheetName]
+          
+          // Convert to JSON
+          const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as unknown[][]
+          
+          if (jsonData.length < 2) {
+            toast.error("Invalid file format", {
+              description: "The Excel file must contain at least a header row and one data row.",
+            })
+            return
+          }
+          
+          const headers = jsonData[0].map((h: unknown) => String(h).trim().toLowerCase())
+          const newRecipients: Recipient[] = []
+          
+          for (let i = 1; i < jsonData.length; i++) {
+            const values = jsonData[i].map((v: unknown) => String(v || "").trim())
+            if (values.length >= headers.length && values[0]) {
+              const recipient: Recipient = { name: "" }
+
+              headers.forEach((header, index) => {
+                if (header.includes("name")) recipient.name = values[index]
+                if (header.includes("email") && values[index]) recipient.email = values[index]
+                // Only include rank if certificate configuration supports it
+                if (header.includes("rank") && certificateConfig?.validFields?.rank && values[index]) {
+                  recipient.rank = values[index]
+                }
+              })
+
+              if (recipient.name) {
+                // Validate if rank is required but missing
+                if (certificateConfig?.validFields?.rank && !recipient.rank) {
+                  toast.error(`Missing rank for ${recipient.name}`, {
+                    description: "This certificate template requires a rank for each recipient.",
+                  });
+                  return; // Stop processing and show error
+                }
+                newRecipients.push(recipient)
+              }
+            }
+          }
+
+          setRecipients(newRecipients)
+          toast.success("Excel File Uploaded", {
+            description: `${newRecipients.length} recipients loaded from Excel file.`,
+          })
+        }
+        reader.readAsArrayBuffer(file)
+      } else {
+        toast.error("Unsupported file format", {
+          description: "Please upload a CSV (.csv) or Excel (.xlsx, .xls) file.",
         })
       }
-      reader.readAsText(file)
+      
+      // Clear the input value so the same file can be uploaded again
+      e.target.value = '';
     }
   }
 
@@ -724,7 +814,7 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
                     Enter Manually
                   </TabsTrigger>
                   <TabsTrigger value="csv" className="data-[state=active]:bg-white">
-                    Upload CSV
+                    Upload File
                   </TabsTrigger>
                 </TabsList>
 
@@ -796,25 +886,52 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
                     <CardHeader>
                       <CardTitle className="text-sm flex items-center text-gray-700">
                         <FileSpreadsheet className="h-4 w-4 mr-2" />
-                        Upload CSV File
+                        Upload CSV/Excel File
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
+                        {/* Sample file download section */}
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <h4 className="text-sm font-medium text-blue-900 mb-1">
+                                Download Sample File
+                              </h4>
+                              <p className="text-xs text-blue-700">
+                                Download the sample CSV file and edit it to add recipient data
+                              </p>
+                            </div>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={handleDownloadSample}
+                              className="border-blue-300 text-blue-700 hover:bg-blue-100"
+                            >
+                              <FileDown className="h-4 w-4 mr-1" />
+                              Download
+                            </Button>
+                          </div>
+                        </div>
+
+                        {/* File upload section */}
                         <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
                           <input
                             type="file"
-                            accept=".csv"
+                            accept=".csv,.xlsx,.xls"
                             onChange={handleCSVUpload}
                             className="hidden"
                             id="csvUpload"
                           />
                           <label htmlFor="csvUpload" className="cursor-pointer">
                             <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                            <p className="text-sm text-gray-600">Click to upload CSV file</p>
+                            <p className="text-sm text-gray-600">Click to upload CSV or Excel file</p>
                             <p className="text-xs text-gray-500 mt-1">
-                              Expected columns: name, email (optional)
-                              {certificateConfig?.validFields?.rank && ", rank (optional)"}
+                              Expected columns: name (required), email (optional)
+                              {certificateConfig?.validFields?.rank && ", rank (required for this certificate)"}
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">
+                              Supported formats: .csv, .xlsx, .xls
                             </p>
                           </label>
                         </div>
