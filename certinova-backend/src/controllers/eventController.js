@@ -2,6 +2,7 @@ import Event from '../models/Event.js';
 import User from '../models/User.js';
 import CertificateConfig from '../models/CertificateConfig.js';
 import GeneratedCertificate from '../models/GeneratedCertificate.js';
+import VerifyUUID from '../models/VerifyUUID.js';
 import mongoose from 'mongoose';
 import fs from 'fs';
 import path from 'path';
@@ -193,6 +194,7 @@ export const deleteEvent = async (req, res) => {
     // Track what we've deleted for the response
     let deletedCertificateConfig = false;
     let deletedGeneratedCertificatesCount = 0;
+    let deletedVerifyUUIDsCount = 0;
     let deletedTemplateFile = false;
 
     try {
@@ -218,6 +220,25 @@ export const deleteEvent = async (req, res) => {
         }
 
         // 2. Delete all generated certificates for this certificate config
+        // First, get all generated certificate IDs to delete associated VerifyUUID documents
+        const generatedCertificates = await GeneratedCertificate.find({ 
+          certificateId: certificateConfig._id 
+        }).select('_id');
+        
+        console.log(`Found ${generatedCertificates.length} generated certificates to delete`);
+
+        // Delete all VerifyUUID documents for these generated certificates
+        if (generatedCertificates.length > 0) {
+          const generatedCertificateIds = generatedCertificates.map(cert => cert._id);
+          
+          const deleteUUIDResult = await VerifyUUID.deleteMany({ 
+            generatedCertificateId: { $in: generatedCertificateIds } 
+          });
+          deletedVerifyUUIDsCount = deleteUUIDResult.deletedCount;
+          console.log(`Deleted ${deletedVerifyUUIDsCount} VerifyUUID records`);
+        }
+
+        // Now delete the generated certificates
         const deleteResult = await GeneratedCertificate.deleteMany({ 
           certificateId: certificateConfig._id 
         });
@@ -247,6 +268,7 @@ export const deleteEvent = async (req, res) => {
           },
           deletedCertificateConfig,
           deletedGeneratedCertificatesCount,
+          deletedVerifyUUIDsCount,
           deletedTemplateFile
         }
       });

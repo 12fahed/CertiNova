@@ -68,6 +68,7 @@ export function DeleteConfirmationModal({
                 <li>The certificate template and configuration</li>
                 <li>All generated certificate history</li>
                 <li>All recipient data associated with this event</li>
+                <li>Recipient will NOT be able to verify certificate</li>
             </ul>
             </div>
             
