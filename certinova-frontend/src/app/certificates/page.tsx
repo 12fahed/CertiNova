@@ -477,7 +477,7 @@ export default function CertificatesPage() {
                 )
               ): (
                 <div className="text-center py-8">
-                  <Users className="h-8 w-8 text-gray-300 mx-auto mb-2" />
+                  <Users className="h-8 w-8 text-red-400 mx-auto mb-2" />
                   <p className="text-red-400">Cannot Display Details</p>
                   <p className="text-red-300 text-sm">Please Enter Login Password</p>
                 </div>
