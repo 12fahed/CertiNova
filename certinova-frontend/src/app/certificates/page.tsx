@@ -333,7 +333,11 @@ export default function CertificatesPage() {
                         <TableCell className="text-gray-600">
                           <div className="flex items-center gap-2">
                             <Calendar className="h-4 w-4 text-gray-400" />
-                            {new Date(certificate.date).toLocaleDateString()}
+                            {new Date(certificate.date).toLocaleDateString('en-GB', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric'
+                            }).replace(/\//g, '/')}
                           </div>
                         </TableCell>
                         <TableCell className="text-gray-900 font-medium">{certificate.certificateId}</TableCell>

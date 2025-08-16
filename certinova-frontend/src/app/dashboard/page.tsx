@@ -498,7 +498,7 @@ export default function DashboardPage() {
                     transition={{ delay: index * 0.1 }}
                   >
                     <Card className="bg-white border-gray-200 hover:shadow-lg transition-all duration-200 group">
-                      <CardContent className="p-6">
+                      <CardContent>
                         <div className="flex items-start justify-between mb-4">
                           <div>
                             <h3 className="font-semibold text-gray-900 mb-1">
@@ -508,9 +508,14 @@ export default function DashboardPage() {
                               {event.issuerName}
                             </p>
                           </div>
-                          <Badge variant="secondary" className="text-xs">
-                            Active
-                          </Badge>
+                          <div className="flex items-center text-sm text-gray-500 mb-4">
+                            <Calendar className="h-4 w-4 mr-1" />
+                            {new Date(event.date).toLocaleDateString('en-GB', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric'
+                            }).replace(/\//g, '/')}
+                          </div>
                         </div>
 
                         {/* Certificate Image Preview */}
@@ -526,11 +531,6 @@ export default function DashboardPage() {
                             />
                           </div>
                         )}
-
-                        <div className="flex items-center text-sm text-gray-500 mb-4">
-                          <Calendar className="h-4 w-4 mr-1" />
-                          {new Date(event.date).toLocaleDateString()}
-                        </div>
 
                         <div className="flex space-x-2">
                           <Button
