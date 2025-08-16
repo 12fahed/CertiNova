@@ -14,6 +14,7 @@ import { CertificateListItem, GeneratedCertificateRecipient } from "@/types/cert
 import { toast } from "sonner"
 import { PasswordDialog } from "@/components/password-dialog"
 import { EncryptedCache } from "@/utils/crypto"
+import { Navbar } from "@/components/navbar"
 
 export default function CertificatesPage() {
   const [searchTerm, setSearchTerm] = useState("")
@@ -198,8 +199,9 @@ export default function CertificatesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gray-50">
+      <Navbar variant="certificate" />
+      <div className="max-w-7xl mx-auto pt-6">
         {/* Header */}
         <div className="mb-8">
           <div className="flex justify-between items-center">

@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { Award, Plus, Send, User, Settings, LogOut } from "lucide-react"
+import { Award, Plus, Send, User, Settings, LogOut, ArrowLeft } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,14 +12,18 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { useAuth } from "@/context/AuthContext"
+import { ViewHistoryButton } from "@/components/view-history-button";
+import { useRouter } from "next/navigation"
 
 interface NavbarProps {
-  onCreateNew: () => void
-  onSendCertificates: () => void
+  variant?: 'dashboard' | 'certificate'
+  onCreateNew?: () => void
+  onSendCertificates?: () => void
 }
 
-export function Navbar({ onCreateNew, onSendCertificates }: NavbarProps) {
+export function Navbar({ variant = 'dashboard', onCreateNew, onSendCertificates }: NavbarProps) {
   const { user, logout } = useAuth()
+  const router = useRouter()
   
   const getUserInitials = (name: string) => {
     return name
@@ -27,6 +31,10 @@ export function Navbar({ onCreateNew, onSendCertificates }: NavbarProps) {
       .map(word => word.charAt(0).toUpperCase())
       .join('')
       .slice(0, 2)
+  }
+
+  const handleBackToDashboard = () => {
+    router.push('/dashboard')
   }
 
   return (
@@ -45,19 +53,34 @@ export function Navbar({ onCreateNew, onSendCertificates }: NavbarProps) {
           </div>
 
           <div className="flex items-center space-x-4">
-            <Button onClick={onCreateNew} className="bg-blue-600 hover:bg-blue-700 text-white">
-              <Plus className="h-4 w-4 mr-2" />
-              Create Certificate
-            </Button>
+            {variant === 'dashboard' ? (
+              <>
+                <Button onClick={onCreateNew} className="bg-blue-600 hover:bg-blue-700 text-white">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Certificate
+                </Button>
 
-            <Button
-              onClick={onSendCertificates}
-              variant="outline"
-              className="border-gray-300 text-gray-700 hover:bg-gray-50 bg-transparent"
-            >
-              <Send className="h-4 w-4 mr-2" />
-              Send Certificates
-            </Button>
+                <Button
+                  onClick={onSendCertificates}
+                  variant="outline"
+                  className="border-gray-300 text-gray-700 hover:bg-gray-50 bg-transparent"
+                >
+                  <Send className="h-4 w-4 mr-2" />
+                  Send Certificates
+                </Button>
+
+                <ViewHistoryButton />
+              </>
+            ) : (
+              <Button
+                onClick={handleBackToDashboard}
+                variant="outline"
+                className="border-gray-300 text-gray-700 hover:bg-gray-50 bg-transparent"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Dashboard
+              </Button>
+            )}
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
