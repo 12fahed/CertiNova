@@ -172,6 +172,24 @@ class CertificateService {
       throw error;
     }
   }
+
+  // Update recipient count immediately (before password confirmation)
+  async updateRecipientCount(orgName: string, recipientCount: number): Promise<{
+    success: boolean;
+    message: string;
+  }> {
+    try {
+      const response = await this.makeRequest('/certificates/update-recipient-count', {
+        method: 'PATCH',
+        body: JSON.stringify({ orgName, recipientCount }),
+      });
+
+      return response as { success: boolean; message: string };
+    } catch (error) {
+      console.error('Failed to update recipient count:', error);
+      throw error;
+    }
+  }
 }
 
 export const certificateService = new CertificateService();

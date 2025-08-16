@@ -2,6 +2,7 @@ import CertificateConfig from '../models/CertificateConfig.js';
 import GeneratedCertificate from '../models/GeneratedCertificate.js';
 import VerifyUUID from '../models/VerifyUUID.js';
 import Event from '../models/Event.js';
+import Record from '../models/Record.js';
 import mongoose from 'mongoose';
 import { validateValidFields, isValidObjectId } from '../utils/validation.js';
 import { encryptData, decryptData, hashPassword } from '../utils/crypto.js';
@@ -454,6 +455,36 @@ export const storeGeneratedCertificate = async (req, res) => {
     }
     
     console.log(`Created ${uuidVerifications.length} UUID verification documents`);
+
+    // Update organization record with recipient count
+    console.log('Updating organization record for recipient count...');
+    try {
+      // Get the event details to find organization name
+      const event = await Event.findById(certificateConfig.eventId);
+      if (event && event.organisation) {
+        await Record.findOneAndUpdate(
+          { organisationName: event.organisation },
+          { 
+            $inc: { recipientCount: processedRecipients.length },
+            $setOnInsert: { 
+              organisationName: event.organisation,
+              eventsCreated: 0 
+            }
+          },
+          { 
+            upsert: true, 
+            new: true,
+            setDefaultsOnInsert: true 
+          }
+        );
+        console.log(`✓ Recipient count increased by ${processedRecipients.length} for organization: ${event.organisation}`);
+      } else {
+        console.warn('Could not find organization name for recipient count tracking');
+      }
+    } catch (recordError) {
+      console.error('Failed to update organization record for recipients:', recordError);
+      // Don't fail the certificate creation if record update fails
+    }
 
     res.status(201).json({
       success: true,
@@ -1002,6 +1033,151 @@ export const getCertificateUUIDs = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to retrieve certificate UUIDs',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+    });
+  }
+};
+
+// @desc    Get organization statistics
+// @route   GET /api/certificates/organization-stats/:organizationName
+// @access  Protected
+export const getOrganizationStats = async (req, res) => {
+  try {
+    const { organizationName } = req.params;
+
+    if (!organizationName) {
+      return res.status(400).json({
+        success: false,
+        message: 'Organization name is required'
+      });
+    }
+
+    console.log('Getting organization statistics for:', organizationName);
+
+    const record = await Record.findOne({ organisationName: organizationName });
+
+    if (!record) {
+      return res.status(404).json({
+        success: false,
+        message: 'No statistics found for this organization',
+        data: {
+          organisationName: organizationName,
+          recipientCount: 0,
+          eventsCreated: 0
+        }
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Organization statistics retrieved successfully',
+      data: {
+        organisationName: record.organisationName,
+        recipientCount: record.recipientCount,
+        eventsCreated: record.eventsCreated,
+        lastUpdated: record.updatedAt,
+        createdAt: record.createdAt
+      }
+    });
+
+  } catch (error) {
+    console.error('Get organization stats error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to retrieve organization statistics',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+    });
+  }
+};
+
+// @desc    Get all organization statistics
+// @route   GET /api/certificates/all-organization-stats
+// @access  Protected
+export const getAllOrganizationStats = async (req, res) => {
+  try {
+    console.log('Getting all organization statistics...');
+
+    const records = await Record.find({})
+      .sort({ recipientCount: -1, eventsCreated: -1 })
+      .select('organisationName recipientCount eventsCreated createdAt updatedAt');
+
+    res.status(200).json({
+      success: true,
+      message: 'All organization statistics retrieved successfully',
+      data: {
+        organizations: records,
+        totalOrganizations: records.length,
+        totalRecipients: records.reduce((sum, record) => sum + record.recipientCount, 0),
+        totalEvents: records.reduce((sum, record) => sum + record.eventsCreated, 0)
+      }
+    });
+
+  } catch (error) {
+    console.error('Get all organization stats error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to retrieve organization statistics',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+    });
+  }
+};
+
+// @desc    Update recipient count for organization (for immediate tracking)
+// @route   POST /api/certificates/update-recipient-count
+// @access  Protected
+export const updateRecipientCount = async (req, res) => {
+  try {
+    const { orgName, recipientCount } = req.body;
+    
+    // Validation
+    if (!orgName || !recipientCount || typeof recipientCount !== 'number') {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide certificateId and recipientCount (number)'
+      });
+    }
+
+    console.log('=== UPDATE RECIPIENT COUNT REQUEST ===');
+    console.log('organisationName:', orgName);
+    console.log('recipientCount:', recipientCount);
+
+
+    // Update organization record
+    const updatedRecord = await Record.findOneAndUpdate(
+      { organisationName: orgName },
+      { 
+        $inc: { recipientCount: recipientCount },
+        $setOnInsert: { 
+          organisationName: orgName,
+          eventsCreated: 0 
+        }
+      },
+      { 
+        upsert: true, 
+        new: true,
+        setDefaultsOnInsert: true 
+      }
+    );
+
+    console.log(`✓ Recipient count increased by ${recipientCount} for organization: ${orgName}`);
+    console.log('Updated record:', updatedRecord);
+
+    res.status(200).json({
+      success: true,
+      message: 'Recipient count updated successfully',
+      data: {
+        organisationName: orgName,
+        recipientCountAdded: recipientCount,
+        newTotalRecipients: updatedRecord.recipientCount,
+        totalEvents: updatedRecord.eventsCreated
+      }
+    });
+
+  } catch (error) {
+    console.error('Update recipient count error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update recipient count',
       error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     });
   }

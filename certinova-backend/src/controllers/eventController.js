@@ -3,6 +3,7 @@ import User from '../models/User.js';
 import CertificateConfig from '../models/CertificateConfig.js';
 import GeneratedCertificate from '../models/GeneratedCertificate.js';
 import VerifyUUID from '../models/VerifyUUID.js';
+import Record from '../models/Record.js';
 import mongoose from 'mongoose';
 import fs from 'fs';
 import path from 'path';
@@ -60,6 +61,30 @@ export const addEvent = async (req, res) => {
     });
 
     await event.save();
+
+    // Update or create record for organization statistics
+    console.log('Updating organization record for eventsCreated...');
+    try {
+      await Record.findOneAndUpdate(
+        { organisationName: organisation },
+        { 
+          $inc: { eventsCreated: 1 },
+          $setOnInsert: { 
+            organisationName: organisation,
+            recipientCount: 0 
+          }
+        },
+        { 
+          upsert: true, 
+          new: true,
+          setDefaultsOnInsert: true 
+        }
+      );
+      console.log(`✓ Events created counter incremented for organization: ${organisation}`);
+    } catch (recordError) {
+      console.error('Failed to update organization record:', recordError);
+      // Don't fail the event creation if record update fails
+    }
 
     // Populate the organisation details for response
     await event.populate('organisationID', 'organisation email');
@@ -196,6 +221,7 @@ export const deleteEvent = async (req, res) => {
     let deletedGeneratedCertificatesCount = 0;
     let deletedVerifyUUIDsCount = 0;
     let deletedTemplateFile = false;
+    let totalRecipients = 0; // Track total recipients for record updating
 
     try {
       // 1. Find and delete certificate configuration
@@ -223,9 +249,13 @@ export const deleteEvent = async (req, res) => {
         // First, get all generated certificate IDs to delete associated VerifyUUID documents
         const generatedCertificates = await GeneratedCertificate.find({ 
           certificateId: certificateConfig._id 
-        }).select('_id');
+        }).select('_id noOfRecipient');
         
         console.log(`Found ${generatedCertificates.length} generated certificates to delete`);
+
+        // Calculate total recipients for record tracking
+        totalRecipients = generatedCertificates.reduce((sum, cert) => sum + cert.noOfRecipient, 0);
+        console.log(`Total recipients to be decremented: ${totalRecipients}`);
 
         // Delete all VerifyUUID documents for these generated certificates
         if (generatedCertificates.length > 0) {
@@ -256,6 +286,36 @@ export const deleteEvent = async (req, res) => {
       // 4. Delete the event itself
       await Event.deleteOne({ _id: eventId });
       console.log('Deleted event');
+
+      // 5. Update organization record to decrement counters
+      console.log('Updating organization record for deletion...');
+      try {
+        if (event.organisation) {
+          const updateFields = {
+            $inc: { eventsCreated: -1 }
+          };
+
+          // Only decrement recipient count if we have certificates with recipients
+          if (certificateConfig && typeof totalRecipients !== 'undefined' && totalRecipients > 0) {
+            updateFields.$inc.recipientCount = -totalRecipients;
+          }
+
+          await Record.findOneAndUpdate(
+            { organisationName: event.organisation },
+            updateFields,
+            { new: true }
+          );
+          
+          console.log(`✓ Decremented counters for organization: ${event.organisation}`);
+          console.log(`  - Events: -1`);
+          if (totalRecipients > 0) {
+            console.log(`  - Recipients: -${totalRecipients}`);
+          }
+        }
+      } catch (recordError) {
+        console.error('Failed to update organization record during deletion:', recordError);
+        // Don't fail the deletion if record update fails
+      }
 
       res.status(200).json({
         success: true,

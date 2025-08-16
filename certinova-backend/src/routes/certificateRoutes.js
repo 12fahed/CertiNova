@@ -9,7 +9,10 @@ import {
   getGeneratedCertificates,
   getDecryptedGeneratedCertificates,
   verifyUUID,
-  getCertificateUUIDs
+  getCertificateUUIDs,
+  getOrganizationStats,
+  getAllOrganizationStats,
+  updateRecipientCount
 } from '../controllers/certificateController.js';
 
 const router = express.Router();
@@ -34,5 +37,11 @@ router.post('/generated/decrypt', getDecryptedGeneratedCertificates);
 // UUID verification routes
 router.get('/verify/:uuid', verifyUUID);
 router.get('/generated/:id/uuids', getCertificateUUIDs);
+
+// Organization statistics routes
+router.get('/organization-stats/:organizationName', getOrganizationStats);
+router.get('/all-organization-stats', getAllOrganizationStats);
+
+router.patch('/update-recipient-count', updateRecipientCount);
 
 export default router;

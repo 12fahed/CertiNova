@@ -613,6 +613,28 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
       
       setIsGenerating(false);
       setGenerationComplete(true);
+      
+      let orgName;
+      try {
+        const userDataString = localStorage.getItem("certinova_user");
+        if (userDataString) {
+          const userData = JSON.parse(userDataString);
+          if (userData && userData.organisation) {
+            orgName = userData.organisation;
+          }
+        }
+        } catch (error) {
+        console.error("Error reading organization from localStorage:", error);
+      }
+
+      // Update recipient count immediately (before password confirmation)
+      try {
+        await certificateService.updateRecipientCount(orgName, recipients.length);
+        console.log(`Recipient count updated immediately: ${recipients.length} for certificate ${selectedCertificate}`);
+      } catch (error) {
+        console.error("Failed to update recipient count immediately:", error);
+        // Don't block the flow if this fails - the count will be updated during password confirmation
+      }
 
       // Show password dialog to store the generated certificate data in database
       setShowPasswordDialog(true);
