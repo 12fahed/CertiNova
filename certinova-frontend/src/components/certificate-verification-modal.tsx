@@ -126,7 +126,7 @@ export function CertificateVerificationModal({ open, onClose }: CertificateVerif
     
     try {
       // Start verification process with real API
-      console.log("FULL UUID: ", fullUUID)
+      // console.log("FULL UUID: ", fullUUID)
       await startRealVerificationProcess(fullUUID)
     } catch (error) {
       console.error('Verification failed:', error)

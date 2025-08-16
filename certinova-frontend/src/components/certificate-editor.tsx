@@ -429,7 +429,7 @@ export function CertificateEditor({ certificate, onSave, onClose, isEditing = fa
       fields,
     }
 
-    console.log("FOR COLOR:", savedCertificate.fields)
+    // console.log("FOR COLOR:", savedCertificate.fields)
     onSave(savedCertificate)
     toast(isEditing ? "Certificate Updated" : "Certificate Saved", {
       description: isEditing 

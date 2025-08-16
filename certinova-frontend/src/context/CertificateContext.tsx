@@ -130,13 +130,13 @@ export const CertificateProvider: React.FC<CertificateProviderProps> = ({ childr
 
   // Helper function to convert editor fields to API valid fields format
   const convertEditorFieldsToValidFields = (editorFields: CertificateEditorFields): ValidFields => {
-    console.log('convertEditorFieldsToValidFields - input:', editorFields);
+    // console.log('convertEditorFieldsToValidFields - input:', editorFields);
     
     const validFields: ValidFields = {};
     
     // Convert each field from editor format to API format (keeping all properties)
     Object.entries(editorFields).forEach(([key, field]) => {
-      console.log(`Processing field ${key}:`, field);
+      // console.log(`Processing field ${key}:`, field);
       
       // Only include fields that have valid coordinates and dimensions
       if (field && 
@@ -181,13 +181,13 @@ export const CertificateProvider: React.FC<CertificateProviderProps> = ({ childr
         }
 
         validFields[fieldKey] = validField;
-        console.log(`Added field ${fieldKey}:`, validField);
+        // console.log(`Added field ${fieldKey}:`, validField);
       } else {
-        console.log(`Skipping field ${key} - invalid or missing coordinates:`, field);
+        // console.log(`Skipping field ${key} - invalid or missing coordinates:`, field);
       }
     });
 
-    console.log('convertEditorFieldsToValidFields - output:', validFields);
+    // console.log('convertEditorFieldsToValidFields - output:', validFields);
     return validFields;
   };
 

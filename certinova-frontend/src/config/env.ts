@@ -2,13 +2,13 @@ const config = {
   API_BASE_URL: (() => {
     // If NEXT_PUBLIC_API_URL is set, use it (for custom domains)
     if (process.env.NEXT_PUBLIC_API_URL) {
-      console.log('Using NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL);
+      // console.log('Using NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL);
       return process.env.NEXT_PUBLIC_API_URL;
     }
     
     // Check if we're in development mode
     if (process.env.NODE_ENV === 'development' || (!process.env.NODE_ENV && typeof window !== 'undefined' && window.location.hostname === 'localhost')) {
-      console.log('Development mode detected, using localhost:5000');
+      // console.log('Development mode detected, using localhost:5000');
       return 'http://localhost:5000/api';
     }
     
@@ -18,18 +18,18 @@ const config = {
       const protocol = window.location.protocol;
       const host = window.location.host;
       const url = `${protocol}//${host}/api`;
-      console.log('Client-side production mode, using:', url);
+      // console.log('Client-side production mode, using:', url);
       return url;
     } else {
       // Server-side: use Vercel URL if available
       const vercelUrl = process.env.VERCEL_URL;
       if (vercelUrl) {
         const url = `https://${vercelUrl}/api`;
-        console.log('Server-side Vercel mode, using:', url);
+        // console.log('Server-side Vercel mode, using:', url);
         return url;
       }
       // Fallback to localhost for development
-      console.log('Fallback to localhost:5000');
+      // console.log('Fallback to localhost:5000');
       return 'http://localhost:5000/api';
     }
   })(),

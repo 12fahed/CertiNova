@@ -102,17 +102,17 @@ export default function DashboardPage() {
   }) => {
     if (!currentEvent) return;
 
-    console.log('handleSaveCertificate - updatedCertificate:', updatedCertificate);
+    // console.log('handleSaveCertificate - updatedCertificate:', updatedCertificate);
 
     // Extract the image path and fields from the certificate
     const { fields: editorFields, image } = updatedCertificate;
     
-    console.log('handleSaveCertificate - editorFields:', editorFields);
+    // console.log('handleSaveCertificate - editorFields:', editorFields);
     
     // Convert editor fields to API format
     const validFields = convertEditorFieldsToValidFields(editorFields);
 
-    console.log('handleSaveCertificate - validFields:', validFields);
+    // console.log('handleSaveCertificate - validFields:', validFields);
 
     const requestPayload = {
       eventId: currentEvent.id,
@@ -120,19 +120,19 @@ export default function DashboardPage() {
       validFields,
     };
     
-    console.log('handleSaveCertificate - Final API payload:', JSON.stringify(requestPayload, null, 2));
-    console.log('handleSaveCertificate - isEditing:', isEditing);
+    // console.log('handleSaveCertificate - Final API payload:', JSON.stringify(requestPayload, null, 2));
+    // console.log('handleSaveCertificate - isEditing:', isEditing);
 
     try {
       let config;
       
       if (isEditing && currentCertificateConfig) {
         // Update existing certificate configuration
-        console.log('Updating certificate config with ID:', currentCertificateConfig.id);
+        // console.log('Updating certificate config with ID:', currentCertificateConfig.id);
         config = await updateCertificateConfig(currentCertificateConfig.id, requestPayload);
       } else {
         // Create new certificate configuration
-        console.log('Creating new certificate config');
+        // console.log('Creating new certificate config');
         config = await createCertificateConfig(requestPayload);
       }
 
@@ -147,7 +147,7 @@ export default function DashboardPage() {
       setShowEditor(false);
       setCurrentEvent(null);
       setIsEditing(false);
-      console.log("Certificate config result: ", config);
+      // console.log("Certificate config result: ", config);
       setCurrentCertificateConfig(null);
       await fetchEvents();
     } catch (error) {
@@ -158,7 +158,7 @@ export default function DashboardPage() {
   const handleEditCertificate = async (event: Event) => {
     setCurrentEvent(event);
     setIsEditing(true); // Set to true for editing existing certificate
-    console.log("BEFORE IF: ", event);
+    // console.log("BEFORE IF: ", event);
     
     // Use certificate config from event data (new backend response includes this)
     if (event.certificateConfig) {
@@ -174,7 +174,7 @@ export default function DashboardPage() {
     } else {
       // Fallback to API call if config not in event data (legacy support)
       const config = await getCertificateConfig(event.id);
-      console.log("IN EDIT: ", config);
+      // console.log("IN EDIT: ", config);
       setCurrentCertificateConfig(config);
     }
     

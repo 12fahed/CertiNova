@@ -86,7 +86,7 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
               })));
             }
           } else {
-            console.log("No certificate configuration found for eventId:", selectedCertificate);
+            // console.log("No certificate configuration found for eventId:", selectedCertificate);
           }
         } catch (error) {
           console.error("Error fetching certificate config:", error);
@@ -296,11 +296,11 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
       // Handle different URL types
       if (imageUrl.startsWith('http')) {
         // External URL (including Cloudinary) - use directly
-        console.log("Using external URL (Cloudinary):", imageUrl);
+        // console.log("Using external URL (Cloudinary):", imageUrl);
       } else if (imageUrl.startsWith('/')) {
         // Legacy local path - convert to full URL
         imageUrl = `http://localhost:5000${imageUrl}`;
-        console.log("Using local backend URL:", imageUrl);
+        // console.log("Using local backend URL:", imageUrl);
       }
       // If it's already a full URL, use it as is
       
@@ -314,7 +314,7 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
       // Process each recipient
       for (let i = 0; i < recipients.length; i++) {
         const recipient = recipients[i];
-        console.log(`Processing recipient ${i + 1}/${recipients.length}:`, recipient.name);
+        // console.log(`Processing recipient ${i + 1}/${recipients.length}:`, recipient.name);
         
         // Create a fresh canvas for each certificate
         const canvas = document.createElement("canvas");
@@ -327,7 +327,7 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
         
         await new Promise((resolve, reject) => {
           img.onload = () => {
-            console.log(`Image loaded for ${recipient.name}`);
+            // console.log(`Image loaded for ${recipient.name}`);
             resolve(undefined);
           };
           img.onerror = (e) => {
@@ -342,7 +342,7 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
         canvas.height = img.height;
         ctx.drawImage(img, 0, 0);
         
-        console.log(`Canvas setup complete for ${recipient.name} - dimensions:`, img.width, img.height);
+        // console.log(`Canvas setup complete for ${recipient.name} - dimensions:`, img.width, img.height);
         
         // Helper function to apply rule-based styling based on field type and content
         const applyRuleBasedStyling = (
@@ -532,13 +532,13 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
 
         // Apply recipient name if coordinates exist
         if (certificateConfig.validFields.recipientName) {
-          console.log(`Drawing recipient name for ${recipient.name}:`, certificateConfig.validFields.recipientName);
+          // console.log(`Drawing recipient name for ${recipient.name}:`, certificateConfig.validFields.recipientName);
           drawCenteredText(recipient.name, certificateConfig.validFields.recipientName, 100, 'recipientName');
         }
         
         // Apply rank if coordinates exist and recipient has rank
         if (certificateConfig.validFields.rank && recipient.rank) {
-          console.log(`Drawing rank for ${recipient.name}: ${recipient.rank}`);
+          // console.log(`Drawing rank for ${recipient.name}: ${recipient.rank}`);
           drawCenteredText(recipient.rank, certificateConfig.validFields.rank, 150, 'rank');
         }
         
@@ -557,19 +557,19 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
           } catch (error) {
             console.error("Error reading organization from localStorage:", error);
           }
-          console.log(`Drawing organization name for ${recipient.name}: ${orgName}`);
+          // console.log(`Drawing organization name for ${recipient.name}: ${orgName}`);
           drawCenteredText(orgName, certificateConfig.validFields.organisationName, 72, 'organisationName');
         }
 
         // Apply certificate link if coordinates exist (optional)
         if (certificateConfig.validFields.certificateLink && recipient.uuid) {
-          console.log(`Drawing certificate link for ${recipient.name}: ${recipient.uuid}`);
+          // console.log(`Drawing certificate link for ${recipient.name}: ${recipient.uuid}`);
           drawCenteredText(recipient.uuid, certificateConfig.validFields.certificateLink, 24, 'certificateLink');
         }
 
         // Apply certificate QR code if coordinates exist (optional)
         if (certificateConfig.validFields.certificateQR && recipient.uuid) {
-          console.log(`Drawing QR code for ${recipient.name}: ${recipient.uuid}`);
+          // console.log(`Drawing QR code for ${recipient.name}: ${recipient.uuid}`);
           await drawQRCode(recipient.uuid, certificateConfig.validFields.certificateQR);
         }
         
@@ -600,7 +600,7 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
         // Add to zip
         const fileName = `${recipient.name.replace(/[^a-z0-9]/gi, '_')}_certificate.png`;
         folder.file(fileName, blob);
-        console.log(`Added certificate to zip: ${fileName} for recipient: ${recipient.name}`);
+        // console.log(`Added certificate to zip: ${fileName} for recipient: ${recipient.name}`);
         
         // Store data URL for preview if needed
         const dataUrl = canvas.toDataURL("image/png");
@@ -630,7 +630,7 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
       // Update recipient count immediately (before password confirmation)
       try {
         await certificateService.updateRecipientCount(orgName, recipients.length);
-        console.log(`Recipient count updated immediately: ${recipients.length} for certificate ${selectedCertificate}`);
+        // console.log(`Recipient count updated immediately: ${recipients.length} for certificate ${selectedCertificate}`);
       } catch (error) {
         console.error("Failed to update recipient count immediately:", error);
         // Don't block the flow if this fails - the count will be updated during password confirmation
@@ -691,10 +691,10 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
       }
 
       if (generatedBy && certificateConfig && certificateConfig.id) {
-        console.log("Storing generated certificate data in database with encryption...");
-        console.log("Certificate config object:", certificateConfig);
-        console.log("Using certificateConfig.id:", certificateConfig.id);
-        console.log("Selected certificate (eventId):", selectedCertificate);
+        // console.log("Storing generated certificate data in database with encryption...");
+        // console.log("Certificate config object:", certificateConfig);
+        // console.log("Using certificateConfig.id:", certificateConfig.id);
+        // console.log("Selected certificate (eventId):", selectedCertificate);
         
         await certificateService.storeGeneratedCertificate({
           certificateId: certificateConfig.id, // Use the actual CertificateConfig ObjectId
@@ -703,7 +703,7 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
           password: password
         });
 
-        console.log("Generated certificate data stored successfully with encryption");
+        // console.log("Generated certificate data stored successfully with encryption");
         
         // Cache the data for local use
         const cache = EncryptedCache.getInstance();

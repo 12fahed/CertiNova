@@ -61,7 +61,7 @@ class CertificateService {
 
   // Add certificate configuration
   async addCertificateConfig(configData: CertificateConfigRequest): Promise<CertificateConfigResponse> {
-    console.log('API Request - addCertificateConfig data:', JSON.stringify(configData, null, 2));
+    // console.log('API Request - addCertificateConfig data:', JSON.stringify(configData, null, 2));
     return this.makeRequest('/certificates/addCertificateConfig', {
       method: 'POST',
       body: JSON.stringify(configData),
