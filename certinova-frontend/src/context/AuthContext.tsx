@@ -5,6 +5,7 @@ import { AuthContextType, LoginData, SignupData, User } from '@/types/auth';
 import { authService } from '@/services/auth';
 import { authStorage } from '@/lib/auth-storage';
 import { toast } from 'sonner';
+import { useRouter } from "next/navigation"
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -24,6 +25,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter()
 
   useEffect(() => {
     // Initialize auth state from storage
@@ -91,6 +93,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setIsAuthenticated(false);
     authStorage.clearAuth();
     toast.success('Logged out successfully');
+    router.push('/')
   };
 
   const value: AuthContextType = {
