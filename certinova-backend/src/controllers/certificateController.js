@@ -529,11 +529,12 @@ export const getGeneratedCertificates = async (req, res) => {
       search = '', 
       filter = 'all',
       sortBy = 'date',
-      sortOrder = 'desc'
+      sortOrder = 'desc',
+      generatedBy
     } = req.query;
 
     console.log('=== GET GENERATED CERTIFICATES REQUEST ===');
-    console.log('Query parameters:', { page, limit, search, filter, sortBy, sortOrder });
+    console.log('Query parameters:', { page, limit, search, filter, sortBy, sortOrder, generatedBy });
 
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
@@ -542,6 +543,17 @@ export const getGeneratedCertificates = async (req, res) => {
     // Build filter query
     let filterQuery = {};
     const currentDate = new Date();
+    
+    // Add generatedBy filter if provided
+    if (generatedBy) {
+      if (!isValidObjectId(generatedBy)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid generatedBy user ID format'
+        });
+      }
+      filterQuery.generatedBy = generatedBy;
+    }
     
     switch (filter) {
       case 'recent':
@@ -685,11 +697,12 @@ export const getDecryptedGeneratedCertificates = async (req, res) => {
       search = '', 
       filter = 'all',
       sortBy = 'date',
-      sortOrder = 'desc'
+      sortOrder = 'desc',
+      generatedBy
     } = req.body;
 
     console.log('=== DECRYPT GENERATED CERTIFICATES REQUEST ===');
-    console.log('Query parameters:', { page, limit, search, filter, sortBy, sortOrder });
+    console.log('Query parameters:', { page, limit, search, filter, sortBy, sortOrder, generatedBy });
 
     if (!password || typeof password !== 'string' || password.length < 6) {
       return res.status(400).json({
@@ -705,6 +718,17 @@ export const getDecryptedGeneratedCertificates = async (req, res) => {
     // Build filter query
     let filterQuery = {};
     const currentDate = new Date();
+    
+    // Add generatedBy filter if provided
+    if (generatedBy) {
+      if (!isValidObjectId(generatedBy)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid generatedBy user ID format'
+        });
+      }
+      filterQuery.generatedBy = generatedBy;
+    }
     
     switch (filter) {
       case 'recent':
