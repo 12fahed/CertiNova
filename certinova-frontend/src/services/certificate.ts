@@ -5,11 +5,12 @@ import {
   GeneratedCertificateResponse,
   CertificatesListResponse
 } from '@/types/certificate';
+import config from '@/config/env';
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = config.API_BASE_URL;
 
 class CertificateService {
-  private baseURL = 'http://localhost:5000/api/certificates';
+  private baseURL = `${config.API_BASE_URL}/certificates`;
 
   private async makeRequest(endpoint: string, options: RequestInit): Promise<unknown> {
     try {

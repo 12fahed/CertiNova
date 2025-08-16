@@ -27,6 +27,16 @@ app.use(logger);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+// Health check endpoint for Vercel deployment testing
+app.get('/api/health', (req, res) => {
+  res.status(200).json({
+    status: 'OK',
+    message: 'CertiNova Backend API is running',
+    environment: process.env.NODE_ENV || 'development',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Note: No longer serving static files locally since we're using Cloudinary
 
 // Routes

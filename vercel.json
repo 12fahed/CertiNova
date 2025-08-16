@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "name": "certinova",
+  "builds": [
+    {
+      "src": "certinova-frontend/package.json",
+      "use": "@vercel/next"
+    },
+    {
+      "src": "certinova-backend/server.js",
+      "use": "@vercel/node",
+      "config": {
+        "maxLambdaSize": "50mb"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "certinova-backend/server.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "certinova-frontend/$1"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  },
+  "functions": {
+    "certinova-backend/server.js": {
+      "maxDuration": 30
+    }
+  },
+  "installCommand": "npm run install:all",
+  "buildCommand": "npm run build",
+  "outputDirectory": "certinova-frontend/.next"
+}

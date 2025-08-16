@@ -1,6 +1,7 @@
 import { EventRequest, EventResponse, EventsListResponse } from '@/types/event';
+import config from '@/config/env';
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = config.API_BASE_URL;
 
 class EventService {
   private async makeRequest(endpoint: string, options: RequestInit): Promise<unknown> {
