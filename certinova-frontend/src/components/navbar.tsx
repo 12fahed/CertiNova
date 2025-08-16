@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { Award, Plus, Send, User, Settings, LogOut, ArrowLeft } from "lucide-react"
+import { Award, Plus, Send, User, Settings, LogOut, ArrowLeft, Lock } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -99,11 +99,11 @@ export function Navbar({ variant = 'dashboard', onCreateNew, onSendCertificates 
                 </div>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>
-                  <User className="mr-2 h-4 w-4" />
+                  <Lock className="mr-2 h-4 w-4 text-yellow-400" />
                   Profile
                 </DropdownMenuItem>
                 <DropdownMenuItem>
-                  <Settings className="mr-2 h-4 w-4" />
+                  <Lock className="mr-2 h-4 w-4 text-yellow-400" />
                   Settings
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
