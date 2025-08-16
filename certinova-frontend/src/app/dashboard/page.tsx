@@ -62,7 +62,7 @@ export default function DashboardPage() {
     
     events.forEach(event => {
       if (event.certificateConfig?.imagePath) {
-        images[event.id] = `http://localhost:5000${event.certificateConfig.imagePath}`;
+        images[event.id] = `${event.certificateConfig.imagePath}`;
       }
     });
     
@@ -140,7 +140,7 @@ export default function DashboardPage() {
         // Update the image in our local state
         setCertificateImages(prev => ({
           ...prev,
-          [currentEvent.id]: `http://localhost:5000${image}`
+          [currentEvent.id]: `${image}`
         }));
       }
       

@@ -103,14 +103,12 @@ interface CertificateEditorProps {
 type FieldType = "recipientName" | "organizationName" | "certificateLink" | "certificateQR" | "rank"
 
 export function CertificateEditor({ certificate, onSave, onClose, isEditing = false }: CertificateEditorProps) {
-  const { uploadTemplate, isLoading } = useCertificates()
+  const { uploadTemplate } = useCertificates()
   const [uploadedImage, setUploadedImage] = useState<string | null>(
-    certificate.image && certificate.image.startsWith("/uploads")
-      ? `http://localhost:5000${certificate.image}`
-      : certificate.image || null,
+    certificate.image || null,
   )
   const [uploadedImagePath, setUploadedImagePath] = useState<string | null>(
-    certificate.image && certificate.image.startsWith("/uploads") ? certificate.image : null,
+    certificate.image || null,
   )
   const [selectedField, setSelectedField] = useState<FieldType | null>(null)
   const [isSelecting, setIsSelecting] = useState(false)
@@ -236,13 +234,12 @@ export function CertificateEditor({ certificate, onSave, onClose, isEditing = fa
         }
         reader.readAsDataURL(file)
 
-        // Upload to server and get the path
-        const imagePath = await uploadTemplate(file)
-        if (imagePath) {
-          setUploadedImagePath(imagePath)
-          // Update the image to use the server URL
-          const serverUrl = `http://localhost:5000${imagePath}`
-          setUploadedImage(serverUrl)
+        // Upload to server and get the Cloudinary URL
+        const cloudinaryUrl = await uploadTemplate(file)
+        if (cloudinaryUrl) {
+          // Use the Cloudinary URL directly
+          setUploadedImagePath(cloudinaryUrl) // Store the full Cloudinary URL
+          setUploadedImage(cloudinaryUrl) // Display the Cloudinary image
         }
       } catch (error) {
         console.error("Failed to upload template:", error)
@@ -769,7 +766,7 @@ export function CertificateEditor({ certificate, onSave, onClose, isEditing = fa
                   <p className="text-sm text-gray-500 mt-2">Supported formats: JPG, PNG, PDF</p>
                 </div>
               )}
-            </div>
+            </div>  
           </div>
         </div>
       </motion.div>

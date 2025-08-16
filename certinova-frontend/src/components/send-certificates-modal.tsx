@@ -293,16 +293,16 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
       
       let imageUrl = certificate.image;
       
-      // Check if the URL is external (has http/https) and needs a proxy
-      if (imageUrl.startsWith('http') && !imageUrl.includes('localhost')) {
-        // This adds a CORS proxy - you might need to replace with your own solution
-        // or implement a server-side proxy
-        console.log("Using original image URL:", imageUrl);
+      // Handle different URL types
+      if (imageUrl.startsWith('http')) {
+        // External URL (including Cloudinary) - use directly
+        console.log("Using external URL (Cloudinary):", imageUrl);
       } else if (imageUrl.startsWith('/')) {
-        // If it's a local path starting with '/', make sure it's using the full URL
+        // Legacy local path - convert to full URL
         imageUrl = `http://localhost:5000${imageUrl}`;
         console.log("Using local backend URL:", imageUrl);
       }
+      // If it's already a full URL, use it as is
       
       const zip = new JSZip();
       const generatedUrls: string[] = [];

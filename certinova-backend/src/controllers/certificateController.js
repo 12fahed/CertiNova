@@ -279,20 +279,22 @@ export const uploadCertificateTemplate = async (req, res) => {
       });
     }
 
-    // Generate the file URL
-    const fileUrl = `/uploads/${req.file.filename}`;
-    const fullPath = `${req.protocol}://${req.get('host')}${fileUrl}`;
+    // With Cloudinary, req.file contains cloudinary info
+    const cloudinaryUrl = req.file.path; // Cloudinary URL
+    const publicId = req.file.public_id; // Cloudinary public ID
 
     res.status(200).json({
       success: true,
-      message: 'Certificate template uploaded successfully',
+      message: 'Certificate template uploaded successfully to Cloudinary',
       data: {
-        filename: req.file.filename,
+        filename: req.file.filename || req.file.public_id,
         originalName: req.file.originalname,
-        path: fileUrl,
-        fullUrl: fullPath,
-        size: req.file.size,
-        mimetype: req.file.mimetype
+        path: cloudinaryUrl,
+        fullUrl: cloudinaryUrl,
+        size: req.file.bytes,
+        mimetype: req.file.mimetype,
+        publicId: publicId,
+        cloudinaryUrl: cloudinaryUrl
       }
     });
 

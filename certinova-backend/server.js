@@ -1,15 +1,19 @@
+// Load environment variables first
+import dotenv from 'dotenv';
+dotenv.config();
+
 import express from 'express';
 import path from 'path';
-import dotenv from 'dotenv';
 import connectDB from './src/config/database.js';
 import authRoutes from './src/routes/authRoutes.js';
 import eventRoutes from './src/routes/eventRoutes.js';
 import certificateRoutes from './src/routes/certificateRoutes.js';
 import { errorHandler, notFound } from './src/middleware/errorMiddleware.js';
 import { logger, cors } from './src/middleware/appMiddleware.js';
+import testCloudinaryConfig from './test/cloudinary-test.js';
 
-// Load environment variables
-dotenv.config();
+// Test Cloudinary configuration after env variables are loaded
+testCloudinaryConfig();
 
 // Connect to MongoDB
 connectDB();
@@ -23,13 +27,7 @@ app.use(logger);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files from uploads directory with CORS headers
-app.use('/uploads', (req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-  next();
-}, express.static(path.join(process.cwd(), 'public', 'uploads')));
+// Note: No longer serving static files locally since we're using Cloudinary
 
 // Routes
 app.get('/', (req, res) => {

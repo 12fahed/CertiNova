@@ -111,9 +111,9 @@ export const CertificateProvider: React.FC<CertificateProviderProps> = ({ childr
       setIsLoading(true);
       const response = await certificateService.uploadTemplate(file);
 
-      if (response.success && response.data?.path) {
+      if (response.success && response.data?.cloudinaryUrl) {
         toast.success('Certificate template uploaded successfully!');
-        return response.data.path;
+        return response.data.cloudinaryUrl; // Return Cloudinary URL instead of path
       } else {
         toast.error(response.message || 'Failed to upload certificate template');
         return null;

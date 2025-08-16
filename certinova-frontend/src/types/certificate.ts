@@ -59,6 +59,8 @@ export interface UploadResponse {
     fullUrl: string;
     size: number;
     mimetype: string;
+    publicId?: string; // Cloudinary public ID
+    cloudinaryUrl?: string; // Cloudinary URL
   };
 }
 
