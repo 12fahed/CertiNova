@@ -26,13 +26,5 @@
   ],
   "env": {
     "NODE_ENV": "production"
-  },
-  "functions": {
-    "certinova-backend/server.js": {
-      "maxDuration": 30
-    }
-  },
-  "installCommand": "npm run install:all",
-  "buildCommand": "npm run build",
-  "outputDirectory": "certinova-frontend/.next"
+  }
 }
