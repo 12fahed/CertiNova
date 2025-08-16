@@ -287,35 +287,35 @@ export const deleteEvent = async (req, res) => {
       await Event.deleteOne({ _id: eventId });
       console.log('Deleted event');
 
-      // 5. Update organization record to decrement counters
-      console.log('Updating organization record for deletion...');
-      try {
-        if (event.organisation) {
-          const updateFields = {
-            $inc: { eventsCreated: -1 }
-          };
+      // // 5. Update organization record to decrement counters
+      // console.log('Updating organization record for deletion...');
+      // try {
+      //   if (event.organisation) {
+      //     const updateFields = {
+      //       $inc: { eventsCreated: -1 }
+      //     };
 
-          // Only decrement recipient count if we have certificates with recipients
-          if (certificateConfig && typeof totalRecipients !== 'undefined' && totalRecipients > 0) {
-            updateFields.$inc.recipientCount = -totalRecipients;
-          }
+      //     // Only decrement recipient count if we have certificates with recipients
+      //     if (certificateConfig && typeof totalRecipients !== 'undefined' && totalRecipients > 0) {
+      //       updateFields.$inc.recipientCount = -totalRecipients;
+      //     }
 
-          await Record.findOneAndUpdate(
-            { organisationName: event.organisation },
-            updateFields,
-            { new: true }
-          );
+      //     await Record.findOneAndUpdate(
+      //       { organisationName: event.organisation },
+      //       updateFields,
+      //       { new: true }
+      //     );
           
-          console.log(`✓ Decremented counters for organization: ${event.organisation}`);
-          console.log(`  - Events: -1`);
-          if (totalRecipients > 0) {
-            console.log(`  - Recipients: -${totalRecipients}`);
-          }
-        }
-      } catch (recordError) {
-        console.error('Failed to update organization record during deletion:', recordError);
-        // Don't fail the deletion if record update fails
-      }
+      //     console.log(`✓ Decremented counters for organization: ${event.organisation}`);
+      //     console.log(`  - Events: -1`);
+      //     if (totalRecipients > 0) {
+      //       console.log(`  - Recipients: -${totalRecipients}`);
+      //     }
+      //   }
+      // } catch (recordError) {
+      //   console.error('Failed to update organization record during deletion:', recordError);
+      //   // Don't fail the deletion if record update fails
+      // }
 
       res.status(200).json({
         success: true,
