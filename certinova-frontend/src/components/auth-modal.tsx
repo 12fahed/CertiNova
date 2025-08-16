@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Separator } from "@/components/ui/separator"
 import { Mail, Lock, User, Chrome } from "lucide-react"
 import { useAuth } from "@/context/AuthContext"
+import { toast } from "sonner"
 
 interface AuthModalProps {
   onLogin?: () => void
@@ -66,8 +67,9 @@ export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
   }
 
   const handleGoogleAuth = () => {
-    // TODO: Implement Google OAuth
-    console.log("Google auth not implemented yet")
+    toast.error("Google Auth", {
+      description: "Beta version doesn't support OAuth"
+    })
   }
 
   return (
@@ -109,7 +111,7 @@ export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
                 className="w-full h-12 border-2 border-gray-200 hover:bg-gray-50 bg-transparent"
                 disabled={isLoading}
               >
-                <Chrome className="h-5 w-5 mr-2" />
+                <Lock className="h-5 w-5 mr-2 text-yellow-400" />
                 Continue with Google
               </Button>
 
@@ -174,7 +176,7 @@ export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
                 className="w-full h-12 border-2 border-gray-200 hover:bg-gray-50 bg-transparent"
                 disabled={isLoading}
               >
-                <Chrome className="h-5 w-5 mr-2" />
+                <Lock className="h-5 w-5 mr-2 text-yellow-400" />
                 Continue with Google
               </Button>
 
