@@ -17,7 +17,6 @@ import {
 } from "lucide-react"
 import { AuthModal } from "@/components/auth-modal"
 import { OnboardingModal } from "@/components/onboarding-modal"
-import { Navbar } from "@/components/navbar"
 import { useAuth } from "@/context/AuthContext"
 import { CertificateVerificationModal } from "@/components/certificate-verification-modal"
 

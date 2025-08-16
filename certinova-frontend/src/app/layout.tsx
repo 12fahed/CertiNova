@@ -26,7 +26,7 @@ export default function RootLayout({
           <EventProvider>
             <CertificateProvider>
               {children}
-              <Toaster position="top-right" />
+              <Toaster position="bottom-right" />
             </CertificateProvider>
           </EventProvider>
         </AuthProvider>

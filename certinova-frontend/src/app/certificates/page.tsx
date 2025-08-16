@@ -8,13 +8,14 @@ import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Search, Filter, Users, Calendar, FileText, Hash, Eye, Loader2, AlertCircle, ChevronLeft, ChevronRight, Lock, Unlock } from "lucide-react"
+import { Search, Filter, Users, Calendar, FileText, Hash, Loader2, AlertCircle, ChevronLeft, ChevronRight, Lock, Unlock } from "lucide-react"
 import { certificateService } from "@/services/certificate"
-import { CertificateListItem, GeneratedCertificateRecipient } from "@/types/certificate"
+import { CertificateListItem } from "@/types/certificate"
 import { toast } from "sonner"
 import { PasswordDialog } from "@/components/password-dialog"
 import { EncryptedCache } from "@/utils/crypto"
 import { Navbar } from "@/components/navbar"
+import { ProtectedRoute } from "@/components/ProtectedRoute"
 
 export default function CertificatesPage() {
   const [searchTerm, setSearchTerm] = useState("")
@@ -199,9 +200,10 @@ export default function CertificatesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar variant="certificate" />
-      <div className="max-w-7xl mx-auto pt-6">
+    <ProtectedRoute>
+      <div className="min-h-screen bg-gray-50">
+        <Navbar variant="certificate" />
+        <div className="max-w-7xl mx-auto pt-6">
         {/* Header */}
         <div className="mb-8">
           <div className="flex justify-between items-center">
@@ -501,5 +503,6 @@ export default function CertificatesPage() {
         isLoading={isDecrypting}
       />
     </div>
+  </ProtectedRoute>
   )
 }
