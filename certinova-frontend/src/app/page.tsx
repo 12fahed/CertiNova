@@ -4,8 +4,6 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import {
   Award,
   Users,
@@ -13,96 +11,20 @@ import {
   Star,
   Calendar,
   Building,
-  Plus,
-  Download,
-  FileText,
   TrendingUp,
   Shield,
   Clock,
 } from "lucide-react"
 import { AuthModal } from "@/components/auth-modal"
 import { OnboardingModal } from "@/components/onboarding-modal"
-import { CreateCertificateModal } from "@/components/create-certificate-modal"
-import { CertificateEditor } from "@/components/certificate-editor"
-import { SendCertificatesModal } from "@/components/send-certificates-modal"
 import { Navbar } from "@/components/navbar"
 import { useAuth } from "@/context/AuthContext"
 import { CertificateVerificationModal } from "@/components/certificate-verification-modal"
-
-interface DisplayCertificate {
-  id?: string
-  name: string
-  event: string
-  date: string
-  image?: string
-  fields: {
-    recipientName?: {
-      x: number
-      y: number
-      width: number
-      height: number
-      fontSize?: number
-      fontFamily?: string
-      fontWeight?: string
-      fontStyle?: string
-      textDecoration?: string
-    }
-    organizationName?: {
-      x: number
-      y: number
-      width: number
-      height: number
-      fontSize?: number
-      fontFamily?: string
-      fontWeight?: string
-      fontStyle?: string
-      textDecoration?: string
-    }
-    certificateLink?: {
-      x: number
-      y: number
-      width: number
-      height: number
-      fontSize?: number
-      fontFamily?: string
-      fontWeight?: string
-      fontStyle?: string
-      textDecoration?: string
-    }
-    certificateQR?: {
-      x: number
-      y: number
-      width: number
-      height: number
-      fontSize?: number
-      fontFamily?: string
-      fontWeight?: string
-      fontStyle?: string
-      textDecoration?: string
-    }
-    rank?: {
-      x: number
-      y: number
-      width: number
-      height: number
-      fontSize?: number
-      fontFamily?: string
-      fontWeight?: string
-      fontStyle?: string
-      textDecoration?: string
-    }
-  }
-}
 
 export default function HomePage() {
   const { isAuthenticated, isLoading } = useAuth()
   const router = useRouter()
   const [showOnboarding, setShowOnboarding] = useState(false)
-  const [certificates, setCertificates] = useState<DisplayCertificate[]>([])
-  const [showCreateModal, setShowCreateModal] = useState(false)
-  const [showEditor, setShowEditor] = useState(false)
-  const [currentCertificate, setCurrentCertificate] = useState<Partial<DisplayCertificate> | null>(null)
-  const [showSendModal, setShowSendModal] = useState(false)
   const [showVerificationModal, setShowVerificationModal] = useState(false)
 
   useEffect(() => {
@@ -175,24 +97,6 @@ export default function HomePage() {
   ]
 
   const handleLogin = () => {}
-
-  const handleCreateCertificate = (eventName: string, issuerName: string) => {
-    setCurrentCertificate({
-      id: Date.now().toString(),
-      name: `${eventName} Certificate`,
-      event: eventName,
-      date: new Date().toLocaleDateString(),
-      fields: {},
-    })
-    setShowCreateModal(false)
-    setShowEditor(true)
-  }
-
-  const handleSaveCertificate = (certificate: DisplayCertificate) => {
-    setCertificates((prev) => [...prev, certificate])
-    setShowEditor(false)
-    setCurrentCertificate(null)
-  }
 
   if (!isAuthenticated && !isLoading) {
     return (
@@ -339,118 +243,4 @@ export default function HomePage() {
       </div>
     )
   }
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar onCreateNew={() => setShowCreateModal(true)} onSendCertificates={() => setShowSendModal(true)} />
-
-      <div className="container mx-auto px-6 py-8">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Certificate Dashboard</h1>
-          <p className="text-gray-600">Manage and create certificates for your events</p>
-        </motion.div>
-
-        {certificates.length === 0 ? (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="text-center py-20"
-          >
-            <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Award className="h-12 w-12 text-gray-400" />
-            </div>
-            <h3 className="text-2xl font-semibold text-gray-900 mb-4">No certificates yet</h3>
-            <p className="text-gray-600 mb-8 max-w-md mx-auto">
-              Create your first certificate template to get started with bulk generation
-            </p>
-            <Button onClick={() => setShowCreateModal(true)} size="lg" className="bg-blue-600 hover:bg-blue-700">
-              <Plus className="h-5 w-5 mr-2" />
-              Create Your First Certificate
-            </Button>
-          </motion.div>
-        ) : (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-          >
-            {certificates.map((certificate, index) => (
-              <motion.div
-                key={certificate.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                whileHover={{ y: -2 }}
-              >
-                <Card className="overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 bg-white">
-                  <div className="aspect-video bg-gray-100 flex items-center justify-center border-b border-gray-200">
-                    {certificate.image ? (
-                      <img
-                        src={certificate.image || "/placeholder.svg"}
-                        alt={certificate.name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <Award className="h-16 w-16 text-gray-400" />
-                    )}
-                  </div>
-                  <CardContent className="p-6">
-                    <h3 className="font-semibold text-lg text-gray-900 mb-2">{certificate.name}</h3>
-                    <div className="flex items-center text-sm text-gray-600 mb-3">
-                      <Calendar className="h-4 w-4 mr-2" />
-                      {certificate.date}
-                    </div>
-                    <Badge variant="secondary" className="mb-4 bg-gray-100 text-gray-700">
-                      {certificate.event}
-                    </Badge>
-                    <div className="flex space-x-2">
-                      <Button size="sm" variant="outline" className="flex-1 bg-transparent">
-                        <FileText className="h-4 w-4 mr-2" />
-                        Edit
-                      </Button>
-                      <Button size="sm" className="flex-1 bg-green-600 hover:bg-green-700">
-                        <Download className="h-4 w-4 mr-2" />
-                        Use
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </motion.div>
-        )}
-      </div>
-
-      <CreateCertificateModal
-        open={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
-        onSubmit={handleCreateCertificate}
-      />
-
-      {showEditor && currentCertificate && (
-        <CertificateEditor
-          certificate={currentCertificate}
-          onSave={handleSaveCertificate}
-          onClose={() => {
-            setShowEditor(false)
-            setCurrentCertificate(null)
-          }}
-        />
-      )}
-
-      <SendCertificatesModal
-        open={showSendModal}
-        onClose={() => setShowSendModal(false)}
-        certificates={certificates
-          .filter((cert) => cert.id)
-          .map((cert) => ({
-            id: cert.id!,
-            name: cert.name,
-            event: cert.event,
-            date: cert.date,
-            image: cert.image || "",
-          }))}
-      />
-    </div>
-  )
 }
