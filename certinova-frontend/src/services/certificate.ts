@@ -139,6 +139,39 @@ class CertificateService {
       body: JSON.stringify(params),
     }) as Promise<CertificatesListResponse>;
   }
+
+  // Verify UUID
+  async verifyUUID(uuid: string): Promise<{
+    success: boolean;
+    verified: boolean;
+    message: string;
+    step: string;
+    data?: {
+      uuid: string;
+      organisation: string;
+      issuerName: string;
+      eventName: string;
+      eventDate: string;
+      certificateGeneratedDate: string;
+      certificateId: string;
+      verificationId: string;
+      isValid: boolean;
+      verifiedAt: string;
+    };
+    error?: string;
+  }> {
+    try {
+      const response = await fetch(`${this.baseURL}/verify/${uuid}`, {
+        method: 'GET',
+      });
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('UUID verification failed:', error);
+      throw error;
+    }
+  }
 }
 
 export const certificateService = new CertificateService();

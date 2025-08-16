@@ -834,7 +834,7 @@ export const getDecryptedGeneratedCertificates = async (req, res) => {
   }
 };
 
-// @desc    Verify UUID and get certificate information
+// @desc    Verify UUID and get detailed certificate information
 // @route   GET /api/certificates/verify/:uuid
 // @access  Public
 export const verifyUUID = async (req, res) => {
@@ -844,46 +844,107 @@ export const verifyUUID = async (req, res) => {
     if (!uuid) {
       return res.status(400).json({
         success: false,
-        message: 'UUID is required'
+        message: 'UUID is required',
+        verified: false,
+        step: 'validation',
+        error: 'UUID parameter missing'
       });
     }
 
+    console.log('=== UUID VERIFICATION PROCESS START ===');
     console.log('Verifying UUID:', uuid);
 
-    // Find the UUID verification document
-    const verifyRecord = await VerifyUUID.findOne({ uuid }).populate('generatedCertificateId');
-
+    // Step 1: Find the UUID verification document
+    console.log('Step 1: Searching VerifyUUID collection...');
+    const verifyRecord = await VerifyUUID.findOne({ uuid });
+    console.log("VerifyRecord: ", verifyRecord)
     if (!verifyRecord) {
+      console.log('UUID not found in VerifyUUID collection');
       return res.status(404).json({
         success: false,
-        message: 'UUID not found or invalid',
-        verified: false
+        message: 'Certificate UUID not found or invalid. Please try contacting the issuer',
+        verified: false,
+        step: 'uuid_lookup',
+        error: 'UUID does not exist in verification records'
       });
     }
 
-    console.log('UUID verification found:', verifyRecord._id);
+    console.log('✓ Step 1 Complete: UUID verification record found:', verifyRecord._id);
 
-    // Get the associated generated certificate
-    const generatedCertificate = verifyRecord.generatedCertificateId;
+    // Step 2: Get the associated generated certificate
+    console.log('Step 2: Fetching GeneratedCertificate...');
+    const generatedCertificate = await GeneratedCertificate.findById(verifyRecord.generatedCertificateId);
 
     if (!generatedCertificate) {
+      console.log('GeneratedCertificate not found for ID:', verifyRecord.generatedCertificateId);
       return res.status(404).json({
         success: false,
-        message: 'Associated certificate not found',
-        verified: false
+        message: 'Associated certificate record not found. Please try contacting the issue',
+        verified: false,
+        step: 'certificate_lookup',
+        error: 'Certificate data has been removed or corrupted'
       });
     }
+
+    console.log('✓ Step 2 Complete: GeneratedCertificate found:', generatedCertificate._id);
+    console.log('Certificate created at:', generatedCertificate.createdAt);
+
+    // Step 3: Get certificate configuration
+    console.log('Step 3: Fetching CertificateConfig...');
+    const certificateConfig = await CertificateConfig.findById(generatedCertificate.certificateId);
+
+    if (!certificateConfig) {
+      console.log('CertificateConfig not found for ID:', generatedCertificate.certificateId);
+      return res.status(404).json({
+        success: false,
+        message: 'Certificate configuration not found. Please try contacting the issue',
+        verified: false,
+        step: 'config_lookup',
+        error: 'Certificate configuration has been removed'
+      });
+    }
+
+    console.log('✓ Step 3 Complete: CertificateConfig found:', certificateConfig._id);
+
+    // Step 4: Get event details
+    console.log('Step 4: Fetching Event details...');
+    const event = await Event.findById(certificateConfig.eventId);
+
+    if (!event) {
+      console.log('Event not found for ID:', certificateConfig.eventId);
+      return res.status(404).json({
+        success: false,
+        message: 'Event information not found. Please try contacting the issue',
+        verified: false,
+        step: 'event_lookup',
+        error: 'Event has been removed or does not exist'
+      });
+    }
+
+    console.log('✓ Step 4 Complete: Event found:', event._id);
+    console.log('Event name:', event.eventName);
+    console.log('Issuer name:', event.issuerName);
+    console.log('Organisation:', event.organisation);
+
+    // All verification steps complete - return success
+    console.log('=== UUID VERIFICATION PROCESS COMPLETE ===');
 
     res.status(200).json({
       success: true,
-      message: 'UUID verified successfully',
+      message: 'Certificate verified successfully',
       verified: true,
+      step: 'complete',
       data: {
         uuid: verifyRecord.uuid,
+        organisation: event.organisation,
+        issuerName: event.issuerName,
+        eventName: event.eventName,
+        eventDate: event.date,
+        certificateGeneratedDate: generatedCertificate.createdAt,
         certificateId: generatedCertificate.certificateId,
-        generatedDate: generatedCertificate.date,
         verificationId: verifyRecord._id,
-        isValid: true
+        isValid: true,
+        verifiedAt: new Date()
       }
     });
 
@@ -891,9 +952,10 @@ export const verifyUUID = async (req, res) => {
     console.error('UUID verification error:', error);
     res.status(500).json({
       success: false,
-      message: 'Failed to verify UUID',
-      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
-      verified: false
+      message: 'Failed to verify certificate',
+      verified: false,
+      step: 'server_error',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     });
   }
 };

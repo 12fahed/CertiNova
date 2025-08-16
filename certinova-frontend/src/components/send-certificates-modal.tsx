@@ -64,15 +64,15 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
 
   // Load certificate configuration when a certificate is selected
   useEffect(() => {
-    console.log("Selected certificate:", selectedCertificate);
+    // console.log("Selected certificate:", selectedCertificate);
     if (selectedCertificate) {
       const fetchCertificateConfig = async () => {
         try {
-          console.log("Fetching certificate config for eventId:", selectedCertificate);
+          // console.log("Fetching certificate config for eventId:", selectedCertificate);
           const config = await getCertificateConfig(selectedCertificate);
           if (config) {
-            console.log("Certificate configuration loaded:", config);
-            console.log("Certificate config ID:", config.id);
+            // console.log("Certificate configuration loaded:", config);
+            // console.log("Certificate config ID:", config.id);
             setCertificateConfig(config);
             
             // Clear rank field if the certificate doesn't support rank
@@ -81,7 +81,8 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
               // Also clear rank from existing recipients if switching to a certificate without rank support
               setRecipients(prev => prev.map(recipient => ({
                 name: recipient.name,
-                email: recipient.email
+                email: recipient.email,
+                uuid: recipient.uuid 
               })));
             }
           } else {
@@ -99,8 +100,8 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
   // Reset state when modal opens
   useEffect(() => {
     if (open) {
-      console.log("Modal opened with certificates:", certificates);
-      console.log("Certificate IDs:", certificates.map(c => ({ id: c.id, name: c.name })));
+      // console.log("Modal opened with certificates:", certificates);
+      // console.log("Certificate IDs:", certificates.map(c => ({ id: c.id, name: c.name })));
     }
   }, [open, certificates]);
 
@@ -772,7 +773,7 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
                         : "border-gray-200 hover:border-gray-300 hover:shadow-sm"
                     }`}
                     onClick={() => {
-                      console.log('Selecting certificate:', certificate.id);
+                      // console.log('Selecting certificate:', certificate.id);
                       setSelectedCertificate(certificate.id);
                     }}
                   >

@@ -27,6 +27,7 @@ import { CertificateEditor } from "@/components/certificate-editor"
 import { SendCertificatesModal } from "@/components/send-certificates-modal"
 import { Navbar } from "@/components/navbar"
 import { useAuth } from "@/context/AuthContext"
+import { CertificateVerificationModal } from "@/components/certificate-verification-modal"
 
 interface DisplayCertificate {
   id?: string
@@ -35,11 +36,61 @@ interface DisplayCertificate {
   date: string
   image?: string
   fields: {
-    recipientName?: { x: number; y: number; width: number; height: number; fontSize?: number; fontFamily?: string; fontWeight?: string; fontStyle?: string; textDecoration?: string }
-    organizationName?: { x: number; y: number; width: number; height: number; fontSize?: number; fontFamily?: string; fontWeight?: string; fontStyle?: string; textDecoration?: string }
-    certificateLink?: { x: number; y: number; width: number; height: number; fontSize?: number; fontFamily?: string; fontWeight?: string; fontStyle?: string; textDecoration?: string }
-    certificateQR?: { x: number; y: number; width: number; height: number; fontSize?: number; fontFamily?: string; fontWeight?: string; fontStyle?: string; textDecoration?: string }
-    rank?: { x: number; y: number; width: number; height: number; fontSize?: number; fontFamily?: string; fontWeight?: string; fontStyle?: string; textDecoration?: string }
+    recipientName?: {
+      x: number
+      y: number
+      width: number
+      height: number
+      fontSize?: number
+      fontFamily?: string
+      fontWeight?: string
+      fontStyle?: string
+      textDecoration?: string
+    }
+    organizationName?: {
+      x: number
+      y: number
+      width: number
+      height: number
+      fontSize?: number
+      fontFamily?: string
+      fontWeight?: string
+      fontStyle?: string
+      textDecoration?: string
+    }
+    certificateLink?: {
+      x: number
+      y: number
+      width: number
+      height: number
+      fontSize?: number
+      fontFamily?: string
+      fontWeight?: string
+      fontStyle?: string
+      textDecoration?: string
+    }
+    certificateQR?: {
+      x: number
+      y: number
+      width: number
+      height: number
+      fontSize?: number
+      fontFamily?: string
+      fontWeight?: string
+      fontStyle?: string
+      textDecoration?: string
+    }
+    rank?: {
+      x: number
+      y: number
+      width: number
+      height: number
+      fontSize?: number
+      fontFamily?: string
+      fontWeight?: string
+      fontStyle?: string
+      textDecoration?: string
+    }
   }
 }
 
@@ -52,15 +103,14 @@ export default function HomePage() {
   const [showEditor, setShowEditor] = useState(false)
   const [currentCertificate, setCurrentCertificate] = useState<Partial<DisplayCertificate> | null>(null)
   const [showSendModal, setShowSendModal] = useState(false)
+  const [showVerificationModal, setShowVerificationModal] = useState(false)
 
-  // Redirect to dashboard if user is authenticated
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
-      router.push('/dashboard')
+      router.push("/dashboard")
     }
   }, [isAuthenticated, isLoading, router])
 
-  // Show loading screen while checking authentication
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -124,9 +174,7 @@ export default function HomePage() {
     },
   ]
 
-  const handleLogin = () => {
-    // This will be handled by the redirect useEffect
-  }
+  const handleLogin = () => {}
 
   const handleCreateCertificate = (eventName: string, issuerName: string) => {
     setCurrentCertificate({
@@ -149,7 +197,6 @@ export default function HomePage() {
   if (!isAuthenticated && !isLoading) {
     return (
       <div className="min-h-screen bg-white">
-        {/* Navigation */}
         <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
           <div className="container mx-auto px-6 py-4">
             <div className="flex justify-between items-center">
@@ -171,7 +218,6 @@ export default function HomePage() {
           </div>
         </nav>
 
-        {/* Hero Section */}
         <section className="py-20 bg-gradient-to-b from-gray-50 to-white">
           <div className="container mx-auto px-6">
             <motion.div
@@ -199,12 +245,19 @@ export default function HomePage() {
                 >
                   Watch Demo
                 </Button>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => setShowVerificationModal(true)}
+                  className="text-blue-600 border-blue-300 hover:bg-blue-50 bg-transparent"
+                >
+                  Verify Certificate
+                </Button>
               </div>
             </motion.div>
           </div>
         </section>
 
-        {/* Stats Section */}
         <section className="py-16 bg-white">
           <div className="container mx-auto px-6">
             <motion.div
@@ -232,7 +285,6 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Features Section */}
         <section className="py-20 bg-gray-50">
           <div className="container mx-auto px-6">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-16">
@@ -270,7 +322,6 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* CTA Section */}
         <section className="py-20 bg-blue-600">
           <div className="container mx-auto px-6 text-center">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-3xl mx-auto">
@@ -284,6 +335,7 @@ export default function HomePage() {
         </section>
 
         <OnboardingModal open={showOnboarding} onClose={() => setShowOnboarding(false)} />
+        <CertificateVerificationModal open={showVerificationModal} onClose={() => setShowVerificationModal(false)} />
       </div>
     )
   }
@@ -386,16 +438,18 @@ export default function HomePage() {
         />
       )}
 
-      <SendCertificatesModal 
-        open={showSendModal} 
-        onClose={() => setShowSendModal(false)} 
-        certificates={certificates.filter(cert => cert.id).map(cert => ({
-          id: cert.id!,
-          name: cert.name,
-          event: cert.event,
-          date: cert.date,
-          image: cert.image || ''
-        }))} 
+      <SendCertificatesModal
+        open={showSendModal}
+        onClose={() => setShowSendModal(false)}
+        certificates={certificates
+          .filter((cert) => cert.id)
+          .map((cert) => ({
+            id: cert.id!,
+            name: cert.name,
+            event: cert.event,
+            date: cert.date,
+            image: cert.image || "",
+          }))}
       />
     </div>
   )
