@@ -28,6 +28,7 @@ import { useEvents } from "@/context/EventContext";
 import { useCertificates } from "@/context/CertificateContext";
 import { Event } from "@/types/event";
 import { CertificateConfig } from "@/types/certificate";
+import { PremiumCard } from "@/components/premium-card";
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -407,24 +408,16 @@ export default function DashboardPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
             >
-              <Card className="bg-white border-gray-200 hover:shadow-md transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">Recipients</p>
-                      <p className="text-3xl font-bold text-gray-900">2,847</p>
-                    </div>
-                    <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                      <Users className="h-6 w-6 text-green-600" />
-                    </div>
-                  </div>
-                  <div className="flex items-center mt-4 text-sm">
-                    <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
-                    <span className="text-green-500">+8%</span>
-                    <span className="text-gray-500 ml-1">from last month</span>
-                  </div>
-                </CardContent>
-              </Card>
+              <PremiumCard
+              title="Recipients"
+              value="2,847"
+              icon={<Users className="h-6 w-6" />}
+              iconBgColor="bg-green-100"
+              iconColor="text-green-600"
+              trend="from last month"
+              trendValue="+8%"
+              isPremium={true}
+          />
             </motion.div>
 
             <motion.div
@@ -432,24 +425,16 @@ export default function DashboardPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
             >
-              <Card className="bg-white border-gray-200 hover:shadow-md transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">Success Rate</p>
-                      <p className="text-3xl font-bold text-gray-900">98.5%</p>
-                    </div>
-                    <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                      <Zap className="h-6 w-6 text-yellow-600" />
-                    </div>
-                  </div>
-                  <div className="flex items-center mt-4 text-sm">
-                    <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
-                    <span className="text-green-500">+2%</span>
-                    <span className="text-gray-500 ml-1">from last month</span>
-                  </div>
-                </CardContent>
-              </Card>
+              <PremiumCard
+              title="Success Rate"
+              value="98.5%"
+              icon={<Zap className="h-6 w-6" />}
+              iconBgColor="bg-yellow-100"
+              iconColor="text-yellow-600"
+              trend="from last month"
+              trendValue="+2%"
+              isPremium={true}
+            />
             </motion.div>
 
             <motion.div
@@ -457,24 +442,16 @@ export default function DashboardPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
             >
-              <Card className="bg-white border-gray-200 hover:shadow-md transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">Active Events</p>
-                      <p className="text-3xl font-bold text-gray-900">12</p>
-                    </div>
-                    <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                      <Calendar className="h-6 w-6 text-purple-600" />
-                    </div>
-                  </div>
-                  <div className="flex items-center mt-4 text-sm">
-                    <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
-                    <span className="text-green-500">+5%</span>
-                    <span className="text-gray-500 ml-1">from last month</span>
-                  </div>
-                </CardContent>
-              </Card>
+              <PremiumCard
+              title="Active Events"
+              value="12"
+              icon={<Calendar className="h-6 w-6" />}
+              iconBgColor="bg-purple-100"
+              iconColor="text-purple-600"
+              trend="from last month"
+              trendValue="+5%"
+              isPremium={true}
+            />
             </motion.div>
           </div>
 
