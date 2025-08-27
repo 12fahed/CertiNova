@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { Award, Plus, Send, User, Settings, LogOut, ArrowLeft, Lock } from "lucide-react"
+import { Award, Plus, Send, User, Settings, LogOut, ArrowLeft, Lock, Book } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,6 +37,10 @@ export function Navbar({ variant = 'dashboard', onCreateNew, onSendCertificates 
     router.push('/dashboard')
   }
 
+  const onLearn = () => {
+    window.open('https://youtu.be/M2zUsVVCerY', '_blank', 'noopener,noreferrer');
+  };
+
   return (
     <motion.nav
       initial={{ opacity: 0, y: -20 }}
@@ -55,6 +59,11 @@ export function Navbar({ variant = 'dashboard', onCreateNew, onSendCertificates 
           <div className="flex items-center space-x-4">
             {variant === 'dashboard' ? (
               <>
+                <Button onClick={onLearn} className="bg-blue-600 hover:bg-blue-700 text-white">
+                  <Book className="h-4 w-4 mr-2" />
+                  Learn how to use
+                </Button>
+
                 <Button onClick={onCreateNew} className="bg-blue-600 hover:bg-blue-700 text-white">
                   <Plus className="h-4 w-4 mr-2" />
                   Create Certificate
