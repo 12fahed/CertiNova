@@ -52,6 +52,5 @@ Thumbs.db
 # Sample files (keep these in gitignore)
 sample.json
 CLOUDINARY_SETUP.md
-README.md
 DEPLOYMENT.md
 .env.example
