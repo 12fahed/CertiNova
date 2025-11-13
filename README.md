@@ -110,6 +110,10 @@ CertiNova addresses these challenges by providing:
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
+## Diagram
+
+<img src="./diagram.png">
+
 ### Database Schema
 ```
 Users Collection:
