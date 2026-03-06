@@ -49,8 +49,4 @@ Thumbs.db
 # Vercel
 .vercel
 
-# Sample files (keep these in gitignore)
-sample.json
-CLOUDINARY_SETUP.md
-DEPLOYMENT.md
-.env.example
+.env
