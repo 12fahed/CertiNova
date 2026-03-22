@@ -1,5 +1,7 @@
 # CertiNova - Bulk Certificate Generation Platform
 
+[![gitcgr](https://gitcgr.com/badge/12fahed/CertiNova.svg)](https://gitcgr.com/12fahed/CertiNova)
+
 A comprehensive, secure, and user-friendly platform for creating, managing, and distributing certificates in bulk. CertiNova enables organizations to generate personalized certificates efficiently while maintaining data security through advanced encryption.
 
 ## 📖 Table of Contents
