@@ -41,8 +41,6 @@ import QRCode from "qrcode";
 import { PasswordDialog } from "@/components/password-dialog";
 import { EncryptedCache } from "@/utils/crypto";
 
-const BASE_URL = window.location.origin;
-
 interface CertificateForSending {
   id: string;
   name: string;
@@ -69,6 +67,7 @@ export function SendCertificatesModal({
   onClose,
   certificates,
 }: SendCertificatesModalProps) {
+  const BASE_URL = window.location.origin;
   const { getCertificateConfig } = useCertificates();
   const [step, setStep] = useState(1);
   const [selectedCertificate, setSelectedCertificate] = useState<string>("");
