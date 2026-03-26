@@ -1,56 +1,63 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Lock, Eye, EyeOff, AlertCircle } from "lucide-react"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Lock, Eye, EyeOff, AlertCircle } from "lucide-react";
 
 interface PasswordDialogProps {
-  open: boolean
-  onClose: () => void
-  onConfirm: (password: string) => void
-  title: string
-  description?: string
-  isLoading?: boolean
+  purpose: "Encrypt" | "Decrypt";
+  open: boolean;
+  onClose: () => void;
+  onConfirm: (password: string) => void;
+  title: string;
+  description?: string;
+  isLoading?: boolean;
 }
 
-export function PasswordDialog({ 
-  open, 
-  onClose, 
-  onConfirm, 
-  title, 
+export function PasswordDialog({
+  purpose,
+  open,
+  onClose,
+  onConfirm,
+  title,
   description,
-  isLoading = false 
+  isLoading = false,
 }: PasswordDialogProps) {
-  const [password, setPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
-  const [error, setError] = useState("")
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    
+    e.preventDefault();
+
     if (!password.trim()) {
-      setError("Password is required")
-      return
+      setError("Password is required");
+      return;
     }
 
     if (password.length < 6) {
-      setError("Password must be at least 6 characters long")
-      return
+      setError("Password must be at least 6 characters long");
+      return;
     }
 
-    setError("")
-    onConfirm(password)
-  }
+    setError("");
+    onConfirm(password);
+  };
 
   const handleClose = () => {
-    setPassword("")
-    setError("")
-    setShowPassword(false)
-    onClose()
-  }
+    setPassword("");
+    setError("");
+    setShowPassword(false);
+    onClose();
+  };
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -78,8 +85,8 @@ export function PasswordDialog({
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => {
-                  setPassword(e.target.value)
-                  setError("") // Clear error when user starts typing
+                  setPassword(e.target.value);
+                  setError(""); // Clear error when user starts typing
                 }}
                 placeholder="Enter your login password"
                 className="border-gray-200 pr-10"
@@ -107,12 +114,15 @@ export function PasswordDialog({
             )}
           </div>
 
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-            <p className="text-xs text-blue-800">
-              <Lock className="h-3 w-3 inline mr-1" />
-              Your data will be encrypted using SHA-256 before storing in the database for maximum security.
-            </p>
-          </div>
+          {purpose === "Encrypt" && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <p className="text-xs text-blue-800">
+                <Lock className="h-3 w-3 inline mr-1" />
+                Your data will be encrypted using SHA-256 before storing in the
+                database for maximum security.
+              </p>
+            </div>
+          )}
 
           <div className="flex space-x-3">
             <Button
@@ -135,5 +145,5 @@ export function PasswordDialog({
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

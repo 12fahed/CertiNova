@@ -533,7 +533,7 @@ export default function CertificatesPage() {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <Input
-                  placeholder="Search recipients by name, email, rank, or UUID..."
+                  placeholder="Search recipients by name, email, rank, or UUID"
                   value={recipientSearchTerm}
                   onChange={(e) => setRecipientSearchTerm(e.target.value)}
                   className="pl-10 border-gray-200 bg-white"
@@ -637,6 +637,7 @@ export default function CertificatesPage() {
 
         {/* Password Dialog for decrypting certificate data */}
         <PasswordDialog
+          purpose="Decrypt"
           open={showPasswordDialog}
           onClose={() => setShowPasswordDialog(false)}
           onConfirm={handlePasswordConfirm}
