@@ -1401,6 +1401,7 @@ export function SendCertificatesModal({
 
         {/* Password Dialog for storing certificate data */}
         <PasswordDialog
+          purpose="Encrypt"
           open={showPasswordDialog}
           onClose={() => setShowPasswordDialog(false)}
           onConfirm={handlePasswordConfirm}
