@@ -1017,6 +1017,92 @@ export const verifyUUID = async (req, res) => {
   }
 };
 
+// @desc    Verify UUID and return full certificate data for rendering a sample certificate
+// @route   GET /api/certificates/verify-full/:uuid
+// @access  Public
+export const verifyCertificateFullByUUID = async (req, res) => {
+  try {
+    const { uuid } = req.params;
+
+    if (!uuid) {
+      return res.status(400).json({
+        success: false,
+        message: 'UUID is required',
+        verified: false,
+      });
+    }
+
+    // Step 1: Find the UUID verification document
+    const verifyRecord = await VerifyUUID.findOne({ uuid });
+    if (!verifyRecord) {
+      return res.status(404).json({
+        success: false,
+        message: 'Certificate UUID not found or invalid. Please try contacting the issuer.',
+        verified: false,
+      });
+    }
+
+    // Step 2: Get the associated generated certificate
+    const generatedCertificate = await GeneratedCertificate.findById(verifyRecord.generatedCertificateId);
+    if (!generatedCertificate) {
+      return res.status(404).json({
+        success: false,
+        message: 'Associated certificate record not found.',
+        verified: false,
+      });
+    }
+
+    // Step 3: Get certificate configuration (template image + field positions)
+    const certificateConfig = await CertificateConfig.findById(generatedCertificate.certificateId);
+    if (!certificateConfig) {
+      return res.status(404).json({
+        success: false,
+        message: 'Certificate configuration not found.',
+        verified: false,
+      });
+    }
+
+    // Step 4: Get event details
+    const event = await Event.findById(certificateConfig.eventId);
+    if (!event) {
+      return res.status(404).json({
+        success: false,
+        message: 'Event information not found.',
+        verified: false,
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Certificate verified successfully',
+      verified: true,
+      data: {
+        uuid: verifyRecord.uuid,
+        organisation: event.organisation,
+        issuerName: event.issuerName,
+        eventName: event.eventName,
+        eventDate: event.date,
+        certificateGeneratedDate: generatedCertificate.createdAt,
+        verifiedAt: new Date(),
+        // Certificate rendering data
+        certificateConfig: {
+          imagePath: certificateConfig.imagePath,
+          validFields: certificateConfig.validFields,
+        },
+      },
+    });
+
+  } catch (error) {
+    console.error('Full UUID verification error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to verify certificate',
+      verified: false,
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+    });
+  }
+};
+
 // @desc    Get all UUID verifications for a specific generated certificate
 // @route   GET /api/certificates/generated/:id/uuids
 // @access  Protected

@@ -9,6 +9,7 @@ import {
   getGeneratedCertificates,
   getDecryptedGeneratedCertificates,
   verifyUUID,
+  verifyCertificateFullByUUID,
   getCertificateUUIDs,
   getOrganizationStats,
   getAllOrganizationStats,
@@ -36,6 +37,7 @@ router.post('/generated/decrypt', getDecryptedGeneratedCertificates);
 
 // UUID verification routes
 router.get('/verify/:uuid', verifyUUID);
+router.get('/verify-full/:uuid', verifyCertificateFullByUUID);
 router.get('/generated/:id/uuids', getCertificateUUIDs);
 
 // Organization statistics routes
