@@ -14,23 +14,17 @@
       }
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "certinova-backend/server.js"
+      "source": "/api/(.*)",
+      "destination": "/certinova-backend/server.js"
     },
     {
-      "src": "/(.*)",
-      "dest": "certinova-frontend/$1"
+      "source": "/(.*)",
+      "destination": "/certinova-frontend/$1"
     }
   ],
   "env": {
     "NODE_ENV": "production"
-  },
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
-  ]
+  }
 }
