@@ -1,4 +1,4 @@
-# CertiNova — Bulk Certificate Generation Platform
+# CertiNova - Bulk Certificate Generation Platform
 
 A comprehensive, secure, and user-friendly platform for creating, managing, and distributing certificates in bulk. CertiNova enables organizations to generate personalized certificates efficiently while maintaining data security through advanced encryption.
 
