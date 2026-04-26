@@ -130,7 +130,7 @@ Since recipient data is encrypted and not accessible without the password, the p
 
 ---
 
-## 🛠 Technology Stack
+## Technology Stack
 
 ### Backend (`certinova-backend`)
 
@@ -170,17 +170,7 @@ Since recipient data is encrypted and not accessible without the password, the p
 
 ### System Overview
 
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Frontend      │    │    Backend      │    │    Database     │
-│   (Next.js)     │◄──►│   (Express)     │◄──►│   (MongoDB)     │
-│                 │    │                 │    │                 │
-│ • React 19      │    │ • REST API      │    │ • Users         │
-│ • App Router    │    │ • AES-256       │    │ • Events        │
-│ • Canvas API    │    │ • File Upload   │    │ • CertConfigs   │
-│ • CryptoJS      │    │ • Cloudinary    │    │ • GeneratedCerts│
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-```
+<img src="./diagram.png" alt="CertiNova Architecture Diagram" width="100%" />
 
 ### Database Schema
 
