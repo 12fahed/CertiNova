@@ -4,7 +4,8 @@ A comprehensive, secure, and user-friendly platform for creating, managing, and 
 
 ---
 
-## 📖 Table of Contents
+## Table of Contents
+
 - [Overview](#-overview)
 - [Key Features](#-key-features)
 - [Dashboard](#-dashboard)
@@ -19,12 +20,14 @@ A comprehensive, secure, and user-friendly platform for creating, managing, and 
 
 ---
 
-## 🎯 Overview
+## Overview
 
 CertiNova is a full-stack web application designed to streamline the certificate generation process for educational institutions, organizations, and event coordinators. The platform combines intuitive design with robust security features to handle bulk certificate creation while protecting sensitive recipient data.
 
 ### Problem Statement
+
 Traditional certificate generation involves:
+
 - Manual creation of individual certificates
 - Time-consuming personalization processes
 - Security concerns with recipient data storage
@@ -32,7 +35,9 @@ Traditional certificate generation involves:
 - Difficulty in managing large recipient lists
 
 ### Solution
+
 CertiNova addresses these challenges by providing:
+
 - **Automated Bulk Generation**: Generate hundreds of personalized certificates simultaneously
 - **Advanced Security**: End-to-end AES-256 encryption for all recipient data
 - **Visual Editor**: Drag-and-drop interface for certificate design
@@ -42,9 +47,10 @@ CertiNova addresses these challenges by providing:
 
 ---
 
-## ✨ Key Features
+## Key Features
 
-### 🎨 Certificate Design Studio
+### Certificate Design Studio
+
 - **Visual Drag-and-Drop Editor** for precise placement of certificate fields
 - **Custom Template Upload** — bring your own certificate background via image upload
 - **Dynamic Field Types**: Recipient Name, Organisation Name, Rank/Position, Certificate Link, QR Code
@@ -52,14 +58,16 @@ CertiNova addresses these challenges by providing:
 - **Live Preview Mode**: See your certificate rendered exactly as it will be generated
 - **Edit Existing Templates**: Modify previously saved certificate configurations
 
-### 📊 Dashboard
-- **Grid View**: Card-based certificate overview with thumbnail previews  
-- **Table View**: Compact list view with quick action buttons per row  
-- **Preview Pane**: Windows File Explorer-style detail panel — click any event in table view to see the certificate preview and all actions on the right  
+### Dashboard
+
+- **Grid View**: Card-based certificate overview with thumbnail previews
+- **Table View**: Compact list view with quick action buttons per row
+- **Preview Pane**: Windows File Explorer-style detail panel — click any event in table view to see the certificate preview and all actions on the right
 - **Statistics Cards**: Quick summary of total certificates, recipients, success rate, active events
 - **One-click Actions**: Edit, Download Sample, and Delete directly from both views
 
-### 🚀 Bulk Certificate Generation
+### Bulk Certificate Generation
+
 - **Manual Recipient Entry**: Add recipients one by one with name, email, and rank
 - **CSV/Excel Import**: Bulk-import recipient lists via spreadsheets
 - **QR Code Embedding**: Auto-generates personalized QR codes linking to the certificate's verification URL
@@ -69,9 +77,10 @@ CertiNova addresses these challenges by providing:
 - **Confetti Celebration**: Visual feedback on successful bulk generation
 - **Password-Protected Generation**: All recipient data encrypted before storage
 
-### 🔍 Certificate Verification
+### Certificate Verification
 
 #### URL-based Verification (`/verify/{UUID}`)
+
 - **Public Shareable Links**: Every certificate has a unique URL in the format `{BASEURL}/verify/{UUID}`
 - **No Login Required**: Fully public-facing, anyone can verify a certificate
 - **Animated Verification Progress**: Step-by-step visual verification with real-time progress indicators
@@ -81,6 +90,7 @@ CertiNova addresses these challenges by providing:
 - **Certificate Preview Download**: Download the sample certificate image from the verification page
 
 #### Modal Verification
+
 - **UUID Input Modal**: Enter a certificate's UUID manually in 5 segmented input boxes
 - **Paste Support**: Paste a full UUID (`xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`) into any box and it auto-populates all segments
 - **Auto-focus Progression**: Automatically advances to the next input segment on completion
@@ -88,7 +98,8 @@ CertiNova addresses these challenges by providing:
 - **Animated Step Progress**: Circular progress indicators for UUID Lookup, Certificate Validation, and Issuer Verification steps
 - **Issuer & Event Details**: Displays organisation, issuer name, event name, and event date on success
 
-### 📋 Certificate History
+### Certificate History
+
 - **View History**: Browse an archive of all previously generated certificate batches
 - **Search & Filter**: Find certificates by event name, date, or recipient count
 - **Encrypted Recipient Access**: Decrypt recipient data with the original password to view names and emails
@@ -96,20 +107,23 @@ CertiNova addresses these challenges by providing:
 
 ---
 
-## 🔐 Security & Privacy
+## Security & Privacy
 
 CertiNova is built with a **Privacy-by-Design** philosophy:
 
 ### Recipient Data Encryption
+
 - **AES-256-CBC Encryption**: All recipient personal data encrypted before database storage
 - **PBKDF2 Key Derivation**: Password-based encryption with SHA-256 (10,000 iterations) and unique salts
 - **IV Generation**: Unique initialization vectors for each encryption operation
 - **Zero Plain-text Storage**: Recipient names, emails, and ranks are never stored in plain text
 
 ### Why We Render Sample Certificates for Verification
+
 Since recipient data is encrypted and not accessible without the password, the public verification page renders the certificate layout using a **placeholder Indian identity** (e.g., "Aarav Sharma", "1st"). This demonstrates the certificate format and authenticity without exposing any private recipient information.
 
 ### User Authentication
+
 - **bcrypt Password Hashing**: All user passwords hashed with salt rounds
 - **Organisation-based Isolation**: Each organisation sees only their own events and certificates
 - **Protected Routes**: Dashboard and sensitive pages require authentication
@@ -119,40 +133,43 @@ Since recipient data is encrypted and not accessible without the password, the p
 ## 🛠 Technology Stack
 
 ### Backend (`certinova-backend`)
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| Node.js | 22+ | Runtime environment |
-| Express.js | 5.1.0 | REST API framework |
-| MongoDB | — | Document database |
-| Mongoose | 8.17.1 | ODM / schema management |
-| bcrypt | 6.0.0 | Password hashing |
-| Multer | 2.0.2 | File upload handling |
-| Cloudinary | — | Certificate image hosting |
-| crypto (built-in) | — | AES-256 encryption |
-| dotenv | — | Environment configuration |
+
+| Technology        | Version | Purpose                   |
+| ----------------- | ------- | ------------------------- |
+| Node.js           | 22+     | Runtime environment       |
+| Express.js        | 5.1.0   | REST API framework        |
+| MongoDB           | —       | Document database         |
+| Mongoose          | 8.17.1  | ODM / schema management   |
+| bcrypt            | 6.0.0   | Password hashing          |
+| Multer            | 2.0.2   | File upload handling      |
+| Cloudinary        | —       | Certificate image hosting |
+| crypto (built-in) | —       | AES-256 encryption        |
+| dotenv            | —       | Environment configuration |
 
 ### Frontend (`certinova-frontend`)
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| Next.js | 15+ | React framework (App Router) |
-| React | 19+ | UI library |
-| TypeScript | 5 | Type-safe development |
-| Tailwind CSS | 4 | Utility-first styling |
-| Framer Motion | 11 | Animations & transitions |
-| Radix UI | — | Accessible UI primitives |
-| CryptoJS | 4.2.0 | Client-side encryption |
-| qrcode | — | QR code generation |
-| JSZip | — | Bulk ZIP file download |
-| XLSX | — | Excel/CSV parsing |
-| uuid | — | UUID generation per recipient |
-| canvas-confetti | — | Celebration effect on generation |
-| Lucide React | — | Icon library |
+
+| Technology      | Version | Purpose                          |
+| --------------- | ------- | -------------------------------- |
+| Next.js         | 15+     | React framework (App Router)     |
+| React           | 19+     | UI library                       |
+| TypeScript      | 5       | Type-safe development            |
+| Tailwind CSS    | 4       | Utility-first styling            |
+| Framer Motion   | 11      | Animations & transitions         |
+| Radix UI        | —       | Accessible UI primitives         |
+| CryptoJS        | 4.2.0   | Client-side encryption           |
+| qrcode          | —       | QR code generation               |
+| JSZip           | —       | Bulk ZIP file download           |
+| XLSX            | —       | Excel/CSV parsing                |
+| uuid            | —       | UUID generation per recipient    |
+| canvas-confetti | —       | Celebration effect on generation |
+| Lucide React    | —       | Icon library                     |
 
 ---
 
-## 🏗 Architecture
+## Architecture
 
 ### System Overview
+
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   Frontend      │    │    Backend      │    │    Database     │
@@ -166,6 +183,7 @@ Since recipient data is encrypted and not accessible without the password, the p
 ```
 
 ### Database Schema
+
 ```
 Users
 ├── organisation     (String)
@@ -207,15 +225,17 @@ VerifyUUID
 
 ---
 
-## 📚 API Reference
+## API Reference
 
 ### Authentication
+
 ```http
 POST /api/auth/signup          # Register a new organisation
 POST /api/auth/login           # Login and receive session token
 ```
 
 ### Events
+
 ```http
 POST   /api/events/addEvent           # Create a new event
 GET    /api/events/:organisationId    # List events for an organisation
@@ -223,6 +243,7 @@ DELETE /api/events/:eventId           # Delete an event and its config
 ```
 
 ### Certificate Configuration
+
 ```http
 POST  /api/certificates/addCertificateConfig     # Save field layout
 GET   /api/certificates/config/:eventId          # Fetch event's layout
@@ -231,6 +252,7 @@ POST  /api/certificates/upload-template          # Upload background image
 ```
 
 ### Certificate Generation & Storage
+
 ```http
 POST /api/certificates/storeGenerated            # Store encrypted batch
 GET  /api/certificates/generated                 # List all batches (encrypted)
@@ -239,6 +261,7 @@ PATCH /api/certificates/update-recipient-count   # Update count
 ```
 
 ### Verification
+
 ```http
 GET /api/certificates/verify/:uuid               # Simple UUID check
 GET /api/certificates/verify-full/:uuid          # Full data for rendering sample cert
@@ -246,14 +269,16 @@ GET /api/certificates/verify-full/:uuid          # Full data for rendering sampl
 
 ---
 
-## 🚀 Installation Guide
+## Installation Guide
 
 ### Prerequisites
+
 - Node.js 22.x or higher
 - npm
 - MongoDB 5.x or higher
 
 ### Backend Setup
+
 ```bash
 cd certinova-backend
 npm install
@@ -271,6 +296,7 @@ npm run dev
 ```
 
 ### Frontend Setup
+
 ```bash
 cd certinova-frontend
 npm install
@@ -284,13 +310,15 @@ npm run dev
 
 ---
 
-## 📋 Usage Guide
+## Usage Guide
 
 ### 1. Account Setup
+
 1. **Sign Up**: Create an organisation account with your name and email
 2. **Log In**: Access your secure dashboard
 
 ### 2. Creating a Certificate Template
+
 1. Click **+ New Certificate** in the navbar
 2. Enter your **Event Name** and **Issuer Name**
 3. Upload a custom background template image
@@ -304,6 +332,7 @@ npm run dev
 6. Save the template
 
 ### 3. Generating Certificates
+
 1. Click **Send Certificates** in the navbar
 2. Select the certificate template (event)
 3. Add recipients via **manual entry** or **CSV/Excel import**
@@ -313,11 +342,13 @@ npm run dev
 6. Each certificate gets a unique UUID stored in the verification database
 
 ### 4. Verifying a Certificate
+
 - **Via URL**: Visit `{BASEURL}/verify/{UUID}` directly — a fully public page showing the verified certificate sample
 - **Via Modal**: Open the verification modal from the navbar, enter the UUID manually or paste it in full
 - The verification page shows organisation, issuer, event, date, and a rendered sample certificate image
 
 ### 5. Managing Certificates
+
 - Use **Grid View** for visual card-based browsing
 - Use **Table View** for a compact list — click any row to see the **Preview Pane** on the right
 - Access **View History** to browse past generation batches
@@ -325,7 +356,7 @@ npm run dev
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License.
 
