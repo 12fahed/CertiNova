@@ -14,7 +14,7 @@ import {
   TrendingUp,
   Shield,
   Clock,
-  Lock
+  PlayCircle
 } from "lucide-react"
 import { AuthModal } from "@/components/auth-modal"
 import { OnboardingModal } from "@/components/onboarding-modal"
@@ -147,7 +147,7 @@ export default function HomePage() {
                   size="lg"
                   className="text-gray-700 border-gray-300 hover:bg-gray-50 bg-transparent"
                 >
-                  <Lock className="mr-2 h-4 w-4 text-yellow-400" />
+                  <PlayCircle className="mr-2 h-4 w-4 text-blue-500" />
                   Watch Demo
                 </Button>
                 <Button
