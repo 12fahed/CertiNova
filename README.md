@@ -11,8 +11,7 @@ A comprehensive, secure, and user-friendly platform for creating, managing, and 
 - [Security & Privacy](#security--privacy)
 - [Technology Stack](#technology-stack)
 - [Architecture](#architecture)
-- [Installation Guide](#installation-guide)
-- [Usage Guide](#usage-guide)
+- [Getting Started](#getting-started)
 - [Community & Support](#community--support)
 - [License](#license)
 
@@ -164,87 +163,27 @@ For a detailed breakdown of the backend architecture, directory structure, and d
 
 ---
 
-## Installation Guide
+## Getting Started
 
-### Prerequisites
+For a complete setup guide — including prerequisites, environment configuration, step-by-step usage, and troubleshooting — see **[GETTING-STARTED.md](./GETTING-STARTED.md)**.
 
-- Node.js 22.x or higher
-- npm
-- MongoDB 5.x or higher
-
-### Backend Setup
+**Quick start:**
 
 ```bash
-cd certinova-backend
-npm install
+# 1. Clone the repository
+git clone https://github.com/12fahed/CertiNova.git
+cd CertiNova
 
-# Copy and configure environment variables
-cp .env.example .env
-# Edit .env with your MongoDB URI, Cloudinary credentials, etc.
+# 2. Start the backend
+cd certinova-backend && npm install && cp ../.env.example .env
+# Edit .env with your MongoDB URI and Cloudinary credentials, then:
+npm run dev
 
+# 3. Start the frontend (in a new terminal)
+cd certinova-frontend && npm install
+# Create .env.local with: NEXT_PUBLIC_API_URL=http://localhost:5000/api
 npm run dev
 ```
-
-→ Full backend setup and environment variable reference: [`certinova-backend/docs/configuration.md`](./certinova-backend/docs/configuration.md)
-
-### Frontend Setup
-
-```bash
-cd certinova-frontend
-npm install
-
-# Configure environment
-# Create a .env.local file with:
-# NEXT_PUBLIC_API_URL=http://localhost:5000/api
-
-npm run dev
-```
-
----
-
-## Usage Guide
-
-### 1. Account Setup
-
-1. **Sign Up**: Create an organisation account with your name and email
-2. **Log In**: Access your secure dashboard
-
-### 2. Creating a Certificate Template
-
-1. Click **+ New Certificate** in the navbar
-2. Enter your **Event Name** and **Issuer Name**
-3. Upload a custom background template image
-4. Use the **drag-and-drop editor** to position dynamic fields:
-   - `Recipient Name` — personalized per certificate
-   - `Organisation Name` — your organisation name
-   - `Rank` — optional rank/position field
-   - `Certificate Link` — prints the verification URL
-   - `QR Code` — a scannable QR linking to the public verification page
-5. Customize fonts, colours, and styles per field
-6. Save the template
-
-### 3. Generating Certificates
-
-1. Click **Send Certificates** in the navbar
-2. Select the certificate template (event)
-3. Add recipients via **manual entry** or **CSV/Excel import**
-   - Fields: Name (required), Email (optional), Rank (optional)
-4. Set a strong **encryption password** — this protects all recipient data
-5. Click **Generate** — all certificates are rendered and a ZIP is downloaded
-6. Each certificate gets a unique UUID stored in the verification database
-
-### 4. Verifying a Certificate
-
-- **Via URL**: Visit `{BASEURL}/verify/{UUID}` directly — a fully public page showing the verified certificate sample
-- **Via Modal**: Open the verification modal from the navbar, enter the UUID manually or paste it in full
-- The verification page shows organisation, issuer, event, date, and a rendered sample certificate image
-
-### 5. Managing Certificates
-
-- Use **Grid View** for visual card-based browsing
-- Use **Table View** for a compact list — click any row to see the **Preview Pane** on the right
-- Access **View History** to browse past generation batches
-- **Download Sample** to get a preview certificate image for any template
 
 ---
 
