@@ -1,0 +1,132 @@
+name: Bug Report
+description: Report a bug or unexpected behavior in CertiNova
+title: "[BUG]: "
+labels: ["bug", "triage"]
+assignees:
+  - 12fahed
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Thanks for reporting a bug!
+        Please fill out the form below to help us fix it quickly.
+
+  - type: checkboxes
+    attributes:
+      label: Pre-checks
+      description: Please confirm the following
+      options:
+        - label: I have searched for existing issues (open and closed)
+          required: true
+        - label: I am using the latest version of CertiNova
+          required: true
+        - label: I have checked the documentation for any relevant info
+          required: false
+
+  - type: dropdown
+    attributes:
+      label: Issue Type
+      description: What type of bug is this?
+      options:
+        - Platform Error (crash, freeze)
+        - Feature Malfunction (certificate generation, CSV processing)
+        - UI/UX Issue
+        - Security Concern
+        - Performance Issue
+        - Documentation Error
+    validations:
+      required: true
+
+  - type: dropdown
+    attributes:
+      label: Environment
+      description: Where did you encounter this bug?
+      options:
+        - Local Development
+        - Production Server
+        - GitHub Codespaces
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: Version / Commit ID
+      description: Which version or commit hash are you running?
+      placeholder: e.g., v1.2.3 or commit 5a3d2f1
+    validations:
+      required: true
+
+  - type: dropdown
+    attributes:
+      label: OS
+      options:
+        - Windows
+        - macOS
+        - Linux
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: Browser (if UI-related)
+      placeholder: Chrome 120, Firefox 121, etc.
+
+  - type: textarea
+    attributes:
+      label: Current Behavior
+      description: What actually happened?
+      placeholder: When I click generate, the app crashes with error XYZ...
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Expected Behavior
+      description: What should have happened?
+      placeholder: Certificates should generate successfully and download as ZIP
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Steps to Reproduce
+      description: Please provide exact steps
+      placeholder: |
+        1. Upload CSV with 1000 rows
+        2. Select certificate template 'formal'
+        3. Click 'Generate'
+        4. Observe error
+      render: bash
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Screenshots / Recordings
+      description: Drag and drop images or videos here
+      placeholder: Add screenshots to help explain the issue
+
+  - type: textarea
+    attributes:
+      label: Logs/Errors
+      description: Copy any error messages or logs
+      placeholder: |
+        Error: Cannot read property 'name' of undefined
+        at generateCertificate (certificate.js:42:15)
+      render: shell
+
+  - type: textarea
+    attributes:
+      label: Possible Solution (Optional)
+      description: If you have an idea how to fix this
+      placeholder: This could be fixed by checking for null values in...
+
+  - type: checkboxes
+    attributes:
+      label: Code of Conduct
+      description: By submitting this issue, you agree to follow our Code of Conduct
+      options:
+        - label: I agree to follow this project's Code of Conduct
+          required: true
