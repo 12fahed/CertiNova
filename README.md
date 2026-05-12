@@ -6,17 +6,19 @@ A comprehensive, secure, and user-friendly platform for creating, managing, and 
 
 ## Table of Contents
 
-- [Overview](#-overview)
-- [Key Features](#-key-features)
-- [Dashboard](#-dashboard)
-- [Certificate Design Studio](#-certificate-design-studio)
-- [Bulk Certificate Generation](#-bulk-certificate-generation)
-- [Certificate Verification](#-certificate-verification)
-- [Security & Privacy](#-security--privacy)
-- [Technology Stack](#-technology-stack)
-- [Architecture](#-architecture)
-- [API Reference](#-api-reference)
-- [Installation Guide](#-installation-guide)
+- [Overview](#overview)
+- [Key Features](#key-features)
+- [Dashboard](#dashboard)
+- [Certificate Design Studio](#certificate-design-studio)
+- [Bulk Certificate Generation](#bulk-certificate-generation)
+- [Certificate Verification](#certificate-verification)
+- [Security & Privacy](#security--privacy)
+- [Technology Stack](#technology-stack)
+- [Architecture](#architecture)
+- [API Reference](#api-reference)
+- [Installation Guide](#installation-guide)
+- [Community & Support](#community--support)
+- [License](#license)
 
 ---
 
@@ -344,12 +346,16 @@ npm run dev
 - Access **View History** to browse past generation batches
 - **Download Sample** to get a preview certificate image for any template
 
----
+## Community & Support
+
+Join our growing community to get help, share your feedback, and stay updated:
+
+- **Discord**: [Join our server](https://discord.gg/sQ4sSMRjP)
+- **Contributing**: Check out our [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines
+- **Code of Conduct**: We follow the [Contributor Covenant](./CODE_OF_CONDUCT.md)
 
 ## License
 
 This project is licensed under the MIT License.
-
----
 
 **Built with ❤️ for efficient and secure certificate management**
