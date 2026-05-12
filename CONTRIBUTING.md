@@ -16,7 +16,8 @@ Thank you for your interest in contributing to CertiNova! We welcome contributio
 ### Pull Requests
 - Fork the repository.
 - Create a new branch for your feature or bug fix (`git checkout -b feature/amazing-feature`).
-- Commit your changes (`git commit -m 'Add some amazing feature'`).
+- Commit your changes (`git commit -m 'feat: Add some amazing feature'`).
+- Write short and concise commit message, follow [Semantic Commit Messages](https://gist.github.com/joshbuchea/6f47e86d2510bce28f8e7f42ae84c716).
 - Push to the branch (`git push origin feature/amazing-feature`).
 - Open a Pull Request.
 
