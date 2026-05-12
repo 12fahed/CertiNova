@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://github.com/12fahed/CertiNova#readme
+    about: Check the docs first for common questions
+  - name: Q&A
+    url: https://discord.gg/sQ4sSMRjP
+    about: Join the Discord Server to ask questions
+  - name: Security Issue
+    url: https://www.linkedin.com/in/fahed-khan-13b11025b
+    about: Report security vulnerabilities to project admin (do NOT open public issues)
