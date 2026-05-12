@@ -1,6 +1,28 @@
-# CertiNova — Bulk Certificate Generation Platform
+<p align="center">
+  <h1 align="center">CertiNova</h1>
+  <p align="center">
+    <strong>Bulk Certificate Generator and Validation Platform</strong>
+  </p>
+  <p align="center">
+    A comprehensive, secure, and user-friendly platform for creating, managing, 
+    <br>
+    and distributing certificates in bulk. CertiNova enables organizations to 
+    <br>
+    generate personalized certificates efficiently while maintaining data security 
+    <br>
+    through advanced encryption.
+  </p>
+</p>
 
-A comprehensive, secure, and user-friendly platform for creating, managing, and distributing certificates in bulk. CertiNova enables organizations to generate personalized certificates efficiently while maintaining data security through advanced encryption.
+<p align="center">
+  <strong>
+    <a href="https://youtu.be/M2zUsVVCerY?si=finYa98RH25MawVP">[WATCH DEMO]</a>
+  </strong>
+</p>
+
+<p align="center">
+  <img src="./assets/landing.png" alt="banner" width="75%">
+</p>
 
 ---
 
@@ -48,6 +70,10 @@ CertiNova addresses these challenges by providing:
 
 ### Certificate Design Studio
 
+<p align="center">
+  <img src="./assets/studio.png" alt="studio" width="75%">
+</p>
+
 - **Visual Drag-and-Drop Editor** for precise placement of certificate fields
 - **Custom Template Upload** — bring your own certificate background via image upload
 - **Dynamic Field Types**: Recipient Name, Organisation Name, Rank/Position, Certificate Link, QR Code
@@ -57,13 +83,21 @@ CertiNova addresses these challenges by providing:
 
 ### Dashboard
 
+<p align="center">
+  <img src="./assets/dashboard.png" alt="dashboard" width="75%">
+</p>
+
 - **Grid View**: Card-based certificate overview with thumbnail previews
 - **Table View**: Compact list view with quick action buttons per row
 - **Preview Pane**: Windows File Explorer-style detail panel — click any event in table view to see the certificate preview and all actions on the right
 - **Statistics Cards**: Quick summary of total certificates, recipients, success rate, active events
 - **One-click Actions**: Edit, Download Sample, and Delete directly from both views
 
-### Bulk Certificate Generation
+### Bulk Certificate Generation.
+
+<p align="center">
+  <img src="./assets/generate.png" alt="generate" width="75%">
+</p>
 
 - **Manual Recipient Entry**: Add recipients one by one with name, email, and rank
 - **CSV/Excel Import**: Bulk-import recipient lists via spreadsheets
@@ -78,6 +112,10 @@ CertiNova addresses these challenges by providing:
 
 #### URL-based Verification (`/verify/{UUID}`)
 
+<p align="center">
+  <img src="./assets/url-verify.png" alt="url-verify" width="75%">
+</p>
+
 - **Public Shareable Links**: Every certificate has a unique URL in the format `{BASEURL}/verify/{UUID}`
 - **No Login Required**: Fully public-facing, anyone can verify a certificate
 - **Animated Verification Progress**: Step-by-step visual verification with real-time progress indicators
@@ -88,6 +126,10 @@ CertiNova addresses these challenges by providing:
 
 #### Modal Verification
 
+<p align="center">
+  <img src="./assets/modal-verify.png" alt="modal-verify" width="75%">
+</p>
+
 - **UUID Input Modal**: Enter a certificate's UUID manually in 5 segmented input boxes
 - **Paste Support**: Paste a full UUID (`xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`) into any box and it auto-populates all segments
 - **Auto-focus Progression**: Automatically advances to the next input segment on completion
@@ -95,6 +137,10 @@ CertiNova addresses these challenges by providing:
 - **Issuer & Event Details**: Displays organisation, issuer name, event name, and event date on success
 
 ### Certificate History
+
+<p align="center">
+  <img src="./assets/history.png" alt="history" width="75%">
+</p>
 
 - **View History**: Browse an archive of all previously generated certificate batches
 - **Search & Filter**: Find certificates by event name, date, or recipient count
