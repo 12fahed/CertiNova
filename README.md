@@ -1,4 +1,4 @@
-# CertiNova - Bulk Certificate Generation Platform
+# CertiNova — Bulk Certificate Generation Platform
 
 A comprehensive, secure, and user-friendly platform for creating, managing, and distributing certificates in bulk. CertiNova enables organizations to generate personalized certificates efficiently while maintaining data security through advanced encryption.
 
@@ -8,15 +8,11 @@ A comprehensive, secure, and user-friendly platform for creating, managing, and 
 
 - [Overview](#overview)
 - [Key Features](#key-features)
-- [Dashboard](#dashboard)
-- [Certificate Design Studio](#certificate-design-studio)
-- [Bulk Certificate Generation](#bulk-certificate-generation)
-- [Certificate Verification](#certificate-verification)
 - [Security & Privacy](#security--privacy)
 - [Technology Stack](#technology-stack)
 - [Architecture](#architecture)
-- [API Reference](#api-reference)
 - [Installation Guide](#installation-guide)
+- [Usage Guide](#usage-guide)
 - [Community & Support](#community--support)
 - [License](#license)
 
@@ -96,7 +92,6 @@ CertiNova addresses these challenges by providing:
 - **UUID Input Modal**: Enter a certificate's UUID manually in 5 segmented input boxes
 - **Paste Support**: Paste a full UUID (`xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`) into any box and it auto-populates all segments
 - **Auto-focus Progression**: Automatically advances to the next input segment on completion
-- **Auto-population from URL**: Opening the modal with a pre-loaded UUID pre-fills the fields
 - **Animated Step Progress**: Circular progress indicators for UUID Lookup, Certificate Validation, and Issuer Verification steps
 - **Issuer & Event Details**: Displays organisation, issuer name, event name, and event date on success
 
@@ -113,151 +108,59 @@ CertiNova addresses these challenges by providing:
 
 CertiNova is built with a **Privacy-by-Design** philosophy:
 
-### Recipient Data Encryption
-
-- **AES-256-CBC Encryption**: All recipient personal data encrypted before database storage
-- **PBKDF2 Key Derivation**: Password-based encryption with SHA-256 (10,000 iterations) and unique salts
-- **IV Generation**: Unique initialization vectors for each encryption operation
+- **AES-256-CBC Encryption**: All recipient personal data encrypted before database storage using PBKDF2 key derivation (SHA-256, 10,000 iterations) and unique salts and IVs per batch
 - **Zero Plain-text Storage**: Recipient names, emails, and ranks are never stored in plain text
-
-### Why We Render Sample Certificates for Verification
-
-Since recipient data is encrypted and not accessible without the password, the public verification page renders the certificate layout using a **placeholder Indian identity** (e.g., "Aarav Sharma", "1st"). This demonstrates the certificate format and authenticity without exposing any private recipient information.
-
-### User Authentication
-
-- **bcrypt Password Hashing**: All user passwords hashed with salt rounds
+- **bcrypt Password Hashing**: All user passwords hashed at cost factor 12
 - **Organisation-based Isolation**: Each organisation sees only their own events and certificates
-- **Protected Routes**: Dashboard and sensitive pages require authentication
+- **Sample Certificates for Verification**: The public verification page renders placeholder identity data (e.g., "Aarav Sharma", "1st") to prove certificate authenticity without exposing any recipient PII
+
+For a full security architecture breakdown, see [`certinova-backend/docs/security.md`](./certinova-backend/docs/security.md).
 
 ---
 
 ## Technology Stack
 
-### Backend (`certinova-backend`)
+### Backend — [`certinova-backend`](./certinova-backend/)
 
-| Technology        | Version | Purpose                   |
-| ----------------- | ------- | ------------------------- |
-| Node.js           | 22+     | Runtime environment       |
-| Express.js        | 5.1.0   | REST API framework        |
-| MongoDB           | —       | Document database         |
-| Mongoose          | 8.17.1  | ODM / schema management   |
-| bcrypt            | 6.0.0   | Password hashing          |
-| Multer            | 2.0.2   | File upload handling      |
-| Cloudinary        | —       | Certificate image hosting |
-| crypto (built-in) | —       | AES-256 encryption        |
-| dotenv            | —       | Environment configuration |
+| Technology | Version | Purpose |
+|---|---|---|
+| Node.js | 22+ | Runtime environment |
+| Express.js | 5.1.0 | REST API framework |
+| MongoDB | — | Document database |
+| Mongoose | 8.17.1 | ODM / schema management |
+| bcrypt | 6.0.0 | Password hashing |
+| Multer | 2.0.2 | File upload handling |
+| Cloudinary | — | Certificate image hosting |
+| crypto (built-in) | — | AES-256 encryption |
+| dotenv | — | Environment configuration |
 
-### Frontend (`certinova-frontend`)
+→ See [`certinova-backend/README.md`](./certinova-backend/README.md) for full backend documentation.
 
-| Technology      | Version | Purpose                          |
-| --------------- | ------- | -------------------------------- |
-| Next.js         | 15+     | React framework (App Router)     |
-| React           | 19+     | UI library                       |
-| TypeScript      | 5       | Type-safe development            |
-| Tailwind CSS    | 4       | Utility-first styling            |
-| Framer Motion   | 11      | Animations & transitions         |
-| Radix UI        | —       | Accessible UI primitives         |
-| CryptoJS        | 4.2.0   | Client-side encryption           |
-| qrcode          | —       | QR code generation               |
-| JSZip           | —       | Bulk ZIP file download           |
-| XLSX            | —       | Excel/CSV parsing                |
-| uuid            | —       | UUID generation per recipient    |
-| canvas-confetti | —       | Celebration effect on generation |
-| Lucide React    | —       | Icon library                     |
+### Frontend — `certinova-frontend`
+
+| Technology | Version | Purpose |
+|---|---|---|
+| Next.js | 15+ | React framework (App Router) |
+| React | 19+ | UI library |
+| TypeScript | 5 | Type-safe development |
+| Tailwind CSS | 4 | Utility-first styling |
+| Framer Motion | 11 | Animations & transitions |
+| Radix UI | — | Accessible UI primitives |
+| CryptoJS | 4.2.0 | Client-side encryption |
+| qrcode | — | QR code generation |
+| JSZip | — | Bulk ZIP file download |
+| XLSX | — | Excel/CSV parsing |
+| uuid | — | UUID generation per recipient |
+| canvas-confetti | — | Celebration effect on generation |
+| Lucide React | — | Icon library |
 
 ---
 
 ## Architecture
 
-### System Overview
-
 <img src="./diagram.png" alt="CertiNova Architecture Diagram" width="100%" />
 
-### Database Schema
-
-```
-Users
-├── organisation     (String)
-├── email            (String, unique)
-├── password         (bcrypt hash)
-└── timestamps
-
-Events
-├── organisation     (String)
-├── organisationID   (ref: User)
-├── eventName        (String)
-├── issuerName       (String)
-├── date             (Date)
-└── timestamps
-
-CertificateConfig
-├── eventId          (ref: Event)
-├── imagePath        (String — Cloudinary URL)
-├── validFields      (Object — field positions & styles)
-└── timestamps
-
-GeneratedCertificate
-├── certificateId    (ref: CertificateConfig)
-├── noOfRecipient    (Number)
-├── rank             (Boolean)
-├── encryptedRecipients
-│   ├── encryptedData (AES-256-CBC ciphertext)
-│   ├── salt          (PBKDF2 salt)
-│   └── iv            (initialization vector)
-├── generatedBy      (ref: User)
-└── timestamps
-
-VerifyUUID
-├── uuid             (String, unique)
-├── certificateId    (ref: GeneratedCertificate)
-├── isValid          (Boolean)
-└── timestamps
-```
-
----
-
-## API Reference
-
-### Authentication
-
-```http
-POST /api/auth/signup          # Register a new organisation
-POST /api/auth/login           # Login and receive session token
-```
-
-### Events
-
-```http
-POST   /api/events/addEvent           # Create a new event
-GET    /api/events/:organisationId    # List events for an organisation
-DELETE /api/events/:eventId           # Delete an event and its config
-```
-
-### Certificate Configuration
-
-```http
-POST  /api/certificates/addCertificateConfig     # Save field layout
-GET   /api/certificates/config/:eventId          # Fetch event's layout
-PUT   /api/certificates/config/:configId         # Update layout
-POST  /api/certificates/upload-template          # Upload background image
-```
-
-### Certificate Generation & Storage
-
-```http
-POST /api/certificates/storeGenerated            # Store encrypted batch
-GET  /api/certificates/generated                 # List all batches (encrypted)
-POST /api/certificates/generated/decrypt         # Decrypt with password
-PATCH /api/certificates/update-recipient-count   # Update count
-```
-
-### Verification
-
-```http
-GET /api/certificates/verify/:uuid               # Simple UUID check
-GET /api/certificates/verify-full/:uuid          # Full data for rendering sample cert
-```
+For a detailed breakdown of the backend architecture, directory structure, and data flow diagrams, see [`certinova-backend/docs/architecture.md`](./certinova-backend/docs/architecture.md).
 
 ---
 
@@ -275,17 +178,14 @@ GET /api/certificates/verify-full/:uuid          # Full data for rendering sampl
 cd certinova-backend
 npm install
 
-# Configure environment
-# Create a .env file with:
-# PORT=5000
-# MONGODB_URI=mongodb://localhost:27017/certinova
-# NODE_ENV=development
-# CLOUDINARY_CLOUD_NAME=...
-# CLOUDINARY_API_KEY=...
-# CLOUDINARY_API_SECRET=...
+# Copy and configure environment variables
+cp .env.example .env
+# Edit .env with your MongoDB URI, Cloudinary credentials, etc.
 
 npm run dev
 ```
+
+→ Full backend setup and environment variable reference: [`certinova-backend/docs/configuration.md`](./certinova-backend/docs/configuration.md)
 
 ### Frontend Setup
 
@@ -346,6 +246,8 @@ npm run dev
 - Access **View History** to browse past generation batches
 - **Download Sample** to get a preview certificate image for any template
 
+---
+
 ## Community & Support
 
 Join our growing community to get help, share your feedback, and stay updated:
@@ -358,4 +260,4 @@ Join our growing community to get help, share your feedback, and stay updated:
 
 This project is licensed under the MIT License.
 
-**Built with ❤️ for efficient and secure certificate management**
+**Built with care for efficient and secure certificate management**
