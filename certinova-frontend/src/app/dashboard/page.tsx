@@ -32,10 +32,17 @@ import { useCertificates } from "@/context/CertificateContext";
 import { Event } from "@/types/event";
 import { CertificateConfig } from "@/types/certificate";
 import { PremiumCard } from "@/components/premium-card";
+import {
+  StatsCardSkeleton,
+  CertificateGridSkeleton,
+  CertificateTableSkeleton,
+} from "@/components/dashboard-skeleton";
 
 export default function DashboardPage() {
   const { user } = useAuth();
-  const { events, createEvent, fetchEvents, deleteEvent } = useEvents();
+  const { events, isFetchingEvents, createEvent, fetchEvents, deleteEvent } =
+    useEvents();
+  const showInitialLoading = isFetchingEvents && events.length === 0;
   const {
     createCertificateConfig,
     getCertificateConfig,
@@ -403,6 +410,15 @@ export default function DashboardPage() {
 
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {showInitialLoading ? (
+              <>
+                <StatsCardSkeleton />
+                <StatsCardSkeleton />
+                <StatsCardSkeleton />
+                <StatsCardSkeleton />
+              </>
+            ) : (
+              <>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -482,6 +498,8 @@ export default function DashboardPage() {
                 isPremium={true}
               />
             </motion.div>
+              </>
+            )}
           </div>
 
           {/* Certificates Section */}
@@ -524,7 +542,13 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {events.length === 0 ? (
+            {showInitialLoading ? (
+              viewMode === "grid" ? (
+                <CertificateGridSkeleton />
+              ) : (
+                <CertificateTableSkeleton />
+              )
+            ) : events.length === 0 ? (
               <Card className="bg-white border-gray-200">
                 <CardContent className="p-12 text-center">
                   <Award className="h-16 w-16 text-gray-300 mx-auto mb-4" />
