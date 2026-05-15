@@ -14,8 +14,10 @@ import {
   TrendingUp,
   Shield,
   Clock,
-  PlayCircle
+  PlayCircle,
+  Lock
 } from "lucide-react"
+import { toast } from "sonner"
 import { AuthModal } from "@/components/auth-modal"
 import { OnboardingModal } from "@/components/onboarding-modal"
 import { useAuth } from "@/context/AuthContext"
@@ -146,6 +148,16 @@ export default function HomePage() {
                   variant="outline"
                   size="lg"
                   className="text-gray-700 border-gray-300 hover:bg-gray-50 bg-transparent"
+                  onClick={() =>
+                    toast("Sign in to watch the demo", {
+                      description: "Create a free account or sign in to access the full demo tutorial.",
+                      icon: <Lock className="h-4 w-4" />,
+                      action: {
+                        label: "Sign In",
+                        onClick: () => document.getElementById("auth-trigger")?.click(),
+                      },
+                    })
+                  }
                 >
                   <PlayCircle className="mr-2 h-4 w-4 text-blue-500" />
                   Watch Demo
