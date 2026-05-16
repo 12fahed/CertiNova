@@ -5,7 +5,7 @@ import multer from 'multer';
 // Don't configure Cloudinary during import, wait for first use
 let isConfigured = false;
 
-const ensureConfigured = () => {
+export const ensureConfigured = () => {
   if (!isConfigured) {
     cloudinary.config({
       cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
