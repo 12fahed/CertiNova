@@ -4,9 +4,33 @@ import CertificateConfig from '../models/CertificateConfig.js';
 import GeneratedCertificate from '../models/GeneratedCertificate.js';
 import VerifyUUID from '../models/VerifyUUID.js';
 import Record from '../models/Record.js';
+import cloudinary, { ensureConfigured } from '../config/cloudinary.js';
 import mongoose from 'mongoose';
-import fs from 'fs';
-import path from 'path';
+
+const extractCloudinaryPublicId = (imagePath) => {
+  if (!imagePath || typeof imagePath !== 'string') {
+    return null;
+  }
+
+  try {
+    const url = new URL(imagePath);
+    const uploadPath = '/image/upload/';
+    const uploadIndex = url.pathname.indexOf(uploadPath);
+
+    if (!url.hostname.includes('cloudinary.com') || uploadIndex === -1) {
+      return null;
+    }
+
+    const pathAfterUpload = decodeURIComponent(
+      url.pathname.slice(uploadIndex + uploadPath.length)
+    );
+    const publicIdWithVersion = pathAfterUpload.replace(/^v\d+\//, '');
+
+    return publicIdWithVersion.replace(/\.[^/.]+$/, '');
+  } catch (error) {
+    return imagePath.replace(/\.[^/.]+$/, '');
+  }
+};
 
 // @desc    Add a new event
 // @route   POST /api/events/addEvent
@@ -230,18 +254,29 @@ export const deleteEvent = async (req, res) => {
       if (certificateConfig) {
         console.log('Found certificate config:', certificateConfig._id);
         
-        // Delete certificate template file if it exists
+        // Delete certificate template asset from Cloudinary if it exists
         if (certificateConfig.imagePath) {
           try {
-            const filePath = path.join(process.cwd(), 'public', certificateConfig.imagePath);
-            if (fs.existsSync(filePath)) {
-              fs.unlinkSync(filePath);
-              deletedTemplateFile = true;
-              console.log('Deleted template file:', certificateConfig.imagePath);
+            const publicId = extractCloudinaryPublicId(certificateConfig.imagePath);
+
+            if (publicId) {
+              ensureConfigured();
+              const deleteResult = await cloudinary.uploader.destroy(publicId, {
+                resource_type: 'image'
+              });
+
+              if (deleteResult.result === 'ok' || deleteResult.result === 'not found') {
+                deletedTemplateFile = true;
+                console.log('Deleted template asset from Cloudinary:', publicId);
+              } else {
+                console.warn('Cloudinary template deletion returned:', deleteResult);
+              }
+            } else {
+              console.warn('Could not extract Cloudinary public ID from imagePath:', certificateConfig.imagePath);
             }
           } catch (fileError) {
-            console.warn('Failed to delete template file:', fileError.message);
-            // Continue with deletion even if file deletion fails
+            console.warn('Failed to delete template asset from Cloudinary:', fileError.message);
+            // Continue with deletion even if Cloudinary cleanup fails
           }
         }
 
