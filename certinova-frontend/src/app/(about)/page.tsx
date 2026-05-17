@@ -1,7 +1,6 @@
-"use client"
+"use client";
 
 import {
- 
   Github,
   Linkedin,
   Twitter,
@@ -9,10 +8,10 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { motion } from "framer-motion"
-import { Button } from "@/components/ui/button"
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
 import {
   Award,
   Users,
@@ -23,24 +22,25 @@ import {
   TrendingUp,
   Shield,
   Clock,
-  Lock
-} from "lucide-react"
-import { AuthModal } from "@/components/auth-modal"
-import { OnboardingModal } from "@/components/onboarding-modal"
-import { useAuth } from "@/context/AuthContext"
-import { CertificateVerificationModal } from "@/components/certificate-verification-modal"
+  Lock,
+} from "lucide-react";
+import { AuthModal } from "@/components/auth-modal";
+import { OnboardingModal } from "@/components/onboarding-modal";
+import { useAuth } from "@/context/AuthContext";
+import { CertificateVerificationModal } from "@/components/certificate-verification-modal";
+import { herrVonMuellerhoff } from "@/lib/fonts";
 
 export default function HomePage() {
-  const { isAuthenticated, isLoading } = useAuth()
-  const router = useRouter()
-  const [showOnboarding, setShowOnboarding] = useState(false)
-  const [showVerificationModal, setShowVerificationModal] = useState(false)
+  const { isAuthenticated, isLoading } = useAuth();
+  const router = useRouter();
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
-      router.push("/dashboard")
+      router.push("/dashboard");
     }
-  }, [isAuthenticated, isLoading, router])
+  }, [isAuthenticated, isLoading, router]);
 
   if (isLoading) {
     return (
@@ -50,62 +50,105 @@ export default function HomePage() {
           <p className="text-gray-600">Loading...</p>
         </div>
       </div>
-    )
+    );
   }
 
   const stats = [
-    { label: "Certificates Generated", value: "50,000+", icon: Award, color: "text-blue-600" },
-    { label: "Organizations", value: "1,200+", icon: Building, color: "text-green-600" },
-    { label: "Events Covered", value: "5,000+", icon: Calendar, color: "text-purple-600" },
-    { label: "Success Rate", value: "99.9%", icon: TrendingUp, color: "text-orange-600" },
-  ]
+    {
+      label: "Certificates Generated",
+      value: "50,000+",
+      icon: Award,
+      color: "text-blue-600",
+    },
+    {
+      label: "Organizations",
+      value: "1,200+",
+      icon: Building,
+      color: "text-green-600",
+    },
+    {
+      label: "Events Covered",
+      value: "5,000+",
+      icon: Calendar,
+      color: "text-purple-600",
+    },
+    {
+      label: "Success Rate",
+      value: "99.9%",
+      icon: TrendingUp,
+      color: "text-orange-600",
+    },
+  ];
 
   const features = [
     {
       icon: Zap,
       title: "Lightning Fast Processing",
-      description: "Generate thousands of certificates in seconds with our optimized processing engine.",
+      description:
+        "Generate thousands of certificates in seconds with our optimized processing engine.",
       color: "text-blue-600",
       bgColor: "bg-blue-50",
     },
     {
       icon: Shield,
       title: "Enterprise Security",
-      description: "Bank-level security with encrypted data transmission and secure certificate storage.",
+      description:
+        "Bank-level security with encrypted data transmission and secure certificate storage.",
       color: "text-green-600",
       bgColor: "bg-green-50",
     },
     {
       icon: Users,
       title: "Bulk Processing",
-      description: "Upload CSV files or enter data manually to create certificates for multiple recipients.",
+      description:
+        "Upload CSV files or enter data manually to create certificates for multiple recipients.",
       color: "text-purple-600",
       bgColor: "bg-purple-50",
     },
     {
       icon: Award,
       title: "Custom Templates",
-      description: "Upload your own certificate templates and customize positioning with our visual editor.",
+      description:
+        "Upload your own certificate templates and customize positioning with our visual editor.",
       color: "text-orange-600",
       bgColor: "bg-orange-50",
     },
     {
       icon: Clock,
       title: "Time Efficient",
-      description: "Reduce certificate generation time from hours to minutes with automated workflows.",
+      description:
+        "Reduce certificate generation time from hours to minutes with automated workflows.",
       color: "text-indigo-600",
       bgColor: "bg-indigo-50",
     },
     {
       icon: Star,
       title: "Quality Assured",
-      description: "Professional-grade certificates with consistent formatting and high-resolution output.",
+      description:
+        "Professional-grade certificates with consistent formatting and high-resolution output.",
       color: "text-pink-600",
       bgColor: "bg-pink-50",
     },
-  ]
+  ];
 
-  const handleLogin = () => { }
+  //  Footer Quicks links pairs
+  const quickLinks = [
+    { label: "Contact Us", href: "/contact" },
+    { label: "Developer Info", href: "/developer-info" },
+    { label: "Privacy Policy", href: "/privacy-policy" },
+    { label: "Terms & Conditions", href: "/terms-and-conditions" },
+    { label: "Support & Complaints", href: "/support-and-complaints" },
+    { label: "Other Products", href: "/other-products" },
+  ];
+
+  const SocialMediaLinks = [
+    { label: "Twitter", href: "/twitter", Icon: Twitter },
+    { label: "GitHub", href: "/gitHub", Icon: Github },
+    { label: "Discord", href: "/discord", Icon: DiscIcon },
+    { label: "LinkedIn", href: "/linkedin", Icon: Linkedin },
+  ];
+
+  const handleLogin = () => {};
 
   if (!isAuthenticated && !isLoading) {
     return (
@@ -121,10 +164,15 @@ export default function HomePage() {
                 <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
                   <Award className="h-6 w-6 text-white" />
                 </div>
-                <span className="text-2xl font-bold text-gray-900">CertiNova</span>
+                <span className="text-2xl font-bold text-gray-900">
+                  CertiNova
+                </span>
               </motion.div>
 
-              <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+              >
                 <AuthModal onLogin={handleLogin} />
               </motion.div>
             </div>
@@ -146,11 +194,15 @@ export default function HomePage() {
                 Made Simple
               </h1>
               <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-                Streamline your certificate generation process with our enterprise-grade platform. Perfect for
-                educational institutions, corporate training, and professional certifications.
+                Streamline your certificate generation process with our
+                enterprise-grade platform. Perfect for educational institutions,
+                corporate training, and professional certifications.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <AuthModal onLogin={handleLogin} triggerText="Start Free Trial" />
+                <AuthModal
+                  onLogin={handleLogin}
+                  triggerText="Start Free Trial"
+                />
                 <Button
                   variant="outline"
                   size="lg"
@@ -191,7 +243,9 @@ export default function HomePage() {
                   <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
                     <stat.icon className={`h-8 w-8 ${stat.color}`} />
                   </div>
-                  <h3 className="text-3xl font-bold text-gray-900 mb-2">{stat.value}</h3>
+                  <h3 className="text-3xl font-bold text-gray-900 mb-2">
+                    {stat.value}
+                  </h3>
                   <p className="text-gray-600">{stat.label}</p>
                 </motion.div>
               ))}
@@ -201,10 +255,17 @@ export default function HomePage() {
 
         <section className="py-20 bg-gray-50">
           <div className="container mx-auto px-6">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-16">
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">Why Choose CertiNova?</h2>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center mb-16"
+            >
+              <h2 className="text-4xl font-bold text-gray-900 mb-4">
+                Why Choose CertiNova?
+              </h2>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                Built for organizations that value efficiency, security, and professional quality.
+                Built for organizations that value efficiency, security, and
+                professional quality.
               </p>
             </motion.div>
 
@@ -228,8 +289,12 @@ export default function HomePage() {
                   >
                     <feature.icon className={`h-6 w-6 ${feature.color}`} />
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-4">{feature.title}</h3>
-                  <p className="text-gray-600 leading-relaxed">{feature.description}</p>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                    {feature.title}
+                  </h3>
+                  <p className="text-gray-600 leading-relaxed">
+                    {feature.description}
+                  </p>
                 </motion.div>
               ))}
             </motion.div>
@@ -238,165 +303,142 @@ export default function HomePage() {
 
         <section className="py-20 bg-white">
           <div className="container mx-auto px-6 text-center">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-3xl mx-auto">
-              <h2 className="text-4xl font-bold text-blue-600 mb-6">Ready to Transform Your Certificate Process?</h2>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="max-w-3xl mx-auto"
+            >
+              <h2 className="text-4xl font-bold text-blue-600 mb-6">
+                Ready to Transform Your Certificate Process?
+              </h2>
               <p className="text-xl text-black mb-8">
-                Join thousands of organizations already using CertiNova to streamline their certification workflows.
+                Join thousands of organizations already using CertiNova to
+                streamline their certification workflows.
               </p>
-              <AuthModal onLogin={handleLogin} triggerText="Get Started Today" />
+              <AuthModal
+                onLogin={handleLogin}
+                triggerText="Get Started Today"
+              />
             </motion.div>
           </div>
         </section>
 
-        {/* I have to work from here , this below section is for footer  */}
+        <footer className="relative border-t border-slate-200 bg-white">
+          {/* Soft Background Accent */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,#2563eb08,transparent_30%)]" />
 
-<footer className="relative border-t border-slate-200 bg-white">
-  
-  {/* Soft Background Accent */}
-  <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,#2563eb08,transparent_30%)]" />
+          <div className="relative mx-auto max-w-7xl px-6 py-16">
+            {/* Main Grid */}
+            <div className="grid grid-cols-1 gap-14 text-center md:grid-cols-2 md:text-left lg:grid-cols-4">
+              {/* Brand Section */}
+              <div className="lg:col-span-2">
+                <motion.div
+                  initial={{ opacity: 0, y: 15 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="flex items-center justify-center gap-4 md:justify-start"
+                >
+                  {/* Logo */}
+                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-100 transition duration-300 hover:scale-105">
+                    <Award className="h-8 w-8 text-white" />
+                  </div>
 
-  <div className="relative mx-auto max-w-7xl px-6 py-16">
+                  {/* Heading */}
+                  <div>
+                    <h1 className="text-4xl font-bold tracking-tight text-slate-900">
+                      CertiNova
+                    </h1>
 
-    {/* Main Grid */}
-    <div className="grid grid-cols-1 gap-14 text-center md:grid-cols-2 md:text-left lg:grid-cols-4">
+                    <p className="mt-1 text-base font-medium text-blue-600">
+                      Smart Certificate Management Platform
+                    </p>
+                  </div>
+                </motion.div>
 
-      {/* Brand Section */}
-      <div className="lg:col-span-2">
+                {/* Description */}
+                <p className="mt-7 max-w-xl text-[17px] leading-8 text-slate-600 md:text-left">
+                  CertiNova empowers institutions, organizations, and event
+                  managers to generate, manage, and verify certificates securely
+                  with modern automation and scalable workflows.
+                </p>
 
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="flex items-center justify-center gap-4 md:justify-start"
-        >
+                {/* Badge */}
+                <div className="mt-7 inline-flex items-center rounded-full border border-blue-100 bg-blue-50 px-5 py-2 text-sm font-semibold text-blue-700 transition hover:shadow-md">
+                  Trusted • Secure • Fast Verification
+                </div>
+              </div>
 
-          {/* Logo */}
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-100 transition duration-300 hover:scale-105">
-            <Award className="h-8 w-8 text-white" />
+              {/* Quick Links */}
+              <div className="flex flex-col items-center md:items-start">
+                <h2 className="mb-6 text-xl font-semibold text-slate-900">
+                  Quick Links
+                </h2>
+
+                <ul className="space-y-4 text-center md:text-left">
+                  {quickLinks.map((link) => (
+                    <li key={link.href}>
+                      <a
+                        href={link.href}
+                        className="group inline-flex items-center gap-2 text-[16px] font-medium text-slate-600 transition-all duration-300 hover:text-blue-600"
+                      >
+                        <ArrowUpRight className="h-4 w-4 opacity-0 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100" />
+                        {link.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Social Handles */}
+              <div className="flex flex-col items-center md:items-start">
+                <h2 className="mb-6 text-xl font-semibold text-slate-900">
+                  Social Handles
+                </h2>
+
+                <div className="grid grid-cols-2 gap-3">
+                  {SocialMediaLinks.map((link) => (
+                    <a
+                      key={link.href}
+                      href={link.label}
+                      className="group flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600 hover:shadow-md"
+                    >
+                      <link.Icon className="h-4 w-4 transition group-hover:scale-110" />
+                      {link.label}
+                    </a>
+                  ))}
+                </div>
+
+                <p className="mt-6 max-w-xs text-[15px] leading-7 text-slate-500 md:text-left">
+                  Follow updates, feature releases, and open-source
+                  contributions.
+                </p>
+              </div>
+            </div>
+
+            {/* Bottom Footer */}
+            <div className="mt-16 flex flex-col items-center justify-between gap-4 border-t border-slate-200 pt-7 text-[15px] text-slate-500 md:flex-row">
+              <p className="text-center md:text-left">
+                © 2026 CertiNova. All rights reserved.
+              </p>
+
+              <p className="flex items-center gap-2 text-center">
+                Built with
+                <span className="text-red-500">❤</span>
+                using TypeScript & Tailwind CSS
+              </p>
+            </div>
           </div>
+        </footer>
 
-          {/* Heading */}
-          <div>
-            <h1 className="text-4xl font-bold tracking-tight text-slate-900">
-              CertiNova
-            </h1>
-
-            <p className="mt-1 text-base font-medium text-blue-600">
-              Smart Certificate Management Platform
-            </p>
-          </div>
-        </motion.div>
-
-        {/* Description */}
-        <p className="mt-7 max-w-xl text-[17px] leading-8 text-slate-600 md:text-left">
-          CertiNova empowers institutions, organizations, and event managers
-          to generate, manage, and verify certificates securely with modern
-          automation and scalable workflows.
-        </p>
-
-        {/* Badge */}
-        <div className="mt-7 inline-flex items-center rounded-full border border-blue-100 bg-blue-50 px-5 py-2 text-sm font-semibold text-blue-700 transition hover:shadow-md">
-          Trusted • Secure • Fast Verification
-        </div>
+        <OnboardingModal
+          open={showOnboarding}
+          onClose={() => setShowOnboarding(false)}
+        />
+        <CertificateVerificationModal
+          open={showVerificationModal}
+          onClose={() => setShowVerificationModal(false)}
+        />
       </div>
-
-      {/* Quick Links */}
-      <div className="flex flex-col items-center md:items-start">
-        
-        <h2 className="mb-6 text-xl font-semibold text-slate-900">
-          Quick Links
-        </h2>
-
-        <ul className="space-y-4 text-center md:text-left">
-
-          {[
-            "Contact Us",
-            "Developer Info",
-            "Privacy Policy",
-            "Terms & Conditions",
-            "Support & Complaints",
-            "Other Products",
-          ].map((item) => (
-            <li key={item}>
-              <a
-                href="#"
-                className="group inline-flex items-center gap-2 text-[16px] font-medium text-slate-600 transition-all duration-300 hover:text-blue-600"
-              >
-                <ArrowUpRight className="h-4 w-4 opacity-0 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100" />
-                {item}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      {/* Social Handles */}
-      <div className="flex flex-col items-center md:items-start">
-
-        <h2 className="mb-6 text-xl font-semibold text-slate-900">
-          Social Handles
-        </h2>
-
-        <div className="grid grid-cols-2 gap-3">
-
-          <a
-            href="#"
-            className="group flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600 hover:shadow-md"
-          >
-            <Github className="h-4 w-4 transition group-hover:scale-110" />
-            GitHub
-          </a>
-
-          <a
-            href="#"
-            className="group flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600 hover:shadow-md"
-          >
-            <Linkedin className="h-4 w-4 transition group-hover:scale-110" />
-            LinkedIn
-          </a>
-
-          <a
-            href="#"
-            className="group flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600 hover:shadow-md"
-          >
-            <Twitter className="h-4 w-4 transition group-hover:scale-110" />
-            Twitter
-          </a>
-
-          <a
-            href="#"
-            className="group flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600 hover:shadow-md"
-          >
-            <DiscIcon className="h-4 w-4 transition group-hover:scale-110" />
-            Discord
-          </a>
-        </div>
-
-        <p className="mt-6 max-w-xs text-[15px] leading-7 text-slate-500 md:text-left">
-          Follow updates, feature releases, and open-source contributions.
-        </p>
-      </div>
-    </div>
-
-    {/* Bottom Footer */}
-    <div className="mt-16 flex flex-col items-center justify-between gap-4 border-t border-slate-200 pt-7 text-[15px] text-slate-500 md:flex-row">
-
-      <p className="text-center md:text-left">
-        © 2026 CertiNova. All rights reserved.
-      </p>
-
-      <p className="flex items-center gap-2 text-center">
-        Built with
-        <span className="text-red-500">❤</span>
-        using TypeScript & Tailwind CSS
-      </p>
-    </div>
-  </div>
-</footer>
-
-        <OnboardingModal open={showOnboarding} onClose={() => setShowOnboarding(false)} />
-        <CertificateVerificationModal open={showVerificationModal} onClose={() => setShowVerificationModal(false)} />
-      </div>
-    )
+    );
   }
 }
