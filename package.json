@@ -26,5 +26,12 @@
     "url": "https://github.com/12fahed/CertiNova.git"
   },
   "author": "fahed-khan",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "framer-motion": "^12.38.0",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^4.2.1",
+    "lucide-react": "^1.16.0",
+    "sonner": "^2.0.7"
+  }
 }
