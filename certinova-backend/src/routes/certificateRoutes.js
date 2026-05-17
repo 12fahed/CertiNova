@@ -1,6 +1,5 @@
 import express from 'express';
 import upload from '../../middleware/upload.js';
-import { protect } from '../middleware/auth.js'; // add this
 import { 
   addCertificateConfig, 
   getCertificateConfig, 
@@ -19,31 +18,32 @@ import {
 
 const router = express.Router();
 
-// Certificate configuration routes (protected)
-router.post('/addCertificateConfig', protect, addCertificateConfig);
-router.get('/config/:eventId', protect, getCertificateConfig);
-router.put('/config/:configId', protect, updateCertificateConfig);
+// Certificate configuration routes
+router.post('/addCertificateConfig', addCertificateConfig);
+router.get('/config/:eventId', getCertificateConfig);
+router.put('/config/:configId', updateCertificateConfig);
 
-// Certificate template upload route (protected)
-router.post('/upload-template', protect, upload.single('certificate'), uploadCertificateTemplate);
+// Certificate template upload route
+router.post('/upload-template', upload.single('certificate'), uploadCertificateTemplate);
 
-// Generated certificate data storage route (protected)
-router.post('/storeGenerated', protect, storeGeneratedCertificate);
+// Generated certificate data storage route
+router.post('/storeGenerated', storeGeneratedCertificate);
 
-// Get generated certificates (protected)
-router.get('/generated', protect, getGeneratedCertificates);
+// Get generated certificates with filtering and pagination
+router.get('/generated', getGeneratedCertificates);
 
-// Decrypt and get generated certificates (protected)
-router.post('/generated/decrypt', protect, getDecryptedGeneratedCertificates);
+// Decrypt and get generated certificates with password
+router.post('/generated/decrypt', getDecryptedGeneratedCertificates);
 
-// UUID verification routes (PUBLIC - anyone can verify a certificate)
+// UUID verification routes
 router.get('/verify/:uuid', verifyUUID);
 router.get('/verify-full/:uuid', verifyCertificateFullByUUID);
+router.get('/generated/:id/uuids', getCertificateUUIDs);
 
-// UUID and stats routes (protected)
-router.get('/generated/:id/uuids', protect, getCertificateUUIDs);
-router.get('/organization-stats/:organizationName', protect, getOrganizationStats);
-router.get('/all-organization-stats', protect, getAllOrganizationStats);
-router.patch('/update-recipient-count', protect, updateRecipientCount);
+// Organization statistics routes
+router.get('/organization-stats/:organizationName', getOrganizationStats);
+router.get('/all-organization-stats', getAllOrganizationStats);
+
+router.patch('/update-recipient-count', updateRecipientCount);
 
 export default router;
