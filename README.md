@@ -18,6 +18,10 @@
   <strong>
     <a href="https://youtu.be/M2zUsVVCerY?si=finYa98RH25MawVP">[WATCH DEMO]</a>
   </strong>
+  ----
+  <strong>
+    <a href="https://discord.gg/sQ4sSMRjP">[JOIN DISCORD]</a>
+  </strong>
 </p>
 
 <p align="center">
@@ -167,37 +171,37 @@ For a full security architecture breakdown, see [`certinova-backend/docs/securit
 
 ### Backend — [`certinova-backend`](./certinova-backend/)
 
-| Technology | Version | Purpose |
-|---|---|---|
-| Node.js | 22+ | Runtime environment |
-| Express.js | 5.1.0 | REST API framework |
-| MongoDB | — | Document database |
-| Mongoose | 8.17.1 | ODM / schema management |
-| bcrypt | 6.0.0 | Password hashing |
-| Multer | 2.0.2 | File upload handling |
-| Cloudinary | — | Certificate image hosting |
-| crypto (built-in) | — | AES-256 encryption |
-| dotenv | — | Environment configuration |
+| Technology        | Version | Purpose                   |
+| ----------------- | ------- | ------------------------- |
+| Node.js           | 22+     | Runtime environment       |
+| Express.js        | 5.1.0   | REST API framework        |
+| MongoDB           | —       | Document database         |
+| Mongoose          | 8.17.1  | ODM / schema management   |
+| bcrypt            | 6.0.0   | Password hashing          |
+| Multer            | 2.0.2   | File upload handling      |
+| Cloudinary        | —       | Certificate image hosting |
+| crypto (built-in) | —       | AES-256 encryption        |
+| dotenv            | —       | Environment configuration |
 
 → See [`certinova-backend/README.md`](./certinova-backend/README.md) for full backend documentation.
 
 ### Frontend — `certinova-frontend`
 
-| Technology | Version | Purpose |
-|---|---|---|
-| Next.js | 15+ | React framework (App Router) |
-| React | 19+ | UI library |
-| TypeScript | 5 | Type-safe development |
-| Tailwind CSS | 4 | Utility-first styling |
-| Framer Motion | 11 | Animations & transitions |
-| Radix UI | — | Accessible UI primitives |
-| CryptoJS | 4.2.0 | Client-side encryption |
-| qrcode | — | QR code generation |
-| JSZip | — | Bulk ZIP file download |
-| XLSX | — | Excel/CSV parsing |
-| uuid | — | UUID generation per recipient |
-| canvas-confetti | — | Celebration effect on generation |
-| Lucide React | — | Icon library |
+| Technology      | Version | Purpose                          |
+| --------------- | ------- | -------------------------------- |
+| Next.js         | 15+     | React framework (App Router)     |
+| React           | 19+     | UI library                       |
+| TypeScript      | 5       | Type-safe development            |
+| Tailwind CSS    | 4       | Utility-first styling            |
+| Framer Motion   | 11      | Animations & transitions         |
+| Radix UI        | —       | Accessible UI primitives         |
+| CryptoJS        | 4.2.0   | Client-side encryption           |
+| qrcode          | —       | QR code generation               |
+| JSZip           | —       | Bulk ZIP file download           |
+| XLSX            | —       | Excel/CSV parsing                |
+| uuid            | —       | UUID generation per recipient    |
+| canvas-confetti | —       | Celebration effect on generation |
+| Lucide React    | —       | Icon library                     |
 
 ---
 
