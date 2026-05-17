@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
@@ -15,7 +15,9 @@ import {
   Shield,
   Clock,
   PlayCircle,
+  Lock
 } from "lucide-react"
+import { toast } from "sonner"
 import { AuthModal } from "@/components/auth-modal"
 import { OnboardingModal } from "@/components/onboarding-modal"
 import { useAuth } from "@/context/AuthContext"
@@ -26,6 +28,7 @@ export default function HomePage() {
   const router = useRouter()
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [showVerificationModal, setShowVerificationModal] = useState(false)
+  const authTriggerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
@@ -115,7 +118,7 @@ export default function HomePage() {
                 <span className="text-2xl font-bold text-gray-900">CertiNova</span>
               </motion.div>
 
-              <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+              <motion.div ref={authTriggerRef} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
                 <AuthModal onLogin={handleLogin} />
               </motion.div>
             </div>
@@ -142,16 +145,27 @@ export default function HomePage() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <AuthModal onLogin={handleLogin} triggerText="Start Free Trial" />
-                <AuthModal onLogin={handleLogin}>
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    className="text-gray-700 border-gray-300 hover:bg-gray-50 bg-transparent"
-                  >
-                    <PlayCircle className="mr-2 h-4 w-4 text-blue-500" />
-                    Watch Demo
-                  </Button>
-                </AuthModal>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="text-gray-700 border-gray-300 hover:bg-gray-50 bg-transparent"
+                  onClick={() =>
+                    toast("Sign in to watch the demo", {
+                      description: "Create a free account or sign in to access the full demo tutorial.",
+                      icon: <Lock className="h-4 w-4" />,
+                      action: {
+                        label: "Sign In",
+                        onClick: () => {
+                          const signInBtn = authTriggerRef.current?.querySelector("button")
+                          signInBtn?.click()
+                        },
+                      },
+                    })
+                  }
+                >
+                  <PlayCircle className="mr-2 h-4 w-4 text-blue-500" />
+                  Watch Demo
+                </Button>
                 <Button
                   variant="outline"
                   size="lg"

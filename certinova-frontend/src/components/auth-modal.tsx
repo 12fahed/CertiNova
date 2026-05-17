@@ -15,10 +15,9 @@ import { toast } from "sonner"
 interface AuthModalProps {
   onLogin?: () => void
   triggerText?: string
-  children?: React.ReactNode
 }
 
-export function AuthModal({ onLogin, triggerText, children }: AuthModalProps) {
+export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
   const [open, setOpen] = useState(false)
   const [formData, setFormData] = useState({
     email: "",
@@ -76,9 +75,7 @@ export function AuthModal({ onLogin, triggerText, children }: AuthModalProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        {children ? (
-          children
-        ) : triggerText ? (
+        {triggerText ? (
           <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8">
             {triggerText}
           </Button>
