@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { Event, EventRequest } from '@/types/event';
@@ -9,7 +9,9 @@ import { useAuth } from './AuthContext';
 interface EventContextType {
   events: Event[];
   isLoading: boolean;
-  createEvent: (eventData: Omit<EventRequest, 'organisationID' | 'organisation'>) => Promise<Event | null>;
+  createEvent: (
+    eventData: Omit<EventRequest, 'organisationID' | 'organisation'>
+  ) => Promise<Event | null>;
   fetchEvents: () => Promise<void>;
   refreshEvents: () => Promise<void>;
   deleteEvent: (eventId: string) => Promise<boolean>;
@@ -34,7 +36,9 @@ export const EventProvider: React.FC<EventProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useAuth();
 
-  const createEvent = async (eventData: Omit<EventRequest, 'organisationID' | 'organisation'>): Promise<Event | null> => {
+  const createEvent = async (
+    eventData: Omit<EventRequest, 'organisationID' | 'organisation'>
+  ): Promise<Event | null> => {
     if (!user) {
       toast.error('You must be logged in to create events');
       return null;
@@ -50,7 +54,7 @@ export const EventProvider: React.FC<EventProviderProps> = ({ children }) => {
 
       if (response.success && response.data?.event) {
         const newEvent = response.data.event;
-        setEvents(prev => [newEvent, ...prev]);
+        setEvents((prev) => [newEvent, ...prev]);
         toast.success('Event created successfully!');
         return newEvent;
       } else {
@@ -103,7 +107,7 @@ export const EventProvider: React.FC<EventProviderProps> = ({ children }) => {
 
       if (response.success) {
         // Remove the event from local state
-        setEvents(prev => prev.filter(event => event.id !== eventId));
+        setEvents((prev) => prev.filter((event) => event.id !== eventId));
         toast.success(response.message || 'Event deleted successfully!');
         return true;
       } else {

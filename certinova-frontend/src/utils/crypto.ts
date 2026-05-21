@@ -14,7 +14,7 @@ function deriveKey(password: string, salt: string): string {
   return CryptoJS.PBKDF2(password, salt, {
     keySize: 256 / 32, // 256 bits = 8 words of 32 bits
     iterations: 10000,
-    hasher: CryptoJS.algo.SHA256
+    hasher: CryptoJS.algo.SHA256,
   }).toString();
 }
 
@@ -25,25 +25,25 @@ export function encryptData(data: unknown, password: string): EncryptedData {
   try {
     // Convert data to JSON string
     const jsonString = JSON.stringify(data);
-    
+
     // Generate random salt and IV
-    const salt = CryptoJS.lib.WordArray.random(128/8).toString(); // 128 bits
-    const iv = CryptoJS.lib.WordArray.random(128/8); // 128 bits for AES
-    
+    const salt = CryptoJS.lib.WordArray.random(128 / 8).toString(); // 128 bits
+    const iv = CryptoJS.lib.WordArray.random(128 / 8); // 128 bits for AES
+
     // Derive key from password and salt
     const key = deriveKey(password, salt);
-    
+
     // Encrypt the data
     const encrypted = CryptoJS.AES.encrypt(jsonString, key, {
       iv: iv,
       mode: CryptoJS.mode.CBC,
-      padding: CryptoJS.pad.Pkcs7
+      padding: CryptoJS.pad.Pkcs7,
     });
-    
+
     return {
       encryptedData: encrypted.toString(),
       salt: salt,
-      iv: iv.toString()
+      iv: iv.toString(),
     };
   } catch (error) {
     console.error('Encryption error:', error);
@@ -57,24 +57,24 @@ export function encryptData(data: unknown, password: string): EncryptedData {
 export function decryptData(encryptedPackage: EncryptedData, password: string): unknown {
   try {
     const { encryptedData, salt, iv } = encryptedPackage;
-    
+
     // Derive the same key from password and salt
     const key = deriveKey(password, salt);
-    
+
     // Decrypt the data
     const decrypted = CryptoJS.AES.decrypt(encryptedData, key, {
       iv: CryptoJS.enc.Hex.parse(iv),
       mode: CryptoJS.mode.CBC,
-      padding: CryptoJS.pad.Pkcs7
+      padding: CryptoJS.pad.Pkcs7,
     });
-    
+
     // Convert decrypted data back to string
     const decryptedString = decrypted.toString(CryptoJS.enc.Utf8);
-    
+
     if (!decryptedString) {
       throw new Error('Invalid password or corrupted data');
     }
-    
+
     // Parse JSON string back to object
     return JSON.parse(decryptedString);
   } catch (error) {
