@@ -1,59 +1,68 @@
-"use client"
+'use client';
 
-import type React from "react"
+import type React from 'react';
 
-import { useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Progress } from "@/components/ui/progress"
-import { Upload, Building, User, Calendar, Globe, ChevronRight, ChevronLeft } from "lucide-react"
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Progress } from '@/components/ui/progress';
+import { Upload, Building, User, Calendar, Globe, ChevronRight, ChevronLeft } from 'lucide-react';
 
 interface OnboardingModalProps {
-  open: boolean
-  onClose: () => void
+  open: boolean;
+  onClose: () => void;
 }
 
 export function OnboardingModal({ open, onClose }: OnboardingModalProps) {
-  const [step, setStep] = useState(1)
+  const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
-    fullName: "",
-    organization: "",
+    fullName: '',
+    organization: '',
     organizationLogo: null as File | null,
-    eventTypes: "",
-    referralSource: "",
-  })
+    eventTypes: '',
+    referralSource: '',
+  });
 
-  const totalSteps = 4
-  const progress = (step / totalSteps) * 100
+  const totalSteps = 4;
+  const progress = (step / totalSteps) * 100;
 
   const handleNext = () => {
     if (step < totalSteps) {
-      setStep(step + 1)
+      setStep(step + 1);
     } else {
-      onClose()
+      onClose();
     }
-  }
+  };
 
   const handlePrev = () => {
     if (step > 1) {
-      setStep(step - 1)
+      setStep(step - 1);
     }
-  }
+  };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
+    const file = e.target.files?.[0];
     if (file) {
-      setFormData((prev) => ({ ...prev, organizationLogo: file }))
+      setFormData((prev) => ({ ...prev, organizationLogo: file }));
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={() => {}}>
-      <DialogContent className="sm:max-w-lg bg-white border border-gray-200" showCloseButton={false}>
+      <DialogContent
+        className="sm:max-w-lg bg-white border border-gray-200"
+        showCloseButton={false}
+      >
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-center text-gray-900">
             Welcome! Let&apos;s get you set up
@@ -124,7 +133,9 @@ export function OnboardingModal({ open, onClose }: OnboardingModalProps) {
                   <Input
                     id="organization"
                     value={formData.organization}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, organization: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, organization: e.target.value }))
+                    }
                     placeholder="Enter your organization name"
                     className="border-gray-200"
                   />
@@ -135,12 +146,20 @@ export function OnboardingModal({ open, onClose }: OnboardingModalProps) {
                     Organization Logo (Optional)
                   </Label>
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
-                    <input type="file" id="logo" accept="image/*" onChange={handleFileUpload} className="hidden" />
+                    <input
+                      type="file"
+                      id="logo"
+                      accept="image/*"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                    />
                     <label htmlFor="logo" className="cursor-pointer">
                       <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
                       <p className="text-sm text-gray-600">Click to upload logo</p>
                       {formData.organizationLogo && (
-                        <p className="text-sm text-green-600 mt-2">✓ {formData.organizationLogo.name}</p>
+                        <p className="text-sm text-green-600 mt-2">
+                          ✓ {formData.organizationLogo.name}
+                        </p>
                       )}
                     </label>
                   </div>
@@ -170,7 +189,11 @@ export function OnboardingModal({ open, onClose }: OnboardingModalProps) {
                   <Label htmlFor="eventTypes" className="text-gray-700">
                     Types of Events *
                   </Label>
-                  <Select onValueChange={(value) => setFormData((prev) => ({ ...prev, eventTypes: value }))}>
+                  <Select
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({ ...prev, eventTypes: value }))
+                    }
+                  >
                     <SelectTrigger className="border-gray-200">
                       <SelectValue placeholder="Select event type" />
                     </SelectTrigger>
@@ -209,7 +232,11 @@ export function OnboardingModal({ open, onClose }: OnboardingModalProps) {
                   <Label htmlFor="referralSource" className="text-gray-700">
                     Referral Source
                   </Label>
-                  <Select onValueChange={(value) => setFormData((prev) => ({ ...prev, referralSource: value }))}>
+                  <Select
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({ ...prev, referralSource: value }))
+                    }
+                  >
                     <SelectTrigger className="border-gray-200">
                       <SelectValue placeholder="How did you hear about us?" />
                     </SelectTrigger>
@@ -239,11 +266,11 @@ export function OnboardingModal({ open, onClose }: OnboardingModalProps) {
           </Button>
 
           <Button onClick={handleNext} className="bg-blue-600 hover:bg-blue-700 flex items-center">
-            {step === totalSteps ? "Get Started" : "Next"}
+            {step === totalSteps ? 'Get Started' : 'Next'}
             {step !== totalSteps && <ChevronRight className="h-4 w-4 ml-2" />}
           </Button>
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

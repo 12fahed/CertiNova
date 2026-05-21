@@ -1,42 +1,42 @@
-"use client"
+'use client';
 
-import { motion } from "framer-motion"
-import { Button } from "@/components/ui/button"
-import { Award, Plus, Send, User, Settings, LogOut, ArrowLeft, Lock, Book } from "lucide-react"
+import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { Award, Plus, Send, User, Settings, LogOut, ArrowLeft, Lock, Book } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { useAuth } from "@/context/AuthContext"
-import { ViewHistoryButton } from "@/components/view-history-button";
-import { useRouter } from "next/navigation"
-import Link from "next/link"
+} from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { useAuth } from '@/context/AuthContext';
+import { ViewHistoryButton } from '@/components/view-history-button';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 interface NavbarProps {
-  variant?: 'dashboard' | 'certificate'
-  onCreateNew?: () => void
-  onSendCertificates?: () => void
+  variant?: 'dashboard' | 'certificate';
+  onCreateNew?: () => void;
+  onSendCertificates?: () => void;
 }
 
 export function Navbar({ variant = 'dashboard', onCreateNew, onSendCertificates }: NavbarProps) {
-  const { user, logout } = useAuth()
-  const router = useRouter()
+  const { user, logout } = useAuth();
+  const router = useRouter();
 
   const getUserInitials = (name: string) => {
     return name
       .split(' ')
-      .map(word => word.charAt(0).toUpperCase())
+      .map((word) => word.charAt(0).toUpperCase())
       .join('')
-      .slice(0, 2)
-  }
+      .slice(0, 2);
+  };
 
   const handleBackToDashboard = () => {
-    router.push('/dashboard')
-  }
+    router.push('/dashboard');
+  };
 
   const onLearn = () => {
     window.open('https://youtu.be/M2zUsVVCerY', '_blank', 'noopener,noreferrer');
@@ -127,5 +127,5 @@ export function Navbar({ variant = 'dashboard', onCreateNew, onSendCertificates 
         </div>
       </div>
     </motion.nav>
-  )
+  );
 }

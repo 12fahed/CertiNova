@@ -1,8 +1,8 @@
 import express from 'express';
 import upload from '../../middleware/upload.js';
-import { 
-  addCertificateConfig, 
-  getCertificateConfig, 
+import {
+  addCertificateConfig,
+  getCertificateConfig,
   updateCertificateConfig,
   uploadCertificateTemplate,
   storeGeneratedCertificate,
@@ -13,7 +13,7 @@ import {
   getCertificateUUIDs,
   getOrganizationStats,
   getAllOrganizationStats,
-  updateRecipientCount
+  updateRecipientCount,
 } from '../controllers/certificateController.js';
 
 const router = express.Router();

@@ -1,24 +1,27 @@
 import mongoose from 'mongoose';
 
-const recordSchema = new mongoose.Schema({
-  organisationName: {
-    type: String,
-    required: true,
-    index: true
+const recordSchema = new mongoose.Schema(
+  {
+    organisationName: {
+      type: String,
+      required: true,
+      index: true,
+    },
+    recipientCount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    eventsCreated: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
   },
-  recipientCount: {
-    type: Number,
-    default: 0,
-    min: 0
-  },
-  eventsCreated: {
-    type: Number,
-    default: 0,
-    min: 0
+  {
+    timestamps: true,
   }
-}, {
-  timestamps: true
-});
+);
 
 // Create compound index for efficient queries
 recordSchema.index({ organisationName: 1 });

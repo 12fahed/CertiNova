@@ -73,14 +73,14 @@ flowchart TD
 
 ## Key Design Decisions
 
-| Decision | Rationale |
-|---|---|
-| **ES Modules (`"type": "module"`)** | Modern, standards-aligned JS module system used throughout. |
-| **No JWT / session tokens** | Authentication is currently session-less (password verification per request); JWT is flagged as future work in controller comments. |
-| **Cloudinary for template images** | Avoids stateful file storage on the server; public URLs simplify frontend rendering. |
-| **AES-256-CBC + PBKDF2 for recipient data** | Recipient PII is never stored in plain text; password-gated decryption ensures data privacy. |
-| **Cascading delete in application layer** | Deletion of an event triggers manual deletion of its `CertificateConfig`, `GeneratedCertificate`, and `VerifyUUID` documents to preserve referential integrity without relying on DB-level cascades. |
-| **Record collection for statistics** | A separate `Record` document per organisation tracks aggregate `eventsCreated` and `recipientCount` for O(1) stat lookups, avoiding expensive aggregation pipelines on hot paths. |
+| Decision                                    | Rationale                                                                                                                                                                                            |
+| ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **ES Modules (`"type": "module"`)**         | Modern, standards-aligned JS module system used throughout.                                                                                                                                          |
+| **No JWT / session tokens**                 | Authentication is currently session-less (password verification per request); JWT is flagged as future work in controller comments.                                                                  |
+| **Cloudinary for template images**          | Avoids stateful file storage on the server; public URLs simplify frontend rendering.                                                                                                                 |
+| **AES-256-CBC + PBKDF2 for recipient data** | Recipient PII is never stored in plain text; password-gated decryption ensures data privacy.                                                                                                         |
+| **Cascading delete in application layer**   | Deletion of an event triggers manual deletion of its `CertificateConfig`, `GeneratedCertificate`, and `VerifyUUID` documents to preserve referential integrity without relying on DB-level cascades. |
+| **Record collection for statistics**        | A separate `Record` document per organisation tracks aggregate `eventsCreated` and `recipientCount` for O(1) stat lookups, avoiding expensive aggregation pipelines on hot paths.                    |
 
 ## Data Flow: Certificate Generation
 

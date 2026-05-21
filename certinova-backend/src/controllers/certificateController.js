@@ -17,13 +17,20 @@ export const addCertificateConfig = async (req, res) => {
     console.log('eventId:', eventId);
     console.log('imagePath:', imagePath);
     console.log('validFields:', JSON.stringify(validFields, null, 2));
-    
+
     // Validation
     if (!eventId || !imagePath || !validFields) {
-      console.log('Missing required fields - eventId:', !!eventId, 'imagePath:', !!imagePath, 'validFields:', !!validFields);
+      console.log(
+        'Missing required fields - eventId:',
+        !!eventId,
+        'imagePath:',
+        !!imagePath,
+        'validFields:',
+        !!validFields
+      );
       return res.status(400).json({
         success: false,
-        message: 'Please provide eventId, imagePath, and validFields'
+        message: 'Please provide eventId, imagePath, and validFields',
       });
     }
 
@@ -31,7 +38,7 @@ export const addCertificateConfig = async (req, res) => {
     if (!isValidObjectId(eventId)) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid event ID format'
+        message: 'Invalid event ID format',
       });
     }
 
@@ -40,7 +47,7 @@ export const addCertificateConfig = async (req, res) => {
     if (!eventExists) {
       return res.status(404).json({
         success: false,
-        message: 'Event not found'
+        message: 'Event not found',
       });
     }
 
@@ -48,13 +55,13 @@ export const addCertificateConfig = async (req, res) => {
     console.log('Starting validFields validation...');
     const validation = validateValidFields(validFields);
     console.log('Validation result:', validation);
-    
+
     if (!validation.isValid) {
       console.log('Validation failed with errors:', validation.errors);
       return res.status(400).json({
         success: false,
         message: 'Validation error',
-        errors: validation.errors
+        errors: validation.errors,
       });
     }
 
@@ -63,7 +70,7 @@ export const addCertificateConfig = async (req, res) => {
     if (existingConfig) {
       return res.status(400).json({
         success: false,
-        message: 'Certificate configuration already exists for this event'
+        message: 'Certificate configuration already exists for this event',
       });
     }
 
@@ -73,20 +80,21 @@ export const addCertificateConfig = async (req, res) => {
       imagePath,
       validFields: Object.fromEntries(
         // Filter out any invalid field objects
-        Object.entries(validFields).filter(([_, fieldObj]) => 
-          fieldObj && 
-          typeof fieldObj === 'object' && 
-          !Array.isArray(fieldObj) &&
-          typeof fieldObj.x === 'number' && 
-          typeof fieldObj.y === 'number' && 
-          typeof fieldObj.width === 'number' && 
-          typeof fieldObj.height === 'number' &&
-          fieldObj.x >= 0 && 
-          fieldObj.y >= 0 && 
-          fieldObj.width > 0 && 
-          fieldObj.height > 0
+        Object.entries(validFields).filter(
+          ([_, fieldObj]) =>
+            fieldObj &&
+            typeof fieldObj === 'object' &&
+            !Array.isArray(fieldObj) &&
+            typeof fieldObj.x === 'number' &&
+            typeof fieldObj.y === 'number' &&
+            typeof fieldObj.width === 'number' &&
+            typeof fieldObj.height === 'number' &&
+            fieldObj.x >= 0 &&
+            fieldObj.y >= 0 &&
+            fieldObj.width > 0 &&
+            fieldObj.height > 0
         )
-      )
+      ),
     });
 
     await certificateConfig.save();
@@ -104,27 +112,26 @@ export const addCertificateConfig = async (req, res) => {
           imagePath: certificateConfig.imagePath,
           validFields: certificateConfig.validFields,
           createdAt: certificateConfig.createdAt,
-          updatedAt: certificateConfig.updatedAt
-        }
-      }
+          updatedAt: certificateConfig.updatedAt,
+        },
+      },
     });
-
   } catch (error) {
     console.error('Add certificate config error:', error);
-    
+
     // Handle validation errors
     if (error.name === 'ValidationError') {
-      const errors = Object.values(error.errors).map(err => err.message);
+      const errors = Object.values(error.errors).map((err) => err.message);
       return res.status(400).json({
         success: false,
         message: 'Validation error',
-        errors
+        errors,
       });
     }
 
     res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      message: 'Internal server error',
     });
   }
 };
@@ -140,17 +147,19 @@ export const getCertificateConfig = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(eventId)) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid event ID format'
+        message: 'Invalid event ID format',
       });
     }
 
-    const certificateConfig = await CertificateConfig.findOne({ eventId })
-      .populate('eventId', 'eventName organisation issuerName organisationID');
+    const certificateConfig = await CertificateConfig.findOne({ eventId }).populate(
+      'eventId',
+      'eventName organisation issuerName organisationID'
+    );
 
     if (!certificateConfig) {
       return res.status(404).json({
         success: false,
-        message: 'Certificate configuration not found for this event'
+        message: 'Certificate configuration not found for this event',
       });
     }
 
@@ -164,16 +173,15 @@ export const getCertificateConfig = async (req, res) => {
           imagePath: certificateConfig.imagePath,
           validFields: certificateConfig.validFields,
           createdAt: certificateConfig.createdAt,
-          updatedAt: certificateConfig.updatedAt
-        }
-      }
+          updatedAt: certificateConfig.updatedAt,
+        },
+      },
     });
-
   } catch (error) {
     console.error('Get certificate config error:', error);
     res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      message: 'Internal server error',
     });
   }
 };
@@ -190,7 +198,7 @@ export const updateCertificateConfig = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(configId)) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid configuration ID format'
+        message: 'Invalid configuration ID format',
       });
     }
 
@@ -198,7 +206,7 @@ export const updateCertificateConfig = async (req, res) => {
     if (!certificateConfig) {
       return res.status(404).json({
         success: false,
-        message: 'Certificate configuration not found'
+        message: 'Certificate configuration not found',
       });
     }
 
@@ -214,24 +222,25 @@ export const updateCertificateConfig = async (req, res) => {
         return res.status(400).json({
           success: false,
           message: 'Validation error',
-          errors: validation.errors
+          errors: validation.errors,
         });
       }
 
       // Filter out any invalid field objects before saving
       certificateConfig.validFields = Object.fromEntries(
-        Object.entries(validFields).filter(([_, fieldObj]) => 
-          fieldObj && 
-          typeof fieldObj === 'object' && 
-          !Array.isArray(fieldObj) &&
-          typeof fieldObj.x === 'number' && 
-          typeof fieldObj.y === 'number' && 
-          typeof fieldObj.width === 'number' && 
-          typeof fieldObj.height === 'number' &&
-          fieldObj.x >= 0 && 
-          fieldObj.y >= 0 && 
-          fieldObj.width > 0 && 
-          fieldObj.height > 0
+        Object.entries(validFields).filter(
+          ([_, fieldObj]) =>
+            fieldObj &&
+            typeof fieldObj === 'object' &&
+            !Array.isArray(fieldObj) &&
+            typeof fieldObj.x === 'number' &&
+            typeof fieldObj.y === 'number' &&
+            typeof fieldObj.width === 'number' &&
+            typeof fieldObj.height === 'number' &&
+            fieldObj.x >= 0 &&
+            fieldObj.y >= 0 &&
+            fieldObj.width > 0 &&
+            fieldObj.height > 0
         )
       );
     }
@@ -243,25 +252,24 @@ export const updateCertificateConfig = async (req, res) => {
       success: true,
       message: 'Certificate configuration updated successfully',
       data: {
-        certificateConfig
-      }
+        certificateConfig,
+      },
     });
-
   } catch (error) {
     console.error('Update certificate config error:', error);
-    
+
     if (error.name === 'ValidationError') {
-      const errors = Object.values(error.errors).map(err => err.message);
+      const errors = Object.values(error.errors).map((err) => err.message);
       return res.status(400).json({
         success: false,
         message: 'Validation error',
-        errors
+        errors,
       });
     }
 
     res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      message: 'Internal server error',
     });
   }
 };
@@ -275,7 +283,7 @@ export const uploadCertificateTemplate = async (req, res) => {
     if (!req.file) {
       return res.status(400).json({
         success: false,
-        message: 'No file uploaded. Please select a certificate template image.'
+        message: 'No file uploaded. Please select a certificate template image.',
       });
     }
 
@@ -294,17 +302,16 @@ export const uploadCertificateTemplate = async (req, res) => {
         size: req.file.bytes,
         mimetype: req.file.mimetype,
         publicId: publicId,
-        cloudinaryUrl: cloudinaryUrl
-      }
+        cloudinaryUrl: cloudinaryUrl,
+      },
     });
-
   } catch (error) {
     console.error('Upload certificate template error:', error);
 
     res.status(500).json({
       success: false,
       message: 'Failed to upload certificate template',
-      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
     });
   }
 };
@@ -320,26 +327,26 @@ export const storeGeneratedCertificate = async (req, res) => {
     console.log('recipients count:', recipients?.length);
     console.log('generatedBy:', generatedBy);
     console.log('password provided:', !!password);
-    
+
     // Validation
     if (!certificateId || !recipients || !Array.isArray(recipients) || recipients.length === 0) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide certificateId and recipients array'
+        message: 'Please provide certificateId and recipients array',
       });
     }
 
     if (!generatedBy) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide generatedBy (user ID)'
+        message: 'Please provide generatedBy (user ID)',
       });
     }
 
     if (!password || typeof password !== 'string' || password.length < 6) {
       return res.status(400).json({
         success: false,
-        message: 'Password is required and must be at least 6 characters long'
+        message: 'Password is required and must be at least 6 characters long',
       });
     }
 
@@ -347,7 +354,7 @@ export const storeGeneratedCertificate = async (req, res) => {
     if (!isValidObjectId(certificateId)) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid certificate ID format'
+        message: 'Invalid certificate ID format',
       });
     }
 
@@ -355,7 +362,7 @@ export const storeGeneratedCertificate = async (req, res) => {
     if (!isValidObjectId(generatedBy)) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid user ID format'
+        message: 'Invalid user ID format',
       });
     }
 
@@ -364,12 +371,14 @@ export const storeGeneratedCertificate = async (req, res) => {
     if (!certificateConfig) {
       return res.status(404).json({
         success: false,
-        message: 'Certificate configuration not found'
+        message: 'Certificate configuration not found',
       });
     }
 
     // Check if rank coordinates exist in certificate config
-    const hasRankCoordinates = !!(certificateConfig.validFields && certificateConfig.validFields.rank);
+    const hasRankCoordinates = !!(
+      certificateConfig.validFields && certificateConfig.validFields.rank
+    );
 
     // Validate and process recipients
     const processedRecipients = [];
@@ -377,11 +386,11 @@ export const storeGeneratedCertificate = async (req, res) => {
 
     for (let i = 0; i < recipients.length; i++) {
       const recipient = recipients[i];
-      
+
       if (!recipient.name || typeof recipient.name !== 'string' || recipient.name.trim() === '') {
         return res.status(400).json({
           success: false,
-          message: `Recipient at index ${i} must have a valid name`
+          message: `Recipient at index ${i} must have a valid name`,
         });
       }
 
@@ -391,24 +400,29 @@ export const storeGeneratedCertificate = async (req, res) => {
         if (!emailRegex.test(recipient.email.trim())) {
           return res.status(400).json({
             success: false,
-            message: `Invalid email format for recipient at index ${i}`
+            message: `Invalid email format for recipient at index ${i}`,
           });
         }
       }
 
       const processedRecipient = {
         name: recipient.name.trim(),
-        email: recipient.email ? recipient.email.trim().toLowerCase() : undefined
+        email: recipient.email ? recipient.email.trim().toLowerCase() : undefined,
       };
 
       // Include UUID if provided
       if (recipient.uuid && typeof recipient.uuid === 'string' && recipient.uuid.trim() !== '') {
-        console.log(recipient.uuid)
+        console.log(recipient.uuid);
         processedRecipient.uuid = recipient.uuid.trim();
       }
 
       // Only include rank if coordinates exist and data is provided
-      if (hasRankCoordinates && recipient.rank && typeof recipient.rank === 'string' && recipient.rank.trim() !== '') {
+      if (
+        hasRankCoordinates &&
+        recipient.rank &&
+        typeof recipient.rank === 'string' &&
+        recipient.rank.trim() !== ''
+      ) {
         processedRecipient.rank = recipient.rank.trim();
         hasRankData = true;
       }
@@ -427,25 +441,28 @@ export const storeGeneratedCertificate = async (req, res) => {
       noOfRecipient: processedRecipients.length,
       rank: hasRankData,
       encryptedRecipients,
-      generatedBy
+      generatedBy,
     });
 
     await generatedCertificate.save();
 
-    console.log('Generated certificate stored successfully with encryption:', generatedCertificate._id);
+    console.log(
+      'Generated certificate stored successfully with encryption:',
+      generatedCertificate._id
+    );
 
     // Create UUID verification documents for each recipient with a UUID
     console.log('Creating UUID verification documents...');
     const uuidVerifications = [];
-    
+
     for (const recipient of processedRecipients) {
       if (recipient.uuid) {
         try {
           const verifyUUID = new VerifyUUID({
             generatedCertificateId: generatedCertificate._id,
-            uuid: recipient.uuid
+            uuid: recipient.uuid,
           });
-          
+
           const savedVerification = await verifyUUID.save();
           uuidVerifications.push(savedVerification);
           console.log(`UUID verification created for UUID: ${recipient.uuid}`);
@@ -455,7 +472,7 @@ export const storeGeneratedCertificate = async (req, res) => {
         }
       }
     }
-    
+
     console.log(`Created ${uuidVerifications.length} UUID verification documents`);
 
     // Update organization record with recipient count
@@ -466,20 +483,22 @@ export const storeGeneratedCertificate = async (req, res) => {
       if (event && event.organisation) {
         await Record.findOneAndUpdate(
           { organisationName: event.organisation },
-          { 
+          {
             $inc: { recipientCount: processedRecipients.length },
-            $setOnInsert: { 
+            $setOnInsert: {
               organisationName: event.organisation,
-              eventsCreated: 0 
-            }
+              eventsCreated: 0,
+            },
           },
-          { 
-            upsert: true, 
+          {
+            upsert: true,
             new: true,
-            setDefaultsOnInsert: true 
+            setDefaultsOnInsert: true,
           }
         );
-        console.log(`✓ Recipient count increased by ${processedRecipients.length} for organization: ${event.organisation}`);
+        console.log(
+          `✓ Recipient count increased by ${processedRecipients.length} for organization: ${event.organisation}`
+        );
       } else {
         console.warn('Could not find organization name for recipient count tracking');
       }
@@ -498,24 +517,23 @@ export const storeGeneratedCertificate = async (req, res) => {
         rank: generatedCertificate.rank,
         date: generatedCertificate.date,
         // Don't return encrypted data in response for security
-        encrypted: true
-      }
+        encrypted: true,
+      },
     });
-
   } catch (error) {
     console.error('Store generated certificate error:', error);
 
     if (error.message.includes('encrypt')) {
       return res.status(500).json({
         success: false,
-        message: 'Failed to encrypt certificate data'
+        message: 'Failed to encrypt certificate data',
       });
     }
 
     res.status(500).json({
       success: false,
       message: 'Failed to store generated certificate data',
-      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
     });
   }
 };
@@ -525,18 +543,26 @@ export const storeGeneratedCertificate = async (req, res) => {
 // @access  Protected (should be protected later with JWT)
 export const getGeneratedCertificates = async (req, res) => {
   try {
-    const { 
-      page = 1, 
-      limit = 10, 
-      search = '', 
+    const {
+      page = 1,
+      limit = 10,
+      search = '',
       filter = 'all',
       sortBy = 'date',
       sortOrder = 'desc',
-      generatedBy
+      generatedBy,
     } = req.query;
 
     console.log('=== GET GENERATED CERTIFICATES REQUEST ===');
-    console.log('Query parameters:', { page, limit, search, filter, sortBy, sortOrder, generatedBy });
+    console.log('Query parameters:', {
+      page,
+      limit,
+      search,
+      filter,
+      sortBy,
+      sortOrder,
+      generatedBy,
+    });
 
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
@@ -545,18 +571,18 @@ export const getGeneratedCertificates = async (req, res) => {
     // Build filter query
     let filterQuery = {};
     const currentDate = new Date();
-    
+
     // Add generatedBy filter if provided
     if (generatedBy) {
       if (!isValidObjectId(generatedBy)) {
         return res.status(400).json({
           success: false,
-          message: 'Invalid generatedBy user ID format'
+          message: 'Invalid generatedBy user ID format',
         });
       }
       filterQuery.generatedBy = generatedBy;
     }
-    
+
     switch (filter) {
       case 'recent':
         const sevenDaysAgo = new Date(currentDate.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -601,15 +627,15 @@ export const getGeneratedCertificates = async (req, res) => {
           path: 'certificateId',
           populate: {
             path: 'eventId',
-            select: 'eventName organisation issuerName'
-          }
+            select: 'eventName organisation issuerName',
+          },
         })
         .populate('generatedBy', 'name email organisation')
         .sort(sortObject)
         .skip(skip)
         .limit(limitNum)
         .lean(),
-      GeneratedCertificate.countDocuments(filterQuery)
+      GeneratedCertificate.countDocuments(filterQuery),
     ]);
 
     // For search, we need to handle it after getting all documents since we can't search encrypted data
@@ -629,10 +655,10 @@ export const getGeneratedCertificates = async (req, res) => {
             totalCount: 0,
             hasNextPage: false,
             hasPrevPage: false,
-            limit: limitNum
+            limit: limitNum,
           },
-          requiresDecryption: true
-        }
+          requiresDecryption: true,
+        },
       });
     }
 
@@ -650,7 +676,7 @@ export const getGeneratedCertificates = async (req, res) => {
       generatedBy: cert.generatedBy || null,
       createdAt: cert.createdAt,
       updatedAt: cert.updatedAt,
-      encrypted: true // Indicate that this data is encrypted
+      encrypted: true, // Indicate that this data is encrypted
     }));
 
     // Calculate pagination info
@@ -658,7 +684,9 @@ export const getGeneratedCertificates = async (req, res) => {
     const hasNextPage = pageNum < totalPages;
     const hasPrevPage = pageNum > 1;
 
-    console.log(`Found ${totalCount} total certificates, returning ${transformedData.length} for page ${pageNum}`);
+    console.log(
+      `Found ${totalCount} total certificates, returning ${transformedData.length} for page ${pageNum}`
+    );
 
     res.status(200).json({
       success: true,
@@ -671,18 +699,17 @@ export const getGeneratedCertificates = async (req, res) => {
           totalCount,
           hasNextPage,
           hasPrevPage,
-          limit: limitNum
-        }
-      }
+          limit: limitNum,
+        },
+      },
     });
-
   } catch (error) {
     console.error('Get generated certificates error:', error);
 
     res.status(500).json({
       success: false,
       message: 'Failed to retrieve generated certificates',
-      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
     });
   }
 };
@@ -692,24 +719,32 @@ export const getGeneratedCertificates = async (req, res) => {
 // @access  Protected (should be protected later with JWT)
 export const getDecryptedGeneratedCertificates = async (req, res) => {
   try {
-    const { 
+    const {
       password,
-      page = 1, 
-      limit = 10, 
-      search = '', 
+      page = 1,
+      limit = 10,
+      search = '',
       filter = 'all',
       sortBy = 'date',
       sortOrder = 'desc',
-      generatedBy
+      generatedBy,
     } = req.body;
 
     console.log('=== DECRYPT GENERATED CERTIFICATES REQUEST ===');
-    console.log('Query parameters:', { page, limit, search, filter, sortBy, sortOrder, generatedBy });
+    console.log('Query parameters:', {
+      page,
+      limit,
+      search,
+      filter,
+      sortBy,
+      sortOrder,
+      generatedBy,
+    });
 
     if (!password || typeof password !== 'string' || password.length < 6) {
       return res.status(400).json({
         success: false,
-        message: 'Valid password is required for decryption'
+        message: 'Valid password is required for decryption',
       });
     }
 
@@ -720,18 +755,18 @@ export const getDecryptedGeneratedCertificates = async (req, res) => {
     // Build filter query
     let filterQuery = {};
     const currentDate = new Date();
-    
+
     // Add generatedBy filter if provided
     if (generatedBy) {
       if (!isValidObjectId(generatedBy)) {
         return res.status(400).json({
           success: false,
-          message: 'Invalid generatedBy user ID format'
+          message: 'Invalid generatedBy user ID format',
         });
       }
       filterQuery.generatedBy = generatedBy;
     }
-    
+
     switch (filter) {
       case 'recent':
         const sevenDaysAgo = new Date(currentDate.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -774,8 +809,8 @@ export const getDecryptedGeneratedCertificates = async (req, res) => {
         path: 'certificateId',
         populate: {
           path: 'eventId',
-          select: 'eventName organisation issuerName'
-        }
+          select: 'eventName organisation issuerName',
+        },
       })
       .populate('generatedBy', 'name email organisation')
       .sort(sortObject)
@@ -788,7 +823,7 @@ export const getDecryptedGeneratedCertificates = async (req, res) => {
     for (const cert of allCertificates) {
       try {
         let recipients = [];
-        
+
         if (cert.encryptedRecipients) {
           // Decrypt the recipients data
           recipients = decryptData(cert.encryptedRecipients, password);
@@ -801,19 +836,21 @@ export const getDecryptedGeneratedCertificates = async (req, res) => {
         let includeInResults = true;
         if (search && search.trim() !== '') {
           const searchRegex = new RegExp(search.trim(), 'i');
-          const hasMatch = recipients.some(recipient => 
-            searchRegex.test(recipient.name) || 
-            (recipient.email && searchRegex.test(recipient.email)) ||
-            (recipient.rank && searchRegex.test(recipient.rank))
-          ) || searchRegex.test(cert.certificateId?.eventId?.eventName || '');
-          
+          const hasMatch =
+            recipients.some(
+              (recipient) =>
+                searchRegex.test(recipient.name) ||
+                (recipient.email && searchRegex.test(recipient.email)) ||
+                (recipient.rank && searchRegex.test(recipient.rank))
+            ) || searchRegex.test(cert.certificateId?.eventId?.eventName || '');
+
           includeInResults = hasMatch;
         }
 
         if (includeInResults) {
           decryptedCertificates.push({
             ...cert,
-            recipients
+            recipients,
           });
         }
       } catch (decryptError) {
@@ -840,7 +877,7 @@ export const getDecryptedGeneratedCertificates = async (req, res) => {
       generatedBy: cert.generatedBy || null,
       createdAt: cert.createdAt,
       updatedAt: cert.updatedAt,
-      encrypted: false // Indicate that this data has been decrypted
+      encrypted: false, // Indicate that this data has been decrypted
     }));
 
     // Calculate pagination info
@@ -848,9 +885,14 @@ export const getDecryptedGeneratedCertificates = async (req, res) => {
     const hasNextPage = pageNum < totalPages;
     const hasPrevPage = pageNum > 1;
 
-    console.log(`Decrypted ${allCertificates.length} certificates, found ${totalCount} matching search, returning ${transformedData.length} for page ${pageNum}`);
+    console.log(
+      `Decrypted ${allCertificates.length} certificates, found ${totalCount} matching search, returning ${transformedData.length} for page ${pageNum}`
+    );
     if (failedDecryptions.length > 0) {
-      console.warn(`Failed to decrypt ${failedDecryptions.length} certificates:`, failedDecryptions);
+      console.warn(
+        `Failed to decrypt ${failedDecryptions.length} certificates:`,
+        failedDecryptions
+      );
     }
 
     res.status(200).json({
@@ -864,29 +906,28 @@ export const getDecryptedGeneratedCertificates = async (req, res) => {
           totalCount,
           hasNextPage,
           hasPrevPage,
-          limit: limitNum
+          limit: limitNum,
         },
         decryption: {
           successful: allCertificates.length - failedDecryptions.length,
-          failed: failedDecryptions.length
-        }
-      }
+          failed: failedDecryptions.length,
+        },
+      },
     });
-
   } catch (error) {
     console.error('Decrypt generated certificates error:', error);
 
     if (error.message.includes('decrypt') || error.message.includes('password')) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid password or failed to decrypt data'
+        message: 'Invalid password or failed to decrypt data',
       });
     }
 
     res.status(500).json({
       success: false,
       message: 'Failed to decrypt and retrieve certificates',
-      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
     });
   }
 };
@@ -904,7 +945,7 @@ export const verifyUUID = async (req, res) => {
         message: 'UUID is required',
         verified: false,
         step: 'validation',
-        error: 'UUID parameter missing'
+        error: 'UUID parameter missing',
       });
     }
 
@@ -914,7 +955,7 @@ export const verifyUUID = async (req, res) => {
     // Step 1: Find the UUID verification document
     console.log('Step 1: Searching VerifyUUID collection...');
     const verifyRecord = await VerifyUUID.findOne({ uuid });
-    console.log("VerifyRecord: ", verifyRecord)
+    console.log('VerifyRecord: ', verifyRecord);
     if (!verifyRecord) {
       console.log('UUID not found in VerifyUUID collection');
       return res.status(404).json({
@@ -922,7 +963,7 @@ export const verifyUUID = async (req, res) => {
         message: 'Certificate UUID not found or invalid. Please try contacting the issuer',
         verified: false,
         step: 'uuid_lookup',
-        error: 'UUID does not exist in verification records'
+        error: 'UUID does not exist in verification records',
       });
     }
 
@@ -930,7 +971,9 @@ export const verifyUUID = async (req, res) => {
 
     // Step 2: Get the associated generated certificate
     console.log('Step 2: Fetching GeneratedCertificate...');
-    const generatedCertificate = await GeneratedCertificate.findById(verifyRecord.generatedCertificateId);
+    const generatedCertificate = await GeneratedCertificate.findById(
+      verifyRecord.generatedCertificateId
+    );
 
     if (!generatedCertificate) {
       console.log('GeneratedCertificate not found for ID:', verifyRecord.generatedCertificateId);
@@ -939,7 +982,7 @@ export const verifyUUID = async (req, res) => {
         message: 'Associated certificate record not found. Please try contacting the issue',
         verified: false,
         step: 'certificate_lookup',
-        error: 'Certificate data has been removed or corrupted'
+        error: 'Certificate data has been removed or corrupted',
       });
     }
 
@@ -957,7 +1000,7 @@ export const verifyUUID = async (req, res) => {
         message: 'Certificate configuration not found. Please try contacting the issue',
         verified: false,
         step: 'config_lookup',
-        error: 'Certificate configuration has been removed'
+        error: 'Certificate configuration has been removed',
       });
     }
 
@@ -974,7 +1017,7 @@ export const verifyUUID = async (req, res) => {
         message: 'Event information not found. Please try contacting the issue',
         verified: false,
         step: 'event_lookup',
-        error: 'Event has been removed or does not exist'
+        error: 'Event has been removed or does not exist',
       });
     }
 
@@ -1001,10 +1044,9 @@ export const verifyUUID = async (req, res) => {
         certificateId: generatedCertificate.certificateId,
         verificationId: verifyRecord._id,
         isValid: true,
-        verifiedAt: new Date()
-      }
+        verifiedAt: new Date(),
+      },
     });
-
   } catch (error) {
     console.error('UUID verification error:', error);
     res.status(500).json({
@@ -1012,7 +1054,7 @@ export const verifyUUID = async (req, res) => {
       message: 'Failed to verify certificate',
       verified: false,
       step: 'server_error',
-      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
     });
   }
 };
@@ -1043,7 +1085,9 @@ export const verifyCertificateFullByUUID = async (req, res) => {
     }
 
     // Step 2: Get the associated generated certificate
-    const generatedCertificate = await GeneratedCertificate.findById(verifyRecord.generatedCertificateId);
+    const generatedCertificate = await GeneratedCertificate.findById(
+      verifyRecord.generatedCertificateId
+    );
     if (!generatedCertificate) {
       return res.status(404).json({
         success: false,
@@ -1091,14 +1135,13 @@ export const verifyCertificateFullByUUID = async (req, res) => {
         },
       },
     });
-
   } catch (error) {
     console.error('Full UUID verification error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to verify certificate',
       verified: false,
-      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
     });
   }
 };
@@ -1113,7 +1156,7 @@ export const getCertificateUUIDs = async (req, res) => {
     if (!isValidObjectId(id)) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid certificate ID format'
+        message: 'Invalid certificate ID format',
       });
     }
 
@@ -1132,20 +1175,19 @@ export const getCertificateUUIDs = async (req, res) => {
       data: {
         certificateId: id,
         totalUUIDs: uuidVerifications.length,
-        uuids: uuidVerifications.map(verification => ({
+        uuids: uuidVerifications.map((verification) => ({
           uuid: verification.uuid,
           verificationId: verification._id,
-          createdAt: verification.createdAt
-        }))
-      }
+          createdAt: verification.createdAt,
+        })),
+      },
     });
-
   } catch (error) {
     console.error('Get certificate UUIDs error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to retrieve certificate UUIDs',
-      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
     });
   }
 };
@@ -1160,7 +1202,7 @@ export const getOrganizationStats = async (req, res) => {
     if (!organizationName) {
       return res.status(400).json({
         success: false,
-        message: 'Organization name is required'
+        message: 'Organization name is required',
       });
     }
 
@@ -1175,8 +1217,8 @@ export const getOrganizationStats = async (req, res) => {
         data: {
           organisationName: organizationName,
           recipientCount: 0,
-          eventsCreated: 0
-        }
+          eventsCreated: 0,
+        },
       });
     }
 
@@ -1188,16 +1230,15 @@ export const getOrganizationStats = async (req, res) => {
         recipientCount: record.recipientCount,
         eventsCreated: record.eventsCreated,
         lastUpdated: record.updatedAt,
-        createdAt: record.createdAt
-      }
+        createdAt: record.createdAt,
+      },
     });
-
   } catch (error) {
     console.error('Get organization stats error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to retrieve organization statistics',
-      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
     });
   }
 };
@@ -1220,16 +1261,15 @@ export const getAllOrganizationStats = async (req, res) => {
         organizations: records,
         totalOrganizations: records.length,
         totalRecipients: records.reduce((sum, record) => sum + record.recipientCount, 0),
-        totalEvents: records.reduce((sum, record) => sum + record.eventsCreated, 0)
-      }
+        totalEvents: records.reduce((sum, record) => sum + record.eventsCreated, 0),
+      },
     });
-
   } catch (error) {
     console.error('Get all organization stats error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to retrieve organization statistics',
-      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
     });
   }
 };
@@ -1240,12 +1280,12 @@ export const getAllOrganizationStats = async (req, res) => {
 export const updateRecipientCount = async (req, res) => {
   try {
     const { orgName, recipientCount } = req.body;
-    
+
     // Validation
     if (!orgName || !recipientCount || typeof recipientCount !== 'number') {
       return res.status(400).json({
         success: false,
-        message: 'Please provide certificateId and recipientCount (number)'
+        message: 'Please provide certificateId and recipientCount (number)',
       });
     }
 
@@ -1253,21 +1293,20 @@ export const updateRecipientCount = async (req, res) => {
     console.log('organisationName:', orgName);
     console.log('recipientCount:', recipientCount);
 
-
     // Update organization record
     const updatedRecord = await Record.findOneAndUpdate(
       { organisationName: orgName },
-      { 
+      {
         $inc: { recipientCount: recipientCount },
-        $setOnInsert: { 
+        $setOnInsert: {
           organisationName: orgName,
-          eventsCreated: 0 
-        }
+          eventsCreated: 0,
+        },
       },
-      { 
-        upsert: true, 
+      {
+        upsert: true,
         new: true,
-        setDefaultsOnInsert: true 
+        setDefaultsOnInsert: true,
       }
     );
 
@@ -1281,16 +1320,15 @@ export const updateRecipientCount = async (req, res) => {
         organisationName: orgName,
         recipientCountAdded: recipientCount,
         newTotalRecipients: updatedRecord.recipientCount,
-        totalEvents: updatedRecord.eventsCreated
-      }
+        totalEvents: updatedRecord.eventsCreated,
+      },
     });
-
   } catch (error) {
     console.error('Update recipient count error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to update recipient count',
-      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
     });
   }
 };

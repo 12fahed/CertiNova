@@ -1,39 +1,41 @@
-"use client"
+'use client';
 
-import type React from "react"
+import type React from 'react';
 
-import { useState } from "react"
-import { motion } from "framer-motion"
-import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Award, Building } from "lucide-react"
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Award, Building } from 'lucide-react';
 
 interface CreateCertificateModalProps {
-  open: boolean
-  onClose: () => void
-  onSubmit: (eventName: string, issuerName: string) => void
+  open: boolean;
+  onClose: () => void;
+  onSubmit: (eventName: string, issuerName: string) => void;
 }
 
 export function CreateCertificateModal({ open, onClose, onSubmit }: CreateCertificateModalProps) {
-  const [eventName, setEventName] = useState("")
-  const [issuerName, setIssuerName] = useState("")
+  const [eventName, setEventName] = useState('');
+  const [issuerName, setIssuerName] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     if (eventName.trim() && issuerName.trim()) {
-      onSubmit(eventName.trim(), issuerName.trim())
-      setEventName("")
-      setIssuerName("")
+      onSubmit(eventName.trim(), issuerName.trim());
+      setEventName('');
+      setIssuerName('');
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md bg-white border border-gray-200">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-center text-gray-900">Create New Certificate</DialogTitle>
+          <DialogTitle className="text-2xl font-bold text-center text-gray-900">
+            Create New Certificate
+          </DialogTitle>
         </DialogHeader>
 
         <motion.form
@@ -101,5 +103,5 @@ export function CreateCertificateModal({ open, onClose, onSubmit }: CreateCertif
         </motion.form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

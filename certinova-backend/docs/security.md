@@ -26,15 +26,15 @@ flowchart TD
 
 ### Parameters
 
-| Parameter | Value | Rationale |
-|---|---|---|
-| Cipher | AES-256-CBC | Industry-standard symmetric encryption |
-| Key derivation | PBKDF2-SHA256 | Prevents brute-force attacks on weak passwords |
-| Iterations | 10,000 | NIST minimum recommendation at time of implementation |
-| Key length | 32 bytes (256 bits) | Maximum AES key strength |
-| Salt | 16 random bytes | Unique per batch; prevents rainbow table attacks |
-| IV | 16 random bytes | Unique per encryption call; ensures identical plaintexts produce different ciphertexts |
-| Encoding | Hex | Portable, string-safe storage in MongoDB |
+| Parameter      | Value               | Rationale                                                                              |
+| -------------- | ------------------- | -------------------------------------------------------------------------------------- |
+| Cipher         | AES-256-CBC         | Industry-standard symmetric encryption                                                 |
+| Key derivation | PBKDF2-SHA256       | Prevents brute-force attacks on weak passwords                                         |
+| Iterations     | 10,000              | NIST minimum recommendation at time of implementation                                  |
+| Key length     | 32 bytes (256 bits) | Maximum AES key strength                                                               |
+| Salt           | 16 random bytes     | Unique per batch; prevents rainbow table attacks                                       |
+| IV             | 16 random bytes     | Unique per encryption call; ensures identical plaintexts produce different ciphertexts |
+| Encoding       | Hex                 | Portable, string-safe storage in MongoDB                                               |
 
 ### Decryption
 
@@ -63,11 +63,11 @@ hashPassword(password: string): string
 
 User login passwords are hashed with **bcrypt** before storage.
 
-| Parameter | Value |
-|---|---|
-| Algorithm | bcrypt |
-| Cost factor | 12 |
-| Storage | Hashed string only — plain text is never stored |
+| Parameter   | Value                                           |
+| ----------- | ----------------------------------------------- |
+| Algorithm   | bcrypt                                          |
+| Cost factor | 12                                              |
+| Storage     | Hashed string only — plain text is never stored |
 
 The `password` field is excluded from all serialised JSON output via a `toJSON()` Mongoose method override, preventing accidental leakage in API responses or logs.
 
@@ -79,10 +79,10 @@ The `password` field is excluded from all serialised JSON output via a `toJSON()
 
 Cross-Origin Resource Sharing is enforced based on the deployment environment:
 
-| Environment | Allowed Origins |
-|---|---|
+| Environment   | Allowed Origins                                                                                          |
+| ------------- | -------------------------------------------------------------------------------------------------------- |
 | `development` | `http://localhost:3000`, `http://localhost:3001`, `http://127.0.0.1:3000` — and wildcard `*` as fallback |
-| `production` | `process.env.FRONTEND_URL`, `https://certinova.vercel.app` |
+| `production`  | `process.env.FRONTEND_URL`, `https://certinova.vercel.app`                                               |
 
 Allowed methods: `GET, POST, PUT, PATCH, DELETE, OPTIONS`  
 Allowed headers: `Origin, X-Requested-With, Content-Type, Accept, Authorization`
@@ -106,13 +106,13 @@ This design allows public, unauthenticated verification while fully complying wi
 **File**: `src/config/cloudinary.js`  
 **Middleware**: `middleware/upload.js` — Multer + `multer-storage-cloudinary`
 
-| Control | Detail |
-|---|---|
-| Allowed MIME types | `image/*` only — enforced via Multer `fileFilter` |
-| Maximum file size | 10 MB |
-| Storage location | Cloudinary CDN (`certinova/certificate-templates/` folder) |
-| Local storage | None — files go directly to Cloudinary and are never written to the server filesystem |
-| Filename | Server-controlled: `template-{timestamp}-{originalname}` — prevents path traversal |
+| Control            | Detail                                                                                |
+| ------------------ | ------------------------------------------------------------------------------------- |
+| Allowed MIME types | `image/*` only — enforced via Multer `fileFilter`                                     |
+| Maximum file size  | 10 MB                                                                                 |
+| Storage location   | Cloudinary CDN (`certinova/certificate-templates/` folder)                            |
+| Local storage      | None — files go directly to Cloudinary and are never written to the server filesystem |
+| Filename           | Server-controlled: `template-{timestamp}-{originalname}` — prevents path traversal    |
 
 ---
 
@@ -135,21 +135,21 @@ All field-layout inputs (`validFields`) are validated before being persisted:
 
 **File**: `src/middleware/errorMiddleware.js`
 
-| Scenario | Behaviour |
-|---|---|
-| Unhandled route | `notFound` middleware passes a 404 error to `errorHandler` |
-| Application errors | `errorHandler` catches all errors via Express's 4-argument signature |
-| Stack traces | Only included in responses when `NODE_ENV === 'development'` |
+| Scenario                 | Behaviour                                                                              |
+| ------------------------ | -------------------------------------------------------------------------------------- |
+| Unhandled route          | `notFound` middleware passes a 404 error to `errorHandler`                             |
+| Application errors       | `errorHandler` catches all errors via Express's 4-argument signature                   |
+| Stack traces             | Only included in responses when `NODE_ENV === 'development'`                           |
 | Sensitive error messages | Production responses use generic messages; detailed errors are only logged server-side |
 
 ---
 
 ## Known Limitations & Future Improvements
 
-| Area | Current State | Recommended Improvement |
-|---|---|---|
-| **Authentication** | Session-less; user ID passed in request body | Implement JWT or session tokens to authenticate all protected endpoints |
-| **Authorisation** | No server-side ownership checks on events/certificates | Add middleware to verify `organisationID` matches the authenticated user |
-| **PBKDF2 iterations** | 10,000 | Increase to 600,000 or more per current OWASP guidelines |
-| **Rate limiting** | Not implemented | Add `express-rate-limit` on auth and generation endpoints |
-| **Audit logging** | Console only | Implement structured logging (e.g., Winston/Pino) with log rotation |
+| Area                  | Current State                                          | Recommended Improvement                                                  |
+| --------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------ |
+| **Authentication**    | Session-less; user ID passed in request body           | Implement JWT or session tokens to authenticate all protected endpoints  |
+| **Authorisation**     | No server-side ownership checks on events/certificates | Add middleware to verify `organisationID` matches the authenticated user |
+| **PBKDF2 iterations** | 10,000                                                 | Increase to 600,000 or more per current OWASP guidelines                 |
+| **Rate limiting**     | Not implemented                                        | Add `express-rate-limit` on auth and generation endpoints                |
+| **Audit logging**     | Console only                                           | Implement structured logging (e.g., Winston/Pino) with log rotation      |

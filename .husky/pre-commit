@@ -1,0 +1,137 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# ---------- Colors ----------
+RESET='\033[0m'
+BOLD='\033[1m'
+
+RED='\033[31m'
+GREEN='\033[32m'
+YELLOW='\033[33m'
+BLUE='\033[34m'
+CYAN='\033[36m'
+GRAY='\033[90m'
+
+# ---------- Helpers ----------
+
+header() {
+  echo ""
+  printf "${CYAN}${BOLD}============================================================${RESET}\n"
+  printf "${CYAN}${BOLD}  %s${RESET}\n" "$1"
+  printf "${CYAN}${BOLD}============================================================${RESET}\n"
+}
+
+step() {
+  printf "${BLUE}[RUNNING]${RESET} %s\n" "$1"
+}
+
+ok() {
+  printf "${GREEN}[PASS]${RESET} %s\n" "$1"
+}
+
+warn() {
+  printf "${YELLOW}[WARN]${RESET} %s\n" "$1"
+}
+
+fail() {
+  printf "${RED}[FAIL]${RESET} %s\n" "$1"
+}
+
+divider() {
+  printf "${GRAY}------------------------------------------------------------${RESET}\n"
+}
+
+check_directory() {
+  DIR=$1
+  TS=$2
+
+  header "Checking: $DIR"
+
+  START=$(date +%s)
+
+  cd "$DIR" || exit 1
+
+  # Dependencies
+  if [ ! -d "node_modules" ]; then
+    step "Installing dependencies"
+
+    if npm install; then
+      ok "Dependencies installed"
+    else
+      fail "Dependency installation failed"
+      exit 1
+    fi
+  else
+    ok "Dependencies available"
+  fi
+
+  divider
+
+  # TypeScript
+  if [ "$TS" = true ]; then
+    step "Running TypeScript"
+
+    if npx tsc --noEmit --pretty; then
+      ok "TypeScript passed"
+    else
+      fail "TypeScript errors found"
+      cd - >/dev/null
+      exit 1
+    fi
+  else
+    warn "Skipping TypeScript"
+  fi
+
+  divider
+
+  # Prettier
+  step "Checking formatting"
+
+  if npx prettier --check . >/dev/null 2>&1; then
+    ok "Formatting passed"
+  else
+    warn "Formatting issues detected"
+
+    npx prettier --write .
+    git add .
+
+    ok "Formatting fixed"
+  fi
+
+  divider
+
+  # ESLint
+  if [ -f "eslint.config.js" ] || \
+     [ -f ".eslintrc.js" ] || \
+     [ -f ".eslintrc.json" ]; then
+
+    step "Running ESLint"
+
+    if npx eslint . --fix --no-error-on-unmatched-pattern; then
+      ok "Lint passed"
+    else
+      warn "Lint warnings (non-blocking)"
+    fi
+  else
+    warn "No ESLint configuration found"
+  fi
+
+  cd - >/dev/null
+
+  END=$(date +%s)
+
+  echo ""
+  printf "${GREEN}${BOLD}Completed in %ss${RESET}\n" "$((END - START))"
+}
+
+clear
+
+header "PRE-COMMIT CHECKS"
+
+check_directory "certinova-backend" false
+check_directory "certinova-frontend" true
+
+echo ""
+printf "${GREEN}${BOLD}============================================================${RESET}\n"
+printf "${GREEN}${BOLD}                 ALL CHECKS PASSED${RESET}\n"
+printf "${GREEN}${BOLD}============================================================${RESET}\n"

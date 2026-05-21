@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { AlertTriangle, Trash2, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useState } from 'react';
+import { AlertTriangle, Trash2, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -10,7 +10,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 
 interface DeleteConfirmationModalProps {
   open: boolean;
@@ -56,33 +56,27 @@ export function DeleteConfirmationModal({
         </DialogHeader>
 
         <div className="text-sm text-gray-600 space-y-3">
-            <p>
+          <p>
             Are you sure you want to delete &ldquo;<strong>{eventName}</strong>&rdquo;?
-            </p>
-            
-            <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3">
+          </p>
+
+          <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3">
             <p className="text-yellow-800 text-sm">
-                <strong>Warning:</strong> Deleting this event will permanently remove:
+              <strong>Warning:</strong> Deleting this event will permanently remove:
             </p>
             <ul className="list-disc list-inside mt-2 text-yellow-700 text-sm space-y-1">
-                <li>The certificate template and configuration</li>
-                <li>All generated certificate history</li>
-                <li>All recipient data associated with this event</li>
-                <li>Recipient will NOT be able to verify certificate</li>
+              <li>The certificate template and configuration</li>
+              <li>All generated certificate history</li>
+              <li>All recipient data associated with this event</li>
+              <li>Recipient will NOT be able to verify certificate</li>
             </ul>
-            </div>
-            
-            <p className="text-red-600 font-medium">
-            This action cannot be undone.
-            </p>
+          </div>
+
+          <p className="text-red-600 font-medium">This action cannot be undone.</p>
         </div>
 
         <DialogFooter className="flex justify-end gap-3 mt-6">
-          <Button
-            variant="outline"
-            onClick={onClose}
-            disabled={isDeleting}
-          >
+          <Button variant="outline" onClick={onClose} disabled={isDeleting}>
             <X className="h-4 w-4 mr-2" />
             Cancel
           </Button>

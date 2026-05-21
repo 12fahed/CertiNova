@@ -13,10 +13,16 @@
     "start:frontend": "cd certinova-frontend && npm run start",
     "start:backend": "cd certinova-backend && npm run start",
     "install:all": "npm install && cd certinova-frontend && npm install && cd ../certinova-backend && npm install",
-    "lint": "cd certinova-frontend && npm run lint"
+    "lint": "cd certinova-frontend && npm run lint",
+    "prepare": "husky",
+    "precommit": "bash .husky/pre-commit",
+    "check:backend": "cd certinova-backend && npm run check",
+    "check:frontend": "cd certinova-frontend && npm run check",
+    "check:all": "npm run check:backend && npm run check:frontend"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "husky": "^9.1.7"
   },
   "engines": {
     "node": ">=18.0.0"

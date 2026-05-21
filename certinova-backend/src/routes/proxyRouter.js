@@ -10,37 +10,37 @@ const router = express.Router();
 router.get('/image-proxy', async (req, res) => {
   try {
     const { url } = req.query;
-    
+
     if (!url) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'URL parameter is required' 
+      return res.status(400).json({
+        success: false,
+        message: 'URL parameter is required',
       });
     }
-    
+
     // Fetch the image
     const response = await fetch(url);
     if (!response.ok) {
       return res.status(response.status).json({
         success: false,
-        message: `Failed to fetch image: ${response.statusText}`
+        message: `Failed to fetch image: ${response.statusText}`,
       });
     }
-    
+
     // Get content type
     const contentType = response.headers.get('content-type');
     if (!contentType || !contentType.startsWith('image/')) {
       return res.status(400).json({
         success: false,
-        message: `Invalid content type: ${contentType}`
+        message: `Invalid content type: ${contentType}`,
       });
     }
-    
+
     // Stream the image with CORS headers
     res.setHeader('Content-Type', contentType);
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
-    
+
     // Get the image as a buffer and send it
     const buffer = await response.buffer();
     res.send(buffer);
@@ -48,7 +48,7 @@ router.get('/image-proxy', async (req, res) => {
     console.error('Image proxy error:', error);
     res.status(500).json({
       success: false,
-      message: 'Failed to proxy image'
+      message: 'Failed to proxy image',
     });
   }
 });

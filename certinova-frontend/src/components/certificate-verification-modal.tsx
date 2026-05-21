@@ -1,19 +1,14 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
-import "react-circular-progressbar/dist/styles.css";
-import { CheckCircle, XCircle } from "lucide-react";
-import { certificateService } from "@/services/certificate";
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
+import 'react-circular-progressbar/dist/styles.css';
+import { CheckCircle, XCircle } from 'lucide-react';
+import { certificateService } from '@/services/certificate';
 
 interface CertificateVerificationModalProps {
   open: boolean;
@@ -44,51 +39,39 @@ interface VerificationData {
   verifiedAt: string;
 }
 
-export function CertificateVerificationModal({
-  open,
-  onClose,
-}: CertificateVerificationModalProps) {
-  const [certificateNumber, setCertificateNumber] = useState([
-    "",
-    "",
-    "",
-    "",
-    "",
-  ]);
+export function CertificateVerificationModal({ open, onClose }: CertificateVerificationModalProps) {
+  const [certificateNumber, setCertificateNumber] = useState(['', '', '', '', '']);
   const [showVerification, setShowVerification] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [isVerifying, setIsVerifying] = useState(false);
   const [verificationComplete, setVerificationComplete] = useState(false);
-  const [verificationData, setVerificationData] =
-    useState<VerificationData | null>(null);
-  const [verificationError, setVerificationError] = useState<string | null>(
-    null,
-  );
+  const [verificationData, setVerificationData] = useState<VerificationData | null>(null);
+  const [verificationError, setVerificationError] = useState<string | null>(null);
 
   const [steps, setSteps] = useState<VerificationStep[]>([
     {
       id: 1,
-      verify: "UUID",
-      initialText: "Searching for UUID in verification records",
-      completedText: "UUID found in verification database",
+      verify: 'UUID',
+      initialText: 'Searching for UUID in verification records',
+      completedText: 'UUID found in verification database',
       progress: 0,
       isCompleted: false,
       hasError: false,
     },
     {
       id: 2,
-      verify: "Certificate",
-      initialText: "Fetching certificate data and validation",
-      completedText: "Certificate record verified and validated",
+      verify: 'Certificate',
+      initialText: 'Fetching certificate data and validation',
+      completedText: 'Certificate record verified and validated',
       progress: 0,
       isCompleted: false,
       hasError: false,
     },
     {
       id: 3,
-      verify: "Issuer & Organization",
-      initialText: "Verifying issuer credentials and organization",
-      completedText: "Issuer and organization verified successfully",
+      verify: 'Issuer & Organization',
+      initialText: 'Verifying issuer credentials and organization',
+      completedText: 'Issuer and organization verified successfully',
       progress: 0,
       isCompleted: false,
       hasError: false,
@@ -116,10 +99,10 @@ export function CertificateVerificationModal({
 
   const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault();
-    const pastedText = e.clipboardData.getData("text").trim();
+    const pastedText = e.clipboardData.getData('text').trim();
 
     // Remove all hyphens and whitespace
-    const cleanUuid = pastedText.replace(/[-\s]/g, "");
+    const cleanUuid = pastedText.replace(/[-\s]/g, '');
 
     if (cleanUuid.length === 32) {
       const newCertificateNumber = [
@@ -132,7 +115,7 @@ export function CertificateVerificationModal({
       setCertificateNumber(newCertificateNumber);
 
       // Focus the last input for good UX
-      const lastInput = document.getElementById("uuid-part-4");
+      const lastInput = document.getElementById('uuid-part-4');
       if (lastInput) lastInput.focus();
     } else {
       // Just paste normally if it's not a full UUID
@@ -165,19 +148,19 @@ export function CertificateVerificationModal({
         isCompleted: false,
         hasError: false,
         errorMessage: undefined,
-      })),
+      }))
     );
 
     // Get the full UUID from the input
-    const fullUUID = certificateNumber.join("-");
+    const fullUUID = certificateNumber.join('-');
 
     try {
       // Start verification process with real API
       // console.log("FULL UUID: ", fullUUID)
       await startRealVerificationProcess(fullUUID);
     } catch (error) {
-      console.error("Verification failed:", error);
-      setVerificationError("Verification process failed. Please try again.");
+      console.error('Verification failed:', error);
+      setVerificationError('Verification process failed. Please try again.');
       setIsVerifying(false);
     }
   };
@@ -199,16 +182,13 @@ export function CertificateVerificationModal({
               ? {
                   ...step,
                   hasError: true,
-                  errorMessage:
-                    result.message || result.error || "Verification failed",
+                  errorMessage: result.message || result.error || 'Verification failed',
                   progress: 100,
                 }
-              : step,
-          ),
+              : step
+          )
         );
-        setVerificationError(
-          result.message || result.error || "Verification failed",
-        );
+        setVerificationError(result.message || result.error || 'Verification failed');
         setIsVerifying(false);
         return;
       }
@@ -244,22 +224,20 @@ export function CertificateVerificationModal({
       setIsVerifying(false);
       setVerificationComplete(true);
     } catch (error) {
-      console.error("API verification error:", error);
-      setVerificationError(
-        "Network error. Please check your connection and try again.",
-      );
+      console.error('API verification error:', error);
+      setVerificationError('Network error. Please check your connection and try again.');
       setIsVerifying(false);
     }
   };
 
   const getErrorStepIndex = (errorStep: string): number => {
     switch (errorStep) {
-      case "uuid_lookup":
+      case 'uuid_lookup':
         return 0;
-      case "certificate_lookup":
-      case "config_lookup":
+      case 'certificate_lookup':
+      case 'config_lookup':
         return 1;
-      case "event_lookup":
+      case 'event_lookup':
         return 2;
       default:
         return 0;
@@ -273,18 +251,14 @@ export function CertificateVerificationModal({
         progress += 5;
 
         setSteps((prev) =>
-          prev.map((step, index) =>
-            index === stepIndex ? { ...step, progress } : step,
-          ),
+          prev.map((step, index) => (index === stepIndex ? { ...step, progress } : step))
         );
 
         if (progress >= 100) {
           clearInterval(interval);
 
           setSteps((prev) =>
-            prev.map((step, index) =>
-              index === stepIndex ? { ...step, isCompleted: true } : step,
-            ),
+            prev.map((step, index) => (index === stepIndex ? { ...step, isCompleted: true } : step))
           );
 
           setTimeout(resolve, 300);
@@ -294,7 +268,7 @@ export function CertificateVerificationModal({
   };
 
   const handleClose = () => {
-    setCertificateNumber(["", "", "", "", ""]);
+    setCertificateNumber(['', '', '', '', '']);
     setShowVerification(false);
     setIsVerifying(false);
     setVerificationComplete(false);
@@ -309,9 +283,7 @@ export function CertificateVerificationModal({
       <DialogContent className="sm:max-w-max">
         <DialogHeader>
           <DialogTitle className="text-center">
-            {showVerification
-              ? "Credential Verification"
-              : "Verify Certificate"}
+            {showVerification ? 'Credential Verification' : 'Verify Certificate'}
           </DialogTitle>
         </DialogHeader>
 
@@ -335,19 +307,13 @@ export function CertificateVerificationModal({
                       <Input
                         id={`uuid-part-${index}`}
                         value={part}
-                        onChange={(e) =>
-                          handleInputChange(index, e.target.value)
-                        }
+                        onChange={(e) => handleInputChange(index, e.target.value)}
                         onPaste={handlePaste}
                         className={`text-center font-mono text-sm ${
-                          [0, 4].includes(index) ? "w-24" : "w-16"
+                          [0, 4].includes(index) ? 'w-24' : 'w-16'
                         }`} // Wider for first and last parts
                         placeholder={
-                          index === 0
-                            ? "xxxxxxxx"
-                            : index === 4
-                              ? "xxxxxxxxxxxx"
-                              : "xxxx"
+                          index === 0 ? 'xxxxxxxx' : index === 4 ? 'xxxxxxxxxxxx' : 'xxxx'
                         }
                         maxLength={[8, 4, 4, 4, 12][index]}
                       />
@@ -364,11 +330,7 @@ export function CertificateVerificationModal({
               </div>
 
               <div className="flex space-x-3">
-                <Button
-                  variant="outline"
-                  onClick={handleClose}
-                  className="flex-1 bg-transparent"
-                >
+                <Button variant="outline" onClick={handleClose} className="flex-1 bg-transparent">
                   Cancel
                 </Button>
                 <Button
@@ -401,25 +363,24 @@ export function CertificateVerificationModal({
                       value={step.progress}
                       text={
                         step.hasError
-                          ? "✗"
+                          ? '✗'
                           : step.isCompleted
-                            ? "✓"
+                            ? '✓'
                             : `${Math.round(step.progress)}%`
                       }
                       styles={buildStyles({
-                        textSize:
-                          step.isCompleted || step.hasError ? "24px" : "16px",
+                        textSize: step.isCompleted || step.hasError ? '24px' : '16px',
                         pathColor: step.hasError
-                          ? "#ef4444"
+                          ? '#ef4444'
                           : step.isCompleted
-                            ? "#10b981"
-                            : "#3b82f6",
+                            ? '#10b981'
+                            : '#3b82f6',
                         textColor: step.hasError
-                          ? "#ef4444"
+                          ? '#ef4444'
                           : step.isCompleted
-                            ? "#10b981"
-                            : "#3b82f6",
-                        trailColor: "#e5e7eb",
+                            ? '#10b981'
+                            : '#3b82f6',
+                        trailColor: '#e5e7eb',
                         pathTransitionDuration: 0.3,
                       })}
                     />
@@ -427,19 +388,15 @@ export function CertificateVerificationModal({
 
                   <div className="flex-1">
                     <motion.p
-                      key={
-                        step.isCompleted || step.hasError
-                          ? "completed"
-                          : "initial"
-                      }
+                      key={step.isCompleted || step.hasError ? 'completed' : 'initial'}
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       className={`text-sm font-medium ${
                         step.hasError
-                          ? "text-red-600"
+                          ? 'text-red-600'
                           : step.isCompleted
-                            ? "text-green-600"
-                            : "text-gray-700"
+                            ? 'text-green-600'
+                            : 'text-gray-700'
                       }`}
                     >
                       {step.hasError ? (
@@ -480,8 +437,7 @@ export function CertificateVerificationModal({
                   </div>
                   <div className="space-y-2 text-sm text-green-700">
                     <div>
-                      <strong>Organization:</strong>{" "}
-                      {verificationData.organisation}
+                      <strong>Organization:</strong> {verificationData.organisation}
                     </div>
                     <div>
                       <strong>Event:</strong> {verificationData.eventName}
@@ -490,25 +446,20 @@ export function CertificateVerificationModal({
                       <strong>Issued by:</strong> {verificationData.issuerName}
                     </div>
                     <div>
-                      <strong>Event Date:</strong>{" "}
-                      {new Date(
-                        verificationData.eventDate,
-                      ).toLocaleDateString()}
+                      <strong>Event Date:</strong>{' '}
+                      {new Date(verificationData.eventDate).toLocaleDateString()}
                     </div>
                     <div>
-                      <strong>Certificate Generated:</strong>{" "}
-                      {new Date(
-                        verificationData.certificateGeneratedDate,
-                      ).toLocaleDateString()}
+                      <strong>Certificate Generated:</strong>{' '}
+                      {new Date(verificationData.certificateGeneratedDate).toLocaleDateString()}
                     </div>
                     <div>
-                      <strong>Verified At:</strong>{" "}
+                      <strong>Verified At:</strong>{' '}
                       {new Date(verificationData.verifiedAt).toLocaleString()}
                     </div>
                   </div>
                   <p className="text-xs text-green-600 mt-2 font-medium">
-                    This credential was securely issued and verified by
-                    CertiNova.
+                    This credential was securely issued and verified by CertiNova.
                   </p>
                 </motion.div>
               )}
@@ -521,9 +472,7 @@ export function CertificateVerificationModal({
                 >
                   <div className="flex items-center space-x-2 mb-2">
                     <XCircle className="h-5 w-5 text-red-600" />
-                    <span className="font-medium text-red-800">
-                      Verification Failed
-                    </span>
+                    <span className="font-medium text-red-800">Verification Failed</span>
                   </div>
                   <p className="text-sm text-red-700">{verificationError}</p>
                 </motion.div>
@@ -534,11 +483,11 @@ export function CertificateVerificationModal({
                   onClick={handleClose}
                   className={`w-full ${
                     verificationError
-                      ? "bg-red-600 hover:bg-red-700"
-                      : "bg-blue-600 hover:bg-blue-700"
+                      ? 'bg-red-600 hover:bg-red-700'
+                      : 'bg-blue-600 hover:bg-blue-700'
                   }`}
                 >
-                  {verificationError ? "Try Again" : "Close"}
+                  {verificationError ? 'Try Again' : 'Close'}
                 </Button>
               )}
             </motion.div>

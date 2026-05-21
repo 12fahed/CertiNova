@@ -20,7 +20,7 @@ export const authStorage = {
 
     const isAuth = localStorage.getItem(AUTH_STORAGE_KEY) === 'true';
     const userStr = localStorage.getItem(USER_STORAGE_KEY);
-    
+
     let user: User | null = null;
     if (userStr) {
       try {
@@ -46,5 +46,5 @@ export const authStorage = {
     if (typeof window !== 'undefined') {
       localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
     }
-  }
+  },
 };
