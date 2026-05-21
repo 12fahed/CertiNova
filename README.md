@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./assets/certiNova-logo-without-bg.png" alt="banner">
+  <img src="./assets/certiNova-logo-without-bg.png" alt="logo">
   <p align="center">
     A comprehensive, secure, and user-friendly platform for creating, managing, 
     <br>
@@ -36,6 +36,7 @@
 - [Getting Started](#getting-started)
 - [Community & Support](#community--support)
 - [License](#license)
+- [Open Source Programs](#the-project-is-officially-selected-for-gssoc-2026--ssoc-2026-contributions)
 
 ---
 
@@ -241,8 +242,18 @@ Join our growing community to get help, share your feedback, and stay updated:
 - **Contributing**: Check out our [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines
 - **Code of Conduct**: We follow the [Contributor Covenant](./CODE_OF_CONDUCT.md)
 
+---
+
+## The project is officially Selected for GSSoC 2026 & SSoC 2026 Contributions
+
+<p align="center">
+  <img src="./assets/gssoc-ssoc-26.png" alt="gssoc-ssoc-26" width="75%">
+</p>
+
 ## License
 
 This project is licensed under the MIT License.
+
+---
 
 **Built with care for efficient and secure certificate management**
