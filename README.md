@@ -1,8 +1,5 @@
 <p align="center">
-  <h1 align="center">CertiNova</h1>
-  <p align="center">
-    <strong>Bulk Certificate Generator and Validation Platform</strong>
-  </p>
+  <img src="./assets/certiNova-logo-without-bg.png" alt="banner">
   <p align="center">
     A comprehensive, secure, and user-friendly platform for creating, managing, 
     <br>
@@ -15,13 +12,12 @@
 </p>
 
 <p align="center">
-  <strong>
-    <a href="https://youtu.be/M2zUsVVCerY?si=finYa98RH25MawVP">[WATCH DEMO]</a>
-  </strong>
-  ----
-  <strong>
-    <a href="https://discord.gg/sQ4sSMRjP">[JOIN DISCORD]</a>
-  </strong>
+  <a href="https://youtu.be/M2zUsVVCerY?si=finYa98RH25MawVP">
+    <img src="https://img.shields.io/badge/YouTube-Watch%20Demo-red?style=for-the-badge&logo=youtube">
+  </a>
+  <a href="https://discord.gg/sQ4sSMRjP">
+    <img src="https://img.shields.io/badge/Discord-Join%20Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white">
+  </a>
 </p>
 
 <p align="center">
