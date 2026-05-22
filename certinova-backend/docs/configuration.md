@@ -6,22 +6,22 @@ CertiNova Backend is configured entirely through environment variables. No secre
 
 ## Required Environment Variables
 
-| Variable | Description | Example |
-|---|---|---|
-| `MONGODB_URI` | Full MongoDB connection string | `mongodb+srv://user:pass@cluster.mongodb.net/certinova` |
-| `CLOUDINARY_CLOUD_NAME` | Your Cloudinary cloud name | `my-cloud` |
-| `CLOUDINARY_API_KEY` | Cloudinary API key | `123456789012345` |
-| `CLOUDINARY_API_SECRET` | Cloudinary API secret | `abcdefghijklmnopqrstuvwxyz` |
+| Variable                | Description                    | Example                                                 |
+| ----------------------- | ------------------------------ | ------------------------------------------------------- |
+| `MONGODB_URI`           | Full MongoDB connection string | `mongodb+srv://user:pass@cluster.mongodb.net/certinova` |
+| `CLOUDINARY_CLOUD_NAME` | Your Cloudinary cloud name     | `my-cloud`                                              |
+| `CLOUDINARY_API_KEY`    | Cloudinary API key             | `123456789012345`                                       |
+| `CLOUDINARY_API_SECRET` | Cloudinary API secret          | `abcdefghijklmnopqrstuvwxyz`                            |
 
 ---
 
 ## Optional Environment Variables
 
-| Variable | Default | Description |
-|---|---|---|
-| `PORT` | `5000` | Port the Express server listens on |
-| `NODE_ENV` | `development` | Controls CORS policy, error verbosity, and stack trace exposure |
-| `FRONTEND_URL` | `https://your-vercel-app.vercel.app` | Production CORS allowlist entry for the frontend origin |
+| Variable       | Default                              | Description                                                     |
+| -------------- | ------------------------------------ | --------------------------------------------------------------- |
+| `PORT`         | `5000`                               | Port the Express server listens on                              |
+| `NODE_ENV`     | `development`                        | Controls CORS policy, error verbosity, and stack trace exposure |
+| `FRONTEND_URL` | `https://your-vercel-app.vercel.app` | Production CORS allowlist entry for the frontend origin         |
 
 ---
 

@@ -1,8 +1,5 @@
 <p align="center">
-  <h1 align="center">CertiNova</h1>
-  <p align="center">
-    <strong>Bulk Certificate Generator and Validation Platform</strong>
-  </p>
+  <img src="./assets/certiNova-logo-without-bg.png" alt="logo">
   <p align="center">
     A comprehensive, secure, and user-friendly platform for creating, managing, 
     <br>
@@ -15,13 +12,12 @@
 </p>
 
 <p align="center">
-  <strong>
-    <a href="https://youtu.be/M2zUsVVCerY?si=finYa98RH25MawVP">[WATCH DEMO]</a>
-  </strong>
-  ----
-  <strong>
-    <a href="https://discord.gg/sQ4sSMRjP">[JOIN DISCORD]</a>
-  </strong>
+  <a href="https://youtu.be/M2zUsVVCerY?si=finYa98RH25MawVP">
+    <img src="https://img.shields.io/badge/YouTube-Watch%20Demo-red?style=for-the-badge&logo=youtube">
+  </a>
+  <a href="https://discord.gg/sQ4sSMRjP">
+    <img src="https://img.shields.io/badge/Discord-Join%20Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white">
+  </a>
 </p>
 
 <p align="center">
@@ -40,6 +36,7 @@
 - [Getting Started](#getting-started)
 - [Community & Support](#community--support)
 - [License](#license)
+- [Open Source Programs](#the-project-is-officially-selected-for-gssoc-2026--ssoc-2026-contributions)
 
 ---
 
@@ -245,8 +242,18 @@ Join our growing community to get help, share your feedback, and stay updated:
 - **Contributing**: Check out our [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines
 - **Code of Conduct**: We follow the [Contributor Covenant](./CODE_OF_CONDUCT.md)
 
+---
+
+## The project is officially Selected for GSSoC 2026 & SSoC 2026 Contributions
+
+<p align="center">
+  <img src="./assets/gssoc-ssoc-26.png" alt="gssoc-ssoc-26" width="75%">
+</p>
+
 ## License
 
 This project is licensed under the MIT License.
+
+---
 
 **Built with care for efficient and secure certificate management**
