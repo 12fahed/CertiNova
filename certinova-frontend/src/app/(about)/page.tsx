@@ -1,3 +1,4 @@
+
 "use client";
 
 import {
@@ -12,6 +13,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+
 import {
   Award,
   Users,
@@ -23,12 +25,12 @@ import {
   Shield,
   Clock,
   Lock,
-} from "lucide-react";
-import { AuthModal } from "@/components/auth-modal";
-import { OnboardingModal } from "@/components/onboarding-modal";
-import { useAuth } from "@/context/AuthContext";
-import { CertificateVerificationModal } from "@/components/certificate-verification-modal";
-import { herrVonMuellerhoff } from "@/lib/fonts";
+
+} from 'lucide-react';
+import { AuthModal } from '@/components/auth-modal';
+import { OnboardingModal } from '@/components/onboarding-modal';
+import { useAuth } from '@/context/AuthContext';
+import { CertificateVerificationModal } from '@/components/certificate-verification-modal';
 
 export default function HomePage() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -38,7 +40,9 @@ export default function HomePage() {
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
-      router.push("/dashboard");
+
+      router.push('/dashboard');
+
     }
   }, [isAuthenticated, isLoading, router]);
 
@@ -54,82 +58,15 @@ export default function HomePage() {
   }
 
   const stats = [
-    {
-      label: "Certificates Generated",
-      value: "50,000+",
-      icon: Award,
-      color: "text-blue-600",
-    },
-    {
-      label: "Organizations",
-      value: "1,200+",
-      icon: Building,
-      color: "text-green-600",
-    },
-    {
-      label: "Events Covered",
-      value: "5,000+",
-      icon: Calendar,
-      color: "text-purple-600",
-    },
-    {
-      label: "Success Rate",
-      value: "99.9%",
-      icon: TrendingUp,
-      color: "text-orange-600",
-    },
+    { label: 'Certificates Generated', value: '50,000+', icon: Award, color: 'text-blue-600' },
+    { label: 'Organizations', value: '1,200+', icon: Building, color: 'text-green-600' },
+    { label: 'Events Covered', value: '5,000+', icon: Calendar, color: 'text-purple-600' },
+    { label: 'Success Rate', value: '99.9%', icon: TrendingUp, color: 'text-orange-600' },
+
   ];
 
-  const features = [
-    {
-      icon: Zap,
-      title: "Lightning Fast Processing",
-      description:
-        "Generate thousands of certificates in seconds with our optimized processing engine.",
-      color: "text-blue-600",
-      bgColor: "bg-blue-50",
-    },
-    {
-      icon: Shield,
-      title: "Enterprise Security",
-      description:
-        "Bank-level security with encrypted data transmission and secure certificate storage.",
-      color: "text-green-600",
-      bgColor: "bg-green-50",
-    },
-    {
-      icon: Users,
-      title: "Bulk Processing",
-      description:
-        "Upload CSV files or enter data manually to create certificates for multiple recipients.",
-      color: "text-purple-600",
-      bgColor: "bg-purple-50",
-    },
-    {
-      icon: Award,
-      title: "Custom Templates",
-      description:
-        "Upload your own certificate templates and customize positioning with our visual editor.",
-      color: "text-orange-600",
-      bgColor: "bg-orange-50",
-    },
-    {
-      icon: Clock,
-      title: "Time Efficient",
-      description:
-        "Reduce certificate generation time from hours to minutes with automated workflows.",
-      color: "text-indigo-600",
-      bgColor: "bg-indigo-50",
-    },
-    {
-      icon: Star,
-      title: "Quality Assured",
-      description:
-        "Professional-grade certificates with consistent formatting and high-resolution output.",
-      color: "text-pink-600",
-      bgColor: "bg-pink-50",
-    },
-  ];
+
+
 
   //  Footer Quicks links pairs
   const quickLinks = [
@@ -147,6 +84,57 @@ export default function HomePage() {
     { label: "Discord", href: "/discord", Icon: DiscIcon },
     { label: "LinkedIn", href: "/linkedin", Icon: Linkedin },
   ];
+  const features = [
+    {
+      icon: Zap,
+      title: 'Lightning Fast Processing',
+      description:
+        'Generate thousands of certificates in seconds with our optimized processing engine.',
+      color: 'text-blue-600',
+      bgColor: 'bg-blue-50',
+    },
+    {
+      icon: Shield,
+      title: 'Enterprise Security',
+      description:
+        'Bank-level security with encrypted data transmission and secure certificate storage.',
+      color: 'text-green-600',
+      bgColor: 'bg-green-50',
+    },
+    {
+      icon: Users,
+      title: 'Bulk Processing',
+      description:
+        'Upload CSV files or enter data manually to create certificates for multiple recipients.',
+      color: 'text-purple-600',
+      bgColor: 'bg-purple-50',
+    },
+    {
+      icon: Award,
+      title: 'Custom Templates',
+      description:
+        'Upload your own certificate templates and customize positioning with our visual editor.',
+      color: 'text-orange-600',
+      bgColor: 'bg-orange-50',
+    },
+    {
+      icon: Clock,
+      title: 'Time Efficient',
+      description:
+        'Reduce certificate generation time from hours to minutes with automated workflows.',
+      color: 'text-indigo-600',
+      bgColor: 'bg-indigo-50',
+    },
+    {
+      icon: Star,
+      title: 'Quality Assured',
+      description:
+        'Professional-grade certificates with consistent formatting and high-resolution output.',
+      color: 'text-pink-600',
+      bgColor: 'bg-pink-50',
+    },
+  ];
+
 
   const handleLogin = () => {};
 
@@ -194,9 +182,11 @@ export default function HomePage() {
                 Made Simple
               </h1>
               <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-                Streamline your certificate generation process with our
-                enterprise-grade platform. Perfect for educational institutions,
-                corporate training, and professional certifications.
+
+                Streamline your certificate generation process with our enterprise-grade platform.
+                Perfect for educational institutions, corporate training, and professional
+                certifications.
+
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <AuthModal
@@ -260,9 +250,7 @@ export default function HomePage() {
               animate={{ opacity: 1, y: 0 }}
               className="text-center mb-16"
             >
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">
-                Why Choose CertiNova?
-              </h2>
+
               <p className="text-xl text-gray-600 max-w-3xl mx-auto">
                 Built for organizations that value efficiency, security, and
                 professional quality.
@@ -308,12 +296,14 @@ export default function HomePage() {
               animate={{ opacity: 1, y: 0 }}
               className="max-w-3xl mx-auto"
             >
-              <h2 className="text-4xl font-bold text-blue-600 mb-6">
+
+              <h2 className="text-4xl font-bold text-white mb-6">
                 Ready to Transform Your Certificate Process?
               </h2>
-              <p className="text-xl text-black mb-8">
-                Join thousands of organizations already using CertiNova to
-                streamline their certification workflows.
+              <p className="text-xl text-blue-100 mb-8">
+                Join thousands of organizations already using CertiNova to streamline their
+                certification workflows.
+
               </p>
               <AuthModal
                 onLogin={handleLogin}
@@ -322,6 +312,7 @@ export default function HomePage() {
             </motion.div>
           </div>
         </section>
+
 
         <footer className="relative border-t border-slate-200 bg-white">
           {/* Soft Background Accent */}
@@ -434,6 +425,9 @@ export default function HomePage() {
           open={showOnboarding}
           onClose={() => setShowOnboarding(false)}
         />
+
+        <OnboardingModal open={showOnboarding} onClose={() => setShowOnboarding(false)} />
+
         <CertificateVerificationModal
           open={showVerificationModal}
           onClose={() => setShowVerificationModal(false)}

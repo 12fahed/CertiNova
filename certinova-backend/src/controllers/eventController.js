@@ -4,9 +4,31 @@ import CertificateConfig from '../models/CertificateConfig.js';
 import GeneratedCertificate from '../models/GeneratedCertificate.js';
 import VerifyUUID from '../models/VerifyUUID.js';
 import Record from '../models/Record.js';
+import cloudinary, { ensureConfigured } from '../config/cloudinary.js';
 import mongoose from 'mongoose';
-import fs from 'fs';
-import path from 'path';
+
+const extractCloudinaryPublicId = (imagePath) => {
+  if (!imagePath || typeof imagePath !== 'string') {
+    return null;
+  }
+
+  try {
+    const url = new URL(imagePath);
+    const uploadPath = '/image/upload/';
+    const uploadIndex = url.pathname.indexOf(uploadPath);
+
+    if (!url.hostname.includes('cloudinary.com') || uploadIndex === -1) {
+      return null;
+    }
+
+    const pathAfterUpload = decodeURIComponent(url.pathname.slice(uploadIndex + uploadPath.length));
+    const publicIdWithVersion = pathAfterUpload.replace(/^v\d+\//, '');
+
+    return publicIdWithVersion.replace(/\.[^/.]+$/, '');
+  } catch (error) {
+    return imagePath.replace(/\.[^/.]+$/, '');
+  }
+};
 
 // @desc    Add a new event
 // @route   POST /api/events/addEvent
@@ -19,7 +41,7 @@ export const addEvent = async (req, res) => {
     if (!organisation || !organisationID || !eventName || !issuerName) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide organisation, organisationID, eventName, and issuerName'
+        message: 'Please provide organisation, organisationID, eventName, and issuerName',
       });
     }
 
@@ -27,7 +49,7 @@ export const addEvent = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(organisationID)) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid organisation ID format'
+        message: 'Invalid organisation ID format',
       });
     }
 
@@ -36,18 +58,18 @@ export const addEvent = async (req, res) => {
     if (!organisationExists) {
       return res.status(404).json({
         success: false,
-        message: 'Organisation not found'
+        message: 'Organisation not found',
       });
     }
 
     // Parse date if provided, otherwise use current date
     let eventDate = date ? new Date(date) : new Date();
-    
+
     // Validate date
     if (isNaN(eventDate.getTime())) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid date format'
+        message: 'Invalid date format',
       });
     }
 
@@ -57,7 +79,7 @@ export const addEvent = async (req, res) => {
       organisationID,
       date: eventDate,
       eventName,
-      issuerName
+      issuerName,
     });
 
     await event.save();
@@ -67,17 +89,17 @@ export const addEvent = async (req, res) => {
     try {
       await Record.findOneAndUpdate(
         { organisationName: organisation },
-        { 
+        {
           $inc: { eventsCreated: 1 },
-          $setOnInsert: { 
+          $setOnInsert: {
             organisationName: organisation,
-            recipientCount: 0 
-          }
+            recipientCount: 0,
+          },
         },
-        { 
-          upsert: true, 
+        {
+          upsert: true,
           new: true,
-          setDefaultsOnInsert: true 
+          setDefaultsOnInsert: true,
         }
       );
       console.log(`✓ Events created counter incremented for organization: ${organisation}`);
@@ -101,27 +123,26 @@ export const addEvent = async (req, res) => {
           eventName: event.eventName,
           issuerName: event.issuerName,
           createdAt: event.createdAt,
-          updatedAt: event.updatedAt
-        }
-      }
+          updatedAt: event.updatedAt,
+        },
+      },
     });
-
   } catch (error) {
     console.error('Add event error:', error);
-    
+
     // Handle validation errors
     if (error.name === 'ValidationError') {
-      const errors = Object.values(error.errors).map(err => err.message);
+      const errors = Object.values(error.errors).map((err) => err.message);
       return res.status(400).json({
         success: false,
         message: 'Validation error',
-        errors
+        errors,
       });
     }
 
     res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      message: 'Internal server error',
     });
   }
 };
@@ -137,7 +158,7 @@ export const getEventsByOrganisation = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(organisationID)) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid organisation ID format'
+        message: 'Invalid organisation ID format',
       });
     }
 
@@ -158,13 +179,15 @@ export const getEventsByOrganisation = async (req, res) => {
           issuerName: event.issuerName,
           createdAt: event.createdAt,
           updatedAt: event.updatedAt,
-          certificateConfig: certificateConfig ? {
-            id: certificateConfig._id,
-            imagePath: certificateConfig.imagePath,
-            validFields: certificateConfig.validFields,
-            createdAt: certificateConfig.createdAt,
-            updatedAt: certificateConfig.updatedAt
-          } : null
+          certificateConfig: certificateConfig
+            ? {
+                id: certificateConfig._id,
+                imagePath: certificateConfig.imagePath,
+                validFields: certificateConfig.validFields,
+                createdAt: certificateConfig.createdAt,
+                updatedAt: certificateConfig.updatedAt,
+              }
+            : null,
         };
       })
     );
@@ -174,15 +197,14 @@ export const getEventsByOrganisation = async (req, res) => {
       message: 'Events retrieved successfully',
       data: {
         events: eventsWithCertificates,
-        count: eventsWithCertificates.length
-      }
+        count: eventsWithCertificates.length,
+      },
     });
-
   } catch (error) {
     console.error('Get events error:', error);
     res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      message: 'Internal server error',
     });
   }
 };
@@ -201,7 +223,7 @@ export const deleteEvent = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(eventId)) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid event ID format'
+        message: 'Invalid event ID format',
       });
     }
 
@@ -210,7 +232,7 @@ export const deleteEvent = async (req, res) => {
     if (!event) {
       return res.status(404).json({
         success: false,
-        message: 'Event not found'
+        message: 'Event not found',
       });
     }
 
@@ -226,31 +248,45 @@ export const deleteEvent = async (req, res) => {
     try {
       // 1. Find and delete certificate configuration
       const certificateConfig = await CertificateConfig.findOne({ eventId });
-      
+
       if (certificateConfig) {
         console.log('Found certificate config:', certificateConfig._id);
-        
-        // Delete certificate template file if it exists
+
+        // Delete certificate template asset from Cloudinary if it exists
         if (certificateConfig.imagePath) {
           try {
-            const filePath = path.join(process.cwd(), 'public', certificateConfig.imagePath);
-            if (fs.existsSync(filePath)) {
-              fs.unlinkSync(filePath);
-              deletedTemplateFile = true;
-              console.log('Deleted template file:', certificateConfig.imagePath);
+            const publicId = extractCloudinaryPublicId(certificateConfig.imagePath);
+
+            if (publicId) {
+              ensureConfigured();
+              const deleteResult = await cloudinary.uploader.destroy(publicId, {
+                resource_type: 'image',
+              });
+
+              if (deleteResult.result === 'ok' || deleteResult.result === 'not found') {
+                deletedTemplateFile = true;
+                console.log('Deleted template asset from Cloudinary:', publicId);
+              } else {
+                console.warn('Cloudinary template deletion returned:', deleteResult);
+              }
+            } else {
+              console.warn(
+                'Could not extract Cloudinary public ID from imagePath:',
+                certificateConfig.imagePath
+              );
             }
           } catch (fileError) {
-            console.warn('Failed to delete template file:', fileError.message);
-            // Continue with deletion even if file deletion fails
+            console.warn('Failed to delete template asset from Cloudinary:', fileError.message);
+            // Continue with deletion even if Cloudinary cleanup fails
           }
         }
 
         // 2. Delete all generated certificates for this certificate config
         // First, get all generated certificate IDs to delete associated VerifyUUID documents
-        const generatedCertificates = await GeneratedCertificate.find({ 
-          certificateId: certificateConfig._id 
+        const generatedCertificates = await GeneratedCertificate.find({
+          certificateId: certificateConfig._id,
         }).select('_id noOfRecipient');
-        
+
         console.log(`Found ${generatedCertificates.length} generated certificates to delete`);
 
         // Calculate total recipients for record tracking
@@ -259,18 +295,18 @@ export const deleteEvent = async (req, res) => {
 
         // Delete all VerifyUUID documents for these generated certificates
         if (generatedCertificates.length > 0) {
-          const generatedCertificateIds = generatedCertificates.map(cert => cert._id);
-          
-          const deleteUUIDResult = await VerifyUUID.deleteMany({ 
-            generatedCertificateId: { $in: generatedCertificateIds } 
+          const generatedCertificateIds = generatedCertificates.map((cert) => cert._id);
+
+          const deleteUUIDResult = await VerifyUUID.deleteMany({
+            generatedCertificateId: { $in: generatedCertificateIds },
           });
           deletedVerifyUUIDsCount = deleteUUIDResult.deletedCount;
           console.log(`Deleted ${deletedVerifyUUIDsCount} VerifyUUID records`);
         }
 
         // Now delete the generated certificates
-        const deleteResult = await GeneratedCertificate.deleteMany({ 
-          certificateId: certificateConfig._id 
+        const deleteResult = await GeneratedCertificate.deleteMany({
+          certificateId: certificateConfig._id,
         });
         deletedGeneratedCertificatesCount = deleteResult.deletedCount;
         console.log(`Deleted ${deletedGeneratedCertificatesCount} generated certificate records`);
@@ -305,7 +341,7 @@ export const deleteEvent = async (req, res) => {
       //       updateFields,
       //       { new: true }
       //     );
-          
+
       //     console.log(`✓ Decremented counters for organization: ${event.organisation}`);
       //     console.log(`  - Events: -1`);
       //     if (totalRecipients > 0) {
@@ -324,20 +360,18 @@ export const deleteEvent = async (req, res) => {
           deletedEvent: {
             id: event._id,
             eventName: event.eventName,
-            issuerName: event.issuerName
+            issuerName: event.issuerName,
           },
           deletedCertificateConfig,
           deletedGeneratedCertificatesCount,
           deletedVerifyUUIDsCount,
-          deletedTemplateFile
-        }
+          deletedTemplateFile,
+        },
       });
-
     } catch (deletionError) {
       console.error('Error during deletion process:', deletionError);
       throw new Error(`Deletion process failed: ${deletionError.message}`);
     }
-
   } catch (error) {
     console.error('Delete event error:', error);
 
@@ -345,14 +379,14 @@ export const deleteEvent = async (req, res) => {
     if (error.name === 'CastError') {
       return res.status(400).json({
         success: false,
-        message: 'Invalid event ID format'
+        message: 'Invalid event ID format',
       });
     }
 
     res.status(500).json({
       success: false,
       message: 'Failed to delete event',
-      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
     });
   }
 };

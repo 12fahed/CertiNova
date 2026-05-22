@@ -1,16 +1,16 @@
-import type React from "react"
-import { Card, CardContent } from "@/components/ui/card"
-import { TrendingUp, Lock } from "lucide-react"
+import type React from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { TrendingUp, Lock } from 'lucide-react';
 
 interface PremiumCardProps {
-  title: string
-  value: string
-  icon: React.ReactNode
-  iconBgColor: string
-  iconColor: string
-  trend: string
-  trendValue: string
-  isPremium?: boolean
+  title: string;
+  value: string;
+  icon: React.ReactNode;
+  iconBgColor: string;
+  iconColor: string;
+  trend: string;
+  trendValue: string;
+  isPremium?: boolean;
 }
 
 export function PremiumCard({
@@ -50,7 +50,9 @@ export function PremiumCard({
           </div>
           <div className="text-center px-4">
             <h3 className="text-lg font-semibold text-gray-800 mb-1">Premium Feature</h3>
-            <p className="text-sm text-gray-600 leading-relaxed">This is for premium purpose only</p>
+            <p className="text-sm text-gray-600 leading-relaxed">
+              This is for premium purpose only
+            </p>
             <div className="mt-3 px-4 py-2 bg-gradient-to-r from-yellow-400 to-amber-500 text-white text-xs font-medium rounded-full shadow-sm">
               Upgrade to unlock
             </div>
@@ -58,5 +60,5 @@ export function PremiumCard({
         </div>
       )}
     </Card>
-  )
+  );
 }

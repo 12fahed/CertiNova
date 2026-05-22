@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { AuthContextType, LoginData, SignupData, User } from '@/types/auth';
 import { authService } from '@/services/auth';
 import { authStorage } from '@/lib/auth-storage';
 import { toast } from 'sonner';
-import { useRouter } from "next/navigation"
+import { useRouter } from 'next/navigation';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -25,7 +25,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const router = useRouter()
+  const router = useRouter();
 
   useEffect(() => {
     // Initialize auth state from storage
@@ -39,7 +39,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       setIsLoading(true);
       const response = await authService.login(data);
-      
+
       if (response.success && response.data?.user) {
         const userData = response.data.user;
         setUser(userData);
@@ -65,7 +65,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       setIsLoading(true);
       const response = await authService.signup(data);
-      
+
       if (response.success && response.data?.user) {
         const userData = response.data.user;
         setUser(userData);
@@ -93,7 +93,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setIsAuthenticated(false);
     authStorage.clearAuth();
     toast.success('Logged out successfully');
-    router.push('/')
+    router.push('/');
   };
 
   const value: AuthContextType = {
