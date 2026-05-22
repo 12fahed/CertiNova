@@ -15,6 +15,10 @@ Thank you for your interest in contributing to CertiNova! We welcome contributio
 - Open an issue with the "enhancement" tag.
 - Describe the feature you'd like to see and why it would be useful.
 
+### Crete an Issue
+
+- If you have an idea for a new feature or improvement, please create an issue to discuss it before starting work. This helps ensure that your efforts align with the project's goals and avoids duplicate work. You should wait for feedback and approval from the maintainers before proceeding with development.
+
 ### Pull Requests
 
 - Fork the repository.
