@@ -1,16 +1,27 @@
-"use client";
+'use client';
 
 import React, { createContext, useContext, useState } from 'react';
-import { CertificateConfig, CertificateConfigRequest, ValidFields, ValidField, CertificateEditorFields } from '@/types/certificate';
+import {
+  CertificateConfig,
+  CertificateConfigRequest,
+  ValidFields,
+  ValidField,
+  CertificateEditorFields,
+} from '@/types/certificate';
 import { certificateService } from '@/services/certificate';
 import { toast } from 'sonner';
 
 interface CertificateContextType {
   certificates: CertificateConfig[];
   isLoading: boolean;
-  createCertificateConfig: (configData: CertificateConfigRequest) => Promise<CertificateConfig | null>;
+  createCertificateConfig: (
+    configData: CertificateConfigRequest
+  ) => Promise<CertificateConfig | null>;
   getCertificateConfig: (eventId: string) => Promise<CertificateConfig | null>;
-  updateCertificateConfig: (configId: string, configData: Partial<CertificateConfigRequest>) => Promise<CertificateConfig | null>;
+  updateCertificateConfig: (
+    configId: string,
+    configData: Partial<CertificateConfigRequest>
+  ) => Promise<CertificateConfig | null>;
   uploadTemplate: (file: File) => Promise<string | null>;
   convertEditorFieldsToValidFields: (editorFields: CertificateEditorFields) => ValidFields;
   convertValidFieldsToEditorFields: (validFields: ValidFields) => CertificateEditorFields;
@@ -34,7 +45,9 @@ export const CertificateProvider: React.FC<CertificateProviderProps> = ({ childr
   const [certificates] = useState<CertificateConfig[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const createCertificateConfig = async (configData: CertificateConfigRequest): Promise<CertificateConfig | null> => {
+  const createCertificateConfig = async (
+    configData: CertificateConfigRequest
+  ): Promise<CertificateConfig | null> => {
     try {
       setIsLoading(true);
       const response = await certificateService.addCertificateConfig(configData);
@@ -50,7 +63,8 @@ export const CertificateProvider: React.FC<CertificateProviderProps> = ({ childr
       }
     } catch (error: unknown) {
       console.error('Create certificate config error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to save certificate configuration';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to save certificate configuration';
       toast.error(errorMessage);
       return null;
     } finally {
@@ -82,7 +96,10 @@ export const CertificateProvider: React.FC<CertificateProviderProps> = ({ childr
     }
   };
 
-  const updateCertificateConfig = async (configId: string, configData: Partial<CertificateConfigRequest>): Promise<CertificateConfig | null> => {
+  const updateCertificateConfig = async (
+    configId: string,
+    configData: Partial<CertificateConfigRequest>
+  ): Promise<CertificateConfig | null> => {
     try {
       setIsLoading(true);
       const response = await certificateService.updateCertificateConfig(configId, configData);
@@ -98,7 +115,8 @@ export const CertificateProvider: React.FC<CertificateProviderProps> = ({ childr
       }
     } catch (error: unknown) {
       console.error('Update certificate config error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to update certificate configuration';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to update certificate configuration';
       toast.error(errorMessage);
       return null;
     } finally {
@@ -120,7 +138,8 @@ export const CertificateProvider: React.FC<CertificateProviderProps> = ({ childr
       }
     } catch (error: unknown) {
       console.error('Upload template error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to upload certificate template';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to upload certificate template';
       toast.error(errorMessage);
       return null;
     } finally {
@@ -131,30 +150,32 @@ export const CertificateProvider: React.FC<CertificateProviderProps> = ({ childr
   // Helper function to convert editor fields to API valid fields format
   const convertEditorFieldsToValidFields = (editorFields: CertificateEditorFields): ValidFields => {
     // console.log('convertEditorFieldsToValidFields - input:', editorFields);
-    
+
     const validFields: ValidFields = {};
-    
+
     // Convert each field from editor format to API format (keeping all properties)
     Object.entries(editorFields).forEach(([key, field]) => {
       // console.log(`Processing field ${key}:`, field);
-      
+
       // Only include fields that have valid coordinates and dimensions
-      if (field && 
-          typeof field.x === 'number' && 
-          typeof field.y === 'number' && 
-          typeof field.width === 'number' && 
-          typeof field.height === 'number' &&
-          !isNaN(field.x) && 
-          !isNaN(field.y) &&
-          !isNaN(field.width) && 
-          !isNaN(field.height) &&
-          field.x >= 0 && 
-          field.y >= 0 &&
-          field.width > 0 && 
-          field.height > 0) {
-        
-        const fieldKey = key === 'organizationName' ? 'organisationName' : key as keyof ValidFields;
-        
+      if (
+        field &&
+        typeof field.x === 'number' &&
+        typeof field.y === 'number' &&
+        typeof field.width === 'number' &&
+        typeof field.height === 'number' &&
+        !isNaN(field.x) &&
+        !isNaN(field.y) &&
+        !isNaN(field.width) &&
+        !isNaN(field.height) &&
+        field.x >= 0 &&
+        field.y >= 0 &&
+        field.width > 0 &&
+        field.height > 0
+      ) {
+        const fieldKey =
+          key === 'organizationName' ? 'organisationName' : (key as keyof ValidFields);
+
         // Create the complete field object with styling properties
         const validField: ValidField = {
           x: field.x,
@@ -194,11 +215,12 @@ export const CertificateProvider: React.FC<CertificateProviderProps> = ({ childr
   // Helper function to convert API valid fields to editor fields format
   const convertValidFieldsToEditorFields = (validFields: ValidFields): CertificateEditorFields => {
     const editorFields: CertificateEditorFields = {};
-    
+
     // Convert each field from API format to editor format
     Object.entries(validFields).forEach(([key, field]) => {
       if (field && typeof field === 'object' && 'x' in field) {
-        const fieldKey = key === 'organisationName' ? 'organizationName' : key as keyof CertificateEditorFields;
+        const fieldKey =
+          key === 'organisationName' ? 'organizationName' : (key as keyof CertificateEditorFields);
         editorFields[fieldKey] = {
           x: field.x,
           y: field.y,

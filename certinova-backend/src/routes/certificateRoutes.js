@@ -4,6 +4,9 @@ import { protect } from '../middleware/auth.js'; // add this
 import { 
   addCertificateConfig, 
   getCertificateConfig, 
+import {
+  addCertificateConfig,
+  getCertificateConfig,
   updateCertificateConfig,
   uploadCertificateTemplate,
   storeGeneratedCertificate,
@@ -14,7 +17,7 @@ import {
   getCertificateUUIDs,
   getOrganizationStats,
   getAllOrganizationStats,
-  updateRecipientCount
+  updateRecipientCount,
 } from '../controllers/certificateController.js';
 
 const router = express.Router();

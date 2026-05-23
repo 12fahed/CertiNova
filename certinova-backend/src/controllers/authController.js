@@ -12,7 +12,7 @@ export const signup = async (req, res) => {
     if (!organisation || !email || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide organisation, email, and password'
+        message: 'Please provide organisation, email, and password',
       });
     }
 
@@ -38,7 +38,7 @@ export const signup = async (req, res) => {
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        message: 'User with this email already exists'
+        message: 'User with this email already exists',
       });
     }
 
@@ -46,7 +46,7 @@ export const signup = async (req, res) => {
     const user = new User({
       organisation,
       email,
-      password
+      password,
     });
 
     await user.save();
@@ -59,21 +59,20 @@ export const signup = async (req, res) => {
           id: user._id,
           organisation: user.organisation,
           email: user.email,
-          createdAt: user.createdAt
-        }
-      }
+          createdAt: user.createdAt,
+        },
+      },
     });
-
   } catch (error) {
     console.error('Signup error:', error);
-    
+
     // Handle validation errors
     if (error.name === 'ValidationError') {
-      const errors = Object.values(error.errors).map(err => err.message);
+      const errors = Object.values(error.errors).map((err) => err.message);
       return res.status(400).json({
         success: false,
         message: 'Validation error',
-        errors
+        errors,
       });
     }
 
@@ -81,13 +80,13 @@ export const signup = async (req, res) => {
     if (error.code === 11000) {
       return res.status(400).json({
         success: false,
-        message: 'User with this email already exists'
+        message: 'User with this email already exists',
       });
     }
 
     res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      message: 'Internal server error',
     });
   }
 };
@@ -103,7 +102,7 @@ export const login = async (req, res) => {
     if (!email || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide email and password'
+        message: 'Please provide email and password',
       });
     }
 
@@ -112,7 +111,7 @@ export const login = async (req, res) => {
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid email or password'
+        message: 'Invalid email or password',
       });
     }
 
@@ -121,7 +120,7 @@ export const login = async (req, res) => {
     if (!isPasswordCorrect) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid email or password'
+        message: 'Invalid email or password',
       });
     }
 
@@ -141,16 +140,15 @@ export const login = async (req, res) => {
           id: user._id,
           organisation: user.organisation,
           email: user.email,
-          createdAt: user.createdAt
-        }
-      }
+          createdAt: user.createdAt,
+        },
+      },
     });
-
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      message: 'Internal server error',
     });
   }
 };
