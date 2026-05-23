@@ -1,18 +1,11 @@
+'use client';
 
-"use client";
+import { Github, Linkedin, Twitter, DiscIcon, ArrowUpRight } from 'lucide-react';
 
-import {
-  Github,
-  Linkedin,
-  Twitter,
-  DiscIcon,
-  ArrowUpRight,
-} from "lucide-react";
-
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
 
 import {
   Award,
@@ -25,7 +18,6 @@ import {
   Shield,
   Clock,
   Lock,
-
 } from 'lucide-react';
 import { AuthModal } from '@/components/auth-modal';
 import { OnboardingModal } from '@/components/onboarding-modal';
@@ -40,9 +32,7 @@ export default function HomePage() {
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
-
       router.push('/dashboard');
-
     }
   }, [isAuthenticated, isLoading, router]);
 
@@ -62,28 +52,29 @@ export default function HomePage() {
     { label: 'Organizations', value: '1,200+', icon: Building, color: 'text-green-600' },
     { label: 'Events Covered', value: '5,000+', icon: Calendar, color: 'text-purple-600' },
     { label: 'Success Rate', value: '99.9%', icon: TrendingUp, color: 'text-orange-600' },
-
   ];
-
-
-
 
   //  Footer Quicks links pairs
   const quickLinks = [
-    { label: "Contact Us", href: "/contact" },
-    { label: "Developer Info", href: "/developer-info" },
-    { label: "Privacy Policy", href: "/privacy-policy" },
-    { label: "Terms & Conditions", href: "/terms-and-conditions" },
-    { label: "Support & Complaints", href: "/support-and-complaints" },
-    { label: "Other Products", href: "/other-products" },
+    { label: 'Contact Us', href: '#' },
+    { label: 'Developer Info', href: '#' },
+    { label: 'Privacy Policy', href: '#' },
+    { label: 'Terms & Conditions', href: '#' },
+    { label: 'Support & Complaints', href: '#' },
+    { label: 'Other Products', href: '#' },
   ];
 
   const SocialMediaLinks = [
-    { label: "Twitter", href: "/twitter", Icon: Twitter },
-    { label: "GitHub", href: "/gitHub", Icon: Github },
-    { label: "Discord", href: "/discord", Icon: DiscIcon },
-    { label: "LinkedIn", href: "/linkedin", Icon: Linkedin },
+    { label: 'Twitter', href: 'https://x.com/12fahedk', Icon: Twitter },
+    { label: 'GitHub', href: 'https://github.com/12fahed/CertiNova', Icon: Github },
+    { label: 'Discord', href: 'https://discord.gg/sQ4sSMRjP', Icon: DiscIcon },
+    {
+      label: 'LinkedIn',
+      href: 'https://www.linkedin.com/in/fahed-khan-13b11025b/',
+      Icon: Linkedin,
+    },
   ];
+
   const features = [
     {
       icon: Zap,
@@ -135,7 +126,6 @@ export default function HomePage() {
     },
   ];
 
-
   const handleLogin = () => {};
 
   if (!isAuthenticated && !isLoading) {
@@ -152,15 +142,10 @@ export default function HomePage() {
                 <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
                   <Award className="h-6 w-6 text-white" />
                 </div>
-                <span className="text-2xl font-bold text-gray-900">
-                  CertiNova
-                </span>
+                <span className="text-2xl font-bold text-gray-900">CertiNova</span>
               </motion.div>
 
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-              >
+              <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
                 <AuthModal onLogin={handleLogin} />
               </motion.div>
             </div>
@@ -182,17 +167,12 @@ export default function HomePage() {
                 Made Simple
               </h1>
               <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-
                 Streamline your certificate generation process with our enterprise-grade platform.
                 Perfect for educational institutions, corporate training, and professional
                 certifications.
-
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <AuthModal
-                  onLogin={handleLogin}
-                  triggerText="Start Free Trial"
-                />
+                <AuthModal onLogin={handleLogin} triggerText="Start Free Trial" />
                 <Button
                   variant="outline"
                   size="lg"
@@ -233,9 +213,7 @@ export default function HomePage() {
                   <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
                     <stat.icon className={`h-8 w-8 ${stat.color}`} />
                   </div>
-                  <h3 className="text-3xl font-bold text-gray-900 mb-2">
-                    {stat.value}
-                  </h3>
+                  <h3 className="text-3xl font-bold text-gray-900 mb-2">{stat.value}</h3>
                   <p className="text-gray-600">{stat.label}</p>
                 </motion.div>
               ))}
@@ -250,10 +228,8 @@ export default function HomePage() {
               animate={{ opacity: 1, y: 0 }}
               className="text-center mb-16"
             >
-
               <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                Built for organizations that value efficiency, security, and
-                professional quality.
+                Built for organizations that value efficiency, security, and professional quality.
               </p>
             </motion.div>
 
@@ -277,42 +253,32 @@ export default function HomePage() {
                   >
                     <feature.icon className={`h-6 w-6 ${feature.color}`} />
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                    {feature.title}
-                  </h3>
-                  <p className="text-gray-600 leading-relaxed">
-                    {feature.description}
-                  </p>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-4">{feature.title}</h3>
+                  <p className="text-gray-600 leading-relaxed">{feature.description}</p>
                 </motion.div>
               ))}
             </motion.div>
           </div>
         </section>
 
-        <section className="py-20 bg-white">
+        <section className="py-20 bg-gray-50">
           <div className="container mx-auto px-6 text-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="max-w-3xl mx-auto"
             >
-
-              <h2 className="text-4xl font-bold text-white mb-6">
+              <h2 className="text-4xl text-blue-600 font-bold mb-8">
                 Ready to Transform Your Certificate Process?
               </h2>
-              <p className="text-xl text-blue-100 mb-8">
+              <p className="text-xl mb-8">
                 Join thousands of organizations already using CertiNova to streamline their
                 certification workflows.
-
               </p>
-              <AuthModal
-                onLogin={handleLogin}
-                triggerText="Get Started Today"
-              />
+              <AuthModal onLogin={handleLogin} triggerText="Get Started Today" />
             </motion.div>
           </div>
         </section>
-
 
         <footer className="relative border-t border-slate-200 bg-white">
           {/* Soft Background Accent */}
@@ -336,21 +302,19 @@ export default function HomePage() {
 
                   {/* Heading */}
                   <div>
-                    <h1 className="text-4xl font-bold tracking-tight text-slate-900">
-                      CertiNova
-                    </h1>
+                    <h1 className="text-4xl font-bold tracking-tight text-slate-900">CertiNova</h1>
 
                     <p className="mt-1 text-base font-medium text-blue-600">
-                      Smart Certificate Management Platform
+                      Bulk Certificate Generator and Validation Platform
                     </p>
                   </div>
                 </motion.div>
 
                 {/* Description */}
                 <p className="mt-7 max-w-xl text-[17px] leading-8 text-slate-600 md:text-left">
-                  CertiNova empowers institutions, organizations, and event
-                  managers to generate, manage, and verify certificates securely
-                  with modern automation and scalable workflows.
+                  CertiNova empowers institutions, organizations, and event managers to generate,
+                  manage, and verify certificates securely with modern automation and scalable
+                  workflows.
                 </p>
 
                 {/* Badge */}
@@ -361,13 +325,11 @@ export default function HomePage() {
 
               {/* Quick Links */}
               <div className="flex flex-col items-center md:items-start">
-                <h2 className="mb-6 text-xl font-semibold text-slate-900">
-                  Quick Links
-                </h2>
+                <h2 className="mb-6 text-xl font-semibold text-slate-900">Quick Links</h2>
 
                 <ul className="space-y-4 text-center md:text-left">
                   {quickLinks.map((link) => (
-                    <li key={link.href}>
+                    <li key={link.label}>
                       <a
                         href={link.href}
                         className="group inline-flex items-center gap-2 text-[16px] font-medium text-slate-600 transition-all duration-300 hover:text-blue-600"
@@ -382,15 +344,13 @@ export default function HomePage() {
 
               {/* Social Handles */}
               <div className="flex flex-col items-center md:items-start">
-                <h2 className="mb-6 text-xl font-semibold text-slate-900">
-                  Social Handles
-                </h2>
+                <h2 className="mb-6 text-xl font-semibold text-slate-900">Social Handles</h2>
 
                 <div className="grid grid-cols-2 gap-3">
                   {SocialMediaLinks.map((link) => (
                     <a
-                      key={link.href}
-                      href={link.label}
+                      key={link.label}
+                      href={link.href}
                       className="group flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600 hover:shadow-md"
                     >
                       <link.Icon className="h-4 w-4 transition group-hover:scale-110" />
@@ -400,17 +360,14 @@ export default function HomePage() {
                 </div>
 
                 <p className="mt-6 max-w-xs text-[15px] leading-7 text-slate-500 md:text-left">
-                  Follow updates, feature releases, and open-source
-                  contributions.
+                  Follow updates, feature releases, and open-source contributions.
                 </p>
               </div>
             </div>
 
             {/* Bottom Footer */}
             <div className="mt-16 flex flex-col items-center justify-between gap-4 border-t border-slate-200 pt-7 text-[15px] text-slate-500 md:flex-row">
-              <p className="text-center md:text-left">
-                © 2026 CertiNova. All rights reserved.
-              </p>
+              <p className="text-center md:text-left">© 2026 CertiNova. All rights reserved.</p>
 
               <p className="flex items-center gap-2 text-center">
                 Built with
@@ -421,10 +378,7 @@ export default function HomePage() {
           </div>
         </footer>
 
-        <OnboardingModal
-          open={showOnboarding}
-          onClose={() => setShowOnboarding(false)}
-        />
+        <OnboardingModal open={showOnboarding} onClose={() => setShowOnboarding(false)} />
 
         <OnboardingModal open={showOnboarding} onClose={() => setShowOnboarding(false)} />
 
