@@ -65,6 +65,31 @@ interface VerificationStep {
 const SAMPLE_NAME = "Aarav Sharma";
 const SAMPLE_RANK = "1st";
 
+function isInternetExplorer() {
+  if (typeof window === "undefined") return false;
+  const ua = window.navigator.userAgent;
+  return ua.indexOf("MSIE") !== -1 || ua.indexOf("Trident") !== -1;
+}
+
+function IEFallback() {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 p-8">
+      <div className="max-w-md text-center">
+        <ShieldX className="mx-auto mb-4 h-16 w-16 text-gray-400" />
+        <h1 className="mb-2 text-xl font-bold text-gray-800">Browser Not Supported</h1>
+        <p className="mb-4 text-sm text-gray-600">
+          Internet Explorer is not supported for certificate verification. Please use a modern browser like Chrome, Firefox, Edge, or Safari.
+        </p>
+        <div className="flex flex-wrap justify-center gap-3">
+          {["Chrome", "Firefox", "Edge", "Safari"].map((b) => (
+            <span key={b} className="rounded-lg bg-white px-3 py-1.5 text-xs font-medium text-gray-700 shadow-sm border border-gray-200">{b}</span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function VerifyPage() {
   const params = useParams();
   const uuid = params.uuid as string;
@@ -450,6 +475,10 @@ export default function VerifyPage() {
     link.href = certificateDataUrl;
     link.click();
   };
+
+  if (isInternetExplorer()) {
+    return <IEFallback />;
+  }
 
   return (
     <div className="h-screen w-full bg-white overflow-hidden">
