@@ -189,10 +189,8 @@ export default function CertificatesPage() {
 
   // Reset to first page when search or filter changes
   useEffect(() => {
-    if (currentPage !== 1) {
-      setCurrentPage(1);
-    }
-  }, [searchTerm, filterBy, currentPage]);
+    setCurrentPage(1);
+  }, [searchTerm, filterBy]);
 
   // Filter certificates is no longer needed as filtering is done on server
   const filteredCertificates = certificates;
