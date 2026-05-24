@@ -25,7 +25,14 @@ export const signup = async (req, res) => {
       });
     }
 
-    // Password strength check
+    // Password type and strength validation
+    if (typeof password !== 'string') {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must be a string'
+      });
+    }
+
     if (password.length < 8) {
       return res.status(400).json({
         success: false,
