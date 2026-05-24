@@ -246,6 +246,55 @@ export function CertificateEditor({
       try {
         setImageLoaded(false); // Reset image loaded state
 
+        // Dynamic, client-side on-demand safe loading loop to stop Next.js SSR crashes
+        if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+          toast('Processing PDF', {
+            description: 'Extracting canvas structure from PDF background...',
+          });
+
+          const fileReader = new FileReader();
+          fileReader.onload = async (event) => {
+            try {
+              // Safely import the library ONLY inside the client event window thread
+              const pdfjsLib = await import('pdfjs-dist');
+              pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
+
+              const typedarray = new Uint8Array(event.target?.result as ArrayBuffer);
+              const pdf = await pdfjsLib.getDocument({ data: typedarray }).promise;
+              const page = await pdf.getPage(1);
+
+              const viewport = page.getViewport({ scale: 2.0 });
+              const canvas = document.createElement('canvas');
+              const context = canvas.getContext('2d');
+
+              if (context) {
+                canvas.width = viewport.width;
+                canvas.height = viewport.height;
+
+                await page.render({
+                  canvasContext: context,
+                  viewport: viewport,
+                  canvas: canvas,
+                }).promise;
+
+                const dataUrl = canvas.toDataURL('image/png');
+                setUploadedImage(dataUrl);
+              }
+            } catch (pdfError) {
+              console.error('Error parsing PDF template canvas:', pdfError);
+              toast.error('Failed to parse PDF document structure');
+            }
+          };
+          fileReader.readAsArrayBuffer(file);
+
+          const cloudinaryUrl = await uploadTemplate(file);
+          if (cloudinaryUrl) {
+            setUploadedImagePath(cloudinaryUrl);
+          }
+          return;
+        }
+
+        // --- Existing Native Image Upload Flow ---
         // First, show a local preview for immediate feedback
         const reader = new FileReader();
         reader.onload = (e) => {
