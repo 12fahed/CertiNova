@@ -182,23 +182,66 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
           const headers = lines[0].split(',').map((h) => h.trim().toLowerCase());
 
           const newRecipients: Recipient[] = [];
+          if (!headers.some(header =>
+            ['name', 'full name', 'student name', 'participant', 'recipient']
+            .some(field => header.includes(field))
+          )) {
+            toast.error('Missing Name Column', {
+              description:
+              'CSV/XLSX must contain a recognizable name column.',
+            });
+            return;
+          }
           for (let i = 1; i < lines.length; i++) {
             const values = lines[i].split(',').map((v) => v.trim());
             if (values.length >= headers.length && values[0]) {
               const recipient: Recipient = { name: '' };
 
-              headers.forEach((header, index) => {
-                if (header.includes('name')) recipient.name = values[index];
-                if (header.includes('email') && values[index]) recipient.email = values[index];
-                // Only include rank if certificate configuration supports it
+                            headers.forEach((header, index) => {
+                const normalizedHeader = header.toLowerCase().trim();
+                const nameFields = [
+                  'name',
+                  'full name',
+                  'student name',
+                  'participant',
+                  'recipient',
+                  'candidate'
+                ];
+                const emailFields = [
+                  'email',
+                  'email address',
+                  'mail'
+                ];
+                const rankFields = [
+                  'rank',
+                  'position',
+                  'standing'
+                ];
                 if (
-                  header.includes('rank') &&
-                  certificateConfig?.validFields?.rank &&
+                  nameFields.some(field =>
+                    normalizedHeader.includes(field)
+                  )
+                ) {
+                  recipient.name = values[index];
+                }
+                if (
+                  emailFields.some(field =>
+                    normalizedHeader.includes(field)
+                  ) &&
                   values[index]
                 ) {
-                  recipient.rank = values[index];
+                  recipient.email = values[index];
                 }
-              });
+                if (
+                  rankFields.some(field =>
+                    normalizedHeader.includes(field)
+                  ) &&
+                  certificateConfig?.validFields?.rank &&
+                  values[index]
+                ){
+                recipient.rank = values[index];
+              }
+            });
 
               if (recipient.name) {
                 // Generate UUID for each recipient
@@ -254,18 +297,50 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
               const recipient: Recipient = { name: '' };
 
               headers.forEach((header, index) => {
-                if (header.includes('name')) recipient.name = values[index];
-                if (header.includes('email') && values[index]) recipient.email = values[index];
-                // Only include rank if certificate configuration supports it
+                const normalizedHeader = header.toLowerCase().trim();
+                const nameFields = [
+                  'name',
+                  'full name',
+                  'student name',
+                  'participant',
+                  'recipient',
+                  'candidate'
+                ];
+                const emailFields = [
+                  'email',
+                  'email address',
+                  'mail'
+                ];
+                const rankFields = [
+                  'rank',
+                  'position',
+                  'standing'
+                ];
                 if (
-                  header.includes('rank') &&
-                  certificateConfig?.validFields?.rank &&
+                  nameFields.some(field =>
+                    normalizedHeader.includes(field)
+                  )
+                ) {
+                  recipient.name = values[index];
+                }
+                if (
+                  emailFields.some(field =>
+                    normalizedHeader.includes(field)
+                  ) &&
                   values[index]
                 ) {
-                  recipient.rank = values[index];
+                  recipient.email = values[index];
                 }
-              });
-
+                if (
+                  rankFields.some(field =>
+                    normalizedHeader.includes(field)
+                  ) &&
+                  certificateConfig?.validFields?.rank &&
+                  values[index]
+                ){
+                recipient.rank = values[index];
+              }
+            });
               if (recipient.name) {
                 // Generate UUID for each recipient
                 recipient.uuid = uuidv4();
