@@ -110,7 +110,7 @@ export default function HomePage() {
     },
   ]
 
-  const handleLogin = () => {}
+  const handleLogin = () => { }
 
   if (!isAuthenticated && !isLoading) {
     return (
@@ -155,16 +155,6 @@ export default function HomePage() {
               transition={{ duration: 0.8 }}
               className="text-center max-w-4xl mx-auto"
             >
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5 }}
-                className="inline-flex items-center gap-2 bg-blue-50 border border-blue-100 rounded-full px-4 py-2 mb-8"
-              >
-                <CheckCircle className="h-4 w-4 text-blue-500" />
-                <span className="text-sm text-blue-600 font-medium">Trusted by 1,200+ Organizations</span>
-              </motion.div>
-
               <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight tracking-tight text-gray-900">
                 Professional Certificate
                 <span className="bg-gradient-to-r from-blue-500 via-violet-500 to-blue-600 bg-clip-text text-transparent"> Generation</span>
