@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -20,9 +20,11 @@ import {
   TrendingUp,
   Shield,
   Clock,
+  PlayCircle,
   Lock,
   ArrowRight,
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { AuthModal } from '@/components/auth-modal';
 import { OnboardingModal } from '@/components/onboarding-modal';
 import { useAuth } from '@/context/AuthContext';
@@ -33,6 +35,7 @@ export default function HomePage() {
   const router = useRouter();
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
+  const authTriggerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
@@ -185,6 +188,7 @@ export default function HomePage() {
               </motion.div>
 
               <motion.div
+                ref={authTriggerRef}
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 className="flex items-center gap-3"
@@ -227,9 +231,23 @@ export default function HomePage() {
                 <Button
                   variant="outline"
                   size="lg"
-                  className="text-gray-600 border-gray-200 hover:bg-gray-50 bg-white"
+                  className="text-gray-700 border-gray-300 hover:bg-gray-50 bg-transparent"
+                  onClick={() =>
+                    toast('Sign in to watch the demo', {
+                      description:
+                        'Create a free account or sign in to access the full demo tutorial.',
+                      icon: <Lock className="h-4 w-4" />,
+                      action: {
+                        label: 'Sign In',
+                        onClick: () => {
+                          const signInBtn = authTriggerRef.current?.querySelector('button');
+                          signInBtn?.click();
+                        },
+                      },
+                    })
+                  }
                 >
-                  <Lock className="mr-2 h-4 w-4 text-yellow-500" />
+                  <PlayCircle className="mr-2 h-4 w-4 text-blue-500" />
                   Watch Demo
                 </Button>
                 <Button
