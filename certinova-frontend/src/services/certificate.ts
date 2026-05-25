@@ -1,25 +1,22 @@
-import { 
-  CertificateConfigRequest, 
-  CertificateConfigResponse, 
+import {
+  CertificateConfigRequest,
+  CertificateConfigResponse,
   UploadResponse,
   GeneratedCertificateResponse,
   CertificatesListResponse,
-} from "@/types/certificate";
-import config from "@/config/env";
+} from '@/types/certificate';
+import config from '@/config/env';
 
 const API_BASE_URL = config.API_BASE_URL;
 
 class CertificateService {
   private baseURL = `${config.API_BASE_URL}/certificates`;
 
-  private async makeRequest(
-    endpoint: string,
-    options: RequestInit,
-  ): Promise<unknown> {
+  private async makeRequest(endpoint: string, options: RequestInit): Promise<unknown> {
     try {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           ...options.headers,
         },
         ...options,
@@ -28,12 +25,12 @@ class CertificateService {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Request failed");
+        throw new Error(data.message || 'Request failed');
       }
 
       return data;
     } catch (error) {
-      console.error("API Request failed:", error);
+      console.error('API Request failed:', error);
       throw error;
     }
   }
@@ -42,51 +39,49 @@ class CertificateService {
   async uploadTemplate(file: File): Promise<UploadResponse> {
     try {
       const formData = new FormData();
-      formData.append("certificate", file);
+      formData.append('certificate', file);
 
       const response = await fetch(`${this.baseURL}/upload-template`, {
-        method: "POST",
+        method: 'POST',
         body: formData,
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Upload failed");
+        throw new Error(data.message || 'Upload failed');
       }
 
       return data;
     } catch (error) {
-      console.error("Upload certificate template failed:", error);
+      console.error('Upload certificate template failed:', error);
       throw error;
     }
   }
 
   // Add certificate configuration
   async addCertificateConfig(
-    configData: CertificateConfigRequest,
+    configData: CertificateConfigRequest
   ): Promise<CertificateConfigResponse> {
     // console.log('API Request - addCertificateConfig data:', JSON.stringify(configData, null, 2));
-    return this.makeRequest("/certificates/addCertificateConfig", {
-      method: "POST",
+    return this.makeRequest('/certificates/addCertificateConfig', {
+      method: 'POST',
       body: JSON.stringify(configData),
     }) as Promise<CertificateConfigResponse>;
   }
 
-  async getCertificateConfig(
-    eventId: string,
-  ): Promise<CertificateConfigResponse> {
+  async getCertificateConfig(eventId: string): Promise<CertificateConfigResponse> {
     return this.makeRequest(`/certificates/config/${eventId}`, {
-      method: "GET",
+      method: 'GET',
     }) as Promise<CertificateConfigResponse>;
   }
 
   async updateCertificateConfig(
     configId: string,
-    configData: Partial<CertificateConfigRequest>,
+    configData: Partial<CertificateConfigRequest>
   ): Promise<CertificateConfigResponse> {
     return this.makeRequest(`/certificates/config/${configId}`, {
-      method: "PUT",
+      method: 'PUT',
       body: JSON.stringify(configData),
     }) as Promise<CertificateConfigResponse>;
   }
@@ -103,8 +98,8 @@ class CertificateService {
     generatedBy: string;
     password: string;
   }): Promise<GeneratedCertificateResponse> {
-    return this.makeRequest("/certificates/storeGenerated", {
-      method: "POST",
+    return this.makeRequest('/certificates/storeGenerated', {
+      method: 'POST',
       body: JSON.stringify(data),
     }) as Promise<GeneratedCertificateResponse>;
   }
@@ -114,34 +109,26 @@ class CertificateService {
     page?: number;
     limit?: number;
     search?: string;
-    filter?:
-      | "all"
-      | "recent"
-      | "high-recipients"
-      | "with-rank"
-      | "without-rank";
-    sortBy?: "date" | "recipients" | "certificateId";
-    sortOrder?: "asc" | "desc";
+    filter?: 'all' | 'recent' | 'high-recipients' | 'with-rank' | 'without-rank';
+    sortBy?: 'date' | 'recipients' | 'certificateId';
+    sortOrder?: 'asc' | 'desc';
     generatedBy?: string;
   }): Promise<CertificatesListResponse> {
     const searchParams = new URLSearchParams();
 
-    if (params?.page) searchParams.append("page", params.page.toString());
-    if (params?.limit) searchParams.append("limit", params.limit.toString());
-    if (params?.search) searchParams.append("search", params.search);
-    if (params?.filter) searchParams.append("filter", params.filter);
-    if (params?.sortBy) searchParams.append("sortBy", params.sortBy);
-    if (params?.sortOrder) searchParams.append("sortOrder", params.sortOrder);
-    if (params?.generatedBy)
-      searchParams.append("generatedBy", params.generatedBy);
+    if (params?.page) searchParams.append('page', params.page.toString());
+    if (params?.limit) searchParams.append('limit', params.limit.toString());
+    if (params?.search) searchParams.append('search', params.search);
+    if (params?.filter) searchParams.append('filter', params.filter);
+    if (params?.sortBy) searchParams.append('sortBy', params.sortBy);
+    if (params?.sortOrder) searchParams.append('sortOrder', params.sortOrder);
+    if (params?.generatedBy) searchParams.append('generatedBy', params.generatedBy);
 
     const queryString = searchParams.toString();
-    const url = queryString
-      ? `/certificates/generated?${queryString}`
-      : "/certificates/generated";
+    const url = queryString ? `/certificates/generated?${queryString}` : '/certificates/generated';
 
     return this.makeRequest(url, {
-      method: "GET",
+      method: 'GET',
     }) as Promise<CertificatesListResponse>;
   }
 
@@ -151,18 +138,13 @@ class CertificateService {
     page?: number;
     limit?: number;
     search?: string;
-    filter?:
-      | "all"
-      | "recent"
-      | "high-recipients"
-      | "with-rank"
-      | "without-rank";
-    sortBy?: "date" | "recipients" | "certificateId";
-    sortOrder?: "asc" | "desc";
+    filter?: 'all' | 'recent' | 'high-recipients' | 'with-rank' | 'without-rank';
+    sortBy?: 'date' | 'recipients' | 'certificateId';
+    sortOrder?: 'asc' | 'desc';
     generatedBy?: string;
   }): Promise<CertificatesListResponse> {
-    return this.makeRequest("/certificates/generated/decrypt", {
-      method: "POST",
+    return this.makeRequest('/certificates/generated/decrypt', {
+      method: 'POST',
       body: JSON.stringify(params),
     }) as Promise<CertificatesListResponse>;
   }
@@ -189,13 +171,13 @@ class CertificateService {
   }> {
     try {
       const response = await fetch(`${this.baseURL}/verify/${uuid}`, {
-        method: "GET",
+        method: 'GET',
       });
 
       const data = await response.json();
       return data;
     } catch (error) {
-      console.error("UUID verification failed:", error);
+      console.error('UUID verification failed:', error);
       throw error;
     }
   }
@@ -277,13 +259,13 @@ class CertificateService {
   }> {
     try {
       const response = await fetch(`${this.baseURL}/verify-full/${uuid}`, {
-        method: "GET",
+        method: 'GET',
       });
 
       const data = await response.json();
       return data;
     } catch (error) {
-      console.error("Full certificate verification failed:", error);
+      console.error('Full certificate verification failed:', error);
       throw error;
     }
   }
@@ -291,23 +273,20 @@ class CertificateService {
   // Update recipient count immediately (before password confirmation)
   async updateRecipientCount(
     orgName: string,
-    recipientCount: number,
+    recipientCount: number
   ): Promise<{
     success: boolean;
     message: string;
   }> {
     try {
-      const response = await this.makeRequest(
-        "/certificates/update-recipient-count",
-        {
-          method: "PATCH",
-          body: JSON.stringify({ orgName, recipientCount }),
-        },
-      );
+      const response = await this.makeRequest('/certificates/update-recipient-count', {
+        method: 'PATCH',
+        body: JSON.stringify({ orgName, recipientCount }),
+      });
 
       return response as { success: boolean; message: string };
     } catch (error) {
-      console.error("Failed to update recipient count:", error);
+      console.error('Failed to update recipient count:', error);
       throw error;
     }
   }

@@ -5,7 +5,7 @@ import multer from 'multer';
 // Don't configure Cloudinary during import, wait for first use
 let isConfigured = false;
 
-const ensureConfigured = () => {
+export const ensureConfigured = () => {
   if (!isConfigured) {
     cloudinary.config({
       cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -23,7 +23,7 @@ const storage = new CloudinaryStorage({
   params: async (req, file) => {
     // Ensure configuration happens before upload
     ensureConfigured();
-    
+
     return {
       folder: 'certinova/certificate-templates',
       allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'],
@@ -37,7 +37,7 @@ const storage = new CloudinaryStorage({
 });
 
 // Create multer upload middleware
-export const upload = multer({ 
+export const upload = multer({
   storage: storage,
   limits: {
     fileSize: 10 * 1024 * 1024, // 10MB limit
@@ -45,14 +45,14 @@ export const upload = multer({
   fileFilter: (req, file, cb) => {
     // Ensure Cloudinary is configured
     ensureConfigured();
-    
+
     // Check file type
     if (file.mimetype.startsWith('image/')) {
       cb(null, true);
     } else {
       cb(new Error('Only image files are allowed!'), false);
     }
-  }
+  },
 });
 
 export default cloudinary;
