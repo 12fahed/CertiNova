@@ -1,7 +1,7 @@
-import { 
-  Roboto, 
-  Inter, 
-  Open_Sans, 
+import {
+  Roboto,
+  Inter,
+  Open_Sans,
   Montserrat,
   Poppins,
   Lato,
@@ -35,7 +35,7 @@ import {
   Petit_Formal_Script,
   Qwigley,
   Rouge_Script,
-  Herr_Von_Muellerhoff
+  Herr_Von_Muellerhoff,
 } from '@next/font/google';
 
 export const roboto = Roboto({
@@ -108,7 +108,6 @@ export const merriweather = Merriweather({
   variable: '--font-merriweather',
 });
 
-
 export const notoSans = Noto_Sans({
   subsets: ['latin'],
   variable: '--font-noto-sans',
@@ -171,13 +170,11 @@ export const pacifico = Pacifico({
   variable: '--font-pacifico',
 });
 
-
 export const allura = Allura({
   subsets: ['latin'],
   weight: '400',
   variable: '--font-allura',
 });
-
 
 export const cookie = Cookie({
   subsets: ['latin'],

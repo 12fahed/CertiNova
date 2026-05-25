@@ -33,7 +33,7 @@ app.get('/api/health', (req, res) => {
     status: 'OK',
     message: 'CertiNova Backend API is running',
     environment: process.env.NODE_ENV || 'development',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 
@@ -48,19 +48,19 @@ app.get('/', (req, res) => {
     endpoints: {
       auth: {
         signup: 'POST /api/auth/signup',
-        login: 'POST /api/auth/login'
+        login: 'POST /api/auth/login',
       },
       events: {
         addEvent: 'POST /api/events/addEvent',
-        getEvents: 'GET /api/events/:organisationID'
+        getEvents: 'GET /api/events/:organisationID',
       },
       certificates: {
         addConfig: 'POST /api/certificates/addCertificateConfig',
         getConfig: 'GET /api/certificates/config/:eventId',
         updateConfig: 'PUT /api/certificates/config/:configId',
-        uploadTemplate: 'POST /api/certificates/upload-template'
-      }
-    }
+        uploadTemplate: 'POST /api/certificates/upload-template',
+      },
+    },
   });
 });
 
