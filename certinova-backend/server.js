@@ -19,7 +19,10 @@ testCloudinaryConfig();
 connectDB();
 
 const app = express();
-app.set('trust proxy', 1);
+const trustProxy = process.env.TRUST_PROXY;
+if (trustProxy && trustProxy !== 'false') {
+  app.set('trust proxy', trustProxy === 'true' ? 1 : trustProxy);
+}
 const PORT = process.env.PORT || 5000;
 
 // Middleware

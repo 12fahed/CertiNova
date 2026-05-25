@@ -19,7 +19,7 @@ import {
   decryptLimiter,
   generationLimiter,
   readLimiter,
-  verifyLimiter
+  verifyLimiter,
 } from '../middleware/rateLimitMiddleware.js';
 
 const router = express.Router();

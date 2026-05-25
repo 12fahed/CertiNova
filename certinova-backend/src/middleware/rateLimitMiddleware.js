@@ -1,6 +1,6 @@
 import rateLimit from 'express-rate-limit';
 
-const createLimiter = (max, message) =>
+export const createLimiter = (max, message) =>
   rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max,
