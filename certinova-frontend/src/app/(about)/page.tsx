@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 
 import {
@@ -21,7 +21,6 @@ import {
   Shield,
   Clock,
   PlayCircle,
-  Lock,
   ArrowRight,
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -37,6 +36,11 @@ export default function HomePage() {
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const authTriggerRef = useRef<HTMLDivElement>(null);
 
+  // Parallax scroll effects
+  const { scrollYProgress } = useScroll();
+  const y1 = useTransform(scrollYProgress, [0, 1], [0, 200]);
+  const y2 = useTransform(scrollYProgress, [0, 1], [0, -100]);
+
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
       router.push('/dashboard');
@@ -45,433 +49,381 @@ export default function HomePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-500 text-sm">Loading...</p>
-        </div>
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="w-12 h-12 border-[3px] border-white/10 border-t-white rounded-full animate-spin"></div>
       </div>
     );
   }
-
-  const stats = [
-    {
-      label: 'Certificates Generated',
-      value: '50,000+',
-      icon: Award,
-      color: 'text-blue-600',
-      bg: 'bg-blue-50 border border-blue-100',
-    },
-    {
-      label: 'Organizations',
-      value: '1,200+',
-      icon: Building,
-      color: 'text-emerald-600", bg: "bg-emerald-50 border border-emerald-100',
-    },
-    {
-      label: 'Events Covered',
-      value: '5,000+',
-      icon: Calendar,
-      color: 'text-violet-600',
-      bg: 'bg-violet-50 border border-violet-100',
-    },
-    {
-      label: 'Success Rate',
-      value: '99.9%',
-      icon: TrendingUp,
-      color: 'text-amber-600", bg: "bg-amber-50 border border-amber-100',
-    },
-  ];
-
-  //  Footer Quicks links pairs
-  const quickLinks = [
-    { label: 'Contact Us', href: '#' },
-    { label: 'Developer Info', href: '#' },
-    { label: 'Privacy Policy', href: '#' },
-    { label: 'Terms & Conditions', href: '#' },
-    { label: 'Support & Complaints', href: '#' },
-    { label: 'Other Products', href: '#' },
-  ];
-
-  const SocialMediaLinks = [
-    { label: 'Twitter', href: 'https://x.com/12fahedk', Icon: Twitter },
-    { label: 'GitHub', href: 'https://github.com/12fahed/CertiNova', Icon: Github },
-    { label: 'Discord', href: 'https://discord.gg/sQ4sSMRjP', Icon: DiscIcon },
-    {
-      label: 'LinkedIn',
-      href: 'https://www.linkedin.com/in/fahed-khan-13b11025b/',
-      Icon: Linkedin,
-    },
-  ];
-
-  const features = [
-    {
-      icon: Zap,
-      title: 'Lightning Fast Processing',
-      description:
-        'Generate thousands of certificates in seconds with our optimized processing engine.',
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-50',
-      border: 'border-blue-100',
-      glow: 'group-hover:shadow-blue-100',
-    },
-    {
-      icon: Shield,
-      title: 'Enterprise Security',
-      description:
-        'Bank-level security with encrypted data transmission and secure certificate storage.',
-      color: 'text-emerald-600',
-      bgColor: 'bg-emerald-50',
-      border: 'border-emerald-100',
-      glow: 'group-hover:shadow-emerald-100',
-    },
-    {
-      icon: Users,
-      title: 'Bulk Processing',
-      description:
-        'Upload CSV files or enter data manually to create certificates for multiple recipients.',
-      color: 'text-violet-600',
-      bgColor: 'bg-violet-50',
-      border: 'border-violet-100',
-      glow: 'group-hover:shadow-violet-100',
-    },
-    {
-      icon: Award,
-      title: 'Custom Templates',
-      description:
-        'Upload your own certificate templates and customize positioning with our visual editor.',
-      color: 'text-amber-600',
-      bgColor: 'bg-amber-50',
-      border: 'border-amber-100',
-      glow: 'group-hover:shadow-amber-100',
-    },
-    {
-      icon: Clock,
-      title: 'Time Efficient',
-      description:
-        'Reduce certificate generation time from hours to minutes with automated workflows.',
-      color: 'text-pink-600',
-      bgColor: 'bg-pink-50',
-      border: 'border-pink-100',
-      glow: 'group-hover:shadow-pink-100',
-    },
-    {
-      icon: Star,
-      title: 'Quality Assured',
-      description:
-        'Professional-grade certificates with consistent formatting and high-resolution output.',
-      color: 'text-cyan-600',
-      bgColor: 'bg-cyan-50',
-      border: 'border-cyan-100',
-      glow: 'group-hover:shadow-cyan-100',
-    },
-  ];
 
   const handleLogin = () => {};
 
   if (!isAuthenticated && !isLoading) {
     return (
-      <div className="min-h-screen bg-white text-gray-900">
-        {/* Navbar */}
-        <nav className="border-b border-gray-100 sticky top-0 z-50 backdrop-blur-xl bg-white/90 shadow-sm">
-          <div className="container mx-auto px-6 py-4">
-            <div className="flex justify-between items-center">
+      <div className="min-h-screen bg-black text-white selection:bg-white selection:text-black font-sans overflow-x-hidden">
+        {/* Ambient Void Lighting */}
+        <div className="fixed inset-0 z-0 pointer-events-none">
+          <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-indigo-600/20 blur-[120px] rounded-full mix-blend-screen" />
+          <div className="absolute bottom-[-20%] left-[-10%] w-[800px] h-[800px] bg-fuchsia-600/10 blur-[150px] rounded-full mix-blend-screen" />
+          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay"></div>
+        </div>
+
+        {/* Floating Capsule Navbar */}
+        <div className="fixed top-6 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none">
+          <nav className="pointer-events-auto flex items-center justify-between px-6 py-3 bg-[#0a0a0a]/80 backdrop-blur-2xl border border-white/10 rounded-full w-full max-w-5xl shadow-2xl">
+            <div className="flex items-center space-x-2">
+              <Award className="h-6 w-6 text-white" />
+              <span className="text-sm font-bold tracking-widest uppercase">CertiNova</span>
+            </div>
+
+            <div className="hidden md:flex items-center space-x-8 text-xs font-medium tracking-widest uppercase text-white/60">
+              <a href="#platform" className="hover:text-white transition-colors">
+                Platform
+              </a>
+              <a href="#infrastructure" className="hover:text-white transition-colors">
+                Infrastructure
+              </a>
+            </div>
+
+            <div ref={authTriggerRef}>
+              <AuthModal onLogin={handleLogin} />
+            </div>
+          </nav>
+        </div>
+
+        <main className="relative z-10">
+          {/* Asymmetrical Hero Section */}
+          <section className="min-h-[100svh] flex flex-col justify-center px-6 md:px-12 pt-32 pb-20 max-w-[1400px] mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+              {/* Massive Left-Aligned Typography */}
               <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="flex items-center space-x-3"
+                className="lg:col-span-8 flex flex-col items-start"
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
               >
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center shadow-lg shadow-blue-200">
-                  <Award className="h-5 w-5 text-white" />
+                <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-md mb-8">
+                  {/* <div className="w-2 h-2 rounded-full bg-transparent animate-pulse" /> */}
+                  {/* <span className="text-xs font-mono tracking-widest text-white/70 uppercase">System Operational V2.0</span> */}
                 </div>
-                <span className="text-xl font-bold text-gray-900">CertiNova</span>
+
+                <h1 className="text-[12vw] lg:text-[8vw] leading-[0.85] font-black tracking-tighter uppercase">
+                  Automate <br />
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-white/30">
+                    Authority.
+                  </span>
+                </h1>
+
+                <p className="mt-8 text-lg md:text-xl text-white/50 max-w-xl font-light leading-relaxed">
+                  The infrastructure for verifying digital achievements. Generate, distribute, and
+                  validate millions of certificates with uncompromising cryptographic precision.
+                </p>
+
+                <div className="mt-12 flex flex-wrap items-center gap-6">
+                  <div className="relative group">
+                    <div className="absolute -inset-2 bg-white/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <Button
+                      className="relative h-14 px-8 rounded-full bg-white text-black hover:bg-white/90 text-sm font-bold tracking-widest uppercase"
+                      onClick={() => {
+                        const signInBtn = authTriggerRef.current?.querySelector('button');
+                        signInBtn?.click();
+                      }}
+                    >
+                      Initialize Workflow
+                    </Button>
+                  </div>
+
+                  <button
+                    onClick={() => setShowVerificationModal(true)}
+                    className="group flex items-center gap-3 text-sm font-bold tracking-widest uppercase text-white/70 hover:text-white transition-colors"
+                  >
+                    <div className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center group-hover:border-white transition-colors">
+                      <ArrowRight className="w-4 h-4 -rotate-45 group-hover:rotate-0 transition-transform duration-500" />
+                    </div>
+                    Verify Asset
+                  </button>
+                </div>
               </motion.div>
 
-              <motion.div
-                ref={authTriggerRef}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="flex items-center gap-3"
-              >
-                <AuthModal onLogin={handleLogin} />
+              {/* Right Side Abstract Visual / Stats */}
+              {/* Right Side Abstract Visual / Stats */}
+              <motion.div style={{ y: y1 }} className="hidden lg:flex lg:col-span-4 flex-col gap-6">
+                {/* Box 1: 50k+ Certificates (Isometric Cards UI) */}
+                <div className="aspect-square rounded-[3rem] bg-gradient-to-br from-white/10 to-transparent border border-white/10 backdrop-blur-xl p-8 relative overflow-hidden group">
+                  {/* Interactive Glow Flare */}
+                  <div className="absolute top-[-20%] left-[-20%] w-[140%] h-[140%] bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.15)_0%,transparent_50%)] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+
+                  {/* Internal Micro-UI: Isometric Floating Assets */}
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-30 group-hover:opacity-100 transition-opacity duration-700 mt-8">
+                    <div className="relative w-32 h-32 rotate-[-15deg] group-hover:rotate-0 transition-transform duration-700 ease-out">
+                      {/* Back Layer */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-white/20 rounded-2xl transform translate-x-6 translate-y-6 shadow-2xl backdrop-blur-md animate-pulse" />
+                      {/* Middle Layer */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-white/5 border border-white/30 rounded-2xl transform translate-x-3 translate-y-3 shadow-xl backdrop-blur-md" />
+                      {/* Front Layer */}
+                      <div className="absolute inset-0 bg-white/10 border border-white/40 rounded-2xl shadow-lg backdrop-blur-md flex items-center justify-center group-hover:-translate-y-2 transition-transform duration-500">
+                        <Award className="w-8 h-8 text-white/70" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="h-full flex flex-col justify-between relative z-10">
+                    <div className="flex justify-between items-start">
+                      <Award className="w-8 h-8 text-white/30 group-hover:text-white/50 transition-colors" />
+                      <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-mono tracking-widest text-indigo-300 backdrop-blur-md shadow-[0_0_15px_rgba(99,102,241,0.2)]">
+                        LIVE
+                      </span>
+                    </div>
+                    <div>
+                      <div className="text-6xl font-black tracking-tighter">
+                        50k<span className="text-indigo-400">+</span>
+                      </div>
+                      <div className="text-xs font-mono tracking-widest text-white/40 uppercase mt-2">
+                        Assets Minted
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Box 2: 99.9% Rate (Live Waveform UI) */}
+                <div className="h-48 rounded-[2rem] bg-[#0a0a0a] border border-white/5 relative overflow-hidden group flex flex-col justify-between p-8">
+                  {/* Background Noise */}
+                  <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay z-0" />
+
+                  {/* Internal Micro-UI: Live Animated Waveform */}
+                  <div className="absolute bottom-0 left-0 right-0 h-24 flex items-end justify-between px-8 pb-4 opacity-20 group-hover:opacity-50 transition-opacity gap-1.5 z-0 pointer-events-none">
+                    {[...Array(12)].map((_, i) => (
+                      <motion.div
+                        key={i}
+                        className="w-full bg-emerald-500/60 rounded-t-sm"
+                        initial={{ height: '10%' }}
+                        animate={{ height: ['10%', `${Math.random() * 70 + 30}%`, '10%'] }}
+                        transition={{
+                          duration: Math.random() * 1.5 + 1,
+                          repeat: Infinity,
+                          ease: 'easeInOut',
+                        }}
+                      />
+                    ))}
+                  </div>
+
+                  <div className="relative z-10 flex justify-between items-start">
+                    <Shield className="w-6 h-6 text-emerald-400/50 group-hover:text-emerald-400 transition-colors" />
+                    <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full">
+                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse" />
+                      <span className="text-[9px] font-mono tracking-widest text-emerald-400 uppercase">
+                        Secure
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="relative z-10">
+                    <div className="text-4xl font-bold tracking-tight">99.9%</div>
+                    <div className="text-[10px] font-mono tracking-widest text-white/40 uppercase mt-1">
+                      Verification Rate
+                    </div>
+                  </div>
+                </div>
               </motion.div>
             </div>
-          </div>
-        </nav>
+          </section>
 
-        {/* Hero Section */}
-        <section className="relative py-28 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-violet-50/50 to-white pointer-events-none" />
-          <div className="absolute top-20 left-1/4 w-72 h-72 bg-blue-100/60 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute bottom-10 right-1/4 w-96 h-96 bg-violet-100/50 rounded-full blur-3xl pointer-events-none" />
-
-          <div className="container mx-auto px-6 relative z-10">
+          {/* Bento Box Feature Grid (The Core Unorthodox Layout) */}
+          {/* Bento Box Feature Grid (High-End Micro-UIs) */}
+          <section id="platform" className="py-32 px-6 md:px-12 max-w-[1400px] mx-auto">
             <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              className="text-center max-w-4xl mx-auto"
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-100px' }}
+              className="mb-16"
             >
-              <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight tracking-tight text-gray-900">
-                Professional Certificate
-                <span className="bg-gradient-to-r from-blue-500 via-violet-500 to-blue-600 bg-clip-text text-transparent">
-                  {' '}
-                  Generation
-                </span>
-                <br />
-                Made Simple
-              </h1>
-              <p className="text-lg text-gray-500 mb-10 max-w-2xl mx-auto leading-relaxed">
-                Streamline your certificate generation process with our enterprise-grade platform.
-                Perfect for educational institutions, corporate training, and professional
-                certifications.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <AuthModal onLogin={handleLogin} triggerText="Start Free Trial" />
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="text-gray-700 border-gray-300 hover:bg-gray-50 bg-transparent"
-                  onClick={() =>
-                    toast('Sign in to watch the demo', {
-                      description:
-                        'Create a free account or sign in to access the full demo tutorial.',
-                      icon: <Lock className="h-4 w-4" />,
-                      action: {
-                        label: 'Sign In',
-                        onClick: () => {
-                          const signInBtn = authTriggerRef.current?.querySelector('button');
-                          signInBtn?.click();
-                        },
-                      },
-                    })
-                  }
-                >
-                  <PlayCircle className="mr-2 h-4 w-4 text-blue-500" />
-                  Watch Demo
-                </Button>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  onClick={() => setShowVerificationModal(true)}
-                  className="text-blue-600 border-blue-200 hover:bg-blue-50 bg-white"
-                >
-                  Verify Certificate
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </div>
-            </motion.div>
-          </div>
-        </section>
-
-        {/* Stats Section */}
-        <section className="py-16 border-y border-gray-100 bg-gray-50/50">
-          <div className="container mx-auto px-6">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="grid grid-cols-2 lg:grid-cols-4 gap-6"
-            >
-              {stats.map((stat, index) => (
-                <motion.div
-                  key={stat.label}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  whileHover={{ y: -4, scale: 1.02 }}
-                  className={`rounded-2xl p-6 text-center ${stat.bg} transition-all duration-300 hover:shadow-md`}
-                >
-                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl mb-4 bg-white shadow-sm">
-                    <stat.icon className={`h-6 w-6 ${stat.color}`} />
-                  </div>
-                  <h3 className="text-3xl font-bold text-gray-900 mb-1">{stat.value}</h3>
-                  <p className="text-gray-500 text-sm">{stat.label}</p>
-                </motion.div>
-              ))}
-            </motion.div>
-          </div>
-        </section>
-
-        {/* Features Section */}
-        <section className="py-24 bg-white">
-          <div className="container mx-auto px-6">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-center mb-16"
-            >
-              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-                Why Choose CertiNova?
-              </h2>
-              <p className="text-gray-500 text-lg max-w-2xl mx-auto">
-                Built for organizations that value efficiency, security, and professional quality.
-              </p>
+              <h2 className="text-4xl md:text-6xl font-bold tracking-tighter">Architecture.</h2>
             </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-            >
-              {features.map((feature, index) => (
-                <motion.div
-                  key={feature.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.4 + index * 0.1 }}
-                  whileHover={{ y: -6, scale: 1.01 }}
-                  className={`group relative bg-white rounded-2xl p-8 border ${feature.border} hover:shadow-xl ${feature.glow} transition-all duration-300`}
-                >
-                  <div
-                    className={`inline-flex items-center justify-center w-12 h-12 ${feature.bgColor} rounded-xl mb-6`}
-                  >
-                    <feature.icon className={`h-6 w-6 ${feature.color}`} />
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">{feature.title}</h3>
-                  <p className="text-gray-500 leading-relaxed text-sm">{feature.description}</p>
-                </motion.div>
-              ))}
-            </motion.div>
-          </div>
-        </section>
+            <div className="grid grid-cols-1 md:grid-cols-3 md:grid-rows-2 gap-6 h-auto md:h-[800px]">
+              {/* Feature 1: Large Span with Terminal Micro-UI */}
+              <div className="md:col-span-2 md:row-span-1 rounded-[2.5rem] bg-[#0a0a0a] border border-white/5 relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 blur-[100px] rounded-full group-hover:bg-indigo-500/20 transition-colors duration-700" />
 
-        {/* CTA Section */}
-        <section className="py-24 relative overflow-hidden bg-gradient-to-br from-blue-50 via-violet-50 to-white">
-          <div className="absolute top-0 left-1/3 w-64 h-64 bg-blue-100/80 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute bottom-0 right-1/3 w-80 h-80 bg-violet-100/60 rounded-full blur-3xl pointer-events-none" />
-          <div className="container mx-auto px-6 text-center relative z-10">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="max-w-3xl mx-auto"
-            >
-              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-                Ready to Transform Your Certificate Process?
-              </h2>
-              <p className="text-gray-500 text-lg mb-10">
-                Join thousands of organizations already using CertiNova to streamline their
-                certification workflows.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <AuthModal onLogin={handleLogin} triggerText="Get Started Today" />
-                <Button
-                  variant="outline"
-                  size="lg"
-                  onClick={() => setShowVerificationModal(true)}
-                  className="text-gray-600 border-gray-200 hover:bg-white bg-white/80"
-                >
-                  Verify a Certificate
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </div>
-            </motion.div>
-          </div>
-        </section>
-
-        <footer className="relative border-t border-slate-200 bg-white">
-          {/* Soft Background Accent */}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,#2563eb08,transparent_30%)]" />
-
-          <div className="relative mx-auto max-w-7xl px-6 py-16">
-            {/* Main Grid */}
-            <div className="grid grid-cols-1 gap-14 text-center md:grid-cols-2 md:text-left lg:grid-cols-4">
-              {/* Brand Section */}
-              <div className="lg:col-span-2">
-                <motion.div
-                  initial={{ opacity: 0, y: 15 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5 }}
-                  className="flex items-center justify-center gap-4 md:justify-start"
-                >
-                  {/* Logo */}
-                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-100 transition duration-300 hover:scale-105">
-                    <Award className="h-8 w-8 text-white" />
-                  </div>
-
-                  {/* Heading */}
-                  <div>
-                    <h1 className="text-4xl font-bold tracking-tight text-slate-900">CertiNova</h1>
-
-                    <p className="mt-1 text-base font-medium text-blue-600">
-                      Bulk Certificate Generator and Validation Platform
+                <div className="h-full flex flex-col md:flex-row gap-8 p-10 relative z-10">
+                  <div className="flex-1 flex flex-col justify-center">
+                    <Zap className="w-10 h-10 text-white/50 mb-8" />
+                    <h3 className="text-2xl md:text-4xl font-bold tracking-tight mb-4">
+                      Lightning Engine
+                    </h3>
+                    <p className="text-white/50 text-lg leading-relaxed">
+                      Generate thousands of certificates simultaneously. Our optimized pipeline
+                      ensures zero bottlenecks during massive events.
                     </p>
                   </div>
-                </motion.div>
 
-                {/* Description */}
-                <p className="mt-7 max-w-xl text-[17px] leading-8 text-slate-600 md:text-left">
-                  CertiNova empowers institutions, organizations, and event managers to generate,
-                  manage, and verify certificates securely with modern automation and scalable
-                  workflows.
-                </p>
+                  {/* Internal Micro-UI: Mock Terminal */}
+                  <div className="flex-1 hidden md:flex items-center justify-center relative">
+                    <div className="w-full h-full max-h-[180px] bg-black border border-white/10 rounded-2xl p-5 flex flex-col gap-3 font-mono text-[11px] sm:text-xs text-white/40 shadow-2xl relative overflow-hidden">
+                      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay z-0" />
 
-                {/* Badge */}
-                <div className="mt-7 inline-flex items-center rounded-full border border-blue-100 bg-blue-50 px-5 py-2 text-sm font-semibold text-blue-700 transition hover:shadow-md">
-                  Trusted • Secure • Fast Verification
+                      <div className="relative z-10 flex justify-between border-b border-white/10 pb-3 mb-2">
+                        <span className="text-white/60">sys_compiler_v2.exe</span>
+                        <span className="text-emerald-400 flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />{' '}
+                          Live
+                        </span>
+                      </div>
+                      <div className="relative z-10 flex gap-3">
+                        <span className="text-indigo-400">&gt;</span>
+                        <span>Allocating memory for batch [50,000]...</span>
+                      </div>
+                      <div className="relative z-10 flex gap-3">
+                        <span className="text-indigo-400">&gt;</span>
+                        <span>Injecting cryptographic signatures...</span>
+                      </div>
+                      <div className="relative z-10 flex gap-3">
+                        <span className="text-indigo-400">&gt;</span>
+                        <span className="text-white/80">Processed: 48,291 / 50,000</span>
+                      </div>
+
+                      <div className="relative z-10 mt-auto w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                        <motion.div
+                          initial={{ width: '0%' }}
+                          whileInView={{ width: '96%' }}
+                          transition={{ duration: 2.5, ease: 'easeOut', delay: 0.2 }}
+                          className="h-full bg-indigo-500 shadow-[0_0_10px_#6366f1]"
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              {/* Quick Links */}
-              <div className="flex flex-col items-center md:items-start">
-                <h2 className="mb-6 text-xl font-semibold text-slate-900">Quick Links</h2>
+              {/* Feature 2: Tall Profile with Cryptographic Rings Micro-UI */}
+              <div className="md:col-span-1 md:row-span-2 rounded-[2.5rem] bg-gradient-to-b from-white/5 to-[#0a0a0a] border border-white/5 p-1 relative group overflow-hidden">
+                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay z-0"></div>
 
-                <ul className="space-y-4 text-center md:text-left">
-                  {quickLinks.map((link) => (
-                    <li key={link.label}>
-                      <a
-                        href={link.href}
-                        className="group inline-flex items-center gap-2 text-[16px] font-medium text-slate-600 transition-all duration-300 hover:text-blue-600"
-                      >
-                        <ArrowUpRight className="h-4 w-4 opacity-0 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100" />
-                        {link.label}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
+                <div className="h-full flex flex-col p-10 relative z-10">
+                  {/* Internal Micro-UI: Rotating Rings */}
+                  <div className="flex-1 flex items-center justify-center relative min-h-[250px] mb-8">
+                    {/* Outer Ring */}
+                    <div className="absolute w-48 h-48 rounded-full border border-white/5 flex items-center justify-center animate-[spin_12s_linear_infinite]">
+                      <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                    </div>
+                    {/* Inner Ring */}
+                    <div className="absolute w-32 h-32 rounded-full border border-white/10 border-t-white/40 border-r-white/20 flex items-center justify-center animate-[spin_8s_linear_infinite_reverse]" />
+
+                    {/* Center Node */}
+                    <div className="w-20 h-20 bg-black/40 backdrop-blur-xl border border-white/20 rounded-3xl flex items-center justify-center shadow-[0_0_40px_rgba(255,255,255,0.1)] z-10 group-hover:scale-110 transition-transform duration-700">
+                      <Shield className="w-8 h-8 text-white" />
+                    </div>
+                  </div>
+
+                  <div className="mt-auto text-center">
+                    <h3 className="text-2xl font-bold tracking-tight mb-4">
+                      Enterprise
+                      <br />
+                      Grade Security
+                    </h3>
+                    <p className="text-white/50 text-sm leading-relaxed">
+                      Bank-level encryption standards. Every certificate is cryptographically
+                      signed, ensuring zero risk of forgery or unauthorized tampering.
+                    </p>
+                  </div>
+                </div>
               </div>
 
-              {/* Social Handles */}
-              <div className="flex flex-col items-center md:items-start">
-                <h2 className="mb-6 text-xl font-semibold text-slate-900">Social Handles</h2>
-
-                <div className="grid grid-cols-2 gap-3">
-                  {SocialMediaLinks.map((link) => (
-                    <a
-                      key={link.label}
-                      href={link.href}
-                      className="group flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600 hover:shadow-md"
-                    >
-                      <link.Icon className="h-4 w-4 transition group-hover:scale-110" />
-                      {link.label}
-                    </a>
-                  ))}
+              {/* Feature 3: Standard Square with Off-Axis Structural UI */}
+              <div className="md:col-span-1 md:row-span-1 rounded-[2.5rem] bg-[#0a0a0a] border border-white/5 p-10 flex flex-col justify-between group overflow-hidden relative">
+                {/* Internal Micro-UI: Floating Elements */}
+                <div className="absolute -right-8 -top-8 w-40 h-40 bg-white/5 rounded-[2rem] rotate-12 border border-white/10 group-hover:rotate-6 group-hover:bg-white/10 transition-all duration-700 flex items-end justify-start p-6">
+                  <Users className="w-10 h-10 text-white/20 group-hover:text-white/40 transition-colors" />
                 </div>
 
-                <p className="mt-6 max-w-xs text-[15px] leading-7 text-slate-500 md:text-left">
-                  Follow updates, feature releases, and open-source contributions.
-                </p>
+                <div className="relative z-10 mt-20">
+                  <h3 className="text-xl font-bold tracking-tight mb-3">Bulk Workflows</h3>
+                  <p className="text-white/50 text-sm leading-relaxed">
+                    Upload raw CSV data. We handle the mapping, generation, and distribution
+                    automatically.
+                  </p>
+                </div>
+              </div>
+
+              {/* Feature 4: Standard Square with Abstract Wireframe UI */}
+              <div className="md:col-span-1 md:row-span-1 rounded-[2.5rem] bg-[#0a0a0a] border border-white/5 p-10 flex flex-col justify-between group overflow-hidden relative">
+                <div className="absolute right-0 bottom-0 w-full h-2/3 bg-gradient-to-t from-white/[0.02] to-transparent pointer-events-none" />
+
+                {/* Internal Micro-UI: Document Wireframe lines */}
+                <div className="flex flex-col gap-3 mb-10 opacity-30 group-hover:opacity-100 transition-opacity duration-500 relative z-10">
+                  <div className="flex gap-2">
+                    <div className="h-1.5 w-12 bg-white/40 rounded-full" />
+                    <div className="h-1.5 w-4 bg-fuchsia-500/50 rounded-full" />
+                  </div>
+                  <div className="h-1.5 w-32 bg-white/20 rounded-full" />
+                  <div className="h-1.5 w-20 bg-white/20 rounded-full" />
+                </div>
+
+                <div className="relative z-10">
+                  <h3 className="text-xl font-bold tracking-tight mb-3">Pristine Output</h3>
+                  <p className="text-white/50 text-sm leading-relaxed">
+                    Vector-perfect PDF generation ensures your branding remains razor-sharp on any
+                    display.
+                  </p>
+                </div>
               </div>
             </div>
+          </section>
 
-            {/* Bottom Footer */}
-            <div className="mt-16 flex flex-col items-center justify-between gap-4 border-t border-slate-200 pt-7 text-[15px] text-slate-500 md:flex-row">
-              <p className="text-center md:text-left">© 2026 CertiNova. All rights reserved.</p>
+          {/* Minimalist Footer */}
+          <footer className="border-t border-white/10 bg-black pt-24 pb-12 mt-32">
+            <div className="max-w-[1400px] mx-auto px-6 md:px-12">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-12 mb-24">
+                <div>
+                  <h2 className="text-[8vw] md:text-[6vw] font-black tracking-tighter leading-none uppercase mb-6">
+                    CertiNova.
+                  </h2>
+                  <p className="text-white/40 max-w-sm">
+                    The modern standard for digital certificate generation and cryptographic
+                    verification.
+                  </p>
+                </div>
 
-              <p className="flex items-center gap-2 text-center">
-                Built with
-                <span className="text-red-500">❤</span>
-                using TypeScript & Tailwind CSS
-              </p>
+                <div className="flex gap-4">
+                  <a
+                    href="#"
+                    className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all"
+                  >
+                    <Twitter className="w-5 h-5" />
+                  </a>
+                  <a
+                    href="#"
+                    className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all"
+                  >
+                    <Github className="w-5 h-5" />
+                  </a>
+                  <a
+                    href="#"
+                    className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all"
+                  >
+                    <Linkedin className="w-5 h-5" />
+                  </a>
+                </div>
+              </div>
+
+              <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-white/10 text-xs font-mono tracking-widest text-white/40 uppercase">
+                <p>© 2026 CERTINOVA. ALL SYSTEM RIGHTS RESERVED.</p>
+                <div className="flex space-x-6 mt-4 md:mt-0">
+                  <a href="#" className="hover:text-white transition-colors">
+                    Privacy
+                  </a>
+                  <a href="#" className="hover:text-white transition-colors">
+                    Terms
+                  </a>
+                  <a href="#" className="hover:text-white transition-colors">
+                    Status
+                  </a>
+                </div>
+              </div>
             </div>
-          </div>
-        </footer>
+          </footer>
+        </main>
 
         <OnboardingModal open={showOnboarding} onClose={() => setShowOnboarding(false)} />
-
-        <OnboardingModal open={showOnboarding} onClose={() => setShowOnboarding(false)} />
-
         <CertificateVerificationModal
           open={showVerificationModal}
           onClose={() => setShowVerificationModal(false)}
