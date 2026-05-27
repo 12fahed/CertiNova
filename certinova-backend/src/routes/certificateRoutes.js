@@ -1,8 +1,8 @@
 import express from 'express';
 import upload from '../../middleware/upload.js';
-import { 
-  addCertificateConfig, 
-  getCertificateConfig, 
+import {
+  addCertificateConfig,
+  getCertificateConfig,
   updateCertificateConfig,
   uploadCertificateTemplate,
   storeGeneratedCertificate,
@@ -13,8 +13,14 @@ import {
   getCertificateUUIDs,
   getOrganizationStats,
   getAllOrganizationStats,
-  updateRecipientCount
+  updateRecipientCount,
 } from '../controllers/certificateController.js';
+import {
+  decryptLimiter,
+  generationLimiter,
+  readLimiter,
+  verifyLimiter,
+} from '../middleware/rateLimitMiddleware.js';
 
 const router = express.Router();
 
@@ -27,18 +33,18 @@ router.put('/config/:configId', updateCertificateConfig);
 router.post('/upload-template', upload.single('certificate'), uploadCertificateTemplate);
 
 // Generated certificate data storage route
-router.post('/storeGenerated', storeGeneratedCertificate);
+router.post('/storeGenerated', generationLimiter, storeGeneratedCertificate);
 
 // Get generated certificates with filtering and pagination
-router.get('/generated', getGeneratedCertificates);
+router.get('/generated', readLimiter, getGeneratedCertificates);
 
 // Decrypt and get generated certificates with password
-router.post('/generated/decrypt', getDecryptedGeneratedCertificates);
+router.post('/generated/decrypt', decryptLimiter, getDecryptedGeneratedCertificates);
 
 // UUID verification routes
-router.get('/verify/:uuid', verifyUUID);
-router.get('/verify-full/:uuid', verifyCertificateFullByUUID);
-router.get('/generated/:id/uuids', getCertificateUUIDs);
+router.get('/verify/:uuid', verifyLimiter, verifyUUID);
+router.get('/verify-full/:uuid', verifyLimiter, verifyCertificateFullByUUID);
+router.get('/generated/:id/uuids', readLimiter, getCertificateUUIDs);
 
 // Organization statistics routes
 router.get('/organization-stats/:organizationName', getOrganizationStats);

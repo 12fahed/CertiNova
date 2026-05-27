@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { useState, useMemo, useEffect, useCallback } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+import { useState, useMemo, useEffect, useCallback } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import {
   Table,
   TableBody,
@@ -12,20 +12,15 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from '@/components/ui/table';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+} from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
   Search,
   Filter,
@@ -39,23 +34,22 @@ import {
   ChevronRight,
   Lock,
   Unlock,
-} from "lucide-react";
-import { certificateService } from "@/services/certificate";
-import { CertificateListItem } from "@/types/certificate";
-import { toast } from "sonner";
-import { PasswordDialog } from "@/components/password-dialog";
-import { EncryptedCache } from "@/utils/crypto";
-import { Navbar } from "@/components/navbar";
-import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { useAuth } from "@/context/AuthContext";
+} from 'lucide-react';
+import { certificateService } from '@/services/certificate';
+import { CertificateListItem } from '@/types/certificate';
+import { toast } from 'sonner';
+import { PasswordDialog } from '@/components/password-dialog';
+import { EncryptedCache } from '@/utils/crypto';
+import { Navbar } from '@/components/navbar';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { useAuth } from '@/context/AuthContext';
 
 export default function CertificatesPage() {
   const { user } = useAuth();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterBy, setFilterBy] = useState("all");
-  const [selectedCertificate, setSelectedCertificate] =
-    useState<CertificateListItem | null>(null);
-  const [recipientSearchTerm, setRecipientSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterBy, setFilterBy] = useState('all');
+  const [selectedCertificate, setSelectedCertificate] = useState<CertificateListItem | null>(null);
+  const [recipientSearchTerm, setRecipientSearchTerm] = useState('');
 
   // Data fetching states
   const [certificates, setCertificates] = useState<CertificateListItem[]>([]);
@@ -84,14 +78,9 @@ export default function CertificatesPage() {
         page: currentPage,
         limit: 10,
         search: searchTerm,
-        filter: filterBy as
-          | "all"
-          | "recent"
-          | "high-recipients"
-          | "with-rank"
-          | "without-rank",
-        sortBy: "date",
-        sortOrder: "desc",
+        filter: filterBy as 'all' | 'recent' | 'high-recipients' | 'with-rank' | 'without-rank',
+        sortBy: 'date',
+        sortOrder: 'desc',
         generatedBy: user?.id,
       });
 
@@ -105,20 +94,18 @@ export default function CertificatesPage() {
         // Check if data requires decryption
         if (response.data.requiresDecryption) {
           setIsDecrypted(false);
-          toast.info("Password required for search", {
-            description:
-              "Enter your password to decrypt and search certificate data.",
+          toast.info('Password required for search', {
+            description: 'Enter your password to decrypt and search certificate data.',
           });
         } else {
           setIsDecrypted(response.data.certificates[0]?.encrypted === false);
         }
       } else {
-        throw new Error(response.message || "Failed to fetch certificates");
+        throw new Error(response.message || 'Failed to fetch certificates');
       }
     } catch (err) {
-      console.error("Error fetching certificates:", err);
-      const errorMessage =
-        err instanceof Error ? err.message : "An unexpected error occurred";
+      console.error('Error fetching certificates:', err);
+      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
       setError(errorMessage);
       toast.error(errorMessage);
       setCertificates([]);
@@ -134,22 +121,16 @@ export default function CertificatesPage() {
         setIsDecrypting(true);
         setError(null);
 
-        const response =
-          await certificateService.getDecryptedGeneratedCertificates({
-            password,
-            page: currentPage,
-            limit: 10,
-            search: searchTerm,
-            filter: filterBy as
-              | "all"
-              | "recent"
-              | "high-recipients"
-              | "with-rank"
-              | "without-rank",
-            sortBy: "date",
-            sortOrder: "desc",
-            generatedBy: user?.id,
-          });
+        const response = await certificateService.getDecryptedGeneratedCertificates({
+          password,
+          page: currentPage,
+          limit: 10,
+          search: searchTerm,
+          filter: filterBy as 'all' | 'recent' | 'high-recipients' | 'with-rank' | 'without-rank',
+          sortBy: 'date',
+          sortOrder: 'desc',
+          generatedBy: user?.id,
+        });
 
         if (response.success && response.data) {
           setCertificates(response.data.certificates);
@@ -163,21 +144,20 @@ export default function CertificatesPage() {
           const cache = EncryptedCache.getInstance();
           cache.setPassword(password);
 
-          toast.success("Data decrypted successfully!", {
+          toast.success('Data decrypted successfully!', {
             description: `Found ${response.data.certificates.length} matching certificates.`,
           });
         } else {
-          throw new Error(response.message || "Failed to decrypt certificates");
+          throw new Error(response.message || 'Failed to decrypt certificates');
         }
       } catch (err) {
-        console.error("Error decrypting certificates:", err);
-        const errorMessage =
-          err instanceof Error ? err.message : "Failed to decrypt data";
+        console.error('Error decrypting certificates:', err);
+        const errorMessage = err instanceof Error ? err.message : 'Failed to decrypt data';
         setError(errorMessage);
 
-        if (errorMessage.includes("password")) {
-          toast.error("Invalid password", {
-            description: "Please check your password and try again.",
+        if (errorMessage.includes('password')) {
+          toast.error('Invalid password', {
+            description: 'Please check your password and try again.',
           });
         } else {
           toast.error(errorMessage);
@@ -189,7 +169,7 @@ export default function CertificatesPage() {
         setShowPasswordDialog(false);
       }
     },
-    [currentPage, searchTerm, filterBy, user?.id],
+    [currentPage, searchTerm, filterBy, user?.id]
   );
 
   // Handle password dialog confirmation
@@ -209,10 +189,8 @@ export default function CertificatesPage() {
 
   // Reset to first page when search or filter changes
   useEffect(() => {
-    if (currentPage !== 1) {
-      setCurrentPage(1);
-    }
-  }, [searchTerm, filterBy, currentPage]);
+    setCurrentPage(1);
+  }, [searchTerm, filterBy]);
 
   // Filter certificates is no longer needed as filtering is done on server
   const filteredCertificates = certificates;
@@ -223,32 +201,23 @@ export default function CertificatesPage() {
 
     return selectedCertificate.recipients.filter(
       (recipient) =>
-        recipient.name
-          .toLowerCase()
-          .includes(recipientSearchTerm.toLowerCase()) ||
+        recipient.name.toLowerCase().includes(recipientSearchTerm.toLowerCase()) ||
         (recipient.email &&
-          recipient.email
-            .toLowerCase()
-            .includes(recipientSearchTerm.toLowerCase())) ||
+          recipient.email.toLowerCase().includes(recipientSearchTerm.toLowerCase())) ||
         (recipient.rank &&
-          recipient.rank
-            .toLowerCase()
-            .includes(recipientSearchTerm.toLowerCase())) ||
-        (recipient.uuid &&
-          recipient.uuid
-            .toLowerCase()
-            .includes(recipientSearchTerm.toLowerCase())),
+          recipient.rank.toLowerCase().includes(recipientSearchTerm.toLowerCase())) ||
+        (recipient.uuid && recipient.uuid.toLowerCase().includes(recipientSearchTerm.toLowerCase()))
     );
   }, [selectedCertificate, recipientSearchTerm]);
 
   const handleRecipientsClick = (certificate: CertificateListItem) => {
     setSelectedCertificate(certificate);
-    setRecipientSearchTerm("");
+    setRecipientSearchTerm('');
   };
 
   const closeModal = () => {
     setSelectedCertificate(null);
-    setRecipientSearchTerm("");
+    setRecipientSearchTerm('');
   };
 
   const handleNextPage = () => {
@@ -272,12 +241,9 @@ export default function CertificatesPage() {
           <div className="mb-8">
             <div className="flex justify-between items-center">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                  Certificates Dashboard
-                </h1>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">Certificates Dashboard</h1>
                 <p className="text-gray-600">
-                  Manage and view all certificates generated by{" "}
-                  {user?.organisation}
+                  Manage and view all certificates generated by {user?.organisation}
                 </p>
               </div>
 
@@ -294,10 +260,7 @@ export default function CertificatesPage() {
               )}
 
               {isDecrypted && (
-                <Badge
-                  variant="secondary"
-                  className="bg-green-100 text-green-700"
-                >
+                <Badge variant="secondary" className="bg-green-100 text-green-700">
                   <Lock className="h-4 w-4 mr-1" />
                   Data Unlocked
                 </Badge>
@@ -329,12 +292,8 @@ export default function CertificatesPage() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Certificates</SelectItem>
-                      <SelectItem value="recent">
-                        Recent (Last 7 days)
-                      </SelectItem>
-                      <SelectItem value="high-recipients">
-                        High Recipients (3+)
-                      </SelectItem>
+                      <SelectItem value="recent">Recent (Last 7 days)</SelectItem>
+                      <SelectItem value="high-recipients">High Recipients (3+)</SelectItem>
                       <SelectItem value="with-rank">With Rank</SelectItem>
                       <SelectItem value="without-rank">Without Rank</SelectItem>
                     </SelectContent>
@@ -379,19 +338,11 @@ export default function CertificatesPage() {
                 <Table>
                   <TableHeader>
                     <TableRow className="border-gray-200">
-                      <TableHead className="text-gray-700">
-                        Serial No.
-                      </TableHead>
+                      <TableHead className="text-gray-700">Serial No.</TableHead>
                       <TableHead className="text-gray-700">Date</TableHead>
-                      <TableHead className="text-gray-700">
-                        Event Name
-                      </TableHead>
-                      <TableHead className="text-gray-700">
-                        No. of Recipients
-                      </TableHead>
-                      <TableHead className="text-gray-700">
-                        Generated ID
-                      </TableHead>
+                      <TableHead className="text-gray-700">Event Name</TableHead>
+                      <TableHead className="text-gray-700">No. of Recipients</TableHead>
+                      <TableHead className="text-gray-700">Generated ID</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -428,12 +379,12 @@ export default function CertificatesPage() {
                               <div className="flex items-center gap-2">
                                 <Calendar className="h-4 w-4 text-gray-400" />
                                 {new Date(certificate.date)
-                                  .toLocaleDateString("en-GB", {
-                                    day: "2-digit",
-                                    month: "2-digit",
-                                    year: "numeric",
+                                  .toLocaleDateString('en-GB', {
+                                    day: '2-digit',
+                                    month: '2-digit',
+                                    year: 'numeric',
                                   })
-                                  .replace(/\//g, "/")}
+                                  .replace(/\//g, '/')}
                               </div>
                             </TableCell>
                             <TableCell className="text-gray-900 font-medium">
@@ -443,9 +394,7 @@ export default function CertificatesPage() {
                               <Button
                                 variant="ghost"
                                 className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 p-2 h-auto"
-                                onClick={() =>
-                                  handleRecipientsClick(certificate)
-                                }
+                                onClick={() => handleRecipientsClick(certificate)}
                               >
                                 <Users className="h-4 w-4 mr-1" />
                                 {certificate.noOfRecipient} Recipients
@@ -467,12 +416,10 @@ export default function CertificatesPage() {
                 {!isLoading && !error && filteredCertificates.length === 0 && (
                   <div className="text-center py-12">
                     <FileText className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                    <p className="text-gray-500 text-lg">
-                      No certificates found
-                    </p>
+                    <p className="text-gray-500 text-lg">No certificates found</p>
                     <p className="text-gray-400 text-sm">
-                      You haven&apos;t generated any certificates yet, or try
-                      adjusting your search criteria
+                      You haven&apos;t generated any certificates yet, or try adjusting your search
+                      criteria
                     </p>
                   </div>
                 )}
@@ -482,10 +429,8 @@ export default function CertificatesPage() {
               {!isLoading && !error && totalPages > 1 && (
                 <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200">
                   <p className="text-sm text-gray-600">
-                    Showing{" "}
-                    {certificates.length > 0 ? (currentPage - 1) * 10 + 1 : 0}{" "}
-                    to {Math.min(currentPage * 10, totalCount)} of {totalCount}{" "}
-                    certificates
+                    Showing {certificates.length > 0 ? (currentPage - 1) * 10 + 1 : 0} to{' '}
+                    {Math.min(currentPage * 10, totalCount)} of {totalCount} certificates
                   </p>
                   <div className="flex items-center gap-2">
                     <Button
@@ -553,16 +498,11 @@ export default function CertificatesPage() {
                   </TableHeader>
                   <TableBody>
                     {filteredRecipients.map((recipient, index) => (
-                      <TableRow
-                        key={index}
-                        className="border-gray-200 hover:bg-gray-50"
-                      >
+                      <TableRow key={index} className="border-gray-200 hover:bg-gray-50">
                         <TableCell className="font-medium text-gray-900">
                           {recipient.name}
                         </TableCell>
-                        <TableCell className="text-gray-600">
-                          {recipient.email || "N/A"}
-                        </TableCell>
+                        <TableCell className="text-gray-600">{recipient.email || 'N/A'}</TableCell>
                         <TableCell>
                           {recipient.rank ? (
                             <Badge
@@ -602,18 +542,14 @@ export default function CertificatesPage() {
                     <div className="text-center py-8">
                       <Users className="h-8 w-8 text-gray-300 mx-auto mb-2" />
                       <p className="text-gray-500">No recipients found</p>
-                      <p className="text-gray-400 text-sm">
-                        Try adjusting your search criteria
-                      </p>
+                      <p className="text-gray-400 text-sm">Try adjusting your search criteria</p>
                     </div>
                   )
                 ) : (
                   <div className="text-center py-8">
                     <Users className="h-8 w-8 text-red-400 mx-auto mb-2" />
                     <p className="text-red-400">Cannot Display Details</p>
-                    <p className="text-red-300 text-sm">
-                      Please Enter Login Password
-                    </p>
+                    <p className="text-red-300 text-sm">Please Enter Login Password</p>
                   </div>
                 )}
               </div>
@@ -621,13 +557,10 @@ export default function CertificatesPage() {
               {/* Modal Footer */}
               <div className="flex justify-between items-center pt-4 border-t border-gray-200">
                 <p className="text-sm text-gray-600">
-                  Showing {filteredRecipients.length} of{" "}
+                  Showing {filteredRecipients.length} of{' '}
                   {selectedCertificate?.recipients.length || 0} recipients
                 </p>
-                <Button
-                  onClick={closeModal}
-                  className="bg-gray-600 hover:bg-gray-700"
-                >
+                <Button onClick={closeModal} className="bg-gray-600 hover:bg-gray-700">
                   Close
                 </Button>
               </div>
