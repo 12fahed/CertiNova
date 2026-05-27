@@ -279,6 +279,24 @@ export function CertificateEditor({
 
                 const dataUrl = canvas.toDataURL('image/png');
                 setUploadedImage(dataUrl);
+
+                // Convert canvas preview to PNG Blob file to satisfy backend Cloudinary expectations
+                canvas.toBlob(async (blob) => {
+                  if (!blob) {
+                    toast.error('Failed to process template image frame.');
+                    return;
+                  }
+
+                  const templateImageFile = new File([blob], 'pdf-template-snapshot.png', {
+                    type: 'image/png',
+                  });
+
+                  // Execute upload using processed standard image stream instead of original raw doc
+                  const cloudinaryUrl = await uploadTemplate(templateImageFile);
+                  if (cloudinaryUrl) {
+                    setUploadedImagePath(cloudinaryUrl);
+                  }
+                }, 'image/png');
               }
             } catch (pdfError) {
               console.error('Error parsing PDF template canvas:', pdfError);
@@ -286,11 +304,6 @@ export function CertificateEditor({
             }
           };
           fileReader.readAsArrayBuffer(file);
-
-          const cloudinaryUrl = await uploadTemplate(file);
-          if (cloudinaryUrl) {
-            setUploadedImagePath(cloudinaryUrl);
-          }
           return;
         }
 
@@ -503,7 +516,6 @@ export function CertificateEditor({
       fields,
     };
 
-    // console.log("FOR COLOR:", savedCertificate.fields)
     onSave(savedCertificate);
     toast(isEditing ? 'Certificate Updated' : 'Certificate Saved', {
       description: isEditing
@@ -692,7 +704,7 @@ export function CertificateEditor({
                         <input
                           ref={fileInputRef}
                           type="file"
-                          accept="image/*"
+                          accept="image/*,.pdf"
                           onChange={handleImageUpload}
                           className="hidden"
                         />
