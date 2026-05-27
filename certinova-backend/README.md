@@ -89,6 +89,7 @@ cp ../.env.example .env
 | `PORT`                  | No       | Server port (default: `5000`)                          |
 | `NODE_ENV`              | No       | `development` \| `production` (default: `development`) |
 | `FRONTEND_URL`          | No       | Production frontend origin for CORS                    |
+| `TRUST_PROXY` | No | Enable only behind a trusted reverse proxy (`true`, hop count, or trusted subnet list) |
 
 See [`docs/configuration.md`](./docs/configuration.md) for full details.
 
