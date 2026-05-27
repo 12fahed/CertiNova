@@ -183,7 +183,13 @@ router.get('/image-proxy', async (req, res, next) => {
       );
     }
 
-    const contentLength = Number(response.headers.get('content-length') || 0);
+    const contentLengthHeader = response.headers.get('content-length');
+    const parsedContentLength =
+      contentLengthHeader === null ? 0 : parseInt(contentLengthHeader, 10);
+    const contentLength =
+      Number.isFinite(parsedContentLength) && parsedContentLength >= 0
+        ? parsedContentLength
+        : 0;
     if (contentLength > MAX_IMAGE_BYTES) {
       throw new ProxyError(413, 'PROXY_SIZE_EXCEEDED', 'Image exceeds the proxy size limit');
     }
