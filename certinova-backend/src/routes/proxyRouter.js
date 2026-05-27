@@ -1,7 +1,9 @@
 import express from 'express';
 import dns from 'node:dns/promises';
+import http from 'node:http';
+import https from 'node:https';
 import net from 'node:net';
-import { Readable, Transform } from 'node:stream';
+import { Transform } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 
 const router = express.Router();
@@ -21,7 +23,7 @@ class ProxyError extends Error {
   constructor(status, code, message) {
     super(message);
     this.status = status;
-    this.code = code;
+    this.errorCode = code;
   }
 }
 
@@ -121,18 +123,55 @@ const validateProxyUrl = async (rawUrl) => {
     throw new ProxyError(403, 'PROXY_SSRF_BLOCKED', 'Image host resolves to a private address');
   }
 
-  return parsedUrl;
+  if (resolvedAddresses.length === 0) {
+    throw new ProxyError(502, 'PROXY_FETCH_FAILED', 'Image host could not be resolved');
+  }
+
+  return { parsedUrl, resolvedAddress: resolvedAddresses[0] };
 };
 
-const fetchWithTimeout = async (url) => {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), IMAGE_PROXY_TIMEOUT_MS);
+const getHeaderValue = (headers, name) => {
+  const value = headers[name.toLowerCase()];
+  return Array.isArray(value) ? value[0] : value;
+};
 
-  try {
-    return await fetch(url, { signal: controller.signal });
-  } finally {
-    clearTimeout(timeout);
-  }
+const parseContentLength = (headers) => {
+  const value = getHeaderValue(headers, 'content-length');
+  if (value === undefined) return 0;
+
+  const parsed = parseInt(value, 10);
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
+};
+
+const fetchPinnedImageStream = ({ parsedUrl, resolvedAddress }) => {
+  const transport = parsedUrl.protocol === 'https:' ? https : http;
+
+  return new Promise((resolve, reject) => {
+    const request = transport.request(
+      {
+        protocol: parsedUrl.protocol,
+        hostname: resolvedAddress.address,
+        family: resolvedAddress.family,
+        port: parsedUrl.port || (parsedUrl.protocol === 'https:' ? 443 : 80),
+        path: `${parsedUrl.pathname}${parsedUrl.search}`,
+        method: 'GET',
+        servername: parsedUrl.hostname,
+        headers: {
+          Host: parsedUrl.host,
+          'User-Agent': 'CertiNova-Image-Proxy/1.0',
+          Accept: 'image/*',
+        },
+        timeout: IMAGE_PROXY_TIMEOUT_MS,
+      },
+      (response) => resolve(response)
+    );
+
+    request.on('timeout', () => {
+      request.destroy(new ProxyError(504, 'PROXY_FETCH_FAILED', 'Image fetch timed out'));
+    });
+    request.on('error', reject);
+    request.end();
+  });
 };
 
 const createSizeLimitStream = () => {
@@ -164,18 +203,27 @@ router.get('/image-proxy', async (req, res, next) => {
     }
 
     const imageUrl = await validateProxyUrl(String(url));
-    const response = await fetchWithTimeout(imageUrl);
+    const response = await fetchPinnedImageStream(imageUrl);
+    const statusCode = response.statusCode || 502;
+    const statusMessage = response.statusMessage || 'Upstream image fetch failed';
 
-    if (!response.ok) {
+    if (statusCode >= 300 && statusCode < 400) {
+      response.resume();
+      throw new ProxyError(400, 'PROXY_REDIRECT_BLOCKED', 'Redirecting image URLs are not proxied');
+    }
+
+    if (statusCode < 200 || statusCode >= 300) {
+      response.resume();
       throw new ProxyError(
-        response.status,
+        statusCode,
         'PROXY_FETCH_FAILED',
-        `Failed to fetch image: ${response.statusText}`
+        `Failed to fetch image: ${statusMessage}`
       );
     }
 
-    const contentType = response.headers.get('content-type');
+    const contentType = getHeaderValue(response.headers, 'content-type');
     if (!contentType || !contentType.startsWith('image/')) {
+      response.resume();
       throw new ProxyError(
         400,
         'PROXY_INVALID_CONTENT_TYPE',
@@ -183,27 +231,21 @@ router.get('/image-proxy', async (req, res, next) => {
       );
     }
 
-    const contentLengthHeader = response.headers.get('content-length');
-    const parsedContentLength =
-      contentLengthHeader === null ? 0 : parseInt(contentLengthHeader, 10);
-    const contentLength =
-      Number.isFinite(parsedContentLength) && parsedContentLength >= 0
-        ? parsedContentLength
-        : 0;
+    const contentLength = parseContentLength(response.headers);
     if (contentLength > MAX_IMAGE_BYTES) {
+      response.resume();
       throw new ProxyError(413, 'PROXY_SIZE_EXCEEDED', 'Image exceeds the proxy size limit');
+    }
+
+    if (!response.readable) {
+      throw new ProxyError(502, 'PROXY_FETCH_FAILED', 'Image response body is not available');
     }
 
     res.setHeader('Content-Type', contentType);
     res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
 
-    await pipeline(Readable.fromWeb(response.body), createSizeLimitStream(), res);
+    await pipeline(response, createSizeLimitStream(), res);
   } catch (error) {
-    if (error.name === 'AbortError') {
-      next(new ProxyError(504, 'PROXY_FETCH_FAILED', 'Image fetch timed out'));
-      return;
-    }
-
     next(error);
   }
 });

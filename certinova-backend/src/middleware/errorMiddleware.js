@@ -2,9 +2,16 @@
 export const errorHandler = (err, req, res, next) => {
   console.error(err.stack);
 
+  const safeErrorCode =
+    typeof err.errorCode === 'string'
+      ? err.errorCode
+      : typeof err.code === 'string' && err.code.startsWith('PROXY_')
+        ? err.code
+        : undefined;
+
   res.status(err.status || 500).json({
     success: false,
-    ...(err.code && { code: err.code }),
+    ...(safeErrorCode && { code: safeErrorCode }),
     message: err.message || 'Internal Server Error',
     ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
   });
