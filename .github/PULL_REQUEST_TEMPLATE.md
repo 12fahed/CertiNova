@@ -7,7 +7,6 @@ Closes #[issue-number]
 ## Checklist
 
 ### Code Quality
-
 - [ ] My code follows the project's coding style
 - [ ] I have self-reviewed my code
 - [ ] I have commented my code, particularly in complex areas
@@ -16,19 +15,16 @@ Closes #[issue-number]
 - [ ] I have added tests that prove my fix/feature works
 
 ### Testing
-
 - [ ] All existing tests pass (`npm test` or your test command)
 - [ ] I have added/updated tests covering at least 80% of changes
 
 ### Security & Performance (for CertiNova)
-
 - [ ] No sensitive data (passwords, tokens) in code
 - [ ] CSV/Excel processing handles edge cases (empty rows, malformed data)
 - [ ] Certificate generation works for bulk operations (1000+ records)
 - [ ] Changes don't introduce memory leaks (tested with large datasets)
 
 ### UI/UX (if applicable)
-
 - [ ] UI changes are responsive (mobile/tablet/desktop)
 - [ ] Loading states are shown for async operations
 - [ ] Error messages are user-friendly
@@ -54,7 +50,7 @@ Closes #[issue-number]
 <!-- Use https://www.screentogif.com/ for GIFs -->
 
 | Before | After |
-| ------ | ----- |
+|--------|-------|
 |        |       |
 
 ## How Has This Been Tested?
@@ -62,12 +58,12 @@ Closes #[issue-number]
 <!-- Describe the tests you ran and how to reproduce -->
 
 ### Test Configuration
-
 - **OS**: [e.g., Windows 11, macOS 14]
 - **Browser**: [e.g., Chrome 120]
 - **Node Version**: [e.g., 20.10.0]
 - **Database**: [e.g., PostgreSQL 16, SQLite]
 - **Deployment**: [e.g., local, Docker, production]
+
 
 ## PR Readiness Checklist
 
@@ -84,7 +80,7 @@ Closes #[issue-number]
 
 ---
 
-<!--
+<!-- 
 Thank you for contributing to CertiNova!
 Maintainers will review your PR ASAP.
 -->

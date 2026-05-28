@@ -32,12 +32,12 @@ This guide will walk you through everything you need to get CertiNova running lo
 
 Before you begin, ensure the following tools are installed on your machine:
 
-| Tool    | Minimum Version          | Purpose                             |
-| ------- | ------------------------ | ----------------------------------- |
-| Node.js | 22.x                     | JavaScript runtime for both servers |
-| npm     | 10.x (bundled with Node) | Package manager                     |
-| MongoDB | 5.x                      | Database (local or Atlas cloud)     |
-| Git     | Any recent version       | Cloning the repository              |
+| Tool | Minimum Version | Purpose |
+|---|---|---|
+| Node.js | 22.x | JavaScript runtime for both servers |
+| npm | 10.x (bundled with Node) | Package manager |
+| MongoDB | 5.x | Database (local or Atlas cloud) |
+| Git | Any recent version | Cloning the repository |
 
 You will also need accounts at:
 
@@ -198,13 +198,13 @@ A certificate template defines the background image and the position of dynamic 
 3. Upload a **background image** for the certificate (PNG, JPG, or WEBP recommended). This is stored on Cloudinary.
 4. You will enter the **drag-and-drop editor**. Drag fields from the panel onto the certificate canvas:
 
-   | Field             | Description                                                       |
-   | ----------------- | ----------------------------------------------------------------- |
-   | Recipient Name    | Replaced with each individual recipient's name at generation time |
-   | Organisation Name | Your organisation name — static across all certificates           |
-   | Rank              | Optional rank or position (e.g., "1st Place", "Participant")      |
-   | Certificate Link  | Prints the public verification URL directly on the certificate    |
-   | QR Code           | A scannable QR linking to the public verification page            |
+   | Field | Description |
+   |---|---|
+   | Recipient Name | Replaced with each individual recipient's name at generation time |
+   | Organisation Name | Your organisation name — static across all certificates |
+   | Rank | Optional rank or position (e.g., "1st Place", "Participant") |
+   | Certificate Link | Prints the public verification URL directly on the certificate |
+   | QR Code | A scannable QR linking to the public verification page |
 
 5. For each field, configure typography:
    - Font family (choose from ~50 options)
@@ -278,9 +278,9 @@ No recipient PII is exposed — the sample certificate uses placeholder identity
 
 **Dashboard views:**
 
-| View       | Description                                                                                 |
-| ---------- | ------------------------------------------------------------------------------------------- |
-| Grid View  | Card-based layout with thumbnail previews of each event                                     |
+| View | Description |
+|---|---|
+| Grid View | Card-based layout with thumbnail previews of each event |
 | Table View | Compact list with quick-action buttons; click any row to open the Preview Pane on the right |
 
 **Available actions per event:**
@@ -299,26 +299,26 @@ No recipient PII is exposed — the sample certificate uses placeholder identity
 
 ## Troubleshooting
 
-| Problem                                              | Likely Cause                                | Fix                                                                                                                 |
-| ---------------------------------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| Backend fails to start                               | MongoDB not running                         | Start MongoDB locally: `mongod`                                                                                     |
-| `ECONNREFUSED` on frontend                           | Backend not running or wrong port           | Ensure `npm run dev` is running in `certinova-backend/`                                                             |
-| Cloudinary upload fails                              | Missing or incorrect Cloudinary credentials | Double-check `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` in `.env`                       |
-| Cannot decrypt recipient data                        | Wrong password entered                      | Recipient data is encrypted with the password set at generation time — there is no recovery if the password is lost |
-| CORS errors in browser                               | Frontend URL not in allowed origins         | Set `FRONTEND_URL=http://localhost:3000` in `certinova-backend/.env`                                                |
-| `Certificate configuration already exists` API error | Duplicate config for the same event         | Each event supports only one certificate config; use the edit flow instead of creating a new one                    |
+| Problem | Likely Cause | Fix |
+|---|---|---|
+| Backend fails to start | MongoDB not running | Start MongoDB locally: `mongod` |
+| `ECONNREFUSED` on frontend | Backend not running or wrong port | Ensure `npm run dev` is running in `certinova-backend/` |
+| Cloudinary upload fails | Missing or incorrect Cloudinary credentials | Double-check `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` in `.env` |
+| Cannot decrypt recipient data | Wrong password entered | Recipient data is encrypted with the password set at generation time — there is no recovery if the password is lost |
+| CORS errors in browser | Frontend URL not in allowed origins | Set `FRONTEND_URL=http://localhost:3000` in `certinova-backend/.env` |
+| `Certificate configuration already exists` API error | Duplicate config for the same event | Each event supports only one certificate config; use the edit flow instead of creating a new one |
 
 ---
 
 ## Further Reading
 
-| Resource                                                                               | Description                                                              |
-| -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| [`certinova-backend/README.md`](./certinova-backend/README.md)                         | Full backend documentation — tech stack, project structure, API overview |
-| [`certinova-backend/docs/api-reference.md`](./certinova-backend/docs/api-reference.md) | Complete REST API reference with request/response schemas                |
-| [`certinova-backend/docs/data-models.md`](./certinova-backend/docs/data-models.md)     | MongoDB schema definitions and entity relationship diagram               |
-| [`certinova-backend/docs/security.md`](./certinova-backend/docs/security.md)           | Encryption architecture, CORS policy, and security considerations        |
-| [`certinova-backend/docs/configuration.md`](./certinova-backend/docs/configuration.md) | Environment variable reference                                           |
-| [`certinova-backend/docs/architecture.md`](./certinova-backend/docs/architecture.md)   | System architecture and data flow diagrams                               |
-| [`CONTRIBUTING.md`](./CONTRIBUTING.md)                                                 | How to contribute to the project                                         |
-| [`CODE_OF_CONDUCT.md`](./CODE_OF_CONDUCT.md)                                           | Community standards and code of conduct                                  |
+| Resource | Description |
+|---|---|
+| [`certinova-backend/README.md`](./certinova-backend/README.md) | Full backend documentation — tech stack, project structure, API overview |
+| [`certinova-backend/docs/api-reference.md`](./certinova-backend/docs/api-reference.md) | Complete REST API reference with request/response schemas |
+| [`certinova-backend/docs/data-models.md`](./certinova-backend/docs/data-models.md) | MongoDB schema definitions and entity relationship diagram |
+| [`certinova-backend/docs/security.md`](./certinova-backend/docs/security.md) | Encryption architecture, CORS policy, and security considerations |
+| [`certinova-backend/docs/configuration.md`](./certinova-backend/docs/configuration.md) | Environment variable reference |
+| [`certinova-backend/docs/architecture.md`](./certinova-backend/docs/architecture.md) | System architecture and data flow diagrams |
+| [`CONTRIBUTING.md`](./CONTRIBUTING.md) | How to contribute to the project |
+| [`CODE_OF_CONDUCT.md`](./CODE_OF_CONDUCT.md) | Community standards and code of conduct |
