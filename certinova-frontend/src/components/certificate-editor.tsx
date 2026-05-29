@@ -1,12 +1,12 @@
-"use client"
+'use client';
 
-import type React from "react"
+import type React from 'react';
 
-import { useState, useRef, useCallback, useMemo, useEffect } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import {
   Upload,
   User,
@@ -23,308 +23,327 @@ import {
   AlignCenter,
   AlignRight,
   Palette,
-} from "lucide-react"
-import { toast } from "sonner"
-import { useCertificates } from "@/context/CertificateContext"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+} from 'lucide-react';
+import { toast } from 'sonner';
+import { useCertificates } from '@/context/CertificateContext';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface Certificate {
-  id?: string
-  name: string
-  event: string
-  date: string
-  image?: string
+  id?: string;
+  name: string;
+  event: string;
+  date: string;
+  image?: string;
   fields: {
     recipientName?: {
-      x: number
-      y: number
-      width: number
-      height: number
-      fontFamily?: string
-      fontWeight?: string
-      fontStyle?: string
-      textDecoration?: string
-      color?: string
-    }
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+      fontFamily?: string;
+      fontWeight?: string;
+      fontStyle?: string;
+      textDecoration?: string;
+      color?: string;
+    };
     organizationName?: {
-      x: number
-      y: number
-      width: number
-      height: number
-      fontFamily?: string
-      fontWeight?: string
-      fontStyle?: string
-      textDecoration?: string
-      color?: string
-    }
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+      fontFamily?: string;
+      fontWeight?: string;
+      fontStyle?: string;
+      textDecoration?: string;
+      color?: string;
+    };
     certificateLink?: {
-      x: number
-      y: number
-      width: number
-      height: number
-      fontFamily?: string
-      fontWeight?: string
-      fontStyle?: string
-      textDecoration?: string
-      color?: string
-    }
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+      fontFamily?: string;
+      fontWeight?: string;
+      fontStyle?: string;
+      textDecoration?: string;
+      color?: string;
+    };
     certificateQR?: {
-      x: number
-      y: number
-      width: number
-      height: number
-      fontFamily?: string
-      fontWeight?: string
-      fontStyle?: string
-      textDecoration?: string
-      color?: string
-    }
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+      fontFamily?: string;
+      fontWeight?: string;
+      fontStyle?: string;
+      textDecoration?: string;
+      color?: string;
+    };
     rank?: {
-      x: number
-      y: number
-      width: number
-      height: number
-      fontFamily?: string
-      fontWeight?: string
-      fontStyle?: string
-      textDecoration?: string
-      color?: string
-    }
-  }
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+      fontFamily?: string;
+      fontWeight?: string;
+      fontStyle?: string;
+      textDecoration?: string;
+      color?: string;
+    };
+  };
 }
 
 interface CertificateEditorProps {
-  certificate: Partial<Certificate>
-  onSave: (certificate: Certificate) => void
-  onClose: () => void
-  isEditing?: boolean
+  certificate: Partial<Certificate>;
+  onSave: (certificate: Certificate) => void;
+  onClose: () => void;
+  isEditing?: boolean;
 }
 
-type FieldType = "recipientName" | "organizationName" | "certificateLink" | "certificateQR" | "rank"
+type FieldType =
+  | 'recipientName'
+  | 'organizationName'
+  | 'certificateLink'
+  | 'certificateQR'
+  | 'rank';
 
-export function CertificateEditor({ certificate, onSave, onClose, isEditing = false }: CertificateEditorProps) {
-  const { uploadTemplate } = useCertificates()
-  const [uploadedImage, setUploadedImage] = useState<string | null>(
-    certificate.image || null,
-  )
+export function CertificateEditor({
+  certificate,
+  onSave,
+  onClose,
+  isEditing = false,
+}: CertificateEditorProps) {
+  const { uploadTemplate } = useCertificates();
+  const [uploadedImage, setUploadedImage] = useState<string | null>(certificate.image || null);
   const [uploadedImagePath, setUploadedImagePath] = useState<string | null>(
-    certificate.image || null,
-  )
-  const [selectedField, setSelectedField] = useState<FieldType | null>(null)
-  const [isSelecting, setIsSelecting] = useState(false)
-  const [selectionStart, setSelectionStart] = useState<{ x: number; y: number } | null>(null)
-  const [fields, setFields] = useState(certificate.fields || {})
-  const [imageLoaded, setImageLoaded] = useState(false)
-  const [draggedField, setDraggedField] = useState<FieldType | null>(null)
-  const [dragOffset, setDragOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 })
-  const [selectedFieldForToolbar, setSelectedFieldForToolbar] = useState<FieldType | null>(null)
-  const [isDragging, setIsDragging] = useState(false)
-  const [dragStartPos, setDragStartPos] = useState<{ x: number; y: number } | null>(null)
+    certificate.image || null
+  );
+  const [selectedField, setSelectedField] = useState<FieldType | null>(null);
+  const [isSelecting, setIsSelecting] = useState(false);
+  const [selectionStart, setSelectionStart] = useState<{ x: number; y: number } | null>(null);
+  const [fields, setFields] = useState(certificate.fields || {});
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [draggedField, setDraggedField] = useState<FieldType | null>(null);
+  const [dragOffset, setDragOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [selectedFieldForToolbar, setSelectedFieldForToolbar] = useState<FieldType | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStartPos, setDragStartPos] = useState<{ x: number; y: number } | null>(null);
 
   const fontFamilies = [
-    "Inter",
-    "Roboto", 
-    "Open Sans",
-    "Montserrat",
-    "Arial",
-    "Times New Roman",
-    "Helvetica",
-    "Georgia",
-    "Verdana",
-    "Trebuchet MS",
-    "Comic Sans MS",
-    "Impact",
-    "Lucida Console",
-    "Tahoma",
-    "Poppins",
-    "Lato",
-    "Playfair Display",
-    "Raleway",
-    "Nunito",
-    "Oswald",
-    "Source Sans 3",
-    "Ubuntu",
-    "Merriweather",
-    "Noto Sans",
-    "Rubik",
-    "Fira Sans",
-    "Dosis",
-    "Archivo",
-    "Cabin",
-    "Quicksand",
-    "Josefin Sans",
-    "Work Sans",
-    "Manrope",
-    "Dancing Script",
-    "Pacifico",
-    "Great Vibes",
-    "Allura",
-    "Lobster",
-    "Satisfy",
-    "Cookie",
-    "Tangerine",
-    "Parisienne",
-    "Sacramento",
-    "Alex Brush",
-    "Mr Dafoe",
-    "Zeyada",
-    "Petit Formal Script",
-    "Qwigley",
-    "Rouge Script",
-    "Herr Von Muellerhoff",
-  ]
+    'Inter',
+    'Roboto',
+    'Open Sans',
+    'Montserrat',
+    'Arial',
+    'Times New Roman',
+    'Helvetica',
+    'Georgia',
+    'Verdana',
+    'Trebuchet MS',
+    'Comic Sans MS',
+    'Impact',
+    'Lucida Console',
+    'Tahoma',
+    'Poppins',
+    'Lato',
+    'Playfair Display',
+    'Raleway',
+    'Nunito',
+    'Oswald',
+    'Source Sans 3',
+    'Ubuntu',
+    'Merriweather',
+    'Noto Sans',
+    'Rubik',
+    'Fira Sans',
+    'Dosis',
+    'Archivo',
+    'Cabin',
+    'Quicksand',
+    'Josefin Sans',
+    'Work Sans',
+    'Manrope',
+    'Dancing Script',
+    'Pacifico',
+    'Great Vibes',
+    'Allura',
+    'Lobster',
+    'Satisfy',
+    'Cookie',
+    'Tangerine',
+    'Parisienne',
+    'Sacramento',
+    'Alex Brush',
+    'Mr Dafoe',
+    'Zeyada',
+    'Petit Formal Script',
+    'Qwigley',
+    'Rouge Script',
+    'Herr Von Muellerhoff',
+  ];
 
   // Update fields when certificate prop changes
   useEffect(() => {
     if (certificate.fields) {
-      setFields(certificate.fields)
+      setFields(certificate.fields);
     }
     // Reset image loaded state when certificate changes
-    setImageLoaded(false)
-  }, [certificate.fields])
+    setImageLoaded(false);
+  }, [certificate.fields]);
 
-  const canvasRef = useRef<HTMLDivElement>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const canvasRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fieldOptions = useMemo(
     () => [
       {
-        key: "recipientName" as FieldType,
-        label: "Recipient Name",
+        key: 'recipientName' as FieldType,
+        label: 'Recipient Name',
         icon: User,
-        color: "text-blue-600",
-        bgColor: "bg-blue-50",
+        color: 'text-blue-600',
+        bgColor: 'bg-blue-50',
       },
       {
-        key: "organizationName" as FieldType,
-        label: "Organization Name",
+        key: 'organizationName' as FieldType,
+        label: 'Organization Name',
         icon: Building,
-        color: "text-green-600",
-        bgColor: "bg-green-50",
+        color: 'text-green-600',
+        bgColor: 'bg-green-50',
       },
       {
-        key: "certificateLink" as FieldType,
-        label: "Certificate Link",
+        key: 'certificateLink' as FieldType,
+        label: 'Certificate Link',
         icon: Link,
-        color: "text-purple-600",
-        bgColor: "bg-purple-50",
+        color: 'text-purple-600',
+        bgColor: 'bg-purple-50',
       },
       {
-        key: "certificateQR" as FieldType,
-        label: "Certificate QR",
+        key: 'certificateQR' as FieldType,
+        label: 'Certificate QR',
         icon: QrCode,
-        color: "text-orange-600",
-        bgColor: "bg-orange-50",
+        color: 'text-orange-600',
+        bgColor: 'bg-orange-50',
       },
-      { key: "rank" as FieldType, label: "Rank", icon: Trophy, color: "text-red-600", bgColor: "bg-red-50" },
+      {
+        key: 'rank' as FieldType,
+        label: 'Rank',
+        icon: Trophy,
+        color: 'text-red-600',
+        bgColor: 'bg-red-50',
+      },
     ],
-    [],
-  )
+    []
+  );
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
+    const file = e.target.files?.[0];
     if (file) {
       try {
-        setImageLoaded(false) // Reset image loaded state
+        setImageLoaded(false); // Reset image loaded state
 
         // First, show a local preview for immediate feedback
-        const reader = new FileReader()
+        const reader = new FileReader();
         reader.onload = (e) => {
-          setUploadedImage(e.target?.result as string)
-        }
-        reader.readAsDataURL(file)
+          setUploadedImage(e.target?.result as string);
+        };
+        reader.readAsDataURL(file);
 
         // Upload to server and get the Cloudinary URL
-        const cloudinaryUrl = await uploadTemplate(file)
+        const cloudinaryUrl = await uploadTemplate(file);
         if (cloudinaryUrl) {
           // Use the Cloudinary URL directly
-          setUploadedImagePath(cloudinaryUrl) // Store the full Cloudinary URL
-          setUploadedImage(cloudinaryUrl) // Display the Cloudinary image
+          setUploadedImagePath(cloudinaryUrl); // Store the full Cloudinary URL
+          setUploadedImage(cloudinaryUrl); // Display the Cloudinary image
         }
       } catch (error) {
-        console.error("Failed to upload template:", error)
-        toast.error("Failed to upload certificate template")
+        console.error('Failed to upload template:', error);
+        toast.error('Failed to upload certificate template');
       }
     }
-  }
+  };
 
   const handleFieldSelect = (fieldType: FieldType) => {
     if (!uploadedImage) {
-      toast("Upload Required", {
-        description: "Please upload a certificate template first.",
-      })
-      return
+      toast('Upload Required', {
+        description: 'Please upload a certificate template first.',
+      });
+      return;
     }
 
-    setSelectedField(fieldType)
-    setIsSelecting(true)
-    setSelectedFieldForToolbar(null)
-    toast("Selection Mode", {
-      description: "Click and drag to select the area for this field.",
-    })
-  }
+    setSelectedField(fieldType);
+    setIsSelecting(true);
+    setSelectedFieldForToolbar(null);
+    toast('Selection Mode', {
+      description: 'Click and drag to select the area for this field.',
+    });
+  };
 
   const handleCanvasClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
-      if (!canvasRef.current) return
+      if (!canvasRef.current) return;
 
       if (!isSelecting && !isDragging) {
-        const img = canvasRef.current.querySelector("img")
-        if (!img) return
+        const img = canvasRef.current.querySelector('img');
+        if (!img) return;
 
-        const imgRect = img.getBoundingClientRect()
-        const clickX = e.clientX - imgRect.left
-        const clickY = e.clientY - imgRect.top
+        const imgRect = img.getBoundingClientRect();
+        const clickX = e.clientX - imgRect.left;
+        const clickY = e.clientY - imgRect.top;
 
         // Check if clicking on an existing field
         const clickedField = Object.entries(fields).find(([, position]) => {
-          const displayScaleX = img.offsetWidth / img.naturalWidth
-          const displayScaleY = img.offsetHeight / img.naturalHeight
-          const displayX = position.x * displayScaleX
-          const displayY = position.y * displayScaleY
-          const displayWidth = position.width * displayScaleX
-          const displayHeight = position.height * displayScaleY
+          const displayScaleX = img.offsetWidth / img.naturalWidth;
+          const displayScaleY = img.offsetHeight / img.naturalHeight;
+          const displayX = position.x * displayScaleX;
+          const displayY = position.y * displayScaleY;
+          const displayWidth = position.width * displayScaleX;
+          const displayHeight = position.height * displayScaleY;
 
           return (
             clickX >= displayX &&
             clickX <= displayX + displayWidth &&
             clickY >= displayY &&
             clickY <= displayY + displayHeight
-          )
-        })
+          );
+        });
 
         if (clickedField) {
-          setSelectedFieldForToolbar(clickedField[0] as FieldType)
+          setSelectedFieldForToolbar(clickedField[0] as FieldType);
         } else {
           // Deselect if clicking outside
-          setSelectedFieldForToolbar(null)
+          setSelectedFieldForToolbar(null);
         }
-        return
+        return;
       }
 
       // Handle field selection for new fields (existing logic)
-      if (!isSelecting || !selectedField) return
+      if (!isSelecting || !selectedField) return;
 
-      const img = canvasRef.current.querySelector("img")
-      if (!img) return
+      const img = canvasRef.current.querySelector('img');
+      if (!img) return;
 
-      const imgRect = img.getBoundingClientRect()
-      const clickX = e.clientX - imgRect.left
-      const clickY = e.clientY - imgRect.top
-      const imgDisplayedWidth = imgRect.width
-      const imgDisplayedHeight = imgRect.height
-      const scaleX = img.naturalWidth / imgDisplayedWidth
-      const scaleY = img.naturalHeight / imgDisplayedHeight
-      const actualX = clickX * scaleX
-      const actualY = clickY * scaleY
+      const imgRect = img.getBoundingClientRect();
+      const clickX = e.clientX - imgRect.left;
+      const clickY = e.clientY - imgRect.top;
+      const imgDisplayedWidth = imgRect.width;
+      const imgDisplayedHeight = imgRect.height;
+      const scaleX = img.naturalWidth / imgDisplayedWidth;
+      const scaleY = img.naturalHeight / imgDisplayedHeight;
+      const actualX = clickX * scaleX;
+      const actualY = clickY * scaleY;
 
       if (!selectionStart) {
-        setSelectionStart({ x: actualX, y: actualY })
+        setSelectionStart({ x: actualX, y: actualY });
       } else {
-        const width = Math.abs(actualX - selectionStart.x)
-        const height = Math.abs(actualY - selectionStart.y)
-        const finalX = Math.min(actualX, selectionStart.x)
-        const finalY = Math.min(actualY, selectionStart.y)
+        const width = Math.abs(actualX - selectionStart.x);
+        const height = Math.abs(actualY - selectionStart.y);
+        const finalX = Math.min(actualX, selectionStart.x);
+        const finalY = Math.min(actualY, selectionStart.y);
 
         setFields((prev) => ({
           ...prev,
@@ -333,53 +352,55 @@ export function CertificateEditor({ certificate, onSave, onClose, isEditing = fa
             y: finalY,
             width,
             height,
-            fontFamily: "Inter", // Use Google Font as default
-            fontWeight: "normal",
-            fontStyle: "normal",
-            textDecoration: "none",
-            color: "#000000", // Default black color
+            fontFamily: 'Inter', // Use Google Font as default
+            fontWeight: 'normal',
+            fontStyle: 'normal',
+            textDecoration: 'none',
+            color: '#000000', // Default black color
           },
-        }))
+        }));
 
-        setIsSelecting(false)
-        setSelectedField(null)
-        setSelectionStart(null)
+        setIsSelecting(false);
+        setSelectedField(null);
+        setSelectionStart(null);
 
-        const option = fieldOptions.find((f) => f.key === selectedField)
-        toast("Field Added", {
+        const option = fieldOptions.find((f) => f.key === selectedField);
+        toast('Field Added', {
           description: `${option?.label} has been positioned.`,
-        })
+        });
       }
     },
-    [isSelecting, selectedField, selectionStart, fieldOptions, fields, isDragging],
-  )
+    [isSelecting, selectedField, selectionStart, fieldOptions, fields, isDragging]
+  );
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
       if (draggedField && dragStartPos && !isDragging) {
-        const currentX = e.clientX
-        const currentY = e.clientY
-        const distance = Math.sqrt(Math.pow(currentX - dragStartPos.x, 2) + Math.pow(currentY - dragStartPos.y, 2))
+        const currentX = e.clientX;
+        const currentY = e.clientY;
+        const distance = Math.sqrt(
+          Math.pow(currentX - dragStartPos.x, 2) + Math.pow(currentY - dragStartPos.y, 2)
+        );
 
         // Start dragging only if mouse moved more than 5 pixels
         if (distance > 5) {
-          setIsDragging(true)
+          setIsDragging(true);
         }
       }
 
-      if (!isDragging || !draggedField || !canvasRef.current) return
+      if (!isDragging || !draggedField || !canvasRef.current) return;
 
-      const img = canvasRef.current.querySelector("img")
-      if (!img) return
+      const img = canvasRef.current.querySelector('img');
+      if (!img) return;
 
-      const imgRect = img.getBoundingClientRect()
-      const mouseX = e.clientX - imgRect.left - dragOffset.x
-      const mouseY = e.clientY - imgRect.top - dragOffset.y
+      const imgRect = img.getBoundingClientRect();
+      const mouseX = e.clientX - imgRect.left - dragOffset.x;
+      const mouseY = e.clientY - imgRect.top - dragOffset.y;
 
-      const scaleX = img.naturalWidth / img.offsetWidth
-      const scaleY = img.naturalHeight / img.offsetHeight
-      const actualX = Math.max(0, mouseX * scaleX)
-      const actualY = Math.max(0, mouseY * scaleY)
+      const scaleX = img.naturalWidth / img.offsetWidth;
+      const scaleY = img.naturalHeight / img.offsetHeight;
+      const actualX = Math.max(0, mouseX * scaleX);
+      const actualY = Math.max(0, mouseY * scaleY);
 
       setFields((prev) => ({
         ...prev,
@@ -388,55 +409,59 @@ export function CertificateEditor({ certificate, onSave, onClose, isEditing = fa
           x: actualX,
           y: actualY,
         },
-      }))
+      }));
     },
-    [draggedField, dragOffset, isDragging, dragStartPos],
-  )
+    [draggedField, dragOffset, isDragging, dragStartPos]
+  );
 
   const handleMouseUp = useCallback(() => {
     if (draggedField) {
-      setDraggedField(null)
-      setDragOffset({ x: 0, y: 0 })
-      setIsDragging(false)
-      setDragStartPos(null)
+      setDraggedField(null);
+      setDragOffset({ x: 0, y: 0 });
+      setIsDragging(false);
+      setDragStartPos(null);
     }
-  }, [draggedField])
+  }, [draggedField]);
 
-  const updateFieldStyle = (fieldType: FieldType, styleProperty: string, value: string | number) => {
+  const updateFieldStyle = (
+    fieldType: FieldType,
+    styleProperty: string,
+    value: string | number
+  ) => {
     setFields((prev) => ({
       ...prev,
       [fieldType]: {
         ...prev[fieldType]!,
         [styleProperty]: value,
       },
-    }))
-  }
+    }));
+  };
 
   const handleSave = () => {
     if (!uploadedImage) {
-      toast("Upload Required", {
-        description: "Please upload a certificate template first.",
-      })
-      return
+      toast('Upload Required', {
+        description: 'Please upload a certificate template first.',
+      });
+      return;
     }
 
     const savedCertificate: Certificate = {
       id: certificate.id || Date.now().toString(),
-      name: certificate.name || "Untitled Certificate",
-      event: certificate.event || "Unknown Event",
+      name: certificate.name || 'Untitled Certificate',
+      event: certificate.event || 'Unknown Event',
       date: certificate.date || new Date().toLocaleDateString(),
-      image: uploadedImagePath || uploadedImage || "/placeholder-certificate.jpg",
+      image: uploadedImagePath || uploadedImage || '/placeholder-certificate.jpg',
       fields,
-    }
+    };
 
     // console.log("FOR COLOR:", savedCertificate.fields)
-    onSave(savedCertificate)
-    toast(isEditing ? "Certificate Updated" : "Certificate Saved", {
-      description: isEditing 
-        ? "Your certificate template has been updated successfully." 
-        : "Your certificate template has been saved successfully.",
-    })
-  }
+    onSave(savedCertificate);
+    toast(isEditing ? 'Certificate Updated' : 'Certificate Saved', {
+      description: isEditing
+        ? 'Your certificate template has been updated successfully.'
+        : 'Your certificate template has been saved successfully.',
+    });
+  };
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -457,8 +482,11 @@ export function CertificateEditor({ certificate, onSave, onClose, isEditing = fa
                 {/* Font Family Dropdown */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="min-w-[140px] justify-between bg-transparent">
-                      {fields[selectedFieldForToolbar]?.fontFamily || "Arial"}
+                    <Button
+                      variant="outline"
+                      className="min-w-[140px] justify-between bg-transparent"
+                    >
+                      {fields[selectedFieldForToolbar]?.fontFamily || 'Arial'}
                       <span className="ml-2">▼</span>
                     </Button>
                   </DropdownMenuTrigger>
@@ -466,8 +494,10 @@ export function CertificateEditor({ certificate, onSave, onClose, isEditing = fa
                     {fontFamilies.map((font) => (
                       <DropdownMenuItem
                         key={font}
-                        onClick={() => updateFieldStyle(selectedFieldForToolbar, "fontFamily", font)}
-                        className={`${fields[selectedFieldForToolbar]?.fontFamily === font ? "bg-blue-50" : ""}`}
+                        onClick={() =>
+                          updateFieldStyle(selectedFieldForToolbar, 'fontFamily', font)
+                        }
+                        className={`${fields[selectedFieldForToolbar]?.fontFamily === font ? 'bg-blue-50' : ''}`}
                         style={{ fontFamily: font }}
                       >
                         {font}
@@ -479,39 +509,53 @@ export function CertificateEditor({ certificate, onSave, onClose, isEditing = fa
                 {/* Text Style Buttons */}
                 <div className="flex items-center gap-1">
                   <Button
-                    variant={fields[selectedFieldForToolbar]?.fontWeight === "bold" ? "default" : "outline"}
+                    variant={
+                      fields[selectedFieldForToolbar]?.fontWeight === 'bold' ? 'default' : 'outline'
+                    }
                     size="sm"
                     onClick={() =>
                       updateFieldStyle(
                         selectedFieldForToolbar,
-                        "fontWeight",
-                        fields[selectedFieldForToolbar]?.fontWeight === "bold" ? "normal" : "bold",
+                        'fontWeight',
+                        fields[selectedFieldForToolbar]?.fontWeight === 'bold' ? 'normal' : 'bold'
                       )
                     }
                   >
                     <Bold className="h-4 w-4" />
                   </Button>
                   <Button
-                    variant={fields[selectedFieldForToolbar]?.fontStyle === "italic" ? "default" : "outline"}
+                    variant={
+                      fields[selectedFieldForToolbar]?.fontStyle === 'italic'
+                        ? 'default'
+                        : 'outline'
+                    }
                     size="sm"
                     onClick={() =>
                       updateFieldStyle(
                         selectedFieldForToolbar,
-                        "fontStyle",
-                        fields[selectedFieldForToolbar]?.fontStyle === "italic" ? "normal" : "italic",
+                        'fontStyle',
+                        fields[selectedFieldForToolbar]?.fontStyle === 'italic'
+                          ? 'normal'
+                          : 'italic'
                       )
                     }
                   >
                     <Italic className="h-4 w-4" />
                   </Button>
                   <Button
-                    variant={fields[selectedFieldForToolbar]?.textDecoration === "underline" ? "default" : "outline"}
+                    variant={
+                      fields[selectedFieldForToolbar]?.textDecoration === 'underline'
+                        ? 'default'
+                        : 'outline'
+                    }
                     size="sm"
                     onClick={() =>
                       updateFieldStyle(
                         selectedFieldForToolbar,
-                        "textDecoration",
-                        fields[selectedFieldForToolbar]?.textDecoration === "underline" ? "none" : "underline",
+                        'textDecoration',
+                        fields[selectedFieldForToolbar]?.textDecoration === 'underline'
+                          ? 'none'
+                          : 'underline'
                       )
                     }
                   >
@@ -525,8 +569,10 @@ export function CertificateEditor({ certificate, onSave, onClose, isEditing = fa
                   <div className="relative">
                     <input
                       type="color"
-                      value={fields[selectedFieldForToolbar]?.color || "#000000"}
-                      onChange={(e) => updateFieldStyle(selectedFieldForToolbar, "color", e.target.value)}
+                      value={fields[selectedFieldForToolbar]?.color || '#000000'}
+                      onChange={(e) =>
+                        updateFieldStyle(selectedFieldForToolbar, 'color', e.target.value)
+                      }
                       className="w-8 h-8 rounded border border-gray-300 cursor-pointer bg-transparent"
                       title="Text Color"
                     />
@@ -547,7 +593,12 @@ export function CertificateEditor({ certificate, onSave, onClose, isEditing = fa
                 </div>
 
                 {/* Close Toolbar */}
-                <Button variant="ghost" size="sm" onClick={() => setSelectedFieldForToolbar(null)} className="ml-4">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSelectedFieldForToolbar(null)}
+                  className="ml-4"
+                >
                   <X className="h-4 w-4" />
                 </Button>
               </div>
@@ -568,12 +619,12 @@ export function CertificateEditor({ certificate, onSave, onClose, isEditing = fa
             <AnimatePresence>
               {!uploadedImage && (
                 <motion.div
-                  initial={{ opacity: 1, height: "auto", marginBottom: 24 }}
+                  initial={{ opacity: 1, height: 'auto', marginBottom: 24 }}
                   exit={{
                     opacity: 0,
                     height: 0,
                     marginBottom: 0,
-                    transition: { duration: 0.3, ease: "easeInOut" },
+                    transition: { duration: 0.3, ease: 'easeInOut' },
                   }}
                 >
                   <Card className="border-gray-200">
@@ -606,7 +657,7 @@ export function CertificateEditor({ certificate, onSave, onClose, isEditing = fa
             <motion.div
               animate={{
                 y: uploadedImage ? -24 : 0,
-                transition: { duration: 0.3, ease: "easeInOut" },
+                transition: { duration: 0.3, ease: 'easeInOut' },
               }}
               className="space-y-6"
             >
@@ -624,12 +675,17 @@ export function CertificateEditor({ certificate, onSave, onClose, isEditing = fa
                         onClick={() => handleFieldSelect(option.key)}
                         disabled={!uploadedImage}
                       >
-                        <div className={`w-8 h-8 ${option.bgColor} rounded-lg flex items-center justify-center mr-3`}>
+                        <div
+                          className={`w-8 h-8 ${option.bgColor} rounded-lg flex items-center justify-center mr-3`}
+                        >
                           <option.icon className={`h-4 w-4 ${option.color}`} />
                         </div>
                         {option.label}
                         {fields[option.key] && (
-                          <Badge variant="secondary" className="ml-auto bg-green-100 text-green-700">
+                          <Badge
+                            variant="secondary"
+                            className="ml-auto bg-green-100 text-green-700"
+                          >
                             ✓
                           </Badge>
                         )}
@@ -642,7 +698,7 @@ export function CertificateEditor({ certificate, onSave, onClose, isEditing = fa
               <div className="space-y-3">
                 <Button onClick={handleSave} className="w-full bg-green-600 hover:bg-green-700">
                   <Save className="h-4 w-4 mr-2" />
-                  {isEditing ? "Update Certificate" : "Save Certificate"}
+                  {isEditing ? 'Update Certificate' : 'Save Certificate'}
                 </Button>
               </div>
             </motion.div>
@@ -660,14 +716,14 @@ export function CertificateEditor({ certificate, onSave, onClose, isEditing = fa
                   onMouseUp={handleMouseUp}
                   onMouseLeave={handleMouseUp}
                   style={{
-                    maxWidth: "100%",
-                    maxHeight: "100%",
-                    cursor: isSelecting ? "crosshair" : isDragging ? "grabbing" : "default",
+                    maxWidth: '100%',
+                    maxHeight: '100%',
+                    cursor: isSelecting ? 'crosshair' : isDragging ? 'grabbing' : 'default',
                   }}
                 >
                   <div className="relative inline-block">
                     <img
-                      src={uploadedImage || "/placeholder.svg"}
+                      src={uploadedImage || '/placeholder.svg'}
                       alt="Certificate Template"
                       className="max-w-full max-h-full object-contain"
                       draggable={false}
@@ -677,33 +733,37 @@ export function CertificateEditor({ certificate, onSave, onClose, isEditing = fa
 
                     {imageLoaded &&
                       Object.entries(fields).map(([fieldType, position]) => {
-                        const option = fieldOptions.find((f) => f.key === fieldType)
+                        const option = fieldOptions.find((f) => f.key === fieldType);
 
                         // Get the displayed image for scaling calculation
-                        const img = canvasRef.current?.querySelector("img")
+                        const img = canvasRef.current?.querySelector('img');
                         if (!img || !img.complete || img.naturalWidth === 0) {
-                          return null
+                          return null;
                         }
 
                         // Calculate scaling factors to convert from actual image coordinates to display coordinates
-                        const displayScaleX = img.offsetWidth / img.naturalWidth
-                        const displayScaleY = img.offsetHeight / img.naturalHeight
+                        const displayScaleX = img.offsetWidth / img.naturalWidth;
+                        const displayScaleY = img.offsetHeight / img.naturalHeight;
 
                         // Convert stored actual coordinates to display coordinates
-                        const displayX = position.x * displayScaleX
-                        const displayY = position.y * displayScaleY
-                        const displayWidth = position.width * displayScaleX
-                        const displayHeight = position.height * displayScaleY
+                        const displayX = position.x * displayScaleX;
+                        const displayY = position.y * displayScaleY;
+                        const displayWidth = position.width * displayScaleX;
+                        const displayHeight = position.height * displayScaleY;
 
-                        const isSelected = selectedFieldForToolbar === fieldType
+                        const isSelected = selectedFieldForToolbar === fieldType;
 
                         return (
                           <motion.div
                             key={fieldType}
                             className={`absolute border-2 border-dashed ${
-                              isSelected ? "border-blue-600 bg-blue-100/50" : "border-blue-400 bg-blue-50/50"
+                              isSelected
+                                ? 'border-blue-600 bg-blue-100/50'
+                                : 'border-blue-400 bg-blue-50/50'
                             } flex items-center justify-center group hover:border-blue-500 transition-colors ${
-                              isDragging && draggedField === fieldType ? "cursor-grabbing" : "cursor-grab"
+                              isDragging && draggedField === fieldType
+                                ? 'cursor-grabbing'
+                                : 'cursor-grab'
                             }`}
                             style={{
                               left: displayX,
@@ -712,28 +772,28 @@ export function CertificateEditor({ certificate, onSave, onClose, isEditing = fa
                               height: displayHeight,
                             }}
                             whileHover={{ scale: 1.02 }}
-                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                             onMouseDown={(e) => {
-                              e.stopPropagation()
-                              const img = canvasRef.current?.querySelector("img")
-                              if (!img) return
+                              e.stopPropagation();
+                              const img = canvasRef.current?.querySelector('img');
+                              if (!img) return;
 
-                              const imgRect = img.getBoundingClientRect()
-                              const mouseX = e.clientX - imgRect.left
-                              const mouseY = e.clientY - imgRect.top
+                              const imgRect = img.getBoundingClientRect();
+                              const mouseX = e.clientX - imgRect.left;
+                              const mouseY = e.clientY - imgRect.top;
 
-                              setDraggedField(fieldType as FieldType)
+                              setDraggedField(fieldType as FieldType);
                               setDragOffset({
                                 x: mouseX - displayX,
                                 y: mouseY - displayY,
-                              })
-                              setDragStartPos({ x: e.clientX, y: e.clientY })
-                              setIsDragging(false) // Don't start dragging immediately
+                              });
+                              setDragStartPos({ x: e.clientX, y: e.clientY });
+                              setIsDragging(false); // Don't start dragging immediately
                             }}
                             onClick={(e) => {
-                              e.stopPropagation()
+                              e.stopPropagation();
                               if (!isDragging) {
-                                setSelectedFieldForToolbar(fieldType as FieldType)
+                                setSelectedFieldForToolbar(fieldType as FieldType);
                               }
                             }}
                           >
@@ -744,7 +804,7 @@ export function CertificateEditor({ certificate, onSave, onClose, isEditing = fa
                               {option?.label}
                             </Badge>
                           </motion.div>
-                        )
+                        );
                       })}
 
                     {/* Selection indicator */}
@@ -762,14 +822,16 @@ export function CertificateEditor({ certificate, onSave, onClose, isEditing = fa
               ) : (
                 <div className="text-center text-gray-500">
                   <Upload className="h-16 w-16 mx-auto mb-4 text-gray-300" />
-                  <p className="text-lg text-gray-600">Upload a certificate template to get started</p>
+                  <p className="text-lg text-gray-600">
+                    Upload a certificate template to get started
+                  </p>
                   <p className="text-sm text-gray-500 mt-2">Supported formats: JPG, PNG, PDF</p>
                 </div>
               )}
-            </div>  
+            </div>
           </div>
         </div>
       </motion.div>
     </div>
-  )
+  );
 }

@@ -95,7 +95,7 @@ export function CertificateTableSkeleton({ count = 6 }: SkeletonListProps) {
         </div>
       </Card>
 
-      <div className="w-full lg:w-1/3 min-w-[320px] max-w-[400px] flex-shrink-0 h-full hidden lg:block">
+      <div className="w-full lg:w-1/3 min-w-[320px] max-w-[400px] flex-shrink-0 h-full">
         <Card className="bg-white border-gray-200 h-full flex flex-col shadow-sm">
           <div className="px-6 py-3 border-b border-gray-100 bg-gray-50/50">
             <Skeleton className="h-5 w-40" />

@@ -5,64 +5,64 @@
 // Valid field names allowed in certificate configuration
 export const VALID_FIELD_NAMES = [
   'recipientName',
-  'organisationName', 
+  'organisationName',
   'certificateLink',
   'certificateQR',
-  'rank'
+  'rank',
 ];
 
 // Valid font families (matching frontend exactly)
 export const VALID_FONT_FAMILIES = [
-    'Inter',
-    'Roboto', 
-    'Open Sans',
-    'Montserrat',
-    'Arial',
-    'Times New Roman',
-    'Helvetica',
-    'Georgia',
-    'Verdana',
-    'Trebuchet MS',
-    'Comic Sans MS',
-    'Impact',
-    'Lucida Console',
-    'Tahoma',
-    'Poppins',
-    'Lato',
-    'Playfair Display',
-    'Raleway',
-    'Nunito',
-    'Oswald',
-    'Source Sans 3',
-    'Ubuntu',
-    'Merriweather',
-    'Noto Sans',
-    'Rubik',
-    'Fira Sans',
-    'Dosis',
-    'Archivo',
-    'Cabin',
-    'Quicksand',
-    'Josefin Sans',
-    'Work Sans',
-    'Manrope',
-    'Dancing Script',
-    'Pacifico',
-    'Great Vibes',
-    'Allura',
-    'Lobster',
-    'Satisfy',
-    'Cookie',
-    'Tangerine',
-    'Parisienne',
-    'Sacramento',
-    'Alex Brush',
-    'Mr Dafoe',
-    'Zeyada',
-    'Petit Formal Script',
-    'Qwigley',
-    'Rouge Script',
-    'Herr Von Muellerhoff',
+  'Inter',
+  'Roboto',
+  'Open Sans',
+  'Montserrat',
+  'Arial',
+  'Times New Roman',
+  'Helvetica',
+  'Georgia',
+  'Verdana',
+  'Trebuchet MS',
+  'Comic Sans MS',
+  'Impact',
+  'Lucida Console',
+  'Tahoma',
+  'Poppins',
+  'Lato',
+  'Playfair Display',
+  'Raleway',
+  'Nunito',
+  'Oswald',
+  'Source Sans 3',
+  'Ubuntu',
+  'Merriweather',
+  'Noto Sans',
+  'Rubik',
+  'Fira Sans',
+  'Dosis',
+  'Archivo',
+  'Cabin',
+  'Quicksand',
+  'Josefin Sans',
+  'Work Sans',
+  'Manrope',
+  'Dancing Script',
+  'Pacifico',
+  'Great Vibes',
+  'Allura',
+  'Lobster',
+  'Satisfy',
+  'Cookie',
+  'Tangerine',
+  'Parisienne',
+  'Sacramento',
+  'Alex Brush',
+  'Mr Dafoe',
+  'Zeyada',
+  'Petit Formal Script',
+  'Qwigley',
+  'Rouge Script',
+  'Herr Von Muellerhoff',
 ];
 
 /**
@@ -76,11 +76,11 @@ export const validateField = (field, fieldName) => {
   if (field === undefined || field === null) {
     return { isValid: true, error: null };
   }
-  
+
   if (typeof field !== 'object' || Array.isArray(field)) {
     return {
       isValid: false,
-      error: `Field ${fieldName} must be an object`
+      error: `Field ${fieldName} must be an object`,
     };
   }
 
@@ -90,14 +90,14 @@ export const validateField = (field, fieldName) => {
     if (typeof field[prop] !== 'number') {
       return {
         isValid: false,
-        error: `Field ${fieldName}.${prop} must be a number`
+        error: `Field ${fieldName}.${prop} must be a number`,
       };
     }
-    
+
     if (!Number.isFinite(field[prop])) {
       return {
         isValid: false,
-        error: `Field ${fieldName}.${prop} must be a finite number`
+        error: `Field ${fieldName}.${prop} must be a finite number`,
       };
     }
   }
@@ -106,14 +106,14 @@ export const validateField = (field, fieldName) => {
   if (field.x < 0 || field.y < 0) {
     return {
       isValid: false,
-      error: `Field ${fieldName} x and y coordinates must be non-negative`
+      error: `Field ${fieldName} x and y coordinates must be non-negative`,
     };
   }
 
   if (field.width <= 0 || field.height <= 0) {
     return {
       isValid: false,
-      error: `Field ${fieldName} width and height must be positive`
+      error: `Field ${fieldName} width and height must be positive`,
     };
   }
 
@@ -122,7 +122,7 @@ export const validateField = (field, fieldName) => {
     if (typeof field.fontFamily !== 'string' || !VALID_FONT_FAMILIES.includes(field.fontFamily)) {
       return {
         isValid: false,
-        error: `Field ${fieldName}.fontFamily must be one of: ${VALID_FONT_FAMILIES.join(', ')}`
+        error: `Field ${fieldName}.fontFamily must be one of: ${VALID_FONT_FAMILIES.join(', ')}`,
       };
     }
   }
@@ -131,7 +131,7 @@ export const validateField = (field, fieldName) => {
     if (!['normal', 'bold'].includes(field.fontWeight)) {
       return {
         isValid: false,
-        error: `Field ${fieldName}.fontWeight must be 'normal' or 'bold'`
+        error: `Field ${fieldName}.fontWeight must be 'normal' or 'bold'`,
       };
     }
   }
@@ -140,7 +140,7 @@ export const validateField = (field, fieldName) => {
     if (!['normal', 'italic'].includes(field.fontStyle)) {
       return {
         isValid: false,
-        error: `Field ${fieldName}.fontStyle must be 'normal' or 'italic'`
+        error: `Field ${fieldName}.fontStyle must be 'normal' or 'italic'`,
       };
     }
   }
@@ -149,7 +149,7 @@ export const validateField = (field, fieldName) => {
     if (!['none', 'underline'].includes(field.textDecoration)) {
       return {
         isValid: false,
-        error: `Field ${fieldName}.textDecoration must be 'none' or 'underline'`
+        error: `Field ${fieldName}.textDecoration must be 'none' or 'underline'`,
       };
     }
   }
@@ -158,15 +158,15 @@ export const validateField = (field, fieldName) => {
     if (typeof field.color !== 'string') {
       return {
         isValid: false,
-        error: `Field ${fieldName}.color must be a string`
+        error: `Field ${fieldName}.color must be a string`,
       };
     }
-    
+
     // Validate hex color code format
     if (!/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(field.color)) {
       return {
         isValid: false,
-        error: `Field ${fieldName}.color must be a valid hex color code (e.g., #000000 or #000)`
+        error: `Field ${fieldName}.color must be a valid hex color code (e.g., #000000 or #000)`,
       };
     }
   }
@@ -181,27 +181,29 @@ export const validateField = (field, fieldName) => {
  */
 export const validateValidFields = (validFields) => {
   const errors = [];
-  
+
   if (!validFields || typeof validFields !== 'object') {
     return {
       isValid: false,
-      errors: ['validFields must be an object']
+      errors: ['validFields must be an object'],
     };
   }
 
   const providedFields = Object.keys(validFields);
-  
+
   if (providedFields.length === 0) {
     return {
       isValid: false,
-      errors: ['At least one valid field must be provided']
+      errors: ['At least one valid field must be provided'],
     };
   }
 
   // Check for invalid field names
-  const invalidFields = providedFields.filter(field => !VALID_FIELD_NAMES.includes(field));
+  const invalidFields = providedFields.filter((field) => !VALID_FIELD_NAMES.includes(field));
   if (invalidFields.length > 0) {
-    errors.push(`Invalid field names: ${invalidFields.join(', ')}. Allowed fields: ${VALID_FIELD_NAMES.join(', ')}`);
+    errors.push(
+      `Invalid field names: ${invalidFields.join(', ')}. Allowed fields: ${VALID_FIELD_NAMES.join(', ')}`
+    );
   }
 
   // Validate each field object
@@ -216,7 +218,7 @@ export const validateValidFields = (validFields) => {
 
   return {
     isValid: errors.length === 0,
-    errors
+    errors,
   };
 };
 

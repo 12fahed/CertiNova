@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import Image from "next/image";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import Image from 'next/image';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import {
   Award,
   Users,
@@ -18,25 +18,25 @@ import {
   LayoutGrid,
   TableOfContents,
   Trash2,
-} from "lucide-react";
-import { CreateCertificateModal } from "@/components/create-certificate-modal";
-import { CertificateEditor } from "@/components/certificate-editor";
-import { SendCertificatesModal } from "@/components/send-certificates-modal";
-import { DeleteConfirmationModal } from "@/components/delete-confirmation-modal";
-import { Navbar } from "@/components/navbar";
-import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { ViewHistoryButton } from "@/components/view-history-button";
-import { useAuth } from "@/context/AuthContext";
-import { useEvents } from "@/context/EventContext";
-import { useCertificates } from "@/context/CertificateContext";
-import { Event } from "@/types/event";
-import { CertificateConfig } from "@/types/certificate";
-import { PremiumCard } from "@/components/premium-card";
+} from 'lucide-react';
+import { CreateCertificateModal } from '@/components/create-certificate-modal';
+import { CertificateEditor } from '@/components/certificate-editor';
+import { SendCertificatesModal } from '@/components/send-certificates-modal';
+import { DeleteConfirmationModal } from '@/components/delete-confirmation-modal';
+import { Navbar } from '@/components/navbar';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { ViewHistoryButton } from '@/components/view-history-button';
+import { useAuth } from '@/context/AuthContext';
+import { useEvents } from '@/context/EventContext';
+import { useCertificates } from '@/context/CertificateContext';
+import { Event } from '@/types/event';
+import { CertificateConfig } from '@/types/certificate';
+import { PremiumCard } from '@/components/premium-card';
 import {
   StatsCardSkeleton,
   CertificateGridSkeleton,
   CertificateTableSkeleton,
-} from "@/components/dashboard-skeleton";
+} from '@/components/dashboard-skeleton';
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -60,12 +60,9 @@ export default function DashboardPage() {
   const [showSendModal, setShowSendModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<Event | null>(null);
-  const [certificateImages, setCertificateImages] = useState<
-    Record<string, string>
-  >({});
-  const [viewMode, setViewMode] = useState<"grid" | "table">("table");
-  const [selectedEventForPreview, setSelectedEventForPreview] =
-    useState<Event | null>(null);
+  const [certificateImages, setCertificateImages] = useState<Record<string, string>>({});
+  const [viewMode, setViewMode] = useState<'grid' | 'table'>('table');
+  const [selectedEventForPreview, setSelectedEventForPreview] = useState<Event | null>(null);
 
   // Load events when component mounts
   useEffect(() => {
@@ -85,10 +82,7 @@ export default function DashboardPage() {
     setCertificateImages(images);
   }, [events]);
 
-  const handleCreateCertificate = async (
-    eventName: string,
-    issuerName: string,
-  ) => {
+  const handleCreateCertificate = async (eventName: string, issuerName: string) => {
     // First create the event
     const newEvent = await createEvent({
       eventName: eventName,
@@ -138,7 +132,7 @@ export default function DashboardPage() {
 
     const requestPayload = {
       eventId: currentEvent.id,
-      imagePath: image || "/placeholder-certificate.jpg",
+      imagePath: image || '/placeholder-certificate.jpg',
       validFields,
     };
 
@@ -151,10 +145,7 @@ export default function DashboardPage() {
       if (isEditing && currentCertificateConfig) {
         // Update existing certificate configuration
         // console.log('Updating certificate config with ID:', currentCertificateConfig.id);
-        config = await updateCertificateConfig(
-          currentCertificateConfig.id,
-          requestPayload,
-        );
+        config = await updateCertificateConfig(currentCertificateConfig.id, requestPayload);
       } else {
         // Create new certificate configuration
         // console.log('Creating new certificate config');
@@ -176,7 +167,7 @@ export default function DashboardPage() {
       setCurrentCertificateConfig(null);
       await fetchEvents();
     } catch (error) {
-      console.error("Error saving certificate:", error);
+      console.error('Error saving certificate:', error);
     }
   };
 
@@ -228,19 +219,19 @@ export default function DashboardPage() {
 
   const handleDownloadSample = async (event: Event) => {
     if (!event.certificateConfig) {
-      console.error("No certificate config available for this event");
+      console.error('No certificate config available for this event');
       return;
     }
 
     try {
       // Create a sample certificate with the actual certificate config data
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
 
       // Fetch the image as blob to avoid CORS issues
       const imageUrl = certificateImages[event.id];
       if (!imageUrl) {
-        console.error("No certificate image available for this event");
+        console.error('No certificate image available for this event');
         return;
       }
 
@@ -258,7 +249,7 @@ export default function DashboardPage() {
 
         // Add sample text to each field using the actual config
         if (ctx && event.certificateConfig) {
-          ctx.fillStyle = "#000000";
+          ctx.fillStyle = '#000000';
 
           // Helper function to draw centered text
           const drawCenteredText = (
@@ -274,22 +265,22 @@ export default function DashboardPage() {
               textDecoration?: string;
               color?: string;
             },
-            maxFontSize = 72,
+            maxFontSize = 72
           ) => {
             // Set text color
-            ctx.fillStyle = position.color || "#000000";
+            ctx.fillStyle = position.color || '#000000';
 
             // Calculate font size based on field dimensions
             const calculatedFontSize = Math.min(
               (position.width / text.length) * 1.5, // Width-based calculation
               position.height * 0.8, // Height-based calculation
-              maxFontSize, // Maximum allowed
+              maxFontSize // Maximum allowed
             );
             const fontSize = Math.max(calculatedFontSize, 8); // Minimum font size of 8
 
-            const fontFamily = position.fontFamily || "Inter"; // Use Google Font as fallback
-            const fontWeight = position.fontWeight || "normal";
-            const fontStyle = position.fontStyle || "normal";
+            const fontFamily = position.fontFamily || 'Inter'; // Use Google Font as fallback
+            const fontWeight = position.fontWeight || 'normal';
+            const fontStyle = position.fontStyle || 'normal';
 
             ctx.font = `${fontStyle} ${fontWeight} ${fontSize}px ${fontFamily}`;
 
@@ -308,15 +299,14 @@ export default function DashboardPage() {
 
             // Calculate centered position
             const textX = position.x + (position.width - textMetrics.width) / 2;
-            const textY =
-              position.y + (position.height + adjustedFontSize * 0.3) / 2;
+            const textY = position.y + (position.height + adjustedFontSize * 0.3) / 2;
 
             // Draw the text
             ctx.fillText(text, textX, textY);
 
             // Handle text decoration
-            if (position.textDecoration === "underline") {
-              ctx.strokeStyle = position.color || "#000000";
+            if (position.textDecoration === 'underline') {
+              ctx.strokeStyle = position.color || '#000000';
               ctx.beginPath();
               ctx.moveTo(textX, textY + 2);
               ctx.lineTo(textX + textMetrics.width, textY + 2);
@@ -325,44 +315,42 @@ export default function DashboardPage() {
           };
 
           // Use the actual certificate config fields
-          Object.entries(event.certificateConfig.validFields).forEach(
-            ([fieldType, position]) => {
-              let sampleText = "";
-              switch (fieldType) {
-                case "recipientName":
-                  sampleText = "John Doe";
-                  break;
-                case "organisationName":
-                  sampleText = event.issuerName || "Sample Organization";
-                  break;
-                case "certificateLink":
-                  sampleText = "https://example.com/cert/123";
-                  break;
-                case "certificateQR":
-                  sampleText = "[QR Code]";
-                  break;
-                case "rank":
-                  sampleText = "1st Place";
-                  break;
-              }
+          Object.entries(event.certificateConfig.validFields).forEach(([fieldType, position]) => {
+            let sampleText = '';
+            switch (fieldType) {
+              case 'recipientName':
+                sampleText = 'John Doe';
+                break;
+              case 'organisationName':
+                sampleText = event.issuerName || 'Sample Organization';
+                break;
+              case 'certificateLink':
+                sampleText = 'https://example.com/cert/123';
+                break;
+              case 'certificateQR':
+                sampleText = '[QR Code]';
+                break;
+              case 'rank':
+                sampleText = '1st Place';
+                break;
+            }
 
-              if (position) {
-                drawCenteredText(sampleText, position, 72);
-              }
-            },
-          );
+            if (position) {
+              drawCenteredText(sampleText, position, 72);
+            }
+          });
         }
 
         // Download the canvas as image
         try {
-          const link = document.createElement("a");
+          const link = document.createElement('a');
           link.download = `${event.eventName}-sample-certificate.png`;
           link.href = canvas.toDataURL();
           link.click();
         } catch (error) {
-          console.error("Error generating sample certificate:", error);
+          console.error('Error generating sample certificate:', error);
           alert(
-            "Error generating sample certificate. This may be due to CORS restrictions. Please try again or contact support.",
+            'Error generating sample certificate. This may be due to CORS restrictions. Please try again or contact support.'
           );
         }
 
@@ -371,17 +359,15 @@ export default function DashboardPage() {
       };
 
       img.onerror = () => {
-        console.error("Failed to load certificate image");
-        alert("Failed to load certificate image. Please try again.");
+        console.error('Failed to load certificate image');
+        alert('Failed to load certificate image. Please try again.');
         URL.revokeObjectURL(objectUrl);
       };
 
       img.src = objectUrl;
     } catch (error) {
-      console.error("Error downloading sample certificate:", error);
-      alert(
-        "Error downloading sample certificate. Please try again or contact support.",
-      );
+      console.error('Error downloading sample certificate:', error);
+      alert('Error downloading sample certificate. Please try again or contact support.');
     }
   };
 
@@ -403,9 +389,7 @@ export default function DashboardPage() {
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
               Welcome back, {user?.organisation}!
             </h1>
-            <p className="text-gray-600">
-              Manage and create certificates for your organization
-            </p>
+            <p className="text-gray-600">Manage and create certificates for your organization</p>
           </motion.div>
 
           {/* Stats Cards */}
@@ -428,12 +412,8 @@ export default function DashboardPage() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-600">
-                        Total Certificates
-                      </p>
-                      <p className="text-3xl font-bold text-gray-900">
-                        {events.length}
-                      </p>
+                      <p className="text-sm font-medium text-gray-600">Total Certificates</p>
+                      <p className="text-3xl font-bold text-gray-900">{events.length}</p>
                     </div>
                     <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                       <Award className="h-6 w-6 text-blue-600" />
@@ -510,28 +490,26 @@ export default function DashboardPage() {
             className="mb-8"
           >
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">
-                Your Certificates
-              </h2>
+              <h2 className="text-2xl font-bold text-gray-900">Your Certificates</h2>
               <div className="flex items-center space-x-3">
                 <div className="flex bg-white rounded-md border border-gray-200 p-1">
                   <button
-                    onClick={() => setViewMode("table")}
+                    onClick={() => setViewMode('table')}
                     className={`p-1.5 rounded-md transition-colors ${
-                      viewMode === "table"
-                        ? "bg-gray-100 text-gray-900 shadow-sm"
-                        : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+                      viewMode === 'table'
+                        ? 'bg-gray-100 text-gray-900 shadow-sm'
+                        : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
                     }`}
                     title="Table View"
                   >
                     <TableOfContents className="h-4 w-4" />
                   </button>
                   <button
-                    onClick={() => setViewMode("grid")}
+                    onClick={() => setViewMode('grid')}
                     className={`p-1.5 rounded-md transition-colors ${
-                      viewMode === "grid"
-                        ? "bg-gray-100 text-gray-900 shadow-sm"
-                        : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+                      viewMode === 'grid'
+                        ? 'bg-gray-100 text-gray-900 shadow-sm'
+                        : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
                     }`}
                     title="Grid View"
                   >
@@ -552,9 +530,7 @@ export default function DashboardPage() {
               <Card className="bg-white border-gray-200">
                 <CardContent className="p-12 text-center">
                   <Award className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                    No certificates yet
-                  </h3>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No certificates yet</h3>
                   <p className="text-gray-600 mb-6">
                     Create your first certificate template to get started
                   </p>
@@ -567,7 +543,7 @@ export default function DashboardPage() {
                   </Button>
                 </CardContent>
               </Card>
-            ) : viewMode === "grid" ? (
+            ) : viewMode === 'grid' ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {events.map((event, index) => (
                   <motion.div
@@ -580,22 +556,18 @@ export default function DashboardPage() {
                       <CardContent className="p-6 flex flex-col h-full">
                         <div className="flex items-start justify-between mb-4">
                           <div>
-                            <h3 className="font-semibold text-gray-900 mb-1">
-                              {event.eventName}
-                            </h3>
-                            <p className="text-sm text-gray-600 mb-2">
-                              {event.issuerName}
-                            </p>
+                            <h3 className="font-semibold text-gray-900 mb-1">{event.eventName}</h3>
+                            <p className="text-sm text-gray-600 mb-2">{event.issuerName}</p>
                           </div>
                           <div className="flex items-center text-sm text-gray-500 mb-4 whitespace-nowrap">
                             <Calendar className="h-4 w-4 mr-1" />
                             {new Date(event.date)
-                              .toLocaleDateString("en-GB", {
-                                day: "2-digit",
-                                month: "2-digit",
-                                year: "numeric",
+                              .toLocaleDateString('en-GB', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: 'numeric',
                               })
-                              .replace(/\//g, "/")}
+                              .replace(/\//g, '/')}
                           </div>
                         </div>
 
@@ -657,14 +629,10 @@ export default function DashboardPage() {
                     <table className="w-full text-sm text-left">
                       <thead className="text-xs text-gray-500 uppercase bg-gray-50 sticky top-0 z-10 border-b border-gray-200">
                         <tr>
-                          <th className="px-6 py-4 font-semibold">
-                            Event Name
-                          </th>
+                          <th className="px-6 py-4 font-semibold">Event Name</th>
                           <th className="px-6 py-4 font-semibold">Issuer</th>
                           <th className="px-6 py-4 font-semibold w-32">Date</th>
-                          <th className="px-6 py-4 font-semibold text-right w-36">
-                            Actions
-                          </th>
+                          <th className="px-6 py-4 font-semibold text-right w-36">Actions</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-100">
@@ -674,8 +642,8 @@ export default function DashboardPage() {
                             onClick={() => setSelectedEventForPreview(event)}
                             className={`cursor-pointer group transition-colors ${
                               selectedEventForPreview?.id === event.id
-                                ? "bg-blue-50/50 hover:bg-blue-50/70"
-                                : "bg-white hover:bg-gray-50"
+                                ? 'bg-blue-50/50 hover:bg-blue-50/70'
+                                : 'bg-white hover:bg-gray-50'
                             }`}
                           >
                             <td className="px-6 py-4">
@@ -683,15 +651,11 @@ export default function DashboardPage() {
                                 {event.eventName}
                               </div>
                             </td>
-                            <td className="px-6 py-4 text-gray-600">
-                              {event.issuerName}
-                            </td>
+                            <td className="px-6 py-4 text-gray-600">{event.issuerName}</td>
                             <td className="px-6 py-4 text-gray-500 whitespace-nowrap">
                               <div className="flex items-center">
                                 <Calendar className="h-3.5 w-3.5 mr-1.5 opacity-70" />
-                                {new Date(event.date).toLocaleDateString(
-                                  "en-GB",
-                                )}
+                                {new Date(event.date).toLocaleDateString('en-GB')}
                               </div>
                             </td>
                             <td className="px-6 py-4 text-right">
@@ -786,9 +750,7 @@ export default function DashboardPage() {
                             </p>
                             <p className="text-sm text-gray-700 font-medium flex items-center">
                               <Calendar className="h-3.5 w-3.5 mr-1" />
-                              {new Date(
-                                selectedEventForPreview.date,
-                              ).toLocaleDateString("en-GB")}
+                              {new Date(selectedEventForPreview.date).toLocaleDateString('en-GB')}
                             </p>
                           </div>
                         </div>
@@ -797,9 +759,7 @@ export default function DashboardPage() {
                         {certificateImages[selectedEventForPreview.id] ? (
                           <div className="mt-2 mb-6 rounded-lg overflow-hidden border border-gray-200 shadow-sm bg-gray-50 shrink-0">
                             <Image
-                              src={
-                                certificateImages[selectedEventForPreview.id]
-                              }
+                              src={certificateImages[selectedEventForPreview.id]}
                               alt={`Certificate for ${selectedEventForPreview.eventName}`}
                               width={400}
                               height={300}
@@ -813,17 +773,13 @@ export default function DashboardPage() {
                             <p className="text-sm font-medium text-gray-500">
                               No layout configured
                             </p>
-                            <p className="text-xs text-gray-400 mt-1">
-                              Edit to add a background
-                            </p>
+                            <p className="text-xs text-gray-400 mt-1">Edit to add a background</p>
                           </div>
                         )}
 
                         <div className="flex flex-col space-y-2 mt-auto">
                           <Button
-                            onClick={() =>
-                              handleEditCertificate(selectedEventForPreview)
-                            }
+                            onClick={() => handleEditCertificate(selectedEventForPreview)}
                             variant="default"
                             className="bg-blue-600 hover:bg-blue-700 text-white w-full shadow-sm"
                           >
@@ -833,9 +789,7 @@ export default function DashboardPage() {
                           <div className="grid grid-cols-2 gap-2">
                             {selectedEventForPreview.certificateConfig && (
                               <Button
-                                onClick={() =>
-                                  handleDownloadSample(selectedEventForPreview)
-                                }
+                                onClick={() => handleDownloadSample(selectedEventForPreview)}
                                 variant="outline"
                                 className="w-full text-green-600 border-green-200 hover:bg-green-50"
                               >
@@ -844,9 +798,7 @@ export default function DashboardPage() {
                               </Button>
                             )}
                             <Button
-                              onClick={() =>
-                                handleDeleteCertificate(selectedEventForPreview)
-                              }
+                              onClick={() => handleDeleteCertificate(selectedEventForPreview)}
                               variant="outline"
                               className="w-full text-red-600 border-red-200 hover:bg-red-50"
                             >
@@ -863,12 +815,8 @@ export default function DashboardPage() {
                         <div className="w-16 h-16 bg-white border border-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm">
                           <TableOfContents className="h-8 w-8 text-gray-300" />
                         </div>
-                        <h3 className="text-gray-600 font-medium mb-1">
-                          No Selection
-                        </h3>
-                        <p className="text-sm">
-                          Select an event from the table
-                        </p>
+                        <h3 className="text-gray-600 font-medium mb-1">No Selection</h3>
+                        <p className="text-sm">Select an event from the table</p>
                         <p className="text-sm mt-1">to preview details</p>
                       </div>
                     </Card>
@@ -895,9 +843,7 @@ export default function DashboardPage() {
               date: new Date(currentEvent.date).toLocaleDateString(),
               image: currentCertificateConfig?.imagePath,
               fields: currentCertificateConfig
-                ? convertValidFieldsToEditorFields(
-                    currentCertificateConfig.validFields,
-                  )
+                ? convertValidFieldsToEditorFields(currentCertificateConfig.validFields)
                 : {},
             }}
             isEditing={isEditing}
@@ -922,8 +868,7 @@ export default function DashboardPage() {
               name: event.eventName,
               event: event.issuerName,
               date: new Date(event.date).toLocaleDateString(),
-              image:
-                certificateImages[event.id] || "/placeholder-certificate.jpg",
+              image: certificateImages[event.id] || '/placeholder-certificate.jpg',
               fields: {},
             }))}
           onClose={() => setShowSendModal(false)}
@@ -931,7 +876,7 @@ export default function DashboardPage() {
 
         <DeleteConfirmationModal
           open={showDeleteModal}
-          eventName={eventToDelete?.eventName || ""}
+          eventName={eventToDelete?.eventName || ''}
           onClose={() => {
             setShowDeleteModal(false);
             setEventToDelete(null);

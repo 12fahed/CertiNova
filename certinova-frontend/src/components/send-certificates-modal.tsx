@@ -1,22 +1,17 @@
-"use client";
+'use client';
 
-import type React from "react";
+import type React from 'react';
 
-import { useState, useEffect } from "react";
-import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Send,
   Upload,
@@ -27,19 +22,19 @@ import {
   Loader2,
   CheckCircle,
   FileDown,
-} from "lucide-react";
-import { toast } from "sonner";
-import confetti from "canvas-confetti";
-import { useCertificates } from "@/context/CertificateContext";
-import { CertificateConfig } from "@/types/certificate";
-import { certificateService } from "@/services/certificate";
-import JSZip from "jszip";
-import { saveAs } from "file-saver";
-import * as XLSX from "xlsx";
-import { v4 as uuidv4 } from "uuid";
-import QRCode from "qrcode";
-import { PasswordDialog } from "@/components/password-dialog";
-import { EncryptedCache } from "@/utils/crypto";
+} from 'lucide-react';
+import { toast } from 'sonner';
+import confetti from 'canvas-confetti';
+import { useCertificates } from '@/context/CertificateContext';
+import { CertificateConfig } from '@/types/certificate';
+import { certificateService } from '@/services/certificate';
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
+import * as XLSX from 'xlsx';
+import { v4 as uuidv4 } from 'uuid';
+import QRCode from 'qrcode';
+import { PasswordDialog } from '@/components/password-dialog';
+import { EncryptedCache } from '@/utils/crypto';
 
 interface CertificateForSending {
   id: string;
@@ -62,23 +57,18 @@ interface Recipient {
   uuid?: string;
 }
 
-export function SendCertificatesModal({
-  open,
-  onClose,
-  certificates,
-}: SendCertificatesModalProps) {
+export function SendCertificatesModal({ open, onClose, certificates }: SendCertificatesModalProps) {
   const BASE_URL = window.location.origin;
   const { getCertificateConfig } = useCertificates();
   const [step, setStep] = useState(1);
-  const [selectedCertificate, setSelectedCertificate] = useState<string>("");
+  const [selectedCertificate, setSelectedCertificate] = useState<string>('');
   const [recipients, setRecipients] = useState<Recipient[]>([]);
-  const [manualName, setManualName] = useState("");
-  const [manualEmail, setManualEmail] = useState("");
-  const [manualRank, setManualRank] = useState("");
+  const [manualName, setManualName] = useState('');
+  const [manualEmail, setManualEmail] = useState('');
+  const [manualRank, setManualRank] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationComplete, setGenerationComplete] = useState(false);
-  const [certificateConfig, setCertificateConfig] =
-    useState<CertificateConfig | null>(null);
+  const [certificateConfig, setCertificateConfig] = useState<CertificateConfig | null>(null);
   const [zipBlob, setZipBlob] = useState<Blob | null>(null);
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
   const [isStoringData, setIsStoringData] = useState(false);
@@ -98,22 +88,22 @@ export function SendCertificatesModal({
 
             // Clear rank field if the certificate doesn't support rank
             if (!config.validFields?.rank) {
-              setManualRank("");
+              setManualRank('');
               // Also clear rank from existing recipients if switching to a certificate without rank support
               setRecipients((prev) =>
                 prev.map((recipient) => ({
                   name: recipient.name,
                   email: recipient.email,
                   uuid: recipient.uuid,
-                })),
+                }))
               );
             }
           } else {
             // console.log("No certificate configuration found for eventId:", selectedCertificate);
           }
         } catch (error) {
-          console.error("Error fetching certificate config:", error);
-          toast.error("Failed to load certificate configuration");
+          console.error('Error fetching certificate config:', error);
+          toast.error('Failed to load certificate configuration');
         }
       };
       fetchCertificateConfig();
@@ -130,17 +120,16 @@ export function SendCertificatesModal({
 
   const handleAddManualRecipient = () => {
     if (!manualName.trim()) {
-      toast.error("Name is required", {
-        description: "Please enter a recipient name.",
+      toast.error('Name is required', {
+        description: 'Please enter a recipient name.',
       });
       return;
     }
 
     // Check if rank is required but not provided
     if (certificateConfig?.validFields?.rank && !manualRank.trim()) {
-      toast.error("Rank is required", {
-        description:
-          "This certificate template requires a rank for each recipient.",
+      toast.error('Rank is required', {
+        description: 'This certificate template requires a rank for each recipient.',
       });
       return;
     }
@@ -157,56 +146,53 @@ export function SendCertificatesModal({
     }
 
     setRecipients((prev) => [...prev, recipient]);
-    setManualName("");
-    setManualEmail("");
-    setManualRank("");
+    setManualName('');
+    setManualEmail('');
+    setManualRank('');
 
-    toast.success("Recipient added", {
+    toast.success('Recipient added', {
       description: `${recipient.name} has been added to the list.`,
     });
   };
 
   const handleDownloadSample = () => {
-    const link = document.createElement("a");
-    link.href = "/uploads/sample.csv";
-    link.download = "sample_recipients.csv";
+    const link = document.createElement('a');
+    link.href = '/uploads/sample.csv';
+    link.download = 'sample_recipients.csv';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
 
-    toast.success("Sample CSV Downloaded", {
-      description: "Edit this file and upload it to add recipients quickly.",
+    toast.success('Sample CSV Downloaded', {
+      description: 'Edit this file and upload it to add recipients quickly.',
     });
   };
 
   const handleCSVUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const fileExtension = file.name.split(".").pop()?.toLowerCase();
+      const fileExtension = file.name.split('.').pop()?.toLowerCase();
 
-      if (fileExtension === "csv") {
+      if (fileExtension === 'csv') {
         // Handle CSV files
         const reader = new FileReader();
         reader.onload = (e) => {
           const csv = e.target?.result as string;
-          const lines = csv.split("\n");
-          const headers = lines[0]
-            .split(",")
-            .map((h) => h.trim().toLowerCase());
+          const lines = csv.split('\n');
+          const headers = lines[0].split(',').map((h) => h.trim().toLowerCase());
 
           const newRecipients: Recipient[] = [];
           for (let i = 1; i < lines.length; i++) {
-            const values = lines[i].split(",").map((v) => v.trim());
+            const values = lines[i].split(',').map((v) => v.trim());
             if (values.length >= headers.length && values[0]) {
-              const recipient: Recipient = { name: "" };
+              const recipient: Recipient = { name: '' };
 
               headers.forEach((header, index) => {
-                if (header.includes("name")) recipient.name = values[index];
-                if (header.includes("email") && values[index])
-                  recipient.email = values[index];
+                if (header.includes('name')) recipient.name = values[index];
+                if (header.includes('email') && values[index]) recipient.email = values[index];
                 // Only include rank if certificate configuration supports it
                 if (
-                  header.includes("rank") &&
+                  header.includes('rank') &&
                   certificateConfig?.validFields?.rank &&
                   values[index]
                 ) {
@@ -221,8 +207,7 @@ export function SendCertificatesModal({
                 // Validate if rank is required but missing
                 if (certificateConfig?.validFields?.rank && !recipient.rank) {
                   toast.error(`Missing rank for ${recipient.name}`, {
-                    description:
-                      "This certificate template requires a rank for each recipient.",
+                    description: 'This certificate template requires a rank for each recipient.',
                   });
                   return; // Stop processing and show error
                 }
@@ -232,17 +217,17 @@ export function SendCertificatesModal({
           }
 
           setRecipients(newRecipients);
-          toast.success("CSV Uploaded", {
+          toast.success('CSV Uploaded', {
             description: `${newRecipients.length} recipients loaded from CSV file.`,
           });
         };
         reader.readAsText(file);
-      } else if (fileExtension === "xlsx" || fileExtension === "xls") {
+      } else if (fileExtension === 'xlsx' || fileExtension === 'xls') {
         // Handle Excel files
         const reader = new FileReader();
         reader.onload = (e) => {
           const data = new Uint8Array(e.target?.result as ArrayBuffer);
-          const workbook = XLSX.read(data, { type: "array" });
+          const workbook = XLSX.read(data, { type: 'array' });
 
           // Get first worksheet
           const firstSheetName = workbook.SheetNames[0];
@@ -254,32 +239,26 @@ export function SendCertificatesModal({
           }) as unknown[][];
 
           if (jsonData.length < 2) {
-            toast.error("Invalid file format", {
-              description:
-                "The Excel file must contain at least a header row and one data row.",
+            toast.error('Invalid file format', {
+              description: 'The Excel file must contain at least a header row and one data row.',
             });
             return;
           }
 
-          const headers = jsonData[0].map((h: unknown) =>
-            String(h).trim().toLowerCase(),
-          );
+          const headers = jsonData[0].map((h: unknown) => String(h).trim().toLowerCase());
           const newRecipients: Recipient[] = [];
 
           for (let i = 1; i < jsonData.length; i++) {
-            const values = jsonData[i].map((v: unknown) =>
-              String(v || "").trim(),
-            );
+            const values = jsonData[i].map((v: unknown) => String(v || '').trim());
             if (values.length >= headers.length && values[0]) {
-              const recipient: Recipient = { name: "" };
+              const recipient: Recipient = { name: '' };
 
               headers.forEach((header, index) => {
-                if (header.includes("name")) recipient.name = values[index];
-                if (header.includes("email") && values[index])
-                  recipient.email = values[index];
+                if (header.includes('name')) recipient.name = values[index];
+                if (header.includes('email') && values[index]) recipient.email = values[index];
                 // Only include rank if certificate configuration supports it
                 if (
-                  header.includes("rank") &&
+                  header.includes('rank') &&
                   certificateConfig?.validFields?.rank &&
                   values[index]
                 ) {
@@ -294,8 +273,7 @@ export function SendCertificatesModal({
                 // Validate if rank is required but missing
                 if (certificateConfig?.validFields?.rank && !recipient.rank) {
                   toast.error(`Missing rank for ${recipient.name}`, {
-                    description:
-                      "This certificate template requires a rank for each recipient.",
+                    description: 'This certificate template requires a rank for each recipient.',
                   });
                   return; // Stop processing and show error
                 }
@@ -305,27 +283,26 @@ export function SendCertificatesModal({
           }
 
           setRecipients(newRecipients);
-          toast.success("Excel File Uploaded", {
+          toast.success('Excel File Uploaded', {
             description: `${newRecipients.length} recipients loaded from Excel file.`,
           });
         };
         reader.readAsArrayBuffer(file);
       } else {
-        toast.error("Unsupported file format", {
-          description:
-            "Please upload a CSV (.csv) or Excel (.xlsx, .xls) file.",
+        toast.error('Unsupported file format', {
+          description: 'Please upload a CSV (.csv) or Excel (.xlsx, .xls) file.',
         });
       }
 
       // Clear the input value so the same file can be uploaded again
-      e.target.value = "";
+      e.target.value = '';
     }
   };
 
   const handleGenerateCertificates = async () => {
     if (!selectedCertificate || recipients.length === 0 || !certificateConfig) {
-      toast("Missing Information", {
-        description: "Please select a certificate and add recipients.",
+      toast('Missing Information', {
+        description: 'Please select a certificate and add recipients.',
       });
       return;
     }
@@ -334,18 +311,16 @@ export function SendCertificatesModal({
 
     try {
       // Get the selected certificate
-      const certificate = certificates.find(
-        (c) => c.id === selectedCertificate,
-      );
-      if (!certificate) throw new Error("Certificate not found");
+      const certificate = certificates.find((c) => c.id === selectedCertificate);
+      if (!certificate) throw new Error('Certificate not found');
 
       let imageUrl = certificate.image;
 
       // Handle different URL types
-      if (imageUrl.startsWith("http")) {
+      if (imageUrl.startsWith('http')) {
         // External URL (including Cloudinary) - use directly
         // console.log("Using external URL (Cloudinary):", imageUrl);
-      } else if (imageUrl.startsWith("/")) {
+      } else if (imageUrl.startsWith('/')) {
         // Legacy local path - convert to full URL
         imageUrl = `http://localhost:5000${imageUrl}`;
         // console.log("Using local backend URL:", imageUrl);
@@ -356,8 +331,8 @@ export function SendCertificatesModal({
       const generatedUrls: string[] = [];
 
       // Create a folder in the zip for the certificates
-      const folder = zip.folder("certificates");
-      if (!folder) throw new Error("Failed to create folder in zip");
+      const folder = zip.folder('certificates');
+      if (!folder) throw new Error('Failed to create folder in zip');
 
       // Process each recipient
       for (let i = 0; i < recipients.length; i++) {
@@ -365,13 +340,13 @@ export function SendCertificatesModal({
         // console.log(`Processing recipient ${i + 1}/${recipients.length}:`, recipient.name);
 
         // Create a fresh canvas for each certificate
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-        if (!ctx) throw new Error("Failed to get canvas context");
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        if (!ctx) throw new Error('Failed to get canvas context');
 
         // Create a fresh image object for each certificate
         const img = new window.Image();
-        img.crossOrigin = "anonymous";
+        img.crossOrigin = 'anonymous';
 
         await new Promise((resolve, reject) => {
           img.onload = () => {
@@ -380,7 +355,7 @@ export function SendCertificatesModal({
           };
           img.onerror = (e) => {
             console.error(`Image load error for ${recipient.name}:`, e);
-            reject(new Error("Failed to load certificate image"));
+            reject(new Error('Failed to load certificate image'));
           };
           img.src = imageUrl;
         });
@@ -406,60 +381,56 @@ export function SendCertificatesModal({
             fontStyle?: string;
             textDecoration?: string;
             color?: string;
-          },
+          }
         ) => {
           const position = { ...basePosition };
 
           // Rule-based styling logic
           switch (fieldType) {
-            case "recipientName":
+            case 'recipientName':
               // Names should be prominent and bold if not specified
-              if (!position.fontWeight) position.fontWeight = "bold";
-              if (!position.fontFamily) position.fontFamily = "Montserrat"; // Modern, elegant font for names
-              if (!position.color) position.color = "#000000"; // Default black
+              if (!position.fontWeight) position.fontWeight = 'bold';
+              if (!position.fontFamily) position.fontFamily = 'Montserrat'; // Modern, elegant font for names
+              if (!position.color) position.color = '#000000'; // Default black
               break;
 
-            case "rank":
+            case 'rank':
               // Ranks should be attention-grabbing
-              if (!position.fontWeight) position.fontWeight = "bold";
-              if (!position.fontFamily) position.fontFamily = "Roboto";
-              if (!position.color) position.color = "#000000"; // Default black
+              if (!position.fontWeight) position.fontWeight = 'bold';
+              if (!position.fontFamily) position.fontFamily = 'Roboto';
+              if (!position.color) position.color = '#000000'; // Default black
 
               // Special styling for rank positions
-              if (
-                text.toLowerCase().includes("1st") ||
-                text.toLowerCase().includes("first")
-              ) {
-                if (!position.fontStyle) position.fontStyle = "italic";
+              if (text.toLowerCase().includes('1st') || text.toLowerCase().includes('first')) {
+                if (!position.fontStyle) position.fontStyle = 'italic';
               }
               break;
 
-            case "organisationName":
+            case 'organisationName':
               // Organization names should be formal
-              if (!position.fontFamily) position.fontFamily = "Inter"; // Clean, professional font
-              if (!position.fontWeight) position.fontWeight = "normal";
-              if (!position.color) position.color = "#000000"; // Default black
+              if (!position.fontFamily) position.fontFamily = 'Inter'; // Clean, professional font
+              if (!position.fontWeight) position.fontWeight = 'normal';
+              if (!position.color) position.color = '#000000'; // Default black
               break;
 
-            case "certificateLink":
+            case 'certificateLink':
               // Links should be smaller and understated
-              if (!position.fontFamily) position.fontFamily = "Open Sans"; // Readable for URLs
-              if (!position.textDecoration)
-                position.textDecoration = "underline";
-              if (!position.color) position.color = "#000000"; // Default black
+              if (!position.fontFamily) position.fontFamily = 'Open Sans'; // Readable for URLs
+              if (!position.textDecoration) position.textDecoration = 'underline';
+              if (!position.color) position.color = '#000000'; // Default black
               break;
 
-            case "certificateQR":
+            case 'certificateQR':
               // QR placeholder should be centered and clear
-              if (!position.fontFamily) position.fontFamily = "Inter";
-              if (!position.fontWeight) position.fontWeight = "bold";
-              if (!position.color) position.color = "#000000"; // Default black
+              if (!position.fontFamily) position.fontFamily = 'Inter';
+              if (!position.fontWeight) position.fontWeight = 'bold';
+              if (!position.color) position.color = '#000000'; // Default black
               break;
 
             default:
               // Default styling
-              if (!position.fontFamily) position.fontFamily = "Inter"; // Clean default
-              if (!position.color) position.color = "#000000"; // Default black
+              if (!position.fontFamily) position.fontFamily = 'Inter'; // Clean default
+              if (!position.color) position.color = '#000000'; // Default black
               break;
           }
 
@@ -481,25 +452,25 @@ export function SendCertificatesModal({
             color?: string;
           },
           maxFontSize = 72,
-          fieldType?: string,
+          fieldType?: string
         ) => {
           // Apply rule-based styling if fieldType is provided
           const styledPosition = fieldType
             ? applyRuleBasedStyling(fieldType, text, position)
             : position;
 
-          const fontFamily = styledPosition.fontFamily || "Inter"; // Use Google Font as fallback
-          const fontWeight = styledPosition.fontWeight || "normal";
-          const fontStyle = styledPosition.fontStyle || "normal";
-          const textDecoration = styledPosition.textDecoration || "none";
-          const color = styledPosition.color || "#000000"; // Use stored color or default to black
+          const fontFamily = styledPosition.fontFamily || 'Inter'; // Use Google Font as fallback
+          const fontWeight = styledPosition.fontWeight || 'normal';
+          const fontStyle = styledPosition.fontStyle || 'normal';
+          const textDecoration = styledPosition.textDecoration || 'none';
+          const color = styledPosition.color || '#000000'; // Use stored color or default to black
 
           // 1. Smarter initial estimate (accounts for avg. character width)
           const avgCharWidthFactor = 0.6; // Adjust based on font (e.g., 0.5 for monospace)
           let fontSize = Math.min(
             position.width / (text.length * avgCharWidthFactor),
             position.height * 0.8,
-            maxFontSize,
+            maxFontSize
           );
           fontSize = Math.max(fontSize, 8); // Enforce minimum
 
@@ -520,16 +491,14 @@ export function SendCertificatesModal({
 
           // 3. Precise vertical centering using actualBoundingBoxAscent
           const textX = position.x + (position.width - textMetrics.width) / 2;
-          const textY =
-            position.y +
-            (position.height + textMetrics.actualBoundingBoxAscent) / 2;
+          const textY = position.y + (position.height + textMetrics.actualBoundingBoxAscent) / 2;
 
           // Draw with color
           ctx.fillStyle = color;
           ctx.fillText(text, textX, textY);
 
           // Text decoration (underline)
-          if (textDecoration === "underline") {
+          if (textDecoration === 'underline') {
             const underlineY = textY + 2;
             ctx.strokeStyle = color; // Use same color for underline
             ctx.beginPath();
@@ -548,7 +517,7 @@ export function SendCertificatesModal({
             y: number;
             width: number;
             height: number;
-          },
+          }
         ) => {
           try {
             // Generate QR code as data URL
@@ -556,8 +525,8 @@ export function SendCertificatesModal({
               width: Math.min(position.width, position.height),
               margin: 1,
               color: {
-                dark: "#000000",
-                light: "#FFFFFF",
+                dark: '#000000',
+                light: '#FFFFFF',
               },
             });
 
@@ -577,9 +546,9 @@ export function SendCertificatesModal({
             // Draw QR code on canvas
             ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
           } catch (error) {
-            console.error("Error generating QR code:", error);
+            console.error('Error generating QR code:', error);
             // Fallback to text if QR generation fails
-            drawCenteredText(`[QR: ${data}]`, position, 16, "certificateQR");
+            drawCenteredText(`[QR: ${data}]`, position, 16, 'certificateQR');
           }
         };
 
@@ -590,27 +559,22 @@ export function SendCertificatesModal({
             recipient.name,
             certificateConfig.validFields.recipientName,
             100,
-            "recipientName",
+            'recipientName'
           );
         }
 
         // Apply rank if coordinates exist and recipient has rank
         if (certificateConfig.validFields.rank && recipient.rank) {
           // console.log(`Drawing rank for ${recipient.name}: ${recipient.rank}`);
-          drawCenteredText(
-            recipient.rank,
-            certificateConfig.validFields.rank,
-            150,
-            "rank",
-          );
+          drawCenteredText(recipient.rank, certificateConfig.validFields.rank, 150, 'rank');
         }
 
         // Apply organisation name if coordinates exist
         if (certificateConfig.validFields.organisationName) {
           // Get organisation name from localStorage
-          let orgName = "Sample Organization"; // Default fallback
+          let orgName = 'Sample Organization'; // Default fallback
           try {
-            const userDataString = localStorage.getItem("certinova_user");
+            const userDataString = localStorage.getItem('certinova_user');
             if (userDataString) {
               const userData = JSON.parse(userDataString);
               if (userData && userData.organisation) {
@@ -618,17 +582,14 @@ export function SendCertificatesModal({
               }
             }
           } catch (error) {
-            console.error(
-              "Error reading organization from localStorage:",
-              error,
-            );
+            console.error('Error reading organization from localStorage:', error);
           }
           // console.log(`Drawing organization name for ${recipient.name}: ${orgName}`);
           drawCenteredText(
             orgName,
             certificateConfig.validFields.organisationName,
             72,
-            "organisationName",
+            'organisationName'
           );
         }
 
@@ -639,7 +600,7 @@ export function SendCertificatesModal({
             recipient.uuid,
             certificateConfig.validFields.certificateLink,
             24,
-            "certificateLink",
+            'certificateLink'
           );
         }
 
@@ -648,7 +609,7 @@ export function SendCertificatesModal({
           // console.log(`Drawing QR code for ${recipient.name}: ${recipient.uuid}`);
           await drawQRCode(
             `${BASE_URL}/verify/${recipient.uuid}`,
-            certificateConfig.validFields.certificateQR,
+            certificateConfig.validFields.certificateQR
           );
         }
 
@@ -659,41 +620,35 @@ export function SendCertificatesModal({
           blob = await new Promise<Blob>((resolve, reject) => {
             canvas.toBlob((result) => {
               if (result) resolve(result);
-              else reject(new Error("Failed to convert canvas to blob"));
-            }, "image/png");
+              else reject(new Error('Failed to convert canvas to blob'));
+            }, 'image/png');
           });
         } catch (error) {
-          console.warn(
-            "Canvas export failed due to CORS, using fetch API as fallback:",
-            error,
-          );
+          console.warn('Canvas export failed due to CORS, using fetch API as fallback:', error);
 
           // Fallback: If the canvas is tainted, we need to fetch the image directly
           // and use it without drawing on canvas
           const response = await fetch(imageUrl);
-          if (!response.ok)
-            throw new Error(`Failed to fetch image: ${response.status}`);
+          if (!response.ok) throw new Error(`Failed to fetch image: ${response.status}`);
 
           blob = await response.blob();
 
           // Note: in this fallback, we won't have the custom text on the certificate
-          console.warn(
-            "Using original image without custom text due to CORS restrictions",
-          );
+          console.warn('Using original image without custom text due to CORS restrictions');
         }
 
         // Add to zip
-        const fileName = `${recipient.name.replace(/[^a-z0-9]/gi, "_")}_certificate.png`;
+        const fileName = `${recipient.name.replace(/[^a-z0-9]/gi, '_')}_certificate.png`;
         folder.file(fileName, blob);
         // console.log(`Added certificate to zip: ${fileName} for recipient: ${recipient.name}`);
 
         // Store data URL for preview if needed
-        const dataUrl = canvas.toDataURL("image/png");
+        const dataUrl = canvas.toDataURL('image/png');
         generatedUrls.push(dataUrl);
       }
 
       // Generate the zip file
-      const zipBlob = await zip.generateAsync({ type: "blob" });
+      const zipBlob = await zip.generateAsync({ type: 'blob' });
       setZipBlob(zipBlob);
 
       setIsGenerating(false);
@@ -701,7 +656,7 @@ export function SendCertificatesModal({
 
       let orgName;
       try {
-        const userDataString = localStorage.getItem("certinova_user");
+        const userDataString = localStorage.getItem('certinova_user');
         if (userDataString) {
           const userData = JSON.parse(userDataString);
           if (userData && userData.organisation) {
@@ -709,18 +664,15 @@ export function SendCertificatesModal({
           }
         }
       } catch (error) {
-        console.error("Error reading organization from localStorage:", error);
+        console.error('Error reading organization from localStorage:', error);
       }
 
       // Update recipient count immediately (before password confirmation)
       try {
-        await certificateService.updateRecipientCount(
-          orgName,
-          recipients.length,
-        );
+        await certificateService.updateRecipientCount(orgName, recipients.length);
         // console.log(`Recipient count updated immediately: ${recipients.length} for certificate ${selectedCertificate}`);
       } catch (error) {
-        console.error("Failed to update recipient count immediately:", error);
+        console.error('Failed to update recipient count immediately:', error);
         // Don't block the flow if this fails - the count will be updated during password confirmation
       }
 
@@ -734,21 +686,19 @@ export function SendCertificatesModal({
         origin: { y: 0.6 },
       });
 
-      toast("Certificates Generated!", {
+      toast('Certificates Generated!', {
         description: `${recipients.length} certificates have been generated and are ready for download.`,
       });
     } catch (error) {
-      console.error("Error generating certificates:", error);
-      let errorMessage = "Failed to generate certificates";
+      console.error('Error generating certificates:', error);
+      let errorMessage = 'Failed to generate certificates';
 
       // Provide more specific error messages
       if (error instanceof Error) {
-        if (error.name === "SecurityError") {
-          errorMessage =
-            "Security error: Cannot access image due to CORS restrictions";
-        } else if (error.message.includes("tainted")) {
-          errorMessage =
-            "Cannot export canvas due to cross-origin image restrictions";
+        if (error.name === 'SecurityError') {
+          errorMessage = 'Security error: Cannot access image due to CORS restrictions';
+        } else if (error.message.includes('tainted')) {
+          errorMessage = 'Cannot export canvas due to cross-origin image restrictions';
         } else {
           errorMessage = `Error: ${error.message}`;
         }
@@ -767,9 +717,9 @@ export function SendCertificatesModal({
 
     try {
       // Get user ID from localStorage
-      let generatedBy = "";
+      let generatedBy = '';
       try {
-        const userDataString = localStorage.getItem("certinova_user");
+        const userDataString = localStorage.getItem('certinova_user');
         if (userDataString) {
           const userData = JSON.parse(userDataString);
           if (userData && userData.id) {
@@ -777,7 +727,7 @@ export function SendCertificatesModal({
           }
         }
       } catch (error) {
-        console.error("Error reading user from localStorage:", error);
+        console.error('Error reading user from localStorage:', error);
       }
 
       if (generatedBy && certificateConfig && certificateConfig.id) {
@@ -802,28 +752,25 @@ export function SendCertificatesModal({
         // Cache the data locally (encryption is handled internally)
         cache.set(`certificate_${certificateConfig.id}`, recipients);
 
-        toast.success("Certificate data stored securely!", {
-          description:
-            "Your certificate data has been encrypted and stored in the database.",
+        toast.success('Certificate data stored securely!', {
+          description: 'Your certificate data has been encrypted and stored in the database.',
         });
       } else {
         console.warn(
-          "Cannot store generated certificate data - missing user ID or certificate config:",
+          'Cannot store generated certificate data - missing user ID or certificate config:',
           {
             generatedBy: !!generatedBy,
             certificateConfig: !!certificateConfig,
             certificateConfigId: certificateConfig?.id,
-          },
+          }
         );
-        throw new Error("Missing user ID or certificate configuration");
+        throw new Error('Missing user ID or certificate configuration');
       }
     } catch (storageError) {
-      console.error("Error storing generated certificate data:", storageError);
-      toast.error("Failed to store certificate data", {
+      console.error('Error storing generated certificate data:', storageError);
+      toast.error('Failed to store certificate data', {
         description:
-          storageError instanceof Error
-            ? storageError.message
-            : "Unknown error occurred",
+          storageError instanceof Error ? storageError.message : 'Unknown error occurred',
       });
     } finally {
       setIsStoringData(false);
@@ -836,17 +783,17 @@ export function SendCertificatesModal({
       // Use FileSaver to download the zip
       saveAs(zipBlob, `certificates-${selectedCertificate}-${Date.now()}.zip`);
 
-      toast("Download Started", {
-        description: "Your certificate zip file is being downloaded.",
+      toast('Download Started', {
+        description: 'Your certificate zip file is being downloaded.',
       });
     } else {
-      toast.error("No certificates available to download");
+      toast.error('No certificates available to download');
     }
   };
 
   const resetModal = () => {
     setStep(1);
-    setSelectedCertificate("");
+    setSelectedCertificate('');
     setRecipients([]);
     setGenerationComplete(false);
     setCertificateConfig(null);
@@ -883,9 +830,7 @@ export function SendCertificatesModal({
                 <h3 className="text-lg font-semibold mb-2 text-gray-900">
                   Select Certificate Template
                 </h3>
-                <p className="text-gray-600">
-                  Choose which certificate to use for generation
-                </p>
+                <p className="text-gray-600">Choose which certificate to use for generation</p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -894,8 +839,8 @@ export function SendCertificatesModal({
                     key={certificate.id}
                     className={`cursor-pointer transition-all duration-200 border-2 ${
                       selectedCertificate === certificate.id
-                        ? "border-blue-500 bg-blue-50"
-                        : "border-gray-200 hover:border-gray-300 hover:shadow-sm"
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
                     }`}
                     onClick={() => {
                       // console.log('Selecting certificate:', certificate.id);
@@ -917,25 +862,15 @@ export function SendCertificatesModal({
                           <Award className="h-12 w-12 text-gray-400" />
                         )}
                       </div>
-                      <h4 className="font-semibold mb-1 text-gray-900">
-                        {certificate.name}
-                      </h4>
-                      <p className="text-sm text-gray-600 mb-2">
-                        {certificate.event}
-                      </p>
-                      <Badge
-                        variant="secondary"
-                        className="bg-gray-100 text-gray-700"
-                      >
+                      <h4 className="font-semibold mb-1 text-gray-900">{certificate.name}</h4>
+                      <p className="text-sm text-gray-600 mb-2">{certificate.event}</p>
+                      <Badge variant="secondary" className="bg-gray-100 text-gray-700">
                         {certificate.date}
                       </Badge>
                       {/* Show rank indicator if certificate supports rankings */}
                       {selectedCertificate === certificate.id &&
                         certificateConfig?.validFields?.rank && (
-                          <Badge
-                            variant="default"
-                            className="mt-2 bg-green-100 text-green-700"
-                          >
+                          <Badge variant="default" className="mt-2 bg-green-100 text-green-700">
                             Supports Rankings
                           </Badge>
                         )}
@@ -947,9 +882,7 @@ export function SendCertificatesModal({
               {certificates.length === 0 && (
                 <div className="text-center py-8">
                   <Award className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-500">
-                    No certificates available. Create one first.
-                  </p>
+                  <p className="text-gray-500">No certificates available. Create one first.</p>
                 </div>
               )}
 
@@ -975,12 +908,8 @@ export function SendCertificatesModal({
                 <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Send className="h-8 w-8 text-green-600" />
                 </div>
-                <h3 className="text-lg font-semibold mb-2 text-gray-900">
-                  Choose Input Method
-                </h3>
-                <p className="text-gray-600">
-                  How would you like to add recipients?
-                </p>
+                <h3 className="text-lg font-semibold mb-2 text-gray-900">Choose Input Method</h3>
+                <p className="text-gray-600">How would you like to add recipients?</p>
               </div>
 
               {/* Show selected certificate info */}
@@ -989,22 +918,13 @@ export function SendCertificatesModal({
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <h4 className="font-medium text-blue-900">
-                          Selected Certificate:
-                        </h4>
+                        <h4 className="font-medium text-blue-900">Selected Certificate:</h4>
                         <p className="text-sm text-blue-700">
-                          {
-                            certificates.find(
-                              (c) => c.id === selectedCertificate,
-                            )?.name
-                          }
+                          {certificates.find((c) => c.id === selectedCertificate)?.name}
                         </p>
                       </div>
                       {certificateConfig?.validFields?.rank && (
-                        <Badge
-                          variant="default"
-                          className="bg-green-100 text-green-700"
-                        >
+                        <Badge variant="default" className="bg-green-100 text-green-700">
                           Supports Rankings
                         </Badge>
                       )}
@@ -1015,16 +935,10 @@ export function SendCertificatesModal({
 
               <Tabs defaultValue="manual" className="w-full">
                 <TabsList className="grid w-full grid-cols-2 bg-gray-100">
-                  <TabsTrigger
-                    value="manual"
-                    className="data-[state=active]:bg-white"
-                  >
+                  <TabsTrigger value="manual" className="data-[state=active]:bg-white">
                     Enter Manually
                   </TabsTrigger>
-                  <TabsTrigger
-                    value="csv"
-                    className="data-[state=active]:bg-white"
-                  >
+                  <TabsTrigger value="csv" className="data-[state=active]:bg-white">
                     Upload File
                   </TabsTrigger>
                 </TabsList>
@@ -1040,9 +954,7 @@ export function SendCertificatesModal({
                     <CardContent className="space-y-4">
                       <div
                         className={`grid grid-cols-1 gap-4 ${
-                          certificateConfig?.validFields?.rank
-                            ? "md:grid-cols-3"
-                            : "md:grid-cols-2"
+                          certificateConfig?.validFields?.rank ? 'md:grid-cols-3' : 'md:grid-cols-2'
                         }`}
                       >
                         <div className="space-y-2">
@@ -1058,10 +970,7 @@ export function SendCertificatesModal({
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label
-                            htmlFor="manualEmail"
-                            className="text-gray-700"
-                          >
+                          <Label htmlFor="manualEmail" className="text-gray-700">
                             Email (Optional)
                           </Label>
                           <Input
@@ -1076,10 +985,7 @@ export function SendCertificatesModal({
                         {/* Only show rank field if certificate has rank coordinates */}
                         {certificateConfig?.validFields?.rank && (
                           <div className="space-y-2">
-                            <Label
-                              htmlFor="manualRank"
-                              className="text-gray-700"
-                            >
+                            <Label htmlFor="manualRank" className="text-gray-700">
                               Rank (Required)
                             </Label>
                             <Input
@@ -1121,8 +1027,7 @@ export function SendCertificatesModal({
                                 Download Sample File
                               </h4>
                               <p className="text-xs text-blue-700">
-                                Download the sample CSV file and edit it to add
-                                recipient data
+                                Download the sample CSV file and edit it to add recipient data
                               </p>
                             </div>
                             <Button
@@ -1152,10 +1057,9 @@ export function SendCertificatesModal({
                               Click to upload CSV or Excel file
                             </p>
                             <p className="text-xs text-gray-500 mt-1">
-                              Expected columns: name (required), email
-                              (optional)
+                              Expected columns: name (required), email (optional)
                               {certificateConfig?.validFields?.rank &&
-                                ", rank (required for this certificate)"}
+                                ', rank (required for this certificate)'}
                             </p>
                             <p className="text-xs text-gray-500 mt-1">
                               Supported formats: .csv, .xlsx, .xls
@@ -1183,19 +1087,14 @@ export function SendCertificatesModal({
                           className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200"
                         >
                           <div>
-                            <span className="font-medium text-gray-900">
-                              {recipient.name}
-                            </span>
+                            <span className="font-medium text-gray-900">{recipient.name}</span>
                             {recipient.email && (
                               <span className="text-sm text-gray-500 ml-2">
                                 ({recipient.email})
                               </span>
                             )}
                             {recipient.rank && (
-                              <Badge
-                                variant="secondary"
-                                className="ml-2 bg-blue-100 text-blue-700"
-                              >
+                              <Badge variant="secondary" className="ml-2 bg-blue-100 text-blue-700">
                                 {recipient.rank}
                               </Badge>
                             )}
@@ -1212,9 +1111,7 @@ export function SendCertificatesModal({
                             size="sm"
                             variant="ghost"
                             onClick={() =>
-                              setRecipients((prev) =>
-                                prev.filter((_, i) => i !== index),
-                              )
+                              setRecipients((prev) => prev.filter((_, i) => i !== index))
                             }
                             className="text-gray-400 hover:text-red-500"
                           >
@@ -1265,82 +1162,59 @@ export function SendCertificatesModal({
                   </div>
                 )}
                 <h3 className="text-lg font-semibold mb-2 text-gray-900">
-                  {generationComplete
-                    ? "Certificates Generated!"
-                    : "Generate Certificates"}
+                  {generationComplete ? 'Certificates Generated!' : 'Generate Certificates'}
                 </h3>
                 <p className="text-gray-600">
                   {generationComplete
-                    ? "Your certificates are ready for download"
-                    : "Review your settings and generate certificates"}
+                    ? 'Your certificates are ready for download'
+                    : 'Review your settings and generate certificates'}
                 </p>
               </div>
 
               <Card className="border-gray-200">
                 <CardHeader>
-                  <CardTitle className="text-sm text-gray-700">
-                    Generation Summary
-                  </CardTitle>
+                  <CardTitle className="text-sm text-gray-700">Generation Summary</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">
-                        Certificate Template:
-                      </span>
+                      <span className="text-gray-600">Certificate Template:</span>
                       <span className="font-medium text-gray-900">
-                        {
-                          certificates.find((c) => c.id === selectedCertificate)
-                            ?.name
-                        }
+                        {certificates.find((c) => c.id === selectedCertificate)?.name}
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Recipients:</span>
-                      <span className="font-medium text-gray-900">
-                        {recipients.length}
-                      </span>
+                      <span className="font-medium text-gray-900">{recipients.length}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Supports Rankings:</span>
                       <Badge
-                        variant={
-                          certificateConfig?.validFields?.rank
-                            ? "default"
-                            : "secondary"
-                        }
+                        variant={certificateConfig?.validFields?.rank ? 'default' : 'secondary'}
                         className={
                           certificateConfig?.validFields?.rank
-                            ? "bg-green-100 text-green-700"
-                            : "bg-gray-100 text-gray-700"
+                            ? 'bg-green-100 text-green-700'
+                            : 'bg-gray-100 text-gray-700'
                         }
                       >
-                        {certificateConfig?.validFields?.rank ? "Yes" : "No"}
+                        {certificateConfig?.validFields?.rank ? 'Yes' : 'No'}
                       </Badge>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Status:</span>
                       <Badge
                         variant={
-                          generationComplete
-                            ? "default"
-                            : isGenerating
-                              ? "secondary"
-                              : "outline"
+                          generationComplete ? 'default' : isGenerating ? 'secondary' : 'outline'
                         }
                         className={
                           generationComplete
-                            ? "bg-green-100 text-green-700"
+                            ? 'bg-green-100 text-green-700'
                             : isGenerating
-                              ? "bg-blue-100 text-blue-700"
-                              : "bg-gray-100 text-gray-700"
+                              ? 'bg-blue-100 text-blue-700'
+                              : 'bg-gray-100 text-gray-700'
                         }
                       >
-                        {generationComplete
-                          ? "Complete"
-                          : isGenerating
-                            ? "Processing..."
-                            : "Ready"}
+                        {generationComplete ? 'Complete' : isGenerating ? 'Processing...' : 'Ready'}
                       </Badge>
                     </div>
                   </div>
