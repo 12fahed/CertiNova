@@ -6,11 +6,6 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 
 import {
-  Github,
-  Linkedin,
-  Twitter,
-  DiscIcon,
-  ArrowUpRight,
   Award,
   Users,
   Zap,
@@ -21,8 +16,6 @@ import {
   Shield,
   Clock,
   PlayCircle,
-  Lock,
-  ArrowRight,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { AuthModal } from '@/components/auth-modal';
@@ -236,7 +229,7 @@ export default function HomePage() {
                     toast('Sign in to watch the demo', {
                       description:
                         'Create a free account or sign in to access the full demo tutorial.',
-                      icon: <Lock className="h-4 w-4" />,
+                      icon: <PlayCircle className="h-4 w-4" />,
                       action: {
                         label: 'Sign In',
                         onClick: () => {
