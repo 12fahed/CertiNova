@@ -47,11 +47,11 @@ Register a new organisation account.
 
 **Request Body**
 
-| Field | Type | Required | Constraints |
-|---|---|---|---|
-| `organisation` | `string` | Yes | 2–100 characters |
-| `email` | `string` | Yes | Valid email, unique |
-| `password` | `string` | Yes | Minimum 6 characters |
+| Field          | Type     | Required | Constraints          |
+| -------------- | -------- | -------- | -------------------- |
+| `organisation` | `string` | Yes      | 2–100 characters     |
+| `email`        | `string` | Yes      | Valid email, unique  |
+| `password`     | `string` | Yes      | Minimum 6 characters |
 
 **Response `201`**
 
@@ -72,10 +72,10 @@ Register a new organisation account.
 
 **Error Codes**
 
-| Status | Condition |
-|---|---|
-| `400` | Missing fields, validation error, or duplicate email |
-| `500` | Internal server error |
+| Status | Condition                                            |
+| ------ | ---------------------------------------------------- |
+| `400`  | Missing fields, validation error, or duplicate email |
+| `500`  | Internal server error                                |
 
 ---
 
@@ -85,10 +85,10 @@ Authenticate an existing user.
 
 **Request Body**
 
-| Field | Type | Required |
-|---|---|---|
-| `email` | `string` | Yes |
-| `password` | `string` | Yes |
+| Field      | Type     | Required |
+| ---------- | -------- | -------- |
+| `email`    | `string` | Yes      |
+| `password` | `string` | Yes      |
 
 **Response `200`**
 
@@ -109,11 +109,11 @@ Authenticate an existing user.
 
 **Error Codes**
 
-| Status | Condition |
-|---|---|
-| `400` | Missing email or password |
-| `401` | Invalid credentials |
-| `500` | Internal server error |
+| Status | Condition                 |
+| ------ | ------------------------- |
+| `400`  | Missing email or password |
+| `401`  | Invalid credentials       |
+| `500`  | Internal server error     |
 
 ---
 
@@ -125,13 +125,13 @@ Create a new certificate event for an organisation.
 
 **Request Body**
 
-| Field | Type | Required | Constraints |
-|---|---|---|---|
-| `organisation` | `string` | Yes | Organisation display name |
-| `organisationID` | `string` | Yes | Valid MongoDB ObjectId |
-| `eventName` | `string` | Yes | 2–200 characters |
-| `issuerName` | `string` | Yes | 2–100 characters |
-| `date` | `string` | No | ISO 8601 date string; defaults to now |
+| Field            | Type     | Required | Constraints                           |
+| ---------------- | -------- | -------- | ------------------------------------- |
+| `organisation`   | `string` | Yes      | Organisation display name             |
+| `organisationID` | `string` | Yes      | Valid MongoDB ObjectId                |
+| `eventName`      | `string` | Yes      | 2–200 characters                      |
+| `issuerName`     | `string` | Yes      | 2–100 characters                      |
+| `date`           | `string` | No       | ISO 8601 date string; defaults to now |
 
 **Response `201`**
 
@@ -224,10 +224,10 @@ Save the field layout for a certificate template. Only one configuration per eve
 
 **Request Body**
 
-| Field | Type | Required |
-|---|---|---|
-| `eventId` | `string` | Yes — MongoDB ObjectId |
-| `imagePath` | `string` | Yes — Cloudinary URL of the background template |
+| Field         | Type     | Required                                                    |
+| ------------- | -------- | ----------------------------------------------------------- |
+| `eventId`     | `string` | Yes — MongoDB ObjectId                                      |
+| `imagePath`   | `string` | Yes — Cloudinary URL of the background template             |
 | `validFields` | `object` | Yes — Field definitions (see [Field Object](#field-object)) |
 
 **Response `201`**
@@ -253,27 +253,27 @@ Save the field layout for a certificate template. Only one configuration per eve
 
 Each key in `validFields` is an optional field name from the allowed set:
 
-| Field Name | Description |
-|---|---|
-| `recipientName` | Dynamic recipient name placed on the certificate |
-| `organisationName` | The issuing organisation's name |
-| `certificateLink` | Printed URL of the public verification page |
-| `certificateQR` | QR code image linking to the verification URL |
-| `rank` | Optional rank / position awarded to the recipient |
+| Field Name         | Description                                       |
+| ------------------ | ------------------------------------------------- |
+| `recipientName`    | Dynamic recipient name placed on the certificate  |
+| `organisationName` | The issuing organisation's name                   |
+| `certificateLink`  | Printed URL of the public verification page       |
+| `certificateQR`    | QR code image linking to the verification URL     |
+| `rank`             | Optional rank / position awarded to the recipient |
 
 Each field value is an object:
 
-| Property | Type | Required | Description |
-|---|---|---|---|
-| `x` | `number` | Yes | Horizontal position (>= 0) in pixels |
-| `y` | `number` | Yes | Vertical position (>= 0) in pixels |
-| `width` | `number` | Yes | Field bounding-box width (> 0) |
-| `height` | `number` | Yes | Field bounding-box height (> 0) |
-| `fontFamily` | `string` | No | One of ~50 supported font families; defaults to `"Inter"` |
-| `fontWeight` | `string` | No | `"normal"` \| `"bold"`; defaults to `"normal"` |
-| `fontStyle` | `string` | No | `"normal"` \| `"italic"`; defaults to `"normal"` |
-| `textDecoration` | `string` | No | `"none"` \| `"underline"`; defaults to `"none"` |
-| `color` | `string` | No | Hex colour code (`#RRGGBB` or `#RGB`); defaults to `"#000000"` |
+| Property         | Type     | Required | Description                                                    |
+| ---------------- | -------- | -------- | -------------------------------------------------------------- |
+| `x`              | `number` | Yes      | Horizontal position (>= 0) in pixels                           |
+| `y`              | `number` | Yes      | Vertical position (>= 0) in pixels                             |
+| `width`          | `number` | Yes      | Field bounding-box width (> 0)                                 |
+| `height`         | `number` | Yes      | Field bounding-box height (> 0)                                |
+| `fontFamily`     | `string` | No       | One of ~50 supported font families; defaults to `"Inter"`      |
+| `fontWeight`     | `string` | No       | `"normal"` \| `"bold"`; defaults to `"normal"`                 |
+| `fontStyle`      | `string` | No       | `"normal"` \| `"italic"`; defaults to `"normal"`               |
+| `textDecoration` | `string` | No       | `"none"` \| `"underline"`; defaults to `"none"`                |
+| `color`          | `string` | No       | Hex colour code (`#RRGGBB` or `#RGB`); defaults to `"#000000"` |
 
 ---
 
@@ -305,8 +305,8 @@ Upload a certificate background image to Cloudinary.
 
 **Content-Type**: `multipart/form-data`
 
-| Form Field | Type | Constraints |
-|---|---|---|
+| Form Field    | Type   | Constraints                                                  |
+| ------------- | ------ | ------------------------------------------------------------ |
 | `certificate` | `file` | Image files only (jpg, jpeg, png, gif, bmp, webp); max 10 MB |
 
 **Response `200`**
@@ -338,21 +338,21 @@ Store an encrypted batch of generated certificates. Called by the frontend after
 
 **Request Body**
 
-| Field | Type | Required | Constraints |
-|---|---|---|---|
-| `certificateId` | `string` | Yes | MongoDB ObjectId of the `CertificateConfig` |
-| `recipients` | `array` | Yes | Non-empty array of recipient objects |
-| `generatedBy` | `string` | Yes | MongoDB ObjectId of the logged-in user |
-| `password` | `string` | Yes | Minimum 6 characters; used as encryption key |
+| Field           | Type     | Required | Constraints                                  |
+| --------------- | -------- | -------- | -------------------------------------------- |
+| `certificateId` | `string` | Yes      | MongoDB ObjectId of the `CertificateConfig`  |
+| `recipients`    | `array`  | Yes      | Non-empty array of recipient objects         |
+| `generatedBy`   | `string` | Yes      | MongoDB ObjectId of the logged-in user       |
+| `password`      | `string` | Yes      | Minimum 6 characters; used as encryption key |
 
 **Recipient Object**
 
-| Field | Type | Required | Description |
-|---|---|---|---|
-| `name` | `string` | Yes | Recipient's full name |
-| `email` | `string` | No | Valid email address |
-| `rank` | `string` | No | Only stored if the certificate config has a `rank` field |
-| `uuid` | `string` | No | Client-generated UUID v4 for this certificate |
+| Field   | Type     | Required | Description                                              |
+| ------- | -------- | -------- | -------------------------------------------------------- |
+| `name`  | `string` | Yes      | Recipient's full name                                    |
+| `email` | `string` | No       | Valid email address                                      |
+| `rank`  | `string` | No       | Only stored if the certificate config has a `rank` field |
+| `uuid`  | `string` | No       | Client-generated UUID v4 for this certificate            |
 
 **Response `201`**
 
@@ -382,14 +382,14 @@ Retrieve paginated generated certificate batches (without decrypting recipient d
 
 **Query Parameters**
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `page` | `number` | `1` | Page number |
-| `limit` | `number` | `10` | Items per page |
-| `filter` | `string` | `"all"` | `"all"` \| `"recent"` \| `"high-recipients"` \| `"with-rank"` \| `"without-rank"` |
-| `sortBy` | `string` | `"date"` | `"date"` \| `"recipients"` \| `"certificateId"` |
-| `sortOrder` | `string` | `"desc"` | `"asc"` \| `"desc"` |
-| `generatedBy` | `string` | — | Filter by user ObjectId |
+| Parameter     | Type     | Default  | Description                                                                       |
+| ------------- | -------- | -------- | --------------------------------------------------------------------------------- |
+| `page`        | `number` | `1`      | Page number                                                                       |
+| `limit`       | `number` | `10`     | Items per page                                                                    |
+| `filter`      | `string` | `"all"`  | `"all"` \| `"recent"` \| `"high-recipients"` \| `"with-rank"` \| `"without-rank"` |
+| `sortBy`      | `string` | `"date"` | `"date"` \| `"recipients"` \| `"certificateId"`                                   |
+| `sortOrder`   | `string` | `"desc"` | `"asc"` \| `"desc"`                                                               |
+| `generatedBy` | `string` | —        | Filter by user ObjectId                                                           |
 
 > [!NOTE]
 > The `search` parameter returns an empty result set with `requiresDecryption: true` since recipient data is encrypted and cannot be searched without a password.
@@ -402,8 +402,8 @@ Decrypt and retrieve certificate batches with full recipient data.
 
 **Request Body** — All query parameters above, **plus**:
 
-| Field | Type | Required |
-|---|---|---|
+| Field      | Type     | Required                  |
+| ---------- | -------- | ------------------------- |
 | `password` | `string` | Yes — Decryption password |
 
 Certificates that fail to decrypt with the provided password are silently skipped and reported in the `decryption.failed` counter.
@@ -438,10 +438,10 @@ Manually increment the organisation's `recipientCount` statistic in the `Record`
 
 **Request Body**
 
-| Field | Type | Required |
-|---|---|---|
-| `orgName` | `string` | Yes |
-| `recipientCount` | `number` | Yes |
+| Field            | Type     | Required |
+| ---------------- | -------- | -------- |
+| `orgName`        | `string` | Yes      |
+| `recipientCount` | `number` | Yes      |
 
 ---
 
@@ -477,14 +477,14 @@ Verify a certificate UUID. Returns event metadata. **No authentication required.
 
 **Step Progression on Error** — The `step` field indicates which verification stage failed:
 
-| `step` | Meaning |
-|---|---|
-| `validation` | UUID parameter missing |
-| `uuid_lookup` | UUID not found in database |
+| `step`               | Meaning                              |
+| -------------------- | ------------------------------------ |
+| `validation`         | UUID parameter missing               |
+| `uuid_lookup`        | UUID not found in database           |
 | `certificate_lookup` | Generated certificate record missing |
-| `config_lookup` | Certificate configuration missing |
-| `event_lookup` | Event record missing |
-| `complete` | All steps passed |
+| `config_lookup`      | Certificate configuration missing    |
+| `event_lookup`       | Event record missing                 |
+| `complete`           | All steps passed                     |
 
 ---
 
@@ -523,9 +523,7 @@ Retrieve all UUID verification records for a specific generated certificate batc
   "data": {
     "certificateId": "...",
     "totalUUIDs": 50,
-    "uuids": [
-      { "uuid": "...", "verificationId": "...", "createdAt": "..." }
-    ]
+    "uuids": [{ "uuid": "...", "verificationId": "...", "createdAt": "..." }]
   }
 }
 ```

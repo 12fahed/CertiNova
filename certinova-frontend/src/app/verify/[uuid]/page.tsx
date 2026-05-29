@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useRef, useCallback } from "react";
-import { useParams } from "next/navigation";
-import { motion } from "framer-motion";
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { useParams } from 'next/navigation';
+import { motion } from 'framer-motion';
 import {
   ShieldCheck,
   ShieldX,
@@ -15,10 +15,10 @@ import {
   CheckCircle,
   XCircle,
   ExternalLink,
-} from "lucide-react";
-import QRCode from "qrcode";
-import { certificateService } from "@/services/certificate";
-import Link from "next/link";
+} from 'lucide-react';
+import QRCode from 'qrcode';
+import { certificateService } from '@/services/certificate';
+import Link from 'next/link';
 
 interface FieldPosition {
   x: number;
@@ -62,8 +62,8 @@ interface VerificationStep {
   hasError: boolean;
 }
 
-const SAMPLE_NAME = "Aarav Sharma";
-const SAMPLE_RANK = "1st";
+const SAMPLE_NAME = 'Aarav Sharma';
+const SAMPLE_RANK = '1st';
 
 function isInternetExplorer() {
   if (typeof window === "undefined") return false;
@@ -94,40 +94,35 @@ export default function VerifyPage() {
   const params = useParams();
   const uuid = params.uuid as string;
 
-  const [status, setStatus] = useState<"loading" | "success" | "error">(
-    "loading",
-  );
-  const [verificationData, setVerificationData] =
-    useState<VerificationData | null>(null);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [certificateDataUrl, setCertificateDataUrl] = useState<string | null>(
-    null,
-  );
+  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
+  const [verificationData, setVerificationData] = useState<VerificationData | null>(null);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [certificateDataUrl, setCertificateDataUrl] = useState<string | null>(null);
 
   const [steps, setSteps] = useState<VerificationStep[]>([
     {
       id: 1,
-      label: "UUID Lookup",
-      description: "Searching verification records...",
-      completedText: "UUID found in verification database",
+      label: 'UUID Lookup',
+      description: 'Searching verification records...',
+      completedText: 'UUID found in verification database',
       progress: 0,
       isCompleted: false,
       hasError: false,
     },
     {
       id: 2,
-      label: "Certificate Validation",
-      description: "Fetching certificate data...",
-      completedText: "Certificate record verified",
+      label: 'Certificate Validation',
+      description: 'Fetching certificate data...',
+      completedText: 'Certificate record verified',
       progress: 0,
       isCompleted: false,
       hasError: false,
     },
     {
       id: 3,
-      label: "Issuer Verification",
-      description: "Verifying issuer credentials...",
-      completedText: "Issuer and organization verified",
+      label: 'Issuer Verification',
+      description: 'Verifying issuer credentials...',
+      completedText: 'Issuer and organization verified',
       progress: 0,
       isCompleted: false,
       hasError: false,
@@ -141,19 +136,15 @@ export default function VerifyPage() {
         progress += 8;
         setSteps((prev) =>
           prev.map((step, i) =>
-            i === stepIndex
-              ? { ...step, progress: Math.min(progress, 100) }
-              : step,
-          ),
+            i === stepIndex ? { ...step, progress: Math.min(progress, 100) } : step
+          )
         );
         if (progress >= 100) {
           clearInterval(interval);
           setSteps((prev) =>
             prev.map((step, i) =>
-              i === stepIndex
-                ? { ...step, isCompleted: true, progress: 100 }
-                : step,
-            ),
+              i === stepIndex ? { ...step, isCompleted: true, progress: 100 } : step
+            )
           );
           setTimeout(resolve, 200);
         }
@@ -173,14 +164,14 @@ export default function VerifyPage() {
 
       return new Promise<string>((resolve, reject) => {
         const img = new window.Image();
-        img.crossOrigin = "anonymous";
+        img.crossOrigin = 'anonymous';
 
         img.onload = async () => {
           try {
-            const canvas = document.createElement("canvas");
-            const ctx = canvas.getContext("2d");
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
             if (!ctx) {
-              reject(new Error("Failed to get canvas context"));
+              reject(new Error('Failed to get canvas context'));
               return;
             }
 
@@ -192,46 +183,42 @@ export default function VerifyPage() {
             const applyRuleBasedStyling = (
               fieldType: string,
               text: string,
-              basePosition: FieldPosition,
+              basePosition: FieldPosition
             ) => {
               const position = { ...basePosition };
 
               switch (fieldType) {
-                case "recipientName":
-                  if (!position.fontWeight) position.fontWeight = "bold";
-                  if (!position.fontFamily) position.fontFamily = "Montserrat";
-                  if (!position.color) position.color = "#000000";
+                case 'recipientName':
+                  if (!position.fontWeight) position.fontWeight = 'bold';
+                  if (!position.fontFamily) position.fontFamily = 'Montserrat';
+                  if (!position.color) position.color = '#000000';
                   break;
-                case "rank":
-                  if (!position.fontWeight) position.fontWeight = "bold";
-                  if (!position.fontFamily) position.fontFamily = "Roboto";
-                  if (!position.color) position.color = "#000000";
-                  if (
-                    text.toLowerCase().includes("1st") ||
-                    text.toLowerCase().includes("first")
-                  ) {
-                    if (!position.fontStyle) position.fontStyle = "italic";
+                case 'rank':
+                  if (!position.fontWeight) position.fontWeight = 'bold';
+                  if (!position.fontFamily) position.fontFamily = 'Roboto';
+                  if (!position.color) position.color = '#000000';
+                  if (text.toLowerCase().includes('1st') || text.toLowerCase().includes('first')) {
+                    if (!position.fontStyle) position.fontStyle = 'italic';
                   }
                   break;
-                case "organisationName":
-                  if (!position.fontFamily) position.fontFamily = "Inter";
-                  if (!position.fontWeight) position.fontWeight = "normal";
-                  if (!position.color) position.color = "#000000";
+                case 'organisationName':
+                  if (!position.fontFamily) position.fontFamily = 'Inter';
+                  if (!position.fontWeight) position.fontWeight = 'normal';
+                  if (!position.color) position.color = '#000000';
                   break;
-                case "certificateLink":
-                  if (!position.fontFamily) position.fontFamily = "Open Sans";
-                  if (!position.textDecoration)
-                    position.textDecoration = "underline";
-                  if (!position.color) position.color = "#000000";
+                case 'certificateLink':
+                  if (!position.fontFamily) position.fontFamily = 'Open Sans';
+                  if (!position.textDecoration) position.textDecoration = 'underline';
+                  if (!position.color) position.color = '#000000';
                   break;
-                case "certificateQR":
-                  if (!position.fontFamily) position.fontFamily = "Inter";
-                  if (!position.fontWeight) position.fontWeight = "bold";
-                  if (!position.color) position.color = "#000000";
+                case 'certificateQR':
+                  if (!position.fontFamily) position.fontFamily = 'Inter';
+                  if (!position.fontWeight) position.fontWeight = 'bold';
+                  if (!position.color) position.color = '#000000';
                   break;
                 default:
-                  if (!position.fontFamily) position.fontFamily = "Inter";
-                  if (!position.color) position.color = "#000000";
+                  if (!position.fontFamily) position.fontFamily = 'Inter';
+                  if (!position.color) position.color = '#000000';
                   break;
               }
               return position;
@@ -242,23 +229,21 @@ export default function VerifyPage() {
               text: string,
               pos: FieldPosition,
               maxFontSize = 72,
-              fieldType?: string,
+              fieldType?: string
             ) => {
-              const styledPosition = fieldType
-                ? applyRuleBasedStyling(fieldType, text, pos)
-                : pos;
+              const styledPosition = fieldType ? applyRuleBasedStyling(fieldType, text, pos) : pos;
 
-              const fontFamily = styledPosition.fontFamily || "Inter";
-              const fontWeight = styledPosition.fontWeight || "normal";
-              const fontStyle = styledPosition.fontStyle || "normal";
-              const textDecoration = styledPosition.textDecoration || "none";
-              const color = styledPosition.color || "#000000";
+              const fontFamily = styledPosition.fontFamily || 'Inter';
+              const fontWeight = styledPosition.fontWeight || 'normal';
+              const fontStyle = styledPosition.fontStyle || 'normal';
+              const textDecoration = styledPosition.textDecoration || 'none';
+              const color = styledPosition.color || '#000000';
 
               const avgCharWidth = 0.6;
               let fontSize = Math.min(
                 styledPosition.width / (text.length * avgCharWidth),
                 styledPosition.height * 0.8,
-                maxFontSize,
+                maxFontSize
               );
               fontSize = Math.max(fontSize, 8);
 
@@ -268,25 +253,20 @@ export default function VerifyPage() {
               const maxHeight = styledPosition.height * 0.8;
 
               if (metrics.width > maxWidth || fontSize > maxHeight) {
-                const ratio = Math.min(
-                  maxWidth / metrics.width,
-                  maxHeight / fontSize,
-                );
+                const ratio = Math.min(maxWidth / metrics.width, maxHeight / fontSize);
                 fontSize *= ratio;
                 ctx.font = `${fontStyle} ${fontWeight} ${fontSize}px ${fontFamily}`;
                 metrics = ctx.measureText(text);
               }
 
-              const textX =
-                styledPosition.x + (styledPosition.width - metrics.width) / 2;
+              const textX = styledPosition.x + (styledPosition.width - metrics.width) / 2;
               const textY =
-                styledPosition.y +
-                (styledPosition.height + metrics.actualBoundingBoxAscent) / 2;
+                styledPosition.y + (styledPosition.height + metrics.actualBoundingBoxAscent) / 2;
 
               ctx.fillStyle = color;
               ctx.fillText(text, textX, textY);
 
-              if (textDecoration === "underline") {
+              if (textDecoration === 'underline') {
                 const underlineY = textY + 2;
                 ctx.strokeStyle = color;
                 ctx.beginPath();
@@ -298,22 +278,19 @@ export default function VerifyPage() {
             };
 
             // Helper to draw QR code
-            const drawQRCode = async (
-              dataQR: string,
-              position: FieldPosition,
-            ) => {
+            const drawQRCode = async (dataQR: string, position: FieldPosition) => {
               try {
                 const qrDataUrl = await QRCode.toDataURL(dataQR, {
                   width: Math.min(position.width, position.height),
                   margin: 1,
                   color: {
-                    dark: "#000000",
-                    light: "#FFFFFF",
+                    dark: '#000000',
+                    light: '#FFFFFF',
                   },
                 });
 
                 const qrImg = new window.Image();
-                qrImg.crossOrigin = "anonymous";
+                qrImg.crossOrigin = 'anonymous';
                 await new Promise<void>((resolveQR, rejectQR) => {
                   qrImg.onload = () => resolveQR();
                   qrImg.onerror = rejectQR;
@@ -326,13 +303,8 @@ export default function VerifyPage() {
 
                 ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
               } catch (error) {
-                console.error("Error generating QR code:", error);
-                drawCenteredText(
-                  `[QR: ${dataQR}]`,
-                  position,
-                  16,
-                  "certificateQR",
-                );
+                console.error('Error generating QR code:', error);
+                drawCenteredText(`[QR: ${dataQR}]`, position, 16, 'certificateQR');
               }
             };
 
@@ -340,45 +312,35 @@ export default function VerifyPage() {
             const { validFields } = certificateConfig;
 
             if (validFields.recipientName) {
-              drawCenteredText(
-                SAMPLE_NAME,
-                validFields.recipientName,
-                100,
-                "recipientName",
-              );
+              drawCenteredText(SAMPLE_NAME, validFields.recipientName, 100, 'recipientName');
             }
             if (validFields.organisationName) {
               drawCenteredText(
                 data.organisation,
                 validFields.organisationName,
                 72,
-                "organisationName",
+                'organisationName'
               );
             }
             if (validFields.rank) {
-              drawCenteredText(SAMPLE_RANK, validFields.rank, 150, "rank");
+              drawCenteredText(SAMPLE_RANK, validFields.rank, 150, 'rank');
             }
             if (validFields.certificateLink) {
               const verifyUrl =
-                typeof window !== "undefined"
+                typeof window !== 'undefined'
                   ? `${window.location.origin}/verify/${data.uuid}`
                   : data.uuid;
-              drawCenteredText(
-                verifyUrl,
-                validFields.certificateLink,
-                24,
-                "certificateLink",
-              );
+              drawCenteredText(verifyUrl, validFields.certificateLink, 24, 'certificateLink');
             }
             if (validFields.certificateQR) {
               const verifyUrl =
-                typeof window !== "undefined"
+                typeof window !== 'undefined'
                   ? `${window.location.origin}/verify/${data.uuid}`
                   : data.uuid;
               await drawQRCode(verifyUrl, validFields.certificateQR);
             }
 
-            const dataUrl = canvas.toDataURL("image/png");
+            const dataUrl = canvas.toDataURL('image/png');
             URL.revokeObjectURL(objectUrl);
             resolve(dataUrl);
           } catch (err) {
@@ -389,13 +351,13 @@ export default function VerifyPage() {
 
         img.onerror = () => {
           URL.revokeObjectURL(objectUrl);
-          reject(new Error("Failed to load certificate template image"));
+          reject(new Error('Failed to load certificate template image'));
         };
 
         img.src = objectUrl;
       });
     },
-    [],
+    []
   );
 
   // Run verification on mount
@@ -419,11 +381,11 @@ export default function VerifyPage() {
                     progress: 100,
                     isCompleted: false,
                   }
-                : step,
-            ),
+                : step
+            )
           );
-          setErrorMessage(result.message || "Verification failed");
-          setStatus("error");
+          setErrorMessage(result.message || 'Verification failed');
+          setStatus('error');
           return;
         }
 
@@ -440,28 +402,26 @@ export default function VerifyPage() {
                     ...step,
                     completedText: `${result.data!.issuerName} • ${result.data!.organisation} • ${result.data!.eventName}`,
                   }
-                : step,
-          ),
+                : step
+          )
         );
         await animateProgress(1);
         await animateProgress(2);
 
         setVerificationData(result.data);
-        setStatus("success");
+        setStatus('success');
 
         // Render certificate on offscreen canvas → data URL
         try {
           const dataUrl = await renderCertificateToDataUrl(result.data);
           setCertificateDataUrl(dataUrl);
         } catch (renderErr) {
-          console.error("Certificate rendering failed:", renderErr);
+          console.error('Certificate rendering failed:', renderErr);
           // Still show success state, just without the certificate image
         }
       } catch {
-        setErrorMessage(
-          "Network error. Please check your connection and try again.",
-        );
-        setStatus("error");
+        setErrorMessage('Network error. Please check your connection and try again.');
+        setStatus('error');
       }
     };
 
@@ -470,7 +430,7 @@ export default function VerifyPage() {
 
   const handleDownload = () => {
     if (!certificateDataUrl) return;
-    const link = document.createElement("a");
+    const link = document.createElement('a');
     link.download = `certificate-sample-${uuid.slice(0, 8)}.png`;
     link.href = certificateDataUrl;
     link.click();
@@ -493,12 +453,8 @@ export default function VerifyPage() {
                 <Award className="w-5 h-5 text-white" />
               </div>
               <div>
-                <span className="text-xl font-bold text-gray-900">
-                  CertiNova
-                </span>
-                <p className="text-xs text-gray-500 mt-0.5">
-                  Secure Certificate Verification
-                </p>
+                <span className="text-xl font-bold text-gray-900">CertiNova</span>
+                <p className="text-xs text-gray-500 mt-0.5">Secure Certificate Verification</p>
               </div>
             </div>
           </div>
@@ -514,9 +470,7 @@ export default function VerifyPage() {
               <p className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-1">
                 Verification ID
               </p>
-              <code className="text-sm font-mono text-gray-700 break-all">
-                {uuid}
-              </code>
+              <code className="text-sm font-mono text-gray-700 break-all">{uuid}</code>
             </motion.div>
 
             {/* Verification Steps */}
@@ -540,10 +494,7 @@ export default function VerifyPage() {
                     className="flex items-center gap-3"
                   >
                     <div className="w-10 h-10 flex-shrink-0 relative">
-                      <svg
-                        viewBox="0 0 40 40"
-                        className="w-full h-full -rotate-90"
-                      >
+                      <svg viewBox="0 0 40 40" className="w-full h-full -rotate-90">
                         <circle
                           cx="20"
                           cy="20"
@@ -558,11 +509,7 @@ export default function VerifyPage() {
                           r="16"
                           fill="none"
                           stroke={
-                            step.hasError
-                              ? "#ef4444"
-                              : step.isCompleted
-                                ? "#10b981"
-                                : "#3b82f6"
+                            step.hasError ? '#ef4444' : step.isCompleted ? '#10b981' : '#3b82f6'
                           }
                           strokeWidth="2.5"
                           strokeDasharray={`${step.progress} ${100 - step.progress}`}
@@ -584,16 +531,14 @@ export default function VerifyPage() {
                     </div>
                     <div className="flex-1">
                       <p
-                        className={`text-sm font-medium ${step.hasError ? "text-red-700" : step.isCompleted ? "text-gray-800" : "text-gray-600"}`}
+                        className={`text-sm font-medium ${step.hasError ? 'text-red-700' : step.isCompleted ? 'text-gray-800' : 'text-gray-600'}`}
                       >
                         {step.label}
                       </p>
                       <p
-                        className={`text-xs mt-0.5 ${step.hasError ? "text-red-500" : step.isCompleted ? "text-emerald-600" : "text-gray-400"}`}
+                        className={`text-xs mt-0.5 ${step.hasError ? 'text-red-500' : step.isCompleted ? 'text-emerald-600' : 'text-gray-400'}`}
                       >
-                        {step.isCompleted
-                          ? step.completedText
-                          : step.description}
+                        {step.isCompleted ? step.completedText : step.description}
                       </p>
                     </div>
                   </motion.div>
@@ -602,7 +547,7 @@ export default function VerifyPage() {
             </motion.div>
 
             {/* Error State */}
-            {status === "error" && (
+            {status === 'error' && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -614,9 +559,7 @@ export default function VerifyPage() {
                 <h3 className="text-base font-bold text-red-800 text-center mb-1">
                   Verification Failed
                 </h3>
-                <p className="text-red-600 text-xs text-center mb-4">
-                  {errorMessage}
-                </p>
+                <p className="text-red-600 text-xs text-center mb-4">{errorMessage}</p>
                 <Link
                   href="/"
                   className="inline-flex items-center justify-center gap-2 w-full px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors"
@@ -628,21 +571,19 @@ export default function VerifyPage() {
             )}
 
             {/* Loading State */}
-            {status === "loading" && (
+            {status === 'loading' && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 className="flex items-center justify-center py-8"
               >
                 <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />
-                <span className="ml-2 text-sm text-gray-500">
-                  Verifying certificate...
-                </span>
+                <span className="ml-2 text-sm text-gray-500">Verifying certificate...</span>
               </motion.div>
             )}
 
             {/* Success - Event Details */}
-            {status === "success" && verificationData && (
+            {status === 'success' && verificationData && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -655,12 +596,8 @@ export default function VerifyPage() {
                       <ShieldCheck className="w-5 h-5 text-emerald-600" />
                     </div>
                     <div>
-                      <h3 className="text-sm font-bold text-emerald-800">
-                        Certificate Verified ✓
-                      </h3>
-                      <p className="text-xs text-emerald-600">
-                        Securely issued by CertiNova
-                      </p>
+                      <h3 className="text-sm font-bold text-emerald-800">Certificate Verified ✓</h3>
+                      <p className="text-xs text-emerald-600">Securely issued by CertiNova</p>
                     </div>
                   </div>
                 </div>
@@ -711,14 +648,11 @@ export default function VerifyPage() {
                       </p>
                     </div>
                     <p className="text-sm font-semibold text-gray-800">
-                      {new Date(verificationData.eventDate).toLocaleDateString(
-                        "en-IN",
-                        {
-                          day: "numeric",
-                          month: "long",
-                          year: "numeric",
-                        },
-                      )}
+                      {new Date(verificationData.eventDate).toLocaleDateString('en-IN', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                      })}
                     </p>
                   </div>
                 </div>
@@ -726,13 +660,10 @@ export default function VerifyPage() {
                 {/* Metadata Footer */}
                 <div className="pt-4 border-t border-gray-200">
                   <p className="text-[10px] text-gray-400 text-center leading-relaxed">
-                    Generated:{" "}
-                    {new Date(
-                      verificationData.certificateGeneratedDate,
-                    ).toLocaleDateString()}{" "}
-                    | Verified:{" "}
-                    {new Date(verificationData.verifiedAt).toLocaleString()} |
-                    Powered by CertiNova — Secure Verification
+                    Generated:{' '}
+                    {new Date(verificationData.certificateGeneratedDate).toLocaleDateString()} |
+                    Verified: {new Date(verificationData.verifiedAt).toLocaleString()} | Powered by
+                    CertiNova — Secure Verification
                   </p>
                 </div>
               </motion.div>
@@ -750,12 +681,12 @@ export default function VerifyPage() {
                   Sample Certificate Preview
                 </h3>
                 <p className="text-xs text-gray-500 mt-0.5">
-                  {status === "success"
+                  {status === 'success'
                     ? `Issued to (Sample Name): ${SAMPLE_NAME}`
-                    : "Sample certificate preview"}
+                    : 'Sample certificate preview'}
                 </p>
               </div>
-              {status === "success" && certificateDataUrl && (
+              {status === 'success' && certificateDataUrl && (
                 <button
                   onClick={handleDownload}
                   className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors shadow-sm"
@@ -769,22 +700,16 @@ export default function VerifyPage() {
 
           {/* Certificate Display Area - Centered with scroll only if needed */}
           <div className="flex-1 overflow-auto flex items-center justify-center p-8">
-            {status === "loading" ? (
+            {status === 'loading' ? (
               <div className="text-center">
                 <Loader2 className="w-8 h-8 text-blue-600 animate-spin mx-auto mb-3" />
-                <p className="text-sm text-gray-500">
-                  Rendering certificate...
-                </p>
+                <p className="text-sm text-gray-500">Rendering certificate...</p>
               </div>
-            ) : status === "error" ? (
+            ) : status === 'error' ? (
               <div className="text-center max-w-sm">
                 <ShieldX className="w-12 h-12 text-red-400 mx-auto mb-3" />
-                <p className="text-sm text-gray-600">
-                  Certificate preview unavailable
-                </p>
-                <p className="text-xs text-gray-400 mt-1">
-                  Verification failed
-                </p>
+                <p className="text-sm text-gray-600">Certificate preview unavailable</p>
+                <p className="text-xs text-gray-400 mt-1">Verification failed</p>
               </div>
             ) : certificateDataUrl ? (
               <motion.div
@@ -802,18 +727,14 @@ export default function VerifyPage() {
             ) : (
               <div className="text-center">
                 <Award className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-sm text-gray-400">
-                  Certificate will appear here
-                </p>
-                <p className="text-xs text-gray-300 mt-1">
-                  Complete verification to preview
-                </p>
+                <p className="text-sm text-gray-400">Certificate will appear here</p>
+                <p className="text-xs text-gray-300 mt-1">Complete verification to preview</p>
               </div>
             )}
           </div>
 
           {/* Optional subtle watermark */}
-          {status === "success" && certificateDataUrl && (
+          {status === 'success' && certificateDataUrl && (
             <div className="pb-4 text-center">
               <p className="text-[10px] text-gray-400">
                 Official document • Verification ID: {uuid}

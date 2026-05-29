@@ -1,76 +1,83 @@
-"use client"
+'use client';
 
-import { useState } from "react"
-import { motion } from "framer-motion"
-import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Separator } from "@/components/ui/separator"
-import { Mail, Lock, User, Chrome } from "lucide-react"
-import { useAuth } from "@/context/AuthContext"
-import { toast } from "sonner"
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Separator } from '@/components/ui/separator';
+import { Mail, Lock, User, Chrome, Eye, EyeOff } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+import { toast } from 'sonner';
 
 interface AuthModalProps {
-  onLogin?: () => void
-  triggerText?: string
+  onLogin?: () => void;
+  triggerText?: string;
 }
 
 export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-    organisation: ""
-  })
-  
-  const { login, signup, isLoading } = useAuth()
+    email: '',
+    password: '',
+    organisation: '',
+  });
+
+  const { login, signup, isLoading } = useAuth();
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
-  }
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
 
   const handleLogin = async () => {
     if (!formData.email || !formData.password) {
-      return
+      return;
     }
 
     const success = await login({
       email: formData.email,
-      password: formData.password
-    })
+      password: formData.password,
+    });
 
     if (success) {
-      setOpen(false)
-      setFormData({ email: "", password: "", organisation: "" })
-      onLogin?.()
+      setOpen(false);
+      setFormData({ email: '', password: '', organisation: '' });
+      onLogin?.();
     }
-  }
+  };
 
   const handleSignup = async () => {
     if (!formData.email || !formData.password || !formData.organisation) {
-      return
+      return;
     }
 
     const success = await signup({
       email: formData.email,
       password: formData.password,
-      organisation: formData.organisation
-    })
+      organisation: formData.organisation,
+    });
 
     if (success) {
-      setOpen(false)
-      setFormData({ email: "", password: "", organisation: "" })
-      onLogin?.()
+      setOpen(false);
+      setFormData({ email: '', password: '', organisation: '' });
+      onLogin?.();
     }
-  }
+  };
 
   const handleGoogleAuth = () => {
-    toast.error("Google Auth", {
-      description: "Beta version doesn't support OAuth"
-    })
-  }
+    toast.error('Google Auth', {
+      description: "Beta version doesn't support OAuth",
+    });
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -81,7 +88,10 @@ export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
           </Button>
         ) : (
           <div className="flex space-x-4">
-            <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50 bg-transparent">
+            <Button
+              variant="outline"
+              className="border-gray-300 text-gray-700 hover:bg-gray-50 bg-transparent"
+            >
               Sign In
             </Button>
             <Button className="bg-blue-600 hover:bg-blue-700 text-white">Sign Up</Button>
@@ -90,7 +100,9 @@ export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
       </DialogTrigger>
       <DialogContent className="sm:max-w-md bg-white border border-gray-200">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-center text-gray-900">Welcome to CertiNova</DialogTitle>
+          <DialogTitle className="text-2xl font-bold text-center text-gray-900">
+            Welcome to CertiNova
+          </DialogTitle>
         </DialogHeader>
 
         <Tabs defaultValue="signin" className="w-full">
@@ -104,7 +116,11 @@ export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
           </TabsList>
 
           <TabsContent value="signin" className="space-y-4">
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-4"
+            >
               <Button
                 onClick={handleGoogleAuth}
                 variant="outline"
@@ -131,13 +147,13 @@ export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
                   </Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                    <Input 
-                      id="email" 
-                      type="email" 
-                      placeholder="Enter your email" 
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="Enter your email"
                       className="pl-10 border-gray-200"
                       value={formData.email}
-                      onChange={(e) => handleInputChange("email", e.target.value)}
+                      onChange={(e) => handleInputChange('email', e.target.value)}
                     />
                   </div>
                 </div>
@@ -145,16 +161,25 @@ export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
                   <Label htmlFor="password" className="text-gray-700">
                     Password
                   </Label>
+
                   <div className="relative">
                     <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input
                       id="password"
-                      type="password"
+                      type={showPassword ? 'text' : 'password'}
                       placeholder="Enter your password"
-                      className="pl-10 border-gray-200"
+                      className="pl-10 pr-10 border-gray-200"
                       value={formData.password}
-                      onChange={(e) => handleInputChange("password", e.target.value)}
+                      onChange={(e) => handleInputChange('password', e.target.value)}
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      disabled={isLoading}
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
                   </div>
                 </div>
                 <Button
@@ -162,14 +187,18 @@ export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
                   className="w-full bg-blue-600 hover:bg-blue-700"
                   disabled={isLoading}
                 >
-                  {isLoading ? "Signing in..." : "Sign In"}
+                  {isLoading ? 'Signing in...' : 'Sign In'}
                 </Button>
               </div>
             </motion.div>
           </TabsContent>
 
           <TabsContent value="signup" className="space-y-4">
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-4"
+            >
               <Button
                 onClick={handleGoogleAuth}
                 variant="outline"
@@ -196,12 +225,12 @@ export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
                   </Label>
                   <div className="relative">
                     <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                    <Input 
-                      id="organisation-name" 
-                      placeholder="Enter your organisation name" 
+                    <Input
+                      id="organisation-name"
+                      placeholder="Enter your organisation name"
                       className="pl-10 border-gray-200"
                       value={formData.organisation}
-                      onChange={(e) => handleInputChange("organisation", e.target.value)}
+                      onChange={(e) => handleInputChange('organisation', e.target.value)}
                     />
                   </div>
                 </div>
@@ -217,7 +246,7 @@ export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
                       placeholder="Enter your email"
                       className="pl-10 border-gray-200"
                       value={formData.email}
-                      onChange={(e) => handleInputChange("email", e.target.value)}
+                      onChange={(e) => handleInputChange('email', e.target.value)}
                     />
                   </div>
                 </div>
@@ -225,16 +254,25 @@ export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
                   <Label htmlFor="signup-password" className="text-gray-700">
                     Password
                   </Label>
+
                   <div className="relative">
                     <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input
                       id="signup-password"
-                      type="password"
+                      type={showPassword ? 'text' : 'password'}
                       placeholder="Create a password"
-                      className="pl-10 border-gray-200"
+                      className="pl-10 pr-10 border-gray-200"
                       value={formData.password}
-                      onChange={(e) => handleInputChange("password", e.target.value)}
+                      onChange={(e) => handleInputChange('password', e.target.value)}
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      disabled={isLoading}
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
                   </div>
                 </div>
                 <Button
@@ -242,7 +280,7 @@ export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
                   className="w-full bg-blue-600 hover:bg-blue-700"
                   disabled={isLoading}
                 >
-                  {isLoading ? "Creating account..." : "Create Account"}
+                  {isLoading ? 'Creating account...' : 'Create Account'}
                 </Button>
               </div>
             </motion.div>
@@ -250,5 +288,5 @@ export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
         </Tabs>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

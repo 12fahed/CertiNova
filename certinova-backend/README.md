@@ -37,19 +37,19 @@ The CertiNova backend is a **RESTful JSON API** that powers the entire certifica
 
 ## Technology Stack
 
-| Technology | Version | Purpose |
-|---|---|---|
-| Node.js | ≥ 18.0.0 | Runtime environment |
-| Express.js | 5.1.0 | REST API framework |
-| MongoDB | — | Document database |
-| Mongoose | 8.17.1 | ODM / schema management |
-| bcrypt | 6.0.0 | User password hashing |
-| Multer | 2.0.2 | Multipart file upload handling |
-| multer-storage-cloudinary | 4.0.0 | Cloudinary storage adapter for Multer |
-| Cloudinary | 1.41.3 | Certificate template image CDN |
-| crypto (Node built-in) | — | AES-256-CBC encryption for recipient data |
-| dotenv | 16.3.1 | Environment variable loading |
-| nodemon | 3.1.10 | Development hot-reload |
+| Technology                | Version  | Purpose                                   |
+| ------------------------- | -------- | ----------------------------------------- |
+| Node.js                   | ≥ 18.0.0 | Runtime environment                       |
+| Express.js                | 5.1.0    | REST API framework                        |
+| MongoDB                   | —        | Document database                         |
+| Mongoose                  | 8.17.1   | ODM / schema management                   |
+| bcrypt                    | 6.0.0    | User password hashing                     |
+| Multer                    | 2.0.2    | Multipart file upload handling            |
+| multer-storage-cloudinary | 4.0.0    | Cloudinary storage adapter for Multer     |
+| Cloudinary                | 1.41.3   | Certificate template image CDN            |
+| crypto (Node built-in)    | —        | AES-256-CBC encryption for recipient data |
+| dotenv                    | 16.3.1   | Environment variable loading              |
+| nodemon                   | 3.1.10   | Development hot-reload                    |
 
 The project uses **ES Modules** (`"type": "module"` in `package.json`).
 
@@ -80,15 +80,16 @@ Copy the example file and populate it:
 cp ../.env.example .env
 ```
 
-| Variable | Required | Description |
-|---|---|---|
-| `MONGODB_URI` | Yes | Full MongoDB connection string |
-| `CLOUDINARY_CLOUD_NAME` | Yes | Your Cloudinary cloud name |
-| `CLOUDINARY_API_KEY` | Yes | Cloudinary API key |
-| `CLOUDINARY_API_SECRET` | Yes | Cloudinary API secret |
-| `PORT` | No | Server port (default: `5000`) |
-| `NODE_ENV` | No | `development` \| `production` (default: `development`) |
-| `FRONTEND_URL` | No | Production frontend origin for CORS |
+| Variable                | Required | Description                                            |
+| ----------------------- | -------- | ------------------------------------------------------ |
+| `MONGODB_URI`           | Yes      | Full MongoDB connection string                         |
+| `CLOUDINARY_CLOUD_NAME` | Yes      | Your Cloudinary cloud name                             |
+| `CLOUDINARY_API_KEY`    | Yes      | Cloudinary API key                                     |
+| `CLOUDINARY_API_SECRET` | Yes      | Cloudinary API secret                                  |
+| `PORT`                  | No       | Server port (default: `5000`)                          |
+| `NODE_ENV`              | No       | `development` \| `production` (default: `development`) |
+| `FRONTEND_URL`          | No       | Production frontend origin for CORS                    |
+| `TRUST_PROXY` | No | Enable only behind a trusted reverse proxy (`true`, hop count, or trusted subnet list) |
 
 See [`docs/configuration.md`](./docs/configuration.md) for full details.
 
@@ -112,13 +113,13 @@ A health check is available at `GET /api/health`.
 
 Detailed technical documentation is available in the [`docs/`](./docs/) directory:
 
-| Document | Description |
-|---|---|
-| [`docs/architecture.md`](./docs/architecture.md) | System architecture, directory structure, and data flow diagrams |
-| [`docs/api-reference.md`](./docs/api-reference.md) | Full REST API reference with request/response schemas |
-| [`docs/data-models.md`](./docs/data-models.md) | MongoDB schema definitions, indexes, and ER diagram |
-| [`docs/security.md`](./docs/security.md) | Encryption strategy, CORS policy, and security considerations |
-| [`docs/configuration.md`](./docs/configuration.md) | Environment variable reference and setup guide |
+| Document                                           | Description                                                      |
+| -------------------------------------------------- | ---------------------------------------------------------------- |
+| [`docs/architecture.md`](./docs/architecture.md)   | System architecture, directory structure, and data flow diagrams |
+| [`docs/api-reference.md`](./docs/api-reference.md) | Full REST API reference with request/response schemas            |
+| [`docs/data-models.md`](./docs/data-models.md)     | MongoDB schema definitions, indexes, and ER diagram              |
+| [`docs/security.md`](./docs/security.md)           | Encryption strategy, CORS policy, and security considerations    |
+| [`docs/configuration.md`](./docs/configuration.md) | Environment variable reference and setup guide                   |
 
 ---
 
@@ -180,36 +181,36 @@ All endpoints are prefixed with `/api`. See [`docs/api-reference.md`](./docs/api
 
 ### Authentication — `/api/auth`
 
-| Method | Path | Description |
-|---|---|---|
+| Method | Path      | Description                         |
+| ------ | --------- | ----------------------------------- |
 | `POST` | `/signup` | Register a new organisation account |
-| `POST` | `/login` | Authenticate and retrieve user data |
+| `POST` | `/login`  | Authenticate and retrieve user data |
 
 ### Events — `/api/events`
 
-| Method | Path | Description |
-|---|---|---|
-| `POST` | `/addEvent` | Create a new event |
-| `GET` | `/:organisationID` | List all events for an organisation |
-| `DELETE` | `/:eventId` | Delete event and all cascading data |
+| Method   | Path               | Description                         |
+| -------- | ------------------ | ----------------------------------- |
+| `POST`   | `/addEvent`        | Create a new event                  |
+| `GET`    | `/:organisationID` | List all events for an organisation |
+| `DELETE` | `/:eventId`        | Delete event and all cascading data |
 
 ### Certificates — `/api/certificates`
 
-| Method | Path | Description |
-|---|---|---|
-| `POST` | `/addCertificateConfig` | Save field layout for a template |
-| `GET` | `/config/:eventId` | Retrieve template configuration |
-| `PUT` | `/config/:configId` | Update template configuration |
-| `POST` | `/upload-template` | Upload background image to Cloudinary |
-| `POST` | `/storeGenerated` | Store an encrypted recipient batch |
-| `GET` | `/generated` | List batches (encrypted, no PII) |
-| `POST` | `/generated/decrypt` | Decrypt and retrieve recipient data |
-| `GET` | `/verify/:uuid` | Public certificate verification |
-| `GET` | `/verify-full/:uuid` | Public verification with template data |
-| `GET` | `/generated/:id/uuids` | List all UUIDs for a batch |
-| `GET` | `/organization-stats/:name` | Organisation statistics |
-| `GET` | `/all-organization-stats` | Statistics for all organisations |
-| `PATCH` | `/update-recipient-count` | Update recipient counter |
+| Method  | Path                        | Description                            |
+| ------- | --------------------------- | -------------------------------------- |
+| `POST`  | `/addCertificateConfig`     | Save field layout for a template       |
+| `GET`   | `/config/:eventId`          | Retrieve template configuration        |
+| `PUT`   | `/config/:configId`         | Update template configuration          |
+| `POST`  | `/upload-template`          | Upload background image to Cloudinary  |
+| `POST`  | `/storeGenerated`           | Store an encrypted recipient batch     |
+| `GET`   | `/generated`                | List batches (encrypted, no PII)       |
+| `POST`  | `/generated/decrypt`        | Decrypt and retrieve recipient data    |
+| `GET`   | `/verify/:uuid`             | Public certificate verification        |
+| `GET`   | `/verify-full/:uuid`        | Public verification with template data |
+| `GET`   | `/generated/:id/uuids`      | List all UUIDs for a batch             |
+| `GET`   | `/organization-stats/:name` | Organisation statistics                |
+| `GET`   | `/all-organization-stats`   | Statistics for all organisations       |
+| `PATCH` | `/update-recipient-count`   | Update recipient counter               |
 
 ---
 
