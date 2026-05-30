@@ -9,6 +9,7 @@ import { useAuth } from './AuthContext';
 interface EventContextType {
   events: Event[];
   isLoading: boolean;
+  isFetchingEvents: boolean;
   createEvent: (
     eventData: Omit<EventRequest, 'organisationID' | 'organisation'>
   ) => Promise<Event | null>;
@@ -34,6 +35,7 @@ interface EventProviderProps {
 export const EventProvider: React.FC<EventProviderProps> = ({ children }) => {
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isFetchingEvents, setIsFetchingEvents] = useState(true);
   const { user } = useAuth();
 
   const createEvent = async (
@@ -74,11 +76,12 @@ export const EventProvider: React.FC<EventProviderProps> = ({ children }) => {
 
   const fetchEvents = useCallback(async (): Promise<void> => {
     if (!user) {
+      setIsFetchingEvents(false);
       return;
     }
 
     try {
-      setIsLoading(true);
+      setIsFetchingEvents(true);
       const response = await eventService.getEventsByOrganisation(user.id);
 
       if (response.success && response.data?.events) {
@@ -92,7 +95,7 @@ export const EventProvider: React.FC<EventProviderProps> = ({ children }) => {
       const errorMessage = error instanceof Error ? error.message : 'Failed to load events';
       toast.error(errorMessage);
     } finally {
-      setIsLoading(false);
+      setIsFetchingEvents(false);
     }
   }, [user]);
 
@@ -127,6 +130,7 @@ export const EventProvider: React.FC<EventProviderProps> = ({ children }) => {
   const value: EventContextType = {
     events,
     isLoading,
+    isFetchingEvents,
     createEvent,
     fetchEvents,
     refreshEvents,
