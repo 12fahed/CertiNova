@@ -22,6 +22,7 @@ import {
   Loader2,
   CheckCircle,
   FileDown,
+  FileText,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import confetti from 'canvas-confetti';
@@ -35,6 +36,7 @@ import { v4 as uuidv4 } from 'uuid';
 import QRCode from 'qrcode';
 import { PasswordDialog } from '@/components/password-dialog';
 import { EncryptedCache } from '@/utils/crypto';
+import { exportCertificatesToPDF } from '@/lib/pdfExport';
 
 interface CertificateForSending {
   id: string;
@@ -70,6 +72,8 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
   const [generationComplete, setGenerationComplete] = useState(false);
   const [certificateConfig, setCertificateConfig] = useState<CertificateConfig | null>(null);
   const [zipBlob, setZipBlob] = useState<Blob | null>(null);
+  // Stores rendered certificate data URLs (from canvas) for PDF export
+  const [generatedDataUrls, setGeneratedDataUrls] = useState<{ recipientName: string; imageDataUrl: string }[]>([]);
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
   const [isStoringData, setIsStoringData] = useState(false);
 
@@ -640,16 +644,23 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
         // Add to zip
         const fileName = `${recipient.name.replace(/[^a-z0-9]/gi, '_')}_certificate.png`;
         folder.file(fileName, blob);
-        // console.log(`Added certificate to zip: ${fileName} for recipient: ${recipient.name}`);
 
-        // Store data URL for preview if needed
-        const dataUrl = canvas.toDataURL('image/png');
+        // Store data URL for preview and PDF export
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
         generatedUrls.push(dataUrl);
       }
 
       // Generate the zip file
       const zipBlob = await zip.generateAsync({ type: 'blob' });
       setZipBlob(zipBlob);
+
+      // Store certificate data URLs for PDF export
+      setGeneratedDataUrls(
+        recipients.map((r, idx) => ({
+          recipientName: r.name,
+          imageDataUrl: generatedUrls[idx],
+        }))
+      );
 
       setIsGenerating(false);
       setGenerationComplete(true);
@@ -780,14 +791,40 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
 
   const handleDownloadZip = () => {
     if (zipBlob) {
-      // Use FileSaver to download the zip
       saveAs(zipBlob, `certificates-${selectedCertificate}-${Date.now()}.zip`);
 
       toast('Download Started', {
-        description: 'Your certificate zip file is being downloaded.',
+        description: 'Your certificate ZIP file is being downloaded.',
       });
     } else {
       toast.error('No certificates available to download');
+    }
+  };
+
+  /**
+   * Exports all generated certificates as a single multi-page PDF.
+   * Each page contains the full certificate image at its native resolution.
+   */
+  const handleDownloadPDF = async () => {
+    if (generatedDataUrls.length === 0) {
+      toast.error('No certificates available to download');
+      return;
+    }
+
+    try {
+      const eventName = certificates.find((c) => c.id === selectedCertificate)?.name;
+      await exportCertificatesToPDF({
+        certificates: generatedDataUrls,
+        mode: 'batch',
+        eventName,
+      });
+
+      toast('Download Started', {
+        description: 'Your certificate PDF file is being downloaded.',
+      });
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      toast.error('Failed to generate PDF file');
     }
   };
 
@@ -798,6 +835,7 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
     setGenerationComplete(false);
     setCertificateConfig(null);
     setZipBlob(null);
+    setGeneratedDataUrls([]);
   };
 
   const handleClose = () => {
@@ -1252,13 +1290,22 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
 
               {generationComplete && (
                 <div className="space-y-3">
-                  <Button
-                    onClick={handleDownloadZip}
-                    className="w-full bg-blue-600 hover:bg-blue-700"
-                  >
-                    <Download className="h-4 w-4 mr-2" />
-                    Download ZIP File
-                  </Button>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Button
+                      onClick={handleDownloadZip}
+                      className="w-full bg-blue-600 hover:bg-blue-700"
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      Download ZIP
+                    </Button>
+                    <Button
+                      onClick={handleDownloadPDF}
+                      className="w-full bg-green-600 hover:bg-green-700"
+                    >
+                      <FileText className="h-4 w-4 mr-2" />
+                      Download PDF
+                    </Button>
+                  </div>
                   <Button
                     variant="outline"
                     onClick={handleClose}
