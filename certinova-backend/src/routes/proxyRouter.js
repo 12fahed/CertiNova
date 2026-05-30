@@ -174,6 +174,13 @@ const fetchPinnedImageStream = ({ parsedUrl, resolvedAddress }) => {
   });
 };
 
+const ensureReadableImageBody = (response) => {
+  if (!response.readable) {
+    response.resume();
+    throw new ProxyError(502, 'PROXY_FETCH_FAILED', 'Image response body is not available');
+  }
+};
+
 const createSizeLimitStream = () => {
   let streamedBytes = 0;
 
@@ -237,9 +244,7 @@ router.get('/image-proxy', async (req, res, next) => {
       throw new ProxyError(413, 'PROXY_SIZE_EXCEEDED', 'Image exceeds the proxy size limit');
     }
 
-    if (!response.readable) {
-      throw new ProxyError(502, 'PROXY_FETCH_FAILED', 'Image response body is not available');
-    }
+    ensureReadableImageBody(response);
 
     res.setHeader('Content-Type', contentType);
     res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours

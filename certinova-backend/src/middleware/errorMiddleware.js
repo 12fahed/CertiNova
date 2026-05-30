@@ -1,11 +1,13 @@
 // Global error handling middleware
+const isSafeProxyErrorCode = (code) => typeof code === 'string' && code.startsWith('PROXY_');
+
 export const errorHandler = (err, req, res, next) => {
   console.error(err.stack);
 
   const safeErrorCode =
     typeof err.errorCode === 'string'
       ? err.errorCode
-      : typeof err.code === 'string' && err.code.startsWith('PROXY_')
+      : isSafeProxyErrorCode(err.code)
         ? err.code
         : undefined;
 
