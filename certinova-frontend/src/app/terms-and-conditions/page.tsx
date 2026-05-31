@@ -1,7 +1,19 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { FileText, ShieldCheck, Scale, AlertTriangle, UserCheck, ArrowLeft, Pencil, Lock } from 'lucide-react';
+import {
+  FileText,
+  ShieldCheck,
+  Scale,
+  AlertTriangle,
+  UserCheck,
+  ArrowLeft,
+  Pencil,
+  Lock,
+  Shield,
+  Mail,
+  Award,
+} from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 const sections = [
@@ -15,10 +27,6 @@ const sections = [
       {
         subtitle: 'Agreement to Terms',
         text: 'By creating an account, accessing, or using CertiNova in any way, you confirm that you have read, understood, and agree to be bound by these Terms and Conditions. If you do not agree, you must not use the platform.',
-      },
-      {
-        subtitle: 'Eligibility',
-        text: 'You must be at least 18 years old or have the legal authority to represent your organisation to use CertiNova. By using the platform, you confirm that you meet this requirement.',
       },
     ],
   },
@@ -137,15 +145,37 @@ const sections = [
     ],
   },
   {
-    icon: ShieldCheck,
+    icon: Mail,
     title: '8. Contact Us',
-    color: 'text-gray-600',
-    bg: 'bg-gray-50',
-    border: 'border-gray-200',
+    color: 'text-indigo-600',
+    bg: 'bg-indigo-50',
+    border: 'border-indigo-100',
     content: [
       {
         subtitle: 'Questions or Concerns',
-        text: 'For any questions about these Terms and Conditions, please reach out via our Discord server at discord.gg/sQ4sSMRjP or open an issue on our GitHub repository at github.com/12fahed/CertiNova.',
+        text: (
+          <>
+            For any questions about these Terms and Conditions, please reach out via our{' '}
+            <a
+              href="https://discord.gg/sQ4sSMRjP"
+              className="text-indigo-600 hover:underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Discord server
+            </a>{' '}
+            or open an issue on our{' '}
+            <a
+              href="https://github.com/12fahed/CertiNova"
+              className="text-indigo-600 hover:underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              GitHub repository
+            </a>
+            .
+          </>
+        ),
       },
     ],
   },
@@ -168,7 +198,7 @@ export default function TermsAndConditionsPage() {
           </button>
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 bg-gradient-to-br from-blue-500 to-blue-700 rounded-lg flex items-center justify-center">
-              <FileText className="h-4 w-4 text-white" />
+              <Award className="h-4 w-4 text-white" />
             </div>
             <span className="font-bold text-gray-900">CertiNova</span>
           </div>
@@ -180,16 +210,23 @@ export default function TermsAndConditionsPage() {
         <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-violet-50/50 to-white pointer-events-none" />
         <div className="absolute top-10 right-1/4 w-72 h-72 bg-violet-100/40 rounded-full blur-3xl pointer-events-none" />
         <div className="container mx-auto px-6 relative z-10 max-w-4xl">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
             <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-100 rounded-full px-4 py-1.5 text-blue-700 text-sm font-medium mb-6">
-              <FileText className="h-4 w-4" />
+              <Shield className="h-4 w-4" />
               Legal Document
             </div>
             <h1 className="text-5xl font-bold text-gray-900 mb-4">Terms & Conditions</h1>
             <p className="text-gray-500 text-lg max-w-2xl mb-3">
-              Please read these Terms and Conditions carefully before using CertiNova. By using our platform, you agree to be bound by these terms.
+              Please read these Terms and Conditions carefully before using CertiNova. By using our
+              platform, you agree to be bound by these terms.
             </p>
-            <p className="text-gray-400 text-sm">Last updated: May 2026 &nbsp;·&nbsp; Effective immediately</p>
+            <p className="text-gray-400 text-sm">
+              Last updated: May 2026 &nbsp;·&nbsp; Effective immediately
+            </p>
           </motion.div>
         </div>
       </section>
@@ -199,9 +236,27 @@ export default function TermsAndConditionsPage() {
         <div className="container mx-auto px-6 max-w-4xl">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
-              { icon: ShieldCheck, label: 'Legitimate Use Only', desc: 'Platform is for genuine certificate generation', color: 'text-blue-600', bg: 'bg-blue-50' },
-              { icon: Lock, label: 'Your Responsibility', desc: 'Secure your encryption password — we cannot recover it', color: 'text-emerald-600', bg: 'bg-emerald-50' },
-              { icon: Scale, label: 'MIT Licensed', desc: 'Open-source, free to use and contribute', color: 'text-violet-600', bg: 'bg-violet-50' },
+              {
+                icon: ShieldCheck,
+                label: 'Legitimate Use Only',
+                desc: 'Platform is for genuine certificate generation',
+                color: 'text-blue-600',
+                bg: 'bg-blue-50',
+              },
+              {
+                icon: Lock,
+                label: 'Your Responsibility',
+                desc: 'Secure your encryption password, we cannot recover it',
+                color: 'text-emerald-600',
+                bg: 'bg-emerald-50',
+              },
+              {
+                icon: Scale,
+                label: 'MIT Licensed',
+                desc: 'Open-source, free to use and contribute',
+                color: 'text-violet-600',
+                bg: 'bg-violet-50',
+              },
             ].map((item) => (
               <div key={item.label} className={`rounded-2xl p-5 ${item.bg} border border-gray-100`}>
                 <item.icon className={`h-5 w-5 ${item.color} mb-3`} />
@@ -225,7 +280,9 @@ export default function TermsAndConditionsPage() {
               className={`rounded-2xl border ${section.border} p-8`}
             >
               <div className="flex items-center gap-3 mb-6">
-                <div className={`w-10 h-10 ${section.bg} rounded-xl flex items-center justify-center`}>
+                <div
+                  className={`w-10 h-10 ${section.bg} rounded-xl flex items-center justify-center`}
+                >
                   <section.icon className={`h-5 w-5 ${section.color}`} />
                 </div>
                 <h2 className="text-xl font-bold text-gray-900">{section.title}</h2>
@@ -246,12 +303,12 @@ export default function TermsAndConditionsPage() {
       {/* Footer */}
       <footer className="border-t border-gray-100 py-8">
         <div className="container mx-auto px-6 max-w-4xl flex flex-col md:flex-row items-center justify-between gap-4 text-gray-400 text-sm">
-            <p>© 2026 CertiNova. All rights reserved.</p>
-            <p className="flex items-center gap-1">
+          <p>© 2026 CertiNova. All rights reserved.</p>
+          <p className="flex items-center gap-1">
             Built with <span className="text-red-500">❤</span> using TypeScript & Tailwind CSS
-            </p>
+          </p>
         </div>
-        </footer>
+      </footer>
     </div>
   );
 }

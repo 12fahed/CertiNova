@@ -1,7 +1,18 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Shield, Lock, Database, Eye, Trash2, Mail, ArrowLeft, Server, FileKey } from 'lucide-react';
+import {
+  Shield,
+  Lock,
+  Database,
+  Eye,
+  Trash2,
+  Mail,
+  ArrowLeft,
+  Server,
+  FileKey,
+  Award,
+} from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 const sections = [
@@ -43,7 +54,7 @@ const sections = [
       },
       {
         subtitle: 'Password Security',
-        text: 'User account passwords are hashed using bcrypt at cost factor 12. The encryption password used during certificate generation is never transmitted to or stored by our servers — only you know it.',
+        text: 'User account passwords are hashed using bcrypt at cost factor 12. The encryption password used during certificate generation is never transmitted to or stored by our servers, only you know it.',
       },
     ],
   },
@@ -73,7 +84,7 @@ const sections = [
     content: [
       {
         subtitle: 'Privacy-by-Design Verification',
-        text: 'The public certificate verification page (/verify/{UUID}) displays only the organisation name, issuer name, event name, and event date. A sample certificate is rendered using placeholder identity data — real recipient information is never exposed.',
+        text: 'The public certificate verification page (/verify/{UUID}) displays only the organisation name, issuer name, event name, and event date. A sample certificate is rendered using placeholder identity data, real recipient information is never exposed.',
       },
       {
         subtitle: 'No Login Required',
@@ -90,7 +101,7 @@ const sections = [
     content: [
       {
         subtitle: 'Organisation-Controlled Deletion',
-        text: 'Organisations can permanently delete any event and all its associated data — including certificate configurations, encrypted recipient batches, and verification UUID records — directly from the dashboard at any time.',
+        text: 'Organisations can permanently delete any event and all its associated data, including certificate configurations, encrypted recipient batches, and verification UUID records, directly from the dashboard at any time.',
       },
       {
         subtitle: 'Encryption Password',
@@ -120,7 +131,30 @@ const sections = [
     content: [
       {
         subtitle: 'Get in Touch',
-        text: 'If you have any questions, concerns, or requests regarding this Privacy Policy or your data, please reach out to us via our Discord server at discord.gg/sQ4sSMRjP or through GitHub Issues.',
+        text: (
+          <>
+            If you have any questions, concerns, or requests regarding this Privacy Policy or your
+            data, please reach out to us via our{' '}
+            <a
+              href="https://discord.gg/sQ4sSMRjP"
+              className="text-indigo-600 hover:underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Discord server
+            </a>{' '}
+            or through{' '}
+            <a
+              href="https://github.com/12fahed/CertiNova/issues"
+              className="text-indigo-600 hover:underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              GitHub Issues
+            </a>
+            .
+          </>
+        ),
       },
     ],
   },
@@ -143,7 +177,7 @@ export default function PrivacyPolicyPage() {
           </button>
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 bg-gradient-to-br from-blue-500 to-blue-700 rounded-lg flex items-center justify-center">
-              <Shield className="h-4 w-4 text-white" />
+              <Award className="h-4 w-4 text-white" />
             </div>
             <span className="font-bold text-gray-900">CertiNova</span>
           </div>
@@ -155,16 +189,23 @@ export default function PrivacyPolicyPage() {
         <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-violet-50/50 to-white pointer-events-none" />
         <div className="absolute top-10 left-1/4 w-72 h-72 bg-blue-100/40 rounded-full blur-3xl pointer-events-none" />
         <div className="container mx-auto px-6 relative z-10 max-w-4xl">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
             <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-100 rounded-full px-4 py-1.5 text-blue-700 text-sm font-medium mb-6">
               <Shield className="h-4 w-4" />
               Legal Document
             </div>
             <h1 className="text-5xl font-bold text-gray-900 mb-4">Privacy Policy</h1>
             <p className="text-gray-500 text-lg max-w-2xl mb-3">
-              At CertiNova, your privacy is not an afterthought — it is the foundation of how we build. This document explains exactly how we handle your data.
+              At CertiNova, your privacy is not an afterthought, it is the foundation of how we
+              build. This document explains exactly how we handle your data.
             </p>
-            <p className="text-gray-400 text-sm">Last updated: May 2026 &nbsp;·&nbsp; Effective immediately</p>
+            <p className="text-gray-400 text-sm">
+              Last updated: May 2026 &nbsp;·&nbsp; Effective immediately
+            </p>
           </motion.div>
         </div>
       </section>
@@ -174,9 +215,27 @@ export default function PrivacyPolicyPage() {
         <div className="container mx-auto px-6 max-w-4xl">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
-              { icon: Lock, label: 'AES-256-CBC Encryption', desc: 'All recipient data encrypted before storage', color: 'text-blue-600', bg: 'bg-blue-50' },
-              { icon: Server, label: 'Zero Plain-Text Storage', desc: 'Personal data never stored unencrypted', color: 'text-emerald-600', bg: 'bg-emerald-50' },
-              { icon: Eye, label: 'Privacy-by-Design', desc: 'Verification never exposes real recipient data', color: 'text-violet-600', bg: 'bg-violet-50' },
+              {
+                icon: Lock,
+                label: 'AES-256-CBC Encryption',
+                desc: 'All recipient data encrypted before storage',
+                color: 'text-blue-600',
+                bg: 'bg-blue-50',
+              },
+              {
+                icon: Server,
+                label: 'Zero Plain-Text Storage',
+                desc: 'Personal data never stored unencrypted',
+                color: 'text-emerald-600',
+                bg: 'bg-emerald-50',
+              },
+              {
+                icon: Eye,
+                label: 'Privacy-by-Design',
+                desc: 'Verification never exposes real recipient data',
+                color: 'text-violet-600',
+                bg: 'bg-violet-50',
+              },
             ].map((item) => (
               <div key={item.label} className={`rounded-2xl p-5 ${item.bg} border border-gray-100`}>
                 <item.icon className={`h-5 w-5 ${item.color} mb-3`} />
@@ -200,7 +259,9 @@ export default function PrivacyPolicyPage() {
               className={`rounded-2xl border ${section.border} p-8`}
             >
               <div className="flex items-center gap-3 mb-6">
-                <div className={`w-10 h-10 ${section.bg} rounded-xl flex items-center justify-center`}>
+                <div
+                  className={`w-10 h-10 ${section.bg} rounded-xl flex items-center justify-center`}
+                >
                   <section.icon className={`h-5 w-5 ${section.color}`} />
                 </div>
                 <h2 className="text-xl font-bold text-gray-900">{section.title}</h2>
@@ -221,12 +282,12 @@ export default function PrivacyPolicyPage() {
       {/* Footer */}
       <footer className="border-t border-gray-100 py-8">
         <div className="container mx-auto px-6 max-w-4xl flex flex-col md:flex-row items-center justify-between gap-4 text-gray-400 text-sm">
-            <p>© 2026 CertiNova. All rights reserved.</p>
-            <p className="flex items-center gap-1">
+          <p>© 2026 CertiNova. All rights reserved.</p>
+          <p className="flex items-center gap-1">
             Built with <span className="text-red-500">❤</span> using TypeScript & Tailwind CSS
-            </p>
+          </p>
         </div>
-        </footer>
+      </footer>
     </div>
   );
 }
