@@ -72,6 +72,9 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
   const [zipBlob, setZipBlob] = useState<Blob | null>(null);
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
   const [isStoringData, setIsStoringData] = useState(false);
+  const nameFields = ['name', 'full name', 'student name', 'participant', 'recipient', 'candidate'];
+  const emailFields = ['email', 'email address', 'mail'];
+  const rankFields = ['rank', 'position', 'standing'];
 
   // Load certificate configuration when a certificate is selected
   useEffect(() => {
@@ -182,13 +185,7 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
           const headers = lines[0].split(',').map((h) => h.trim().toLowerCase());
 
           const newRecipients: Recipient[] = [];
-          if (
-            !headers.some((header) =>
-              ['name', 'full name', 'student name', 'participant', 'recipient', 'candidate'].some(
-                (field) => header.includes(field)
-              )
-            )
-          ) {
+          if (!headers.some((header) => nameFields.some((field) => header.includes(field)))) {
             toast.error('Missing Name Column', {
               description: 'CSV/XLSX must contain a recognizable name column.',
             });
@@ -201,16 +198,7 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
 
               headers.forEach((header, index) => {
                 const normalizedHeader = header.toLowerCase().trim();
-                const nameFields = [
-                  'name',
-                  'full name',
-                  'student name',
-                  'participant',
-                  'recipient',
-                  'candidate',
-                ];
-                const emailFields = ['email', 'email address', 'mail'];
-                const rankFields = ['rank', 'position', 'standing'];
+
                 if (nameFields.some((field) => normalizedHeader.includes(field))) {
                   recipient.name = values[index];
                 }
