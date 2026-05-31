@@ -16,20 +16,14 @@ export const createLimiter = (max, message) =>
 
 export const verifyLimiter = createLimiter(
   30,
-  'Too many verification attempts. Please try again later.',
+  'Too many verification attempts. Please try again later.'
 );
 
 export const decryptLimiter = createLimiter(
   10,
-  'Too many decrypt attempts. Please try again later.',
+  'Too many decrypt attempts. Please try again later.'
 );
 
-export const generationLimiter = createLimiter(
-  20,
-  'Too many certificate generation requests.',
-);
+export const generationLimiter = createLimiter(20, 'Too many certificate generation requests.');
 
-export const readLimiter = createLimiter(
-  60,
-  'Too many requests. Please try again later.',
-);
+export const readLimiter = createLimiter(60, 'Too many requests. Please try again later.');

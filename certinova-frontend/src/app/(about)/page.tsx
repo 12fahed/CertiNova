@@ -87,8 +87,8 @@ export default function HomePage() {
   const quickLinks = [
     { label: 'Contact Us', href: '#' },
     { label: 'Developer Info', href: '#' },
-    { label: 'Privacy Policy', href: '#' },
-    { label: 'Terms & Conditions', href: '#' },
+    { label: 'Privacy Policy', href: '/privacy-policy' },
+    { label: 'Terms & Conditions', href: '/terms-and-conditions' },
     { label: 'Support & Complaints', href: '#' },
     { label: 'Other Products', href: '#' },
   ];
