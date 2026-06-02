@@ -13,7 +13,11 @@ import { logger, cors } from './src/middleware/appMiddleware.js';
 import testCloudinaryConfig from './test/cloudinary-test.js';
 
 // Test Cloudinary configuration after env variables are loaded
-testCloudinaryConfig();
+try {
+  testCloudinaryConfig();
+} catch (error) {
+  console.warn('Cloudinary config test failed (non-fatal):', error.message);
+}
 
 // Connect to MongoDB
 connectDB();
