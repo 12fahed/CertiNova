@@ -1,5 +1,5 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export function StatsCardSkeleton() {
   return (
@@ -28,10 +28,7 @@ export function CertificateGridSkeleton({ count = 6 }: SkeletonListProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {Array.from({ length: count }).map((_, i) => (
-        <Card
-          key={i}
-          className="bg-white border-gray-200 h-full flex flex-col"
-        >
+        <Card key={i} className="bg-white border-gray-200 h-full flex flex-col">
           <CardContent className="p-6 flex flex-col h-full">
             <div className="flex items-start justify-between mb-4">
               <div className="space-y-2">
@@ -64,9 +61,7 @@ export function CertificateTableSkeleton({ count = 6 }: SkeletonListProps) {
                 <th className="px-6 py-4 font-semibold">Event Name</th>
                 <th className="px-6 py-4 font-semibold">Issuer</th>
                 <th className="px-6 py-4 font-semibold w-32">Date</th>
-                <th className="px-6 py-4 font-semibold text-right w-36">
-                  Actions
-                </th>
+                <th className="px-6 py-4 font-semibold text-right w-36">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
