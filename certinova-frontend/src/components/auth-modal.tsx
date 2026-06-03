@@ -120,7 +120,13 @@ export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
       onLogin?.();
     }
   };
+  const handleLoginKeyDown = (e: React.KeyboardEvent) => {
+  if (e.key === 'Enter') handleLogin();
+};
 
+const handleSignupKeyDown = (e: React.KeyboardEvent) => {
+  if (e.key === 'Enter') handleSignup();
+};
   const handleGoogleAuth = () => {
     toast.error('Google Auth', {
       description: "Beta version doesn't support OAuth",
@@ -229,6 +235,7 @@ export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
                       className={`pl-10 pr-10 ${errors.password ? 'border-red-500 focus-visible:ring-red-500' : 'border-gray-200'}`}
                       value={formData.password}
                       onChange={(e) => handleInputChange('password', e.target.value)}
+                      onKeyDown={handleLoginKeyDown}
                     />
                     <button
                       type="button"
@@ -346,6 +353,7 @@ export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
                       className={`pl-10 pr-10 ${errors.password ? 'border-red-500 focus-visible:ring-red-500' : 'border-gray-200'}`}
                       value={formData.password}
                       onChange={(e) => handleInputChange('password', e.target.value)}
+                      onKeyDown={handleSignupKeyDown}
                     />
                     <button
                       type="button"
