@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Award, Building } from 'lucide-react';
+import { Award, Building, AlertCircle } from 'lucide-react';
 
 interface CreateCertificateModalProps {
   open: boolean;
@@ -19,18 +19,39 @@ interface CreateCertificateModalProps {
 export function CreateCertificateModal({ open, onClose, onSubmit }: CreateCertificateModalProps) {
   const [eventName, setEventName] = useState('');
   const [issuerName, setIssuerName] = useState('');
+  const [errors, setErrors] = useState<{ eventName?: string; issuerName?: string }>({});
+
+  const handleClose = () => {
+    setEventName('');
+    setIssuerName('');
+    setErrors({});
+    onClose();
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (eventName.trim() && issuerName.trim()) {
-      onSubmit(eventName.trim(), issuerName.trim());
-      setEventName('');
-      setIssuerName('');
+    const error: { eventName?: string; issuerName?: string } = {};
+
+    if (!eventName.trim()) {
+      error.eventName = 'Event name is required';
     }
+    if (!issuerName.trim()) {
+      error.issuerName = 'Issuer name is required';
+    }
+
+    if (Object.keys(error).length > 0) {
+      setErrors(error);
+      return;
+    }
+
+    onSubmit(eventName.trim(), issuerName.trim());
+    setEventName('');
+    setIssuerName('');
+    setErrors({});
   };
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md bg-white border border-gray-200">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-center text-gray-900">
@@ -57,16 +78,26 @@ export function CreateCertificateModal({ open, onClose, onSubmit }: CreateCertif
                 Event Name *
               </Label>
               <div className="relative">
-                <Award className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Award
+                  className={`absolute left-3 top-3 h-4 w-4 ${errors.eventName ? 'text-red-400' : 'text-gray-400'}`}
+                />
                 <Input
                   id="eventName"
                   value={eventName}
-                  onChange={(e) => setEventName(e.target.value)}
+                  onChange={(e) => {
+                    setEventName(e.target.value);
+                    setErrors((prev) => ({ ...prev, eventName: undefined }));
+                  }}
                   placeholder="e.g., Annual Tech Conference 2024"
-                  className="pl-10 border-gray-200"
-                  required
+                  className={`pl-10 ${errors.eventName ? 'border-red-500 focus-visible:ring-red-500' : 'border-gray-200'}`}
                 />
               </div>
+              {errors.eventName && (
+                <div className="flex items-center text-xs text-red-600 mt-1">
+                  <AlertCircle className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
+                  <span>{errors.eventName}</span>
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -74,16 +105,26 @@ export function CreateCertificateModal({ open, onClose, onSubmit }: CreateCertif
                 Issuer Name *
               </Label>
               <div className="relative">
-                <Building className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Building
+                  className={`absolute left-3 top-3 h-4 w-4 ${errors.issuerName ? 'text-red-400' : 'text-gray-400'}`}
+                />
                 <Input
                   id="issuerName"
                   value={issuerName}
-                  onChange={(e) => setIssuerName(e.target.value)}
+                  onChange={(e) => {
+                    setIssuerName(e.target.value);
+                    setErrors((prev) => ({ ...prev, issuerName: undefined }));
+                  }}
                   placeholder="e.g., Tech University"
-                  className="pl-10 border-gray-200"
-                  required
+                  className={`pl-10 ${errors.issuerName ? 'border-red-500 focus-visible:ring-red-500' : 'border-gray-200'}`}
                 />
               </div>
+              {errors.issuerName && (
+                <div className="flex items-center text-xs text-red-600 mt-1">
+                  <AlertCircle className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
+                  <span>{errors.issuerName}</span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -91,7 +132,7 @@ export function CreateCertificateModal({ open, onClose, onSubmit }: CreateCertif
             <Button
               type="button"
               variant="outline"
-              onClick={onClose}
+              onClick={handleClose}
               className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-50 bg-transparent"
             >
               Cancel

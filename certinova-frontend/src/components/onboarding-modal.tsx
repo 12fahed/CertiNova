@@ -2,7 +2,7 @@
 
 import type React from 'react';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -16,7 +16,16 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
-import { Upload, Building, User, Calendar, Globe, ChevronRight, ChevronLeft } from 'lucide-react';
+import {
+  Upload,
+  Building,
+  User,
+  Calendar,
+  Globe,
+  ChevronRight,
+  ChevronLeft,
+  AlertCircle,
+} from 'lucide-react';
 
 interface OnboardingModalProps {
   open: boolean;
@@ -32,11 +41,48 @@ export function OnboardingModal({ open, onClose }: OnboardingModalProps) {
     eventTypes: '',
     referralSource: '',
   });
+  const [errors, setErrors] = useState<{
+    fullName?: string;
+    organization?: string;
+    eventTypes?: string;
+  }>({});
 
   const totalSteps = 4;
   const progress = (step / totalSteps) * 100;
 
+  useEffect(() => {
+    if (!open) {
+      setStep(1);
+      setErrors({});
+      setFormData({
+        fullName: '',
+        organization: '',
+        organizationLogo: null,
+        eventTypes: '',
+        referralSource: '',
+      });
+    }
+  }, [open]);
+
   const handleNext = () => {
+    setErrors({});
+    if (step === 1) {
+      if (!formData.fullName.trim()) {
+        setErrors({ fullName: 'Full name is required' });
+        return;
+      }
+    } else if (step === 2) {
+      if (!formData.organization.trim()) {
+        setErrors({ organization: 'Organization name is required' });
+        return;
+      }
+    } else if (step === 3) {
+      if (!formData.eventTypes) {
+        setErrors({ eventTypes: 'Please select an event type' });
+        return;
+      }
+    }
+
     if (step < totalSteps) {
       setStep(step + 1);
     } else {
@@ -45,6 +91,7 @@ export function OnboardingModal({ open, onClose }: OnboardingModalProps) {
   };
 
   const handlePrev = () => {
+    setErrors({});
     if (step > 1) {
       setStep(step - 1);
     }
@@ -100,10 +147,19 @@ export function OnboardingModal({ open, onClose }: OnboardingModalProps) {
                   <Input
                     id="fullName"
                     value={formData.fullName}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, fullName: e.target.value }))}
+                    onChange={(e) => {
+                      setFormData((prev) => ({ ...prev, fullName: e.target.value }));
+                      setErrors((prev) => ({ ...prev, fullName: undefined }));
+                    }}
                     placeholder="Enter your full name"
-                    className="border-gray-200"
+                    className={`border-gray-200 ${errors.fullName ? 'border-red-500 focus-visible:ring-red-500' : 'border-gray-200'}`}
                   />
+                  {errors.fullName && (
+                    <div className="flex items-center text-xs text-red-600 mt-1">
+                      <AlertCircle className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
+                      <span>{errors.fullName}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </motion.div>
@@ -133,12 +189,19 @@ export function OnboardingModal({ open, onClose }: OnboardingModalProps) {
                   <Input
                     id="organization"
                     value={formData.organization}
-                    onChange={(e) =>
-                      setFormData((prev) => ({ ...prev, organization: e.target.value }))
-                    }
+                    onChange={(e) => {
+                      setFormData((prev) => ({ ...prev, organization: e.target.value }));
+                      setErrors((prev) => ({ ...prev, organization: undefined }));
+                    }}
                     placeholder="Enter your organization name"
-                    className="border-gray-200"
+                    className={`border-gray-200 ${errors.organization ? 'border-red-500 focus-visible:ring-red-500' : 'border-gray-200'}`}
                   />
+                  {errors.organization && (
+                    <div className="flex items-center text-xs text-red-600 mt-1">
+                      <AlertCircle className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
+                      <span>{errors.organization}</span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -190,11 +253,15 @@ export function OnboardingModal({ open, onClose }: OnboardingModalProps) {
                     Types of Events *
                   </Label>
                   <Select
-                    onValueChange={(value) =>
-                      setFormData((prev) => ({ ...prev, eventTypes: value }))
-                    }
+                    value={formData.eventTypes}
+                    onValueChange={(value) => {
+                      setFormData((prev) => ({ ...prev, eventTypes: value }));
+                      setErrors((prev) => ({ ...prev, eventTypes: undefined }));
+                    }}
                   >
-                    <SelectTrigger className="border-gray-200">
+                    <SelectTrigger
+                      className={`border-gray-200 ${errors.eventTypes ? 'border-red-500 focus-visible:ring-red-500' : 'border-gray-200'}`}
+                    >
                       <SelectValue placeholder="Select event type" />
                     </SelectTrigger>
                     <SelectContent>
@@ -206,6 +273,12 @@ export function OnboardingModal({ open, onClose }: OnboardingModalProps) {
                       <SelectItem value="other">Other</SelectItem>
                     </SelectContent>
                   </Select>
+                  {errors.eventTypes && (
+                    <div className="flex items-center text-xs text-red-600 mt-1">
+                      <AlertCircle className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
+                      <span>{errors.eventTypes}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </motion.div>

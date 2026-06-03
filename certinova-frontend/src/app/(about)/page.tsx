@@ -470,8 +470,6 @@ export default function HomePage() {
 
         <OnboardingModal open={showOnboarding} onClose={() => setShowOnboarding(false)} />
 
-        <OnboardingModal open={showOnboarding} onClose={() => setShowOnboarding(false)} />
-
         <CertificateVerificationModal
           open={showVerificationModal}
           onClose={() => setShowVerificationModal(false)}

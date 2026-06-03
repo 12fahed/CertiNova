@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
-import { Mail, Lock, User, Chrome, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, User, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
 
@@ -31,44 +31,92 @@ export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
     password: '',
     organisation: '',
   });
+  const [errors, setErrors] = useState<{
+    email?: string;
+    password?: string;
+    organisation?: string;
+  }>({});
 
   const { login, signup, isLoading } = useAuth();
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    setErrors((prev) => ({ ...prev, [field]: undefined }));
+  };
+
+  const handleOpenChange = (isOpen: boolean) => {
+    setOpen(isOpen);
+    setErrors({});
+    if (!isOpen) {
+      setFormData({ email: '', password: '', organisation: '' });
+    }
   };
 
   const handleLogin = async () => {
-    if (!formData.email || !formData.password) {
+    const error: { email?: string; password?: string } = {};
+
+    if (!formData.email.trim()) {
+      error.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
+      error.email = 'Please enter a valid email address';
+    }
+
+    if (!formData.password) {
+      error.password = 'Password is required';
+    }
+
+    if (Object.keys(error).length > 0) {
+      setErrors(error);
       return;
     }
 
     const success = await login({
-      email: formData.email,
+      email: formData.email.trim(),
       password: formData.password,
     });
 
     if (success) {
       setOpen(false);
       setFormData({ email: '', password: '', organisation: '' });
+      setErrors({});
       onLogin?.();
     }
   };
 
   const handleSignup = async () => {
-    if (!formData.email || !formData.password || !formData.organisation) {
+    const error: { email?: string; password?: string; organisation?: string } = {};
+
+    if (!formData.organisation.trim()) {
+      error.organisation = 'Organisation name is required';
+    }
+
+    if (!formData.email.trim()) {
+      error.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
+      error.email = 'Please enter a valid email address';
+    }
+
+    if (!formData.password) {
+      error.password = 'Password is required';
+    } else if (formData.password.length < 6) {
+      error.password = 'Password must be at least 6 characters long';
+    }
+
+    if (Object.keys(error).length > 0) {
+      setErrors(error);
       return;
     }
 
     const success = await signup({
-      email: formData.email,
+      email: formData.email.trim(),
       password: formData.password,
-      organisation: formData.organisation,
+      organisation: formData.organisation.trim(),
     });
 
     if (success) {
       setOpen(false);
       setFormData({ email: '', password: '', organisation: '' });
+      setErrors({});
       onLogin?.();
     }
   };
@@ -80,7 +128,7 @@ export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         {triggerText ? (
           <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8">
@@ -105,7 +153,7 @@ export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
           </DialogTitle>
         </DialogHeader>
 
-        <Tabs defaultValue="signin" className="w-full">
+        <Tabs defaultValue="signin" className="w-full" onValueChange={() => setErrors({})}>
           <TabsList className="grid w-full grid-cols-2 mb-6 bg-gray-100">
             <TabsTrigger value="signin" className="data-[state=active]:bg-white">
               Sign In
@@ -146,16 +194,24 @@ export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
                     Email
                   </Label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Mail
+                      className={`absolute left-3 top-3 h-4 w-4 ${errors.email ? 'text-red-400' : 'text-gray-400'}`}
+                    />
                     <Input
                       id="email"
                       type="email"
                       placeholder="Enter your email"
-                      className="pl-10 border-gray-200"
+                      className={`pl-10 ${errors.email ? 'border-red-500 focus-visible:ring-red-500' : 'border-gray-200'}`}
                       value={formData.email}
                       onChange={(e) => handleInputChange('email', e.target.value)}
                     />
                   </div>
+                  {errors.email && (
+                    <div className="flex items-center text-xs text-red-600 mt-1">
+                      <AlertCircle className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
+                      <span>{errors.email}</span>
+                    </div>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="password" className="text-gray-700">
@@ -163,12 +219,14 @@ export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
                   </Label>
 
                   <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Lock
+                      className={`absolute left-3 top-3 h-4 w-4 ${errors.password ? 'text-red-400' : 'text-gray-400'}`}
+                    />
                     <Input
                       id="password"
                       type={showPassword ? 'text' : 'password'}
                       placeholder="Enter your password"
-                      className="pl-10 pr-10 border-gray-200"
+                      className={`pl-10 pr-10 ${errors.password ? 'border-red-500 focus-visible:ring-red-500' : 'border-gray-200'}`}
                       value={formData.password}
                       onChange={(e) => handleInputChange('password', e.target.value)}
                     />
@@ -181,6 +239,12 @@ export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
+                  {errors.password && (
+                    <div className="flex items-center text-xs text-red-600 mt-1">
+                      <AlertCircle className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
+                      <span>{errors.password}</span>
+                    </div>
+                  )}
                 </div>
                 <Button
                   onClick={handleLogin}
@@ -221,47 +285,65 @@ export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="organisation-name" className="text-gray-700">
-                    Organisation Name
+                    Organisation Name *
                   </Label>
                   <div className="relative">
-                    <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <User
+                      className={`absolute left-3 top-3 h-4 w-4 ${errors.organisation ? 'text-red-400' : 'text-gray-400'}`}
+                    />
                     <Input
                       id="organisation-name"
                       placeholder="Enter your organisation name"
-                      className="pl-10 border-gray-200"
+                      className={`pl-10 ${errors.organisation ? 'border-red-500 focus-visible:ring-red-500' : 'border-gray-200'}`}
                       value={formData.organisation}
                       onChange={(e) => handleInputChange('organisation', e.target.value)}
                     />
                   </div>
+                  {errors.organisation && (
+                    <div className="flex items-center text-xs text-red-600 mt-1">
+                      <AlertCircle className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
+                      <span>{errors.organisation}</span>
+                    </div>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="signup-email" className="text-gray-700">
-                    Email
+                    Email *
                   </Label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Mail
+                      className={`absolute left-3 top-3 h-4 w-4 ${errors.email ? 'text-red-400' : 'text-gray-400'}`}
+                    />
                     <Input
                       id="signup-email"
                       type="email"
                       placeholder="Enter your email"
-                      className="pl-10 border-gray-200"
+                      className={`pl-10 ${errors.email ? 'border-red-500 focus-visible:ring-red-500' : 'border-gray-200'}`}
                       value={formData.email}
                       onChange={(e) => handleInputChange('email', e.target.value)}
                     />
                   </div>
+                  {errors.email && (
+                    <div className="flex items-center text-xs text-red-600 mt-1">
+                      <AlertCircle className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
+                      <span>{errors.email}</span>
+                    </div>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="signup-password" className="text-gray-700">
-                    Password
+                    Password *
                   </Label>
 
                   <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Lock
+                      className={`absolute left-3 top-3 h-4 w-4 ${errors.password ? 'text-red-400' : 'text-gray-400'}`}
+                    />
                     <Input
                       id="signup-password"
                       type={showPassword ? 'text' : 'password'}
                       placeholder="Create a password"
-                      className="pl-10 pr-10 border-gray-200"
+                      className={`pl-10 pr-10 ${errors.password ? 'border-red-500 focus-visible:ring-red-500' : 'border-gray-200'}`}
                       value={formData.password}
                       onChange={(e) => handleInputChange('password', e.target.value)}
                     />
@@ -274,6 +356,12 @@ export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
+                  {errors.password && (
+                    <div className="flex items-center text-xs text-red-600 mt-1">
+                      <AlertCircle className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
+                      <span>{errors.password}</span>
+                    </div>
+                  )}
                 </div>
                 <Button
                   onClick={handleSignup}
