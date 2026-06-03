@@ -1,9 +1,6 @@
-import express from 'express';
+﻿import express from 'express';
 import upload from '../../middleware/upload.js';
-import { protect } from '../middleware/auth.js'; // add this
-import { 
-  addCertificateConfig, 
-  getCertificateConfig, 
+import { protect } from '../middleware/auth.js';
 import {
   addCertificateConfig,
   getCertificateConfig,

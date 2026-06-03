@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken';
+﻿import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 
 // @desc    Register a new user
@@ -6,7 +6,8 @@ import User from '../models/User.js';
 // @access  Public
 export const signup = async (req, res) => {
   try {
-    const { organisation, email, password } = req.body;
+    const { organisation, password } = req.body;
+    const email = typeof req.body.email === 'string' ? req.body.email.trim().toLowerCase() : req.body.email;
 
     // Validation
     if (!organisation || !email || !password) {
@@ -73,7 +74,6 @@ export const signup = async (req, res) => {
   } catch (error) {
     console.error('Signup error:', error);
 
-    // Handle validation errors
     if (error.name === 'ValidationError') {
       const errors = Object.values(error.errors).map((err) => err.message);
       return res.status(400).json({
@@ -83,7 +83,6 @@ export const signup = async (req, res) => {
       });
     }
 
-    // Handle duplicate key error
     if (error.code === 11000) {
       return res.status(400).json({
         success: false,
@@ -103,7 +102,8 @@ export const signup = async (req, res) => {
 // @access  Public
 export const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { password } = req.body;
+    const email = typeof req.body.email === 'string' ? req.body.email.trim().toLowerCase() : req.body.email;
 
     // Validation
     if (!email || !password) {
