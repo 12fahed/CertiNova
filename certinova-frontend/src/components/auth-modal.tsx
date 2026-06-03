@@ -31,7 +31,11 @@ export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
     password: '',
     organisation: '',
   });
-  const [errors, setErrors] = useState<{ email?: string; password?: string; organisation?: string }>({});
+  const [errors, setErrors] = useState<{
+    email?: string;
+    password?: string;
+    organisation?: string;
+  }>({});
 
   const { login, signup, isLoading } = useAuth();
 
@@ -49,20 +53,20 @@ export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
   };
 
   const handleLogin = async () => {
-    const newErrors: { email?: string; password?: string } = {};
+    const error: { email?: string; password?: string } = {};
 
     if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
+      error.email = 'Email is required';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
-      newErrors.email = 'Please enter a valid email address';
+      error.email = 'Please enter a valid email address';
     }
 
     if (!formData.password) {
-      newErrors.password = 'Password is required';
+      error.password = 'Password is required';
     }
 
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
+    if (Object.keys(error).length > 0) {
+      setErrors(error);
       return;
     }
 
@@ -80,26 +84,26 @@ export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
   };
 
   const handleSignup = async () => {
-    const newErrors: { email?: string; password?: string; organisation?: string } = {};
+    const error: { email?: string; password?: string; organisation?: string } = {};
 
     if (!formData.organisation.trim()) {
-      newErrors.organisation = 'Organisation name is required';
+      error.organisation = 'Organisation name is required';
     }
 
     if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
+      error.email = 'Email is required';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
-      newErrors.email = 'Please enter a valid email address';
+      error.email = 'Please enter a valid email address';
     }
 
     if (!formData.password) {
-      newErrors.password = 'Password is required';
+      error.password = 'Password is required';
     } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters long';
+      error.password = 'Password must be at least 6 characters long';
     }
 
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
+    if (Object.keys(error).length > 0) {
+      setErrors(error);
       return;
     }
 
@@ -190,7 +194,9 @@ export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
                     Email
                   </Label>
                   <div className="relative">
-                    <Mail className={`absolute left-3 top-3 h-4 w-4 ${errors.email ? 'text-red-400' : 'text-gray-400'}`} />
+                    <Mail
+                      className={`absolute left-3 top-3 h-4 w-4 ${errors.email ? 'text-red-400' : 'text-gray-400'}`}
+                    />
                     <Input
                       id="email"
                       type="email"
@@ -213,7 +219,9 @@ export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
                   </Label>
 
                   <div className="relative">
-                    <Lock className={`absolute left-3 top-3 h-4 w-4 ${errors.password ? 'text-red-400' : 'text-gray-400'}`} />
+                    <Lock
+                      className={`absolute left-3 top-3 h-4 w-4 ${errors.password ? 'text-red-400' : 'text-gray-400'}`}
+                    />
                     <Input
                       id="password"
                       type={showPassword ? 'text' : 'password'}
@@ -277,10 +285,12 @@ export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="organisation-name" className="text-gray-700">
-                    Organisation Name
+                    Organisation Name *
                   </Label>
                   <div className="relative">
-                    <User className={`absolute left-3 top-3 h-4 w-4 ${errors.organisation ? 'text-red-400' : 'text-gray-400'}`} />
+                    <User
+                      className={`absolute left-3 top-3 h-4 w-4 ${errors.organisation ? 'text-red-400' : 'text-gray-400'}`}
+                    />
                     <Input
                       id="organisation-name"
                       placeholder="Enter your organisation name"
@@ -298,10 +308,12 @@ export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="signup-email" className="text-gray-700">
-                    Email
+                    Email *
                   </Label>
                   <div className="relative">
-                    <Mail className={`absolute left-3 top-3 h-4 w-4 ${errors.email ? 'text-red-400' : 'text-gray-400'}`} />
+                    <Mail
+                      className={`absolute left-3 top-3 h-4 w-4 ${errors.email ? 'text-red-400' : 'text-gray-400'}`}
+                    />
                     <Input
                       id="signup-email"
                       type="email"
@@ -320,11 +332,13 @@ export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="signup-password" className="text-gray-700">
-                    Password
+                    Password *
                   </Label>
 
                   <div className="relative">
-                    <Lock className={`absolute left-3 top-3 h-4 w-4 ${errors.password ? 'text-red-400' : 'text-gray-400'}`} />
+                    <Lock
+                      className={`absolute left-3 top-3 h-4 w-4 ${errors.password ? 'text-red-400' : 'text-gray-400'}`}
+                    />
                     <Input
                       id="signup-password"
                       type={showPassword ? 'text' : 'password'}

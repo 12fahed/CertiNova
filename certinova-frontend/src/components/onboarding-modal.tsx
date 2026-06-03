@@ -16,7 +16,16 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
-import { Upload, Building, User, Calendar, Globe, ChevronRight, ChevronLeft, AlertCircle } from 'lucide-react';
+import {
+  Upload,
+  Building,
+  User,
+  Calendar,
+  Globe,
+  ChevronRight,
+  ChevronLeft,
+  AlertCircle,
+} from 'lucide-react';
 
 interface OnboardingModalProps {
   open: boolean;
@@ -32,7 +41,11 @@ export function OnboardingModal({ open, onClose }: OnboardingModalProps) {
     eventTypes: '',
     referralSource: '',
   });
-  const [errors, setErrors] = useState<{ fullName?: string; organization?: string; eventTypes?: string }>({});
+  const [errors, setErrors] = useState<{
+    fullName?: string;
+    organization?: string;
+    eventTypes?: string;
+  }>({});
 
   const totalSteps = 4;
   const progress = (step / totalSteps) * 100;
@@ -246,7 +259,9 @@ export function OnboardingModal({ open, onClose }: OnboardingModalProps) {
                       setErrors((prev) => ({ ...prev, eventTypes: undefined }));
                     }}
                   >
-                    <SelectTrigger className={`border-gray-200 ${errors.eventTypes ? 'border-red-500 focus-visible:ring-red-500' : 'border-gray-200'}`}>
+                    <SelectTrigger
+                      className={`border-gray-200 ${errors.eventTypes ? 'border-red-500 focus-visible:ring-red-500' : 'border-gray-200'}`}
+                    >
                       <SelectValue placeholder="Select event type" />
                     </SelectTrigger>
                     <SelectContent>

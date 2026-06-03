@@ -30,17 +30,17 @@ export function CreateCertificateModal({ open, onClose, onSubmit }: CreateCertif
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const newErrors: { eventName?: string; issuerName?: string } = {};
+    const error: { eventName?: string; issuerName?: string } = {};
 
     if (!eventName.trim()) {
-      newErrors.eventName = 'Event name is required';
+      error.eventName = 'Event name is required';
     }
     if (!issuerName.trim()) {
-      newErrors.issuerName = 'Issuer name is required';
+      error.issuerName = 'Issuer name is required';
     }
 
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
+    if (Object.keys(error).length > 0) {
+      setErrors(error);
       return;
     }
 
@@ -78,7 +78,9 @@ export function CreateCertificateModal({ open, onClose, onSubmit }: CreateCertif
                 Event Name *
               </Label>
               <div className="relative">
-                <Award className={`absolute left-3 top-3 h-4 w-4 ${errors.eventName ? 'text-red-400' : 'text-gray-400'}`} />
+                <Award
+                  className={`absolute left-3 top-3 h-4 w-4 ${errors.eventName ? 'text-red-400' : 'text-gray-400'}`}
+                />
                 <Input
                   id="eventName"
                   value={eventName}
@@ -103,7 +105,9 @@ export function CreateCertificateModal({ open, onClose, onSubmit }: CreateCertif
                 Issuer Name *
               </Label>
               <div className="relative">
-                <Building className={`absolute left-3 top-3 h-4 w-4 ${errors.issuerName ? 'text-red-400' : 'text-gray-400'}`} />
+                <Building
+                  className={`absolute left-3 top-3 h-4 w-4 ${errors.issuerName ? 'text-red-400' : 'text-gray-400'}`}
+                />
                 <Input
                   id="issuerName"
                   value={issuerName}
