@@ -32,10 +32,16 @@ import { useCertificates } from '@/context/CertificateContext';
 import { Event } from '@/types/event';
 import { CertificateConfig } from '@/types/certificate';
 import { PremiumCard } from '@/components/premium-card';
+import {
+  StatsCardSkeleton,
+  CertificateGridSkeleton,
+  CertificateTableSkeleton,
+} from '@/components/dashboard-skeleton';
 
 export default function DashboardPage() {
   const { user } = useAuth();
-  const { events, createEvent, fetchEvents, deleteEvent } = useEvents();
+  const { events, isFetchingEvents, createEvent, fetchEvents, deleteEvent } = useEvents();
+  const showInitialLoading = isFetchingEvents && events.length === 0;
   const {
     createCertificateConfig,
     getCertificateConfig,
@@ -387,81 +393,92 @@ export default function DashboardPage() {
 
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-            >
-              <Card className="bg-white border-gray-200 hover:shadow-md transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">Total Certificates</p>
-                      <p className="text-3xl font-bold text-gray-900">{events.length}</p>
-                    </div>
-                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <Award className="h-6 w-6 text-blue-600" />
-                    </div>
-                  </div>
-                  <div className="flex items-center mt-4 text-sm">
-                    <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
-                    <span className="text-green-500">+12%</span>
-                    <span className="text-gray-500 ml-1">from last month</span>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
+            {showInitialLoading ? (
+              <>
+                <StatsCardSkeleton />
+                <StatsCardSkeleton />
+                <StatsCardSkeleton />
+                <StatsCardSkeleton />
+              </>
+            ) : (
+              <>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                >
+                  <Card className="bg-white border-gray-200 hover:shadow-md transition-shadow">
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-gray-600">Total Certificates</p>
+                          <p className="text-3xl font-bold text-gray-900">{events.length}</p>
+                        </div>
+                        <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                          <Award className="h-6 w-6 text-blue-600" />
+                        </div>
+                      </div>
+                      <div className="flex items-center mt-4 text-sm">
+                        <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
+                        <span className="text-green-500">+12%</span>
+                        <span className="text-gray-500 ml-1">from last month</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              <PremiumCard
-                title="Recipients"
-                value="2,847"
-                icon={<Users className="h-6 w-6" />}
-                iconBgColor="bg-green-100"
-                iconColor="text-green-600"
-                trend="from last month"
-                trendValue="+8%"
-                isPremium={true}
-              />
-            </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <PremiumCard
+                    title="Recipients"
+                    value="2,847"
+                    icon={<Users className="h-6 w-6" />}
+                    iconBgColor="bg-green-100"
+                    iconColor="text-green-600"
+                    trend="from last month"
+                    trendValue="+8%"
+                    isPremium={true}
+                  />
+                </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <PremiumCard
-                title="Success Rate"
-                value="98.5%"
-                icon={<Zap className="h-6 w-6" />}
-                iconBgColor="bg-yellow-100"
-                iconColor="text-yellow-600"
-                trend="from last month"
-                trendValue="+2%"
-                isPremium={true}
-              />
-            </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  <PremiumCard
+                    title="Success Rate"
+                    value="98.5%"
+                    icon={<Zap className="h-6 w-6" />}
+                    iconBgColor="bg-yellow-100"
+                    iconColor="text-yellow-600"
+                    trend="from last month"
+                    trendValue="+2%"
+                    isPremium={true}
+                  />
+                </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-            >
-              <PremiumCard
-                title="Active Events"
-                value="12"
-                icon={<Calendar className="h-6 w-6" />}
-                iconBgColor="bg-purple-100"
-                iconColor="text-purple-600"
-                trend="from last month"
-                trendValue="+5%"
-                isPremium={true}
-              />
-            </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  <PremiumCard
+                    title="Active Events"
+                    value="12"
+                    icon={<Calendar className="h-6 w-6" />}
+                    iconBgColor="bg-purple-100"
+                    iconColor="text-purple-600"
+                    trend="from last month"
+                    trendValue="+5%"
+                    isPremium={true}
+                  />
+                </motion.div>
+              </>
+            )}
           </div>
 
           {/* Certificates Section */}
@@ -502,7 +519,13 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {events.length === 0 ? (
+            {showInitialLoading ? (
+              viewMode === 'grid' ? (
+                <CertificateGridSkeleton />
+              ) : (
+                <CertificateTableSkeleton />
+              )
+            ) : events.length === 0 ? (
               <Card className="bg-white border-gray-200">
                 <CardContent className="p-12 text-center">
                   <Award className="h-16 w-16 text-gray-300 mx-auto mb-4" />
