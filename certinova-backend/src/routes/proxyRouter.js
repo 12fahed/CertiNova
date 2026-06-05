@@ -118,13 +118,19 @@ const validateProxyUrl = async (rawUrl) => {
     throw new ProxyError(403, 'PROXY_SSRF_BLOCKED', 'Image host is not allowed for proxying');
   }
 
-  const resolvedAddresses = await dns.lookup(hostname, { all: true, verbatim: true });
-  if (resolvedAddresses.some(({ address }) => isPrivateAddress(address))) {
-    throw new ProxyError(403, 'PROXY_SSRF_BLOCKED', 'Image host resolves to a private address');
+  let resolvedAddresses;
+  try {
+    resolvedAddresses = await dns.lookup(hostname, { all: true, verbatim: true });
+  } catch {
+    throw new ProxyError(502, 'PROXY_FETCH_FAILED', 'Image host could not be resolved');
   }
 
   if (resolvedAddresses.length === 0) {
     throw new ProxyError(502, 'PROXY_FETCH_FAILED', 'Image host could not be resolved');
+  }
+
+  if (resolvedAddresses.some(({ address }) => isPrivateAddress(address))) {
+    throw new ProxyError(403, 'PROXY_SSRF_BLOCKED', 'Image host resolves to a private address');
   }
 
   return { parsedUrl, resolvedAddress: resolvedAddresses[0] };
