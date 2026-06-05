@@ -8,6 +8,7 @@ import connectDB from './src/config/database.js';
 import authRoutes from './src/routes/authRoutes.js';
 import eventRoutes from './src/routes/eventRoutes.js';
 import certificateRoutes from './src/routes/certificateRoutes.js';
+import proxyRoutes from './src/routes/proxyRouter.js';
 import { errorHandler, notFound } from './src/middleware/errorMiddleware.js';
 import { logger, cors } from './src/middleware/appMiddleware.js';
 import testCloudinaryConfig from './test/cloudinary-test.js';
@@ -71,6 +72,7 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/certificates', certificateRoutes);
+app.use('/api', proxyRoutes);
 
 // Error handling middleware
 app.use(notFound);
