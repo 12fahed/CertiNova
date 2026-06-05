@@ -120,13 +120,15 @@ export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
       onLogin?.();
     }
   };
-  const handleLoginKeyDown = (e: React.KeyboardEvent) => {
-  if (e.key === 'Enter') handleLogin();
-};
 
-const handleSignupKeyDown = (e: React.KeyboardEvent) => {
-  if (e.key === 'Enter') handleSignup();
-};
+  const handleLoginKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') handleLogin();
+  };
+
+  const handleSignupKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') handleSignup();
+  };
+
   const handleGoogleAuth = () => {
     toast.error('Google Auth', {
       description: "Beta version doesn't support OAuth",
