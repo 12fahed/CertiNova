@@ -520,6 +520,7 @@ export function CertificateEditor({
                         fields[selectedFieldForToolbar]?.fontWeight === 'bold' ? 'normal' : 'bold'
                       )
                     }
+                    aria-label="Bold text"
                   >
                     <Bold className="h-4 w-4" />
                   </Button>
@@ -539,6 +540,7 @@ export function CertificateEditor({
                           : 'italic'
                       )
                     }
+                    aria-label="Italic text"
                   >
                     <Italic className="h-4 w-4" />
                   </Button>
@@ -558,6 +560,7 @@ export function CertificateEditor({
                           : 'underline'
                       )
                     }
+                    aria-label="Underline text"
                   >
                     <Underline className="h-4 w-4" />
                   </Button>
@@ -581,13 +584,13 @@ export function CertificateEditor({
 
                 {/* Alignment Buttons */}
                 <div className="flex items-center gap-1">
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" aria-label="Align Left">
                     <AlignLeft className="h-4 w-4" />
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" aria-label="Align Center">
                     <AlignCenter className="h-4 w-4" />
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" aria-label="Align Right">
                     <AlignRight className="h-4 w-4" />
                   </Button>
                 </div>
@@ -598,6 +601,7 @@ export function CertificateEditor({
                   size="sm"
                   onClick={() => setSelectedFieldForToolbar(null)}
                   className="ml-4"
+                  aria-label="Close Toolbar"
                 >
                   <X className="h-4 w-4" />
                 </Button>
@@ -611,7 +615,7 @@ export function CertificateEditor({
           <div className="w-80 bg-gray-50 p-6 overflow-y-auto border-r border-gray-200">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold text-gray-900">Certificate Editor</h2>
-              <Button variant="ghost" size="sm" onClick={onClose}>
+              <Button variant="ghost" size="sm" onClick={onClose} aria-label="Close Editor">
                 <X className="h-4 w-4" />
               </Button>
             </div>

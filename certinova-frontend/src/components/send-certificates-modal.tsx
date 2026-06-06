@@ -1159,6 +1159,7 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
                               setRecipients((prev) => prev.filter((_, i) => i !== index))
                             }
                             className="text-gray-400 hover:text-red-500"
+                            aria-label="Remove recipient"
                           >
                             ×
                           </Button>

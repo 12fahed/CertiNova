@@ -94,7 +94,7 @@ export function Navbar({ variant = 'dashboard', onCreateNew, onSendCertificates 
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                <Button variant="ghost" className="relative h-10 w-10 rounded-full" aria-label="User menu">
                   <Avatar className="h-10 w-10">
                     <AvatarFallback className="bg-gray-100 text-gray-700">
                       {user ? getUserInitials(user.organisation) : 'U'}

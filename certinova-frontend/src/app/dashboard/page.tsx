@@ -500,6 +500,7 @@ export default function DashboardPage() {
                         : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
                     }`}
                     title="Table View"
+                    aria-label="Table View"
                   >
                     <TableOfContents className="h-4 w-4" />
                   </button>
@@ -511,6 +512,7 @@ export default function DashboardPage() {
                         : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
                     }`}
                     title="Grid View"
+                    aria-label="Grid View"
                   >
                     <LayoutGrid className="h-4 w-4" />
                   </button>
@@ -601,6 +603,7 @@ export default function DashboardPage() {
                               size="sm"
                               className="text-green-600 border-green-200 hover:bg-green-50"
                               title="Download Sample"
+                              aria-label="Download Sample"
                             >
                               <Download className="h-4 w-4" />
                             </Button>
@@ -611,6 +614,7 @@ export default function DashboardPage() {
                             size="sm"
                             className="text-red-600 border-red-200 hover:bg-red-50"
                             title="Delete"
+                            aria-label="Delete Event"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -668,6 +672,7 @@ export default function DashboardPage() {
                                   size="icon"
                                   className="h-8 w-8 text-gray-600 hover:text-blue-600 hover:bg-blue-50"
                                   title="Edit Template"
+                                  aria-label="Edit Template"
                                 >
                                   <FileText className="h-4 w-4" />
                                 </Button>
@@ -681,6 +686,7 @@ export default function DashboardPage() {
                                     size="icon"
                                     className="h-8 w-8 text-gray-600 hover:text-green-600 hover:bg-green-50"
                                     title="Download Sample"
+                                    aria-label="Download Sample"
                                   >
                                     <Download className="h-4 w-4" />
                                   </Button>
@@ -694,6 +700,7 @@ export default function DashboardPage() {
                                   size="icon"
                                   className="h-8 w-8 text-gray-600 hover:text-red-600 hover:bg-red-50"
                                   title="Delete Event"
+                                  aria-label="Delete Event"
                                 >
                                   <Trash2 className="h-4 w-4" />
                                 </Button>
