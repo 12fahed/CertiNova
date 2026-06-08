@@ -2,6 +2,10 @@ import assert from 'assert';
 import express from 'express';
 import { validateValidFields, validateField, isValidObjectId } from '../src/utils/validation.js';
 import { encryptData, decryptData, hashPassword } from '../src/utils/crypto.js';
+import {
+  getCertificateExpirationStatus,
+  normalizeExpirationDate,
+} from '../src/utils/certificateExpiration.js';
 import { createLimiter } from '../src/middleware/rateLimitMiddleware.js';
 
 const results = [];
@@ -111,6 +115,51 @@ try {
   pass('hashPassword - output shape');
 } catch (e) {
   fail('hashPassword - output shape', e);
+}
+
+try {
+  const status = getCertificateExpirationStatus({}, new Date('2026-06-01T00:00:00.000Z'));
+  assert.strictEqual(status.isExpired, false);
+  assert.strictEqual(status.expiresSoon, false);
+  assert.strictEqual(status.daysUntilExpiration, null);
+  pass('certificateExpiration - missing expiresAt stays valid');
+} catch (e) {
+  fail('certificateExpiration - missing expiresAt stays valid', e);
+}
+
+try {
+  const status = getCertificateExpirationStatus(
+    { expiresAt: new Date('2026-06-15T00:00:00.000Z') },
+    new Date('2026-06-01T00:00:00.000Z')
+  );
+  assert.strictEqual(status.isExpired, false);
+  assert.strictEqual(status.expiresSoon, true);
+  assert.strictEqual(status.daysUntilExpiration, 14);
+  pass('certificateExpiration - warns when expiry is within 30 days');
+} catch (e) {
+  fail('certificateExpiration - warns when expiry is within 30 days', e);
+}
+
+try {
+  const status = getCertificateExpirationStatus(
+    { expiresAt: new Date('2026-05-31T23:59:59.000Z') },
+    new Date('2026-06-01T00:00:00.000Z')
+  );
+  assert.strictEqual(status.isExpired, true);
+  assert.strictEqual(status.expiresSoon, false);
+  assert.strictEqual(status.daysUntilExpiration, 0);
+  pass('certificateExpiration - marks past certificates expired');
+} catch (e) {
+  fail('certificateExpiration - marks past certificates expired', e);
+}
+
+try {
+  assert.ok(normalizeExpirationDate('2026-06-15T00:00:00.000Z') instanceof Date);
+  assert.strictEqual(normalizeExpirationDate('not-a-date'), null);
+  assert.strictEqual(normalizeExpirationDate(undefined), null);
+  pass('certificateExpiration - normalizes valid dates only');
+} catch (e) {
+  fail('certificateExpiration - normalizes valid dates only', e);
 }
 
 async function testRateLimitMiddleware() {

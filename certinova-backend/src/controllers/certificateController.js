@@ -6,6 +6,10 @@ import Record from '../models/Record.js';
 import mongoose from 'mongoose';
 import { validateValidFields, isValidObjectId } from '../utils/validation.js';
 import { encryptData, decryptData, hashPassword } from '../utils/crypto.js';
+import {
+  getCertificateExpirationStatus,
+  normalizeExpirationDate,
+} from '../utils/certificateExpiration.js';
 
 // @desc    Add certificate configuration
 // @route   POST /api/certificates/addCertificateConfig
@@ -321,7 +325,7 @@ export const uploadCertificateTemplate = async (req, res) => {
 // @access  Protected (should be protected later with JWT)
 export const storeGeneratedCertificate = async (req, res) => {
   try {
-    const { certificateId, recipients, generatedBy, password } = req.body;
+    const { certificateId, recipients, generatedBy, password, expiresAt } = req.body;
     console.log('=== STORE GENERATED CERTIFICATE REQUEST ===');
     console.log('certificateId:', certificateId);
     console.log('recipients count:', recipients?.length);
@@ -347,6 +351,21 @@ export const storeGeneratedCertificate = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: 'Password is required and must be at least 6 characters long',
+      });
+    }
+
+    const normalizedExpiresAt = normalizeExpirationDate(expiresAt);
+    if (expiresAt && !normalizedExpiresAt) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid expiration date format',
+      });
+    }
+
+    if (normalizedExpiresAt && normalizedExpiresAt <= new Date()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Certificate expiration date must be in the future',
       });
     }
 
@@ -440,6 +459,7 @@ export const storeGeneratedCertificate = async (req, res) => {
       certificateId,
       noOfRecipient: processedRecipients.length,
       rank: hasRankData,
+      ...(normalizedExpiresAt ? { expiresAt: normalizedExpiresAt } : {}),
       encryptedRecipients,
       generatedBy,
     });
@@ -516,6 +536,7 @@ export const storeGeneratedCertificate = async (req, res) => {
         noOfRecipient: generatedCertificate.noOfRecipient,
         rank: generatedCertificate.rank,
         date: generatedCertificate.date,
+        expiresAt: generatedCertificate.expiresAt,
         // Don't return encrypted data in response for security
         encrypted: true,
       },
@@ -989,6 +1010,27 @@ export const verifyUUID = async (req, res) => {
     console.log('✓ Step 2 Complete: GeneratedCertificate found:', generatedCertificate._id);
     console.log('Certificate created at:', generatedCertificate.createdAt);
 
+    const expirationStatus = getCertificateExpirationStatus(generatedCertificate);
+    if (expirationStatus.isExpired) {
+      const expiresAtText = expirationStatus.expiresAt
+        ? expirationStatus.expiresAt.toISOString()
+        : 'invalid expiration metadata';
+
+      return res.status(410).json({
+        success: false,
+        message: 'Certificate has expired',
+        verified: false,
+        step: 'expiration_check',
+        error: `Certificate expired on ${expiresAtText}`,
+        data: {
+          uuid: verifyRecord.uuid,
+          isValid: false,
+          expiresAt: expirationStatus.expiresAt,
+          expiredAt: expirationStatus.expiresAt,
+        },
+      });
+    }
+
     // Step 3: Get certificate configuration
     console.log('Step 3: Fetching CertificateConfig...');
     const certificateConfig = await CertificateConfig.findById(generatedCertificate.certificateId);
@@ -1041,6 +1083,9 @@ export const verifyUUID = async (req, res) => {
         eventName: event.eventName,
         eventDate: event.date,
         certificateGeneratedDate: generatedCertificate.createdAt,
+        expiresAt: expirationStatus.expiresAt,
+        expiresSoon: expirationStatus.expiresSoon,
+        daysUntilExpiration: expirationStatus.daysUntilExpiration,
         certificateId: generatedCertificate.certificateId,
         verificationId: verifyRecord._id,
         isValid: true,
@@ -1096,6 +1141,26 @@ export const verifyCertificateFullByUUID = async (req, res) => {
       });
     }
 
+    const expirationStatus = getCertificateExpirationStatus(generatedCertificate);
+    if (expirationStatus.isExpired) {
+      const expiresAtText = expirationStatus.expiresAt
+        ? expirationStatus.expiresAt.toISOString()
+        : 'invalid expiration metadata';
+
+      return res.status(410).json({
+        success: false,
+        message: 'Certificate has expired',
+        verified: false,
+        error: `Certificate expired on ${expiresAtText}`,
+        data: {
+          uuid: verifyRecord.uuid,
+          isValid: false,
+          expiresAt: expirationStatus.expiresAt,
+          expiredAt: expirationStatus.expiresAt,
+        },
+      });
+    }
+
     // Step 3: Get certificate configuration (template image + field positions)
     const certificateConfig = await CertificateConfig.findById(generatedCertificate.certificateId);
     if (!certificateConfig) {
@@ -1127,7 +1192,11 @@ export const verifyCertificateFullByUUID = async (req, res) => {
         eventName: event.eventName,
         eventDate: event.date,
         certificateGeneratedDate: generatedCertificate.createdAt,
+        expiresAt: expirationStatus.expiresAt,
+        expiresSoon: expirationStatus.expiresSoon,
+        daysUntilExpiration: expirationStatus.daysUntilExpiration,
         verifiedAt: new Date(),
+        isValid: true,
         // Certificate rendering data
         certificateConfig: {
           imagePath: certificateConfig.imagePath,

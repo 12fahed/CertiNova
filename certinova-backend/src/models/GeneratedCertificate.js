@@ -20,6 +20,10 @@ const generatedCertificateSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+    expiresAt: {
+      type: Date,
+      default: undefined,
+    },
     // Store encrypted recipient data
     encryptedRecipients: {
       encryptedData: {
@@ -75,6 +79,7 @@ const generatedCertificateSchema = new mongoose.Schema(
 // Index for efficient queries
 generatedCertificateSchema.index({ certificateId: 1, date: -1 });
 generatedCertificateSchema.index({ generatedBy: 1, date: -1 });
+generatedCertificateSchema.index({ expiresAt: 1 });
 
 const GeneratedCertificate = mongoose.model('GeneratedCertificate', generatedCertificateSchema);
 
