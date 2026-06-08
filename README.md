@@ -244,10 +244,10 @@ Join our growing community to get help, share your feedback, and stay updated:
 
 ---
 
-## The project is officially Selected for GSSoC 2026 & SSoC 2026 Contributions
+## The project is officially Selected for GSSoC 2026 Contributions
 
 <p align="center">
-  <img src="./assets/gssoc-ssoc-26.png" alt="gssoc-ssoc-26" width="75%">
+  <img src="./assets/gssoc-26.png" alt="gssoc-26" width="50%">
 </p>
 
 ## License
