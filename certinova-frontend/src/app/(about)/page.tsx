@@ -191,15 +191,13 @@ export default function HomePage() {
     },
     {
       title: 'Generate Certificates',
-      description:
-        'Automatically create personalized certificates in bulk with a single click.',
+      description: 'Automatically create personalized certificates in bulk with a single click.',
       icon: Sparkles,
       accent: 'from-emerald-500 to-teal-500',
     },
     {
       title: 'Download & Share',
-      description:
-        'Download your batch of certificates and share them directly with recipients.',
+      description: 'Download your batch of certificates and share them directly with recipients.',
       icon: Download,
       accent: 'from-amber-500 to-orange-500',
     },
@@ -329,29 +327,59 @@ export default function HomePage() {
               </p>
             </motion.div>
 
-            <div className="grid gap-6 lg:grid-cols-5">
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-5">
               {howItWorksSteps.map((step, index) => (
                 <motion.div
                   key={step.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 * index, duration: 0.5 }}
-                  whileHover={{ y: -6, scale: 1.01 }}
-                  className="group rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-slate-800/80 dark:bg-slate-900/90"
+                  initial={{ opacity: 0, rotateX: -15 }}
+                  whileInView={{ opacity: 1, rotateX: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.08 }}
+                  whileHover={{ rotateY: -5, scale: 1.02 }}
+                  style={{ transformStyle: 'preserve-3d' }}
+                  className="group perspective-1000"
                 >
-                  <div
-                    className={`mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${step.accent} text-white shadow-lg shadow-slate-200/40 dark:shadow-slate-800/40`}
-                  >
-                    <step.icon className="h-6 w-6" />
-                  </div>
-                  <div className="mb-3 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">
-                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                  <div className="relative h-full overflow-hidden rounded-2xl border border-slate-200 bg-white/90 p-6 shadow-md transition-all duration-500 hover:shadow-2xl dark:border-slate-800/80 dark:bg-slate-900/90">
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100 dark:from-white/5" />
+
+                    <div className="absolute bottom-2 right-2 text-8xl font-black text-slate-100 opacity-30 transition-all duration-500 group-hover:scale-110 group-hover:opacity-50 dark:text-slate-800">
                       {index + 1}
-                    </span>
-                    Step {index + 1}
+                    </div>
+
+                    <div className="relative mb-4">
+                      <div
+                        className={`absolute inset-0 rounded-xl bg-gradient-to-br ${step.accent} blur-xl opacity-0 transition-opacity duration-500 group-hover:opacity-40`}
+                      />
+                      <div
+                        className={`relative flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${step.accent} text-white shadow-md`}
+                      >
+                        <step.icon className="h-5 w-5" />
+                      </div>
+                    </div>
+
+                    <h3 className="relative mb-2 text-lg font-bold text-slate-900 dark:text-white">
+                      {step.title}
+                    </h3>
+                    <p className="relative text-sm text-slate-600 dark:text-slate-400">
+                      {step.description}
+                    </p>
+
+                    <div className="absolute bottom-4 right-4 translate-x-2 opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100">
+                      <svg
+                        className="h-5 w-5 text-slate-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 5l7 7-7 7"
+                        />
+                      </svg>
+                    </div>
                   </div>
-                  <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100">{step.title}</h3>
-                  <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">{step.description}</p>
                 </motion.div>
               ))}
             </div>
