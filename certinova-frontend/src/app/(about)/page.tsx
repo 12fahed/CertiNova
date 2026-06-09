@@ -19,7 +19,12 @@ import {
   Building,
   TrendingUp,
   Shield,
+  ShieldCheck,
   Clock,
+  UploadCloud,
+  FileText,
+  Sparkles,
+  Download,
   PlayCircle,
   Lock,
   ArrowRight,
@@ -66,7 +71,8 @@ export default function HomePage() {
       label: 'Organizations',
       value: '1,200+',
       icon: Building,
-      color: 'text-emerald-600", bg: "bg-emerald-50 border border-emerald-100',
+      color: 'text-emerald-600',
+      bg: 'bg-emerald-50 border border-emerald-100',
     },
     {
       label: 'Events Covered',
@@ -79,7 +85,8 @@ export default function HomePage() {
       label: 'Success Rate',
       value: '99.9%',
       icon: TrendingUp,
-      color: 'text-amber-600", bg: "bg-amber-50 border border-amber-100',
+      color: 'text-amber-600',
+      bg: 'bg-amber-50 border border-amber-100',
     },
   ];
 
@@ -164,6 +171,44 @@ export default function HomePage() {
       bgColor: 'bg-cyan-50',
       border: 'border-cyan-100',
       glow: 'group-hover:shadow-cyan-100',
+    },
+  ];
+
+  const howItWorksSteps = [
+    {
+      title: 'Upload Certificate Template',
+      description:
+        'Upload or design your certificate layout with logos, text placeholders, and branding.',
+      icon: UploadCloud,
+      accent: 'from-blue-500 to-sky-500',
+    },
+    {
+      title: 'Upload Recipient Data',
+      description:
+        'Import recipient details from CSV or supported templates to personalize each certificate.',
+      icon: FileText,
+      accent: 'from-violet-500 to-fuchsia-500',
+    },
+    {
+      title: 'Generate Certificates',
+      description:
+        'Automatically create personalized certificates in bulk with a single click.',
+      icon: Sparkles,
+      accent: 'from-emerald-500 to-teal-500',
+    },
+    {
+      title: 'Download & Share',
+      description:
+        'Download your batch of certificates and share them directly with recipients.',
+      icon: Download,
+      accent: 'from-amber-500 to-orange-500',
+    },
+    {
+      title: 'Verify Certificates',
+      description:
+        'Recipients can validate certificates instantly through the verification portal.',
+      icon: ShieldCheck,
+      accent: 'from-cyan-500 to-blue-500',
     },
   ];
 
@@ -261,6 +306,55 @@ export default function HomePage() {
                 </Button>
               </div>
             </motion.div>
+          </div>
+        </section>
+
+        {/* How It Works Section */}
+        <section className="py-24 bg-slate-50 dark:bg-slate-950/90">
+          <div className="container mx-auto px-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center mb-12"
+            >
+              <p className="text-sm font-semibold uppercase tracking-[0.35em] text-blue-600">
+                How It Works
+              </p>
+              <h2 className="mt-4 text-4xl md:text-5xl font-bold text-slate-900 dark:text-slate-50">
+                Build certificates in five clear steps
+              </h2>
+              <p className="mx-auto mt-5 max-w-2xl text-base text-slate-600 dark:text-slate-300">
+                From template upload to recipient verification, CertiNova guides you through a fast,
+                secure, and transparent certificate workflow.
+              </p>
+            </motion.div>
+
+            <div className="grid gap-6 lg:grid-cols-5">
+              {howItWorksSteps.map((step, index) => (
+                <motion.div
+                  key={step.title}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 * index, duration: 0.5 }}
+                  whileHover={{ y: -6, scale: 1.01 }}
+                  className="group rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-slate-800/80 dark:bg-slate-900/90"
+                >
+                  <div
+                    className={`mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${step.accent} text-white shadow-lg shadow-slate-200/40 dark:shadow-slate-800/40`}
+                  >
+                    <step.icon className="h-6 w-6" />
+                  </div>
+                  <div className="mb-3 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">
+                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                      {index + 1}
+                    </span>
+                    Step {index + 1}
+                  </div>
+                  <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100">{step.title}</h3>
+                  <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">{step.description}</p>
+                </motion.div>
+              ))}
+            </div>
           </div>
         </section>
 
