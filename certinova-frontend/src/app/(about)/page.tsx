@@ -19,7 +19,12 @@ import {
   Building,
   TrendingUp,
   Shield,
+  ShieldCheck,
   Clock,
+  UploadCloud,
+  FileText,
+  Sparkles,
+  Download,
   PlayCircle,
   Lock,
   ArrowRight,
@@ -66,7 +71,8 @@ export default function HomePage() {
       label: 'Organizations',
       value: '1,200+',
       icon: Building,
-      color: 'text-emerald-600", bg: "bg-emerald-50 border border-emerald-100',
+      color: 'text-emerald-600',
+      bg: 'bg-emerald-50 border border-emerald-100',
     },
     {
       label: 'Events Covered',
@@ -79,7 +85,8 @@ export default function HomePage() {
       label: 'Success Rate',
       value: '99.9%',
       icon: TrendingUp,
-      color: 'text-amber-600", bg: "bg-amber-50 border border-amber-100',
+      color: 'text-amber-600',
+      bg: 'bg-amber-50 border border-amber-100',
     },
   ];
 
@@ -164,6 +171,42 @@ export default function HomePage() {
       bgColor: 'bg-cyan-50',
       border: 'border-cyan-100',
       glow: 'group-hover:shadow-cyan-100',
+    },
+  ];
+
+  const howItWorksSteps = [
+    {
+      title: 'Upload Certificate Template',
+      description:
+        'Upload or design your certificate layout with logos, text placeholders, and branding.',
+      icon: UploadCloud,
+      accent: 'from-blue-500 to-sky-500',
+    },
+    {
+      title: 'Upload Recipient Data',
+      description:
+        'Import recipient details from CSV or supported templates to personalize each certificate.',
+      icon: FileText,
+      accent: 'from-violet-500 to-fuchsia-500',
+    },
+    {
+      title: 'Generate Certificates',
+      description: 'Automatically create personalized certificates in bulk with a single click.',
+      icon: Sparkles,
+      accent: 'from-emerald-500 to-teal-500',
+    },
+    {
+      title: 'Download & Share',
+      description: 'Download your batch of certificates and share them directly with recipients.',
+      icon: Download,
+      accent: 'from-amber-500 to-orange-500',
+    },
+    {
+      title: 'Verify Certificates',
+      description:
+        'Recipients can validate certificates instantly through the verification portal.',
+      icon: ShieldCheck,
+      accent: 'from-cyan-500 to-blue-500',
     },
   ];
 
@@ -261,6 +304,85 @@ export default function HomePage() {
                 </Button>
               </div>
             </motion.div>
+          </div>
+        </section>
+
+        {/* How It Works Section */}
+        <section className="py-24 bg-slate-50 dark:bg-slate-950/90">
+          <div className="container mx-auto px-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center mb-12"
+            >
+              <p className="text-sm font-semibold uppercase tracking-[0.35em] text-blue-600">
+                How It Works
+              </p>
+              <h2 className="mt-4 text-4xl md:text-5xl font-bold text-slate-900 dark:text-slate-50">
+                Build certificates in five clear steps
+              </h2>
+              <p className="mx-auto mt-5 max-w-2xl text-base text-slate-600 dark:text-slate-300">
+                From template upload to recipient verification, CertiNova guides you through a fast,
+                secure, and transparent certificate workflow.
+              </p>
+            </motion.div>
+
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-5">
+              {howItWorksSteps.map((step, index) => (
+                <motion.div
+                  key={step.title}
+                  initial={{ opacity: 0, rotateX: -15 }}
+                  whileInView={{ opacity: 1, rotateX: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.08 }}
+                  whileHover={{ rotateY: -5, scale: 1.02 }}
+                  style={{ transformStyle: 'preserve-3d' }}
+                  className="group perspective-1000"
+                >
+                  <div className="relative h-full overflow-hidden rounded-2xl border border-slate-200 bg-white/90 p-6 shadow-md transition-all duration-500 hover:shadow-2xl dark:border-slate-800/80 dark:bg-slate-900/90">
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100 dark:from-white/5" />
+
+                    <div className="absolute bottom-2 right-2 text-8xl font-black text-slate-100 opacity-30 transition-all duration-500 group-hover:scale-110 group-hover:opacity-50 dark:text-slate-800">
+                      {index + 1}
+                    </div>
+
+                    <div className="relative mb-4">
+                      <div
+                        className={`absolute inset-0 rounded-xl bg-gradient-to-br ${step.accent} blur-xl opacity-0 transition-opacity duration-500 group-hover:opacity-40`}
+                      />
+                      <div
+                        className={`relative flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${step.accent} text-white shadow-md`}
+                      >
+                        <step.icon className="h-5 w-5" />
+                      </div>
+                    </div>
+
+                    <h3 className="relative mb-2 text-lg font-bold text-slate-900 dark:text-white">
+                      {step.title}
+                    </h3>
+                    <p className="relative text-sm text-slate-600 dark:text-slate-400">
+                      {step.description}
+                    </p>
+
+                    <div className="absolute bottom-4 right-4 translate-x-2 opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100">
+                      <svg
+                        className="h-5 w-5 text-slate-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 5l7 7-7 7"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
           </div>
         </section>
 
