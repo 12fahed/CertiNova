@@ -37,6 +37,7 @@ import QRCode from 'qrcode';
 import { PasswordDialog } from '@/components/password-dialog';
 import { EncryptedCache } from '@/utils/crypto';
 import { exportCertificatesToPDF } from '@/lib/pdfExport';
+import { getFullImageUrl } from '@/lib/utils';
 
 interface CertificateForSending {
   id: string;
@@ -73,7 +74,9 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
   const [certificateConfig, setCertificateConfig] = useState<CertificateConfig | null>(null);
   const [zipBlob, setZipBlob] = useState<Blob | null>(null);
   // Stores rendered certificate data URLs (from canvas) for PDF export
-  const [generatedDataUrls, setGeneratedDataUrls] = useState<{ recipientName: string; imageDataUrl: string }[]>([]);
+  const [generatedDataUrls, setGeneratedDataUrls] = useState<
+    { recipientName: string; imageDataUrl: string }[]
+  >([]);
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
   const [isStoringData, setIsStoringData] = useState(false);
 
@@ -318,17 +321,7 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
       const certificate = certificates.find((c) => c.id === selectedCertificate);
       if (!certificate) throw new Error('Certificate not found');
 
-      let imageUrl = certificate.image;
-
-      // Handle different URL types
-      if (imageUrl.startsWith('http')) {
-        // External URL (including Cloudinary) - use directly
-        // console.log("Using external URL (Cloudinary):", imageUrl);
-      } else if (imageUrl.startsWith('/')) {
-        // Legacy local path - convert to full URL
-        imageUrl = `http://localhost:5000${imageUrl}`;
-        // console.log("Using local backend URL:", imageUrl);
-      }
+      const imageUrl = getFullImageUrl(certificate.image);
       // If it's already a full URL, use it as is
 
       const zip = new JSZip();
@@ -646,7 +639,21 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
         folder.file(fileName, blob);
 
         // Store data URL for preview and PDF export
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+        let dataUrl: string;
+        try {
+          dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+        } catch (error) {
+          console.warn(
+            'Canvas toDataURL failed due to CORS, converting fallback blob to data URL:',
+            error
+          );
+          dataUrl = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.onerror = () => reject(new Error('Failed to convert fallback blob to data URL'));
+            reader.readAsDataURL(blob);
+          });
+        }
         generatedUrls.push(dataUrl);
       }
 
@@ -802,10 +809,10 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
   };
 
   /**
-   * Exports all generated certificates as a single multi-page PDF.
-   * Each page contains the full certificate image at its native resolution.
+   * Exports all generated certificates as PDF(s).
+   * Supports both 'batch' (combined) and 'individual' modes.
    */
-  const handleDownloadPDF = async () => {
+  const handleDownloadPDF = async (mode: 'batch' | 'individual') => {
     if (generatedDataUrls.length === 0) {
       toast.error('No certificates available to download');
       return;
@@ -815,16 +822,16 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
       const eventName = certificates.find((c) => c.id === selectedCertificate)?.name;
       await exportCertificatesToPDF({
         certificates: generatedDataUrls,
-        mode: 'batch',
+        mode,
         eventName,
       });
 
       toast('Download Started', {
-        description: 'Your certificate PDF file is being downloaded.',
+        description: `Your certificate PDF ${mode === 'batch' ? 'file is' : 'files are'} being downloaded.`,
       });
     } catch (error) {
       console.error('Error generating PDF:', error);
-      toast.error('Failed to generate PDF file');
+      toast.error('Failed to generate PDF file(s)');
     }
   };
 
@@ -1290,20 +1297,27 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
 
               {generationComplete && (
                 <div className="space-y-3">
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <Button
                       onClick={handleDownloadZip}
                       className="w-full bg-blue-600 hover:bg-blue-700"
                     >
                       <Download className="h-4 w-4 mr-2" />
-                      Download ZIP
+                      ZIP (Images)
                     </Button>
                     <Button
-                      onClick={handleDownloadPDF}
+                      onClick={() => handleDownloadPDF('batch')}
                       className="w-full bg-green-600 hover:bg-green-700"
                     >
                       <FileText className="h-4 w-4 mr-2" />
-                      Download PDF
+                      Combined PDF
+                    </Button>
+                    <Button
+                      onClick={() => handleDownloadPDF('individual')}
+                      className="w-full bg-teal-600 hover:bg-teal-700"
+                    >
+                      <FileDown className="h-4 w-4 mr-2" />
+                      Individual PDFs
                     </Button>
                   </div>
                   <Button
