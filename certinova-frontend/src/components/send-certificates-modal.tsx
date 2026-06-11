@@ -19,11 +19,12 @@ import {
   FileSpreadsheet,
   Award,
   Download,
-  Loader2,
-  CheckCircle,
+  Award,
+  Download,
+  FileText,
   FileDown,
-
-} from 'lucide-react';
+  ChevronDown,
+  ChevronUp,
 import { toast } from 'sonner';
 import confetti from 'canvas-confetti';
 import { useCertificates } from '@/context/CertificateContext';
@@ -33,10 +34,8 @@ import * as XLSX from 'xlsx';
 import { v4 as uuidv4 } from 'uuid';
 import QRCode from 'qrcode';
 import { PasswordDialog } from '@/components/password-dialog';
-import { EncryptedCache } from '@/utils/crypto';
 import { exportCertificatesUnified } from '@/lib/pdfExport';
 import { getFullImageUrl } from '@/lib/utils';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 interface CertificateForSending {
   id: string;
@@ -67,11 +66,8 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
   const [recipients, setRecipients] = useState<Recipient[]>([]);
   const [manualName, setManualName] = useState('');
   const [manualEmail, setManualEmail] = useState('');
-  const [manualRank, setManualRank] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationComplete, setGenerationComplete] = useState(false);
-  const [exportFormat, setExportFormat] = useState<'pdf' | 'image' | 'both'>('pdf');
-  const [pdfMode, setPdfMode] = useState<'batch' | 'individual'>('batch');
   const [certificateConfig, setCertificateConfig] = useState<CertificateConfig | null>(null);
   // Stores rendered certificate data URLs (from canvas) for PDF export
   const [generatedDataUrls, setGeneratedDataUrls] = useState<
@@ -780,10 +776,7 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
     } finally {
       setIsStoringData(false);
       setShowPasswordDialog(false);
-    }
-  };
-
-  const handleUnifiedExport = async () => {
+  const handleUnifiedExport = async (format: 'pdf' | 'image', mode: 'batch' | 'individual' = 'batch') => {
     if (generatedDataUrls.length === 0) {
       toast.error('No certificates available to download');
       return;
@@ -793,8 +786,8 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
       const eventName = certificates.find((c) => c.id === selectedCertificate)?.name;
       await exportCertificatesUnified({
         certificates: generatedDataUrls,
-        exportFormat,
-        pdfMode,
+        exportFormat: format,
+        pdfMode: mode,
         eventName,
       });
 
@@ -1268,84 +1261,37 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
               )}
 
               {generationComplete && (
-                <div className="space-y-5 border rounded-lg p-5 bg-white">
-                  <div className="space-y-3">
-                    <Label className="text-base font-semibold">Export Format</Label>
-                    <RadioGroup
-                      value={exportFormat}
-                      onValueChange={(val) => setExportFormat(val as 'pdf' | 'image' | 'both')}
-                      className="flex flex-col sm:flex-row gap-4"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="pdf" id="format-pdf" />
-                        <Label htmlFor="format-pdf" className="cursor-pointer">
-                          PDF Only
-                        </Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="image" id="format-image" />
-                        <Label htmlFor="format-image" className="cursor-pointer">
-                          Images Only
-                        </Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="both" id="format-both" />
-                        <Label htmlFor="format-both" className="cursor-pointer">
-                          Both (PDF + Images)
-                        </Label>
-                      </div>
-                    </RadioGroup>
-                  </div>
-
-                  {(exportFormat === 'pdf' || exportFormat === 'both') && (
-                    <div className="space-y-3 pt-2 border-t">
-                      <Label className="text-base font-semibold">PDF Layout</Label>
-                      <RadioGroup
-                        value={pdfMode}
-                        onValueChange={(val) => setPdfMode(val as 'batch' | 'individual')}
-                        className="flex flex-col sm:flex-row gap-4"
-                      >
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="batch" id="pdf-batch" />
-                          <Label htmlFor="pdf-batch" className="cursor-pointer">
-                            Combined (Single File)
-                          </Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="individual" id="pdf-individual" />
-                          <Label htmlFor="pdf-individual" className="cursor-pointer">
-                            Individual Files
-                          </Label>
-                        </div>
-                      </RadioGroup>
-                      {pdfMode === 'individual' &&
-                        exportFormat === 'pdf' &&
-                        generatedDataUrls.length > 5 && (
-                          <p className="text-sm text-amber-600 bg-amber-50 p-2 rounded border border-amber-200 mt-2">
-                            Note: Since you have more than 5 certificates, individual PDFs will be
-                            automatically packaged into a ZIP file to prevent browser download
-                            issues.
-                          </p>
-                        )}
-                    </div>
-                  )}
-
-                  <div className="pt-4 space-y-3">
+                <div className="space-y-3">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <Button
-                      onClick={handleUnifiedExport}
-                      className="w-full bg-blue-600 hover:bg-blue-700 py-6 text-lg"
+                      onClick={() => handleUnifiedExport('image')}
+                      className="w-full bg-blue-600 hover:bg-blue-700"
                     >
-                      <Download className="h-5 w-5 mr-2" />
-                      Download Export
+                      <Download className="h-4 w-4 mr-2" />
+                      Download ZIP (Images)
                     </Button>
                     <Button
-                      variant="outline"
-                      onClick={handleClose}
-                      className="w-full border-gray-300 text-gray-700 hover:bg-gray-50 bg-transparent"
+                      onClick={() => handleUnifiedExport('pdf', 'batch')}
+                      className="w-full bg-green-600 hover:bg-green-700"
                     >
-                      Close
+                      <FileText className="h-4 w-4 mr-2" />
+                      Combined PDF
+                    </Button>
+                    <Button
+                      onClick={() => handleUnifiedExport('pdf', 'individual')}
+                      className="w-full bg-teal-600 hover:bg-teal-700"
+                    >
+                      <FileDown className="h-4 w-4 mr-2" />
+                      Individual PDFs
                     </Button>
                   </div>
+                  <Button
+                    variant="outline"
+                    onClick={handleClose}
+                    className="w-full border-gray-300 text-gray-700 hover:bg-gray-50 bg-transparent"
+                  >
+                    Close
+                  </Button>
                 </div>
               )}
             </motion.div>
