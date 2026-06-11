@@ -2,23 +2,14 @@ import { jsPDF } from 'jspdf';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
-/**
- * Options for exporting certificates to PDF.
- *
- * @property certificates - Array of certificate data, each containing a recipient name
- *   and the rendered certificate image as a data URL (base64 JPEG/PNG from canvas).
- * @property mode - Export mode:
- *   - `"batch"`: All certificates combined into a single multi-page PDF.
- *   - `"individual"`: Each certificate saved as a separate PDF file (zipped if multiple).
- * @property eventName - Optional event name used in the output file name.
- */
-interface PDFExportOptions {
+export interface UnifiedExportOptions {
   certificates: {
     recipientName: string;
     /** Base64 data URL from canvas.toDataURL() — must start with "data:image/" */
     imageDataUrl: string;
   }[];
-  mode: 'batch' | 'individual';
+  exportFormat: 'pdf' | 'image' | 'both';
+  pdfMode: 'batch' | 'individual';
   eventName?: string;
 }
 
@@ -47,113 +38,122 @@ async function getImageDimensions(
 }
 
 /**
- * Exports generated certificate images to PDF.
- *
- * In `"batch"` mode, produces a single multi-page PDF where each page contains
- * one full-bleed certificate image. The page size is derived from the first
- * certificate's aspect ratio to avoid distortion.
- *
- * In `"individual"` mode, creates and downloads a separate single-page PDF
- * for each certificate. If multiple certificates exist, they are compressed
- * into a single ZIP file for download.
- *
- * Uses jsPDF with pixel units for precise image-to-page mapping. The image
- * format is detected from the data URL prefix (JPEG or PNG).
+ * Unified export function for generating PDFs and Images, either directly or zipped.
  */
-export async function exportCertificatesToPDF({
+export async function exportCertificatesUnified({
   certificates,
-  mode,
+  exportFormat,
+  pdfMode,
   eventName,
-}: PDFExportOptions): Promise<void> {
+}: UnifiedExportOptions): Promise<void> {
   if (certificates.length === 0) {
     throw new Error('No certificates to export');
   }
 
-  // Detect the image format from the data URL (jsPDF needs "JPEG" or "PNG")
+  // Detect the image format from the data URL
   const detectFormat = (dataUrl: string): 'JPEG' | 'PNG' => {
     if (dataUrl.startsWith('data:image/png')) return 'PNG';
     return 'JPEG';
   };
 
-  if (mode === 'batch') {
-    // --- Batch mode: single multi-page PDF ---
+  // Helper to convert dataURL to Blob
+  const getImageBlob = async (dataUrl: string): Promise<Blob> => {
+    const res = await fetch(dataUrl);
+    return res.blob();
+  };
 
-    // Use the first certificate's dimensions to set the page size.
-    // This keeps the aspect ratio correct and avoids white borders.
-    const firstDims = await getImageDimensions(certificates[0].imageDataUrl);
-    const pageWidth = firstDims.width;
-    const pageHeight = firstDims.height;
+  const safeEventName = eventName ? eventName.replace(/[^a-z0-9]/gi, '_') : Date.now().toString();
 
-    const doc = new jsPDF({
-      orientation: firstDims.orientation,
-      unit: 'px',
-      format: [pageWidth, pageHeight],
-      hotfixes: ['px_scaling'],
-    });
-
-    for (let i = 0; i < certificates.length; i++) {
-      const cert = certificates[i];
-
-      if (i > 0) {
-        doc.addPage([pageWidth, pageHeight], firstDims.orientation);
-      }
-
-      const format = detectFormat(cert.imageDataUrl);
-
-      // Draw the full certificate image spanning the entire page
-      doc.addImage(cert.imageDataUrl, format, 0, 0, pageWidth, pageHeight);
-    }
-
-    const fileName = eventName
-      ? `certificates-${eventName.replace(/[^a-z0-9]/gi, '_')}.pdf`
-      : `certificates-${Date.now()}.pdf`;
-
-    doc.save(fileName);
-  } else {
-    // --- Individual mode: one PDF per certificate ---
-    if (certificates.length === 1) {
-      const cert = certificates[0];
-      const dims = await getImageDimensions(cert.imageDataUrl);
-
-      const doc = new jsPDF({
-        orientation: dims.orientation,
-        unit: 'px',
-        format: [dims.width, dims.height],
-        hotfixes: ['px_scaling'],
-      });
-
-      const format = detectFormat(cert.imageDataUrl);
-      doc.addImage(cert.imageDataUrl, format, 0, 0, dims.width, dims.height);
-
-      const safeName = cert.recipientName.replace(/[^a-z0-9]/gi, '_');
-      doc.save(`certificate-${safeName}.pdf`);
-    } else {
-      const zip = new JSZip();
-      const folder = zip.folder('pdf_certificates');
-
+  // 1. Direct PDF Download Cases
+  if (exportFormat === 'pdf') {
+    if (pdfMode === 'individual' && certificates.length <= 5) {
       for (const cert of certificates) {
         const dims = await getImageDimensions(cert.imageDataUrl);
-
         const doc = new jsPDF({
           orientation: dims.orientation,
           unit: 'px',
           format: [dims.width, dims.height],
           hotfixes: ['px_scaling'],
         });
-
         const format = detectFormat(cert.imageDataUrl);
         doc.addImage(cert.imageDataUrl, format, 0, 0, dims.width, dims.height);
-
         const safeName = cert.recipientName.replace(/[^a-z0-9]/gi, '_');
-        const pdfBlob = doc.output('blob');
-        folder?.file(`certificate-${safeName}.pdf`, pdfBlob);
+        doc.save(`certificate-${safeName}.pdf`);
       }
+      return;
+    }
 
-      const zipBlob = await zip.generateAsync({ type: 'blob' });
-      const fileName = eventName
-        ? `individual-certificates-${eventName.replace(/[^a-z0-9]/gi, '_')}.zip`
-        : `individual-certificates-${Date.now()}.zip`;
-      saveAs(zipBlob, fileName);
+    if (pdfMode === 'batch') {
+      const firstDims = await getImageDimensions(certificates[0].imageDataUrl);
+      const doc = new jsPDF({
+        orientation: firstDims.orientation,
+        unit: 'px',
+        format: [firstDims.width, firstDims.height],
+        hotfixes: ['px_scaling'],
+      });
+
+      for (let i = 0; i < certificates.length; i++) {
+        const cert = certificates[i];
+        if (i > 0) doc.addPage([firstDims.width, firstDims.height], firstDims.orientation);
+        const format = detectFormat(cert.imageDataUrl);
+        doc.addImage(cert.imageDataUrl, format, 0, 0, firstDims.width, firstDims.height);
+      }
+      doc.save(`certificates-${safeEventName}.pdf`);
+      return;
     }
   }
+
+  // 2. ZIP Cases (Image only, Both, or Individual PDFs > 5)
+  const zip = new JSZip();
+
+  // Process Images
+  if (exportFormat === 'image' || exportFormat === 'both') {
+    const imagesFolder = zip.folder('images');
+    for (const cert of certificates) {
+      const blob = await getImageBlob(cert.imageDataUrl);
+      const safeName = cert.recipientName.replace(/[^a-z0-9]/gi, '_');
+      const ext = detectFormat(cert.imageDataUrl) === 'PNG' ? 'png' : 'jpg';
+      imagesFolder?.file(`certificate-${safeName}.${ext}`, blob);
+    }
+  }
+
+  // Process PDFs inside ZIP
+  if (exportFormat === 'pdf' || exportFormat === 'both') {
+    if (pdfMode === 'batch') {
+      const firstDims = await getImageDimensions(certificates[0].imageDataUrl);
+      const doc = new jsPDF({
+        orientation: firstDims.orientation,
+        unit: 'px',
+        format: [firstDims.width, firstDims.height],
+        hotfixes: ['px_scaling'],
+      });
+
+      for (let i = 0; i < certificates.length; i++) {
+        const cert = certificates[i];
+        if (i > 0) doc.addPage([firstDims.width, firstDims.height], firstDims.orientation);
+        const format = detectFormat(cert.imageDataUrl);
+        doc.addImage(cert.imageDataUrl, format, 0, 0, firstDims.width, firstDims.height);
+      }
+      const pdfBlob = doc.output('blob');
+      zip.file(`certificates-${safeEventName}.pdf`, pdfBlob);
+    } else {
+      for (const cert of certificates) {
+        const dims = await getImageDimensions(cert.imageDataUrl);
+        const doc = new jsPDF({
+          orientation: dims.orientation,
+          unit: 'px',
+          format: [dims.width, dims.height],
+          hotfixes: ['px_scaling'],
+        });
+        const format = detectFormat(cert.imageDataUrl);
+        doc.addImage(cert.imageDataUrl, format, 0, 0, dims.width, dims.height);
+        const safeName = cert.recipientName.replace(/[^a-z0-9]/gi, '_');
+        const pdfBlob = doc.output('blob');
+        zip.file(`certificate-${safeName}.pdf`, pdfBlob);
+      }
+    }
+  }
+
+  const zipBlob = await zip.generateAsync({ type: 'blob' });
+  saveAs(zipBlob, `export-${safeEventName}.zip`);
 }
