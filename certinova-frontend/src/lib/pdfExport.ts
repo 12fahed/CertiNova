@@ -56,10 +56,23 @@ export async function exportCertificatesUnified({
     return 'JPEG';
   };
 
-  // Helper to convert dataURL to Blob
+  // Helper to convert dataURL to Blob safely
   const getImageBlob = async (dataUrl: string): Promise<Blob> => {
-    const res = await fetch(dataUrl);
-    return res.blob();
+    try {
+      // Manual conversion avoids issues with fetch() on very large data URIs
+      const [header, base64] = dataUrl.split(',');
+      const mime = header.match(/:(.*?);/)?.[1] || 'image/png';
+      const binary = atob(base64);
+      const array = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) {
+        array[i] = binary.charCodeAt(i);
+      }
+      return new Blob([array], { type: mime });
+    } catch (error) {
+      console.warn('Manual base64 conversion failed, falling back to fetch', error);
+      const res = await fetch(dataUrl);
+      return res.blob();
+    }
   };
 
   const safeEventName = eventName ? eventName.replace(/[^a-z0-9]/gi, '_') : Date.now().toString();
