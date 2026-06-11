@@ -16,15 +16,16 @@ import {
   Send,
   Upload,
   User,
-  FileSpreadsheet,
-  Award,
-  Download,
   Award,
   Download,
   FileText,
   FileDown,
   ChevronDown,
   ChevronUp,
+  CheckCircle,
+  Loader2,
+  FileSpreadsheet,
+} from 'lucide-react';
 import { toast } from 'sonner';
 import confetti from 'canvas-confetti';
 import { useCertificates } from '@/context/CertificateContext';
@@ -34,6 +35,7 @@ import * as XLSX from 'xlsx';
 import { v4 as uuidv4 } from 'uuid';
 import QRCode from 'qrcode';
 import { PasswordDialog } from '@/components/password-dialog';
+import { EncryptedCache } from '@/utils/crypto';
 import { exportCertificatesUnified } from '@/lib/pdfExport';
 import { getFullImageUrl } from '@/lib/utils';
 
@@ -66,6 +68,7 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
   const [recipients, setRecipients] = useState<Recipient[]>([]);
   const [manualName, setManualName] = useState('');
   const [manualEmail, setManualEmail] = useState('');
+  const [manualRank, setManualRank] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationComplete, setGenerationComplete] = useState(false);
   const [certificateConfig, setCertificateConfig] = useState<CertificateConfig | null>(null);
@@ -776,6 +779,9 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
     } finally {
       setIsStoringData(false);
       setShowPasswordDialog(false);
+    }
+  };
+
   const handleUnifiedExport = async (format: 'pdf' | 'image', mode: 'batch' | 'individual' = 'batch') => {
     if (generatedDataUrls.length === 0) {
       toast.error('No certificates available to download');
