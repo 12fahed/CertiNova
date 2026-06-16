@@ -12,11 +12,39 @@ import { errorHandler, notFound } from './src/middleware/errorMiddleware.js';
 import { logger, cors } from './src/middleware/appMiddleware.js';
 import testCloudinaryConfig from './test/cloudinary-test.js';
 
-// Test Cloudinary configuration after env variables are loaded
-testCloudinaryConfig();
+// Validate required env vars
+const REQUIRED_VARS = ['MONGODB_URI'];
+const missing = REQUIRED_VARS.filter(v => !process.env[v]);
+if (missing.length) {
+  console.error(`Missing required environment variables: ${missing.join(', ')}`);
+  console.error('Copy .env.example to .env and fill in the values, then restart.');
+  process.exit(1);
+}
+
+if (!process.env.MONGODB_URI.startsWith('mongodb://') && !process.env.MONGODB_URI.startsWith('mongodb+srv://')) {
+  console.error('MONGODB_URI must start with "mongodb://" or "mongodb+srv://". Check your .env file.');
+  process.exit(1);
+}
+
+// Test Cloudinary configuration (optional in dev)
+const requireCloudinary = process.env.REQUIRE_CLOUDINARY === 'true';
+try {
+  testCloudinaryConfig();
+} catch (err) {
+  if (requireCloudinary) {
+    console.error('Cloudinary config test failed:', err.message);
+    process.exit(1);
+  }
+  console.warn('Cloudinary config test failed (optional):', err.message);
+}
 
 // Connect to MongoDB
-connectDB();
+try {
+  await connectDB();
+} catch (err) {
+  console.error('MongoDB connection failed:', err.message);
+  process.exit(1);
+}
 
 const app = express();
 const PORT = process.env.PORT || 5000;
