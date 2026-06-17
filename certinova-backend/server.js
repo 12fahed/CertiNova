@@ -54,6 +54,7 @@ app.get('/', (req, res) => {
       auth: {
         signup: 'POST /api/auth/signup',
         login: 'POST /api/auth/login',
+        updateProfile: 'PATCH /api/auth/profile',
       },
       events: {
         addEvent: 'POST /api/events/addEvent',

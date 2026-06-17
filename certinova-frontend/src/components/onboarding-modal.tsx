@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
+import { useAuth } from '@/context/AuthContext';
 import {
   Upload,
   Building,
@@ -25,6 +26,7 @@ import {
   ChevronRight,
   ChevronLeft,
   AlertCircle,
+  Loader2,
 } from 'lucide-react';
 
 interface OnboardingModalProps {
@@ -33,7 +35,9 @@ interface OnboardingModalProps {
 }
 
 export function OnboardingModal({ open, onClose }: OnboardingModalProps) {
+  const { updateProfile } = useAuth();
   const [step, setStep] = useState(1);
+  const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     fullName: '',
     organization: '',
@@ -53,6 +57,7 @@ export function OnboardingModal({ open, onClose }: OnboardingModalProps) {
   useEffect(() => {
     if (!open) {
       setStep(1);
+      setSubmitting(false);
       setErrors({});
       setFormData({
         fullName: '',
@@ -64,7 +69,7 @@ export function OnboardingModal({ open, onClose }: OnboardingModalProps) {
     }
   }, [open]);
 
-  const handleNext = () => {
+  const handleNext = async () => {
     setErrors({});
     if (step === 1) {
       if (!formData.fullName.trim()) {
@@ -85,7 +90,18 @@ export function OnboardingModal({ open, onClose }: OnboardingModalProps) {
 
     if (step < totalSteps) {
       setStep(step + 1);
-    } else {
+      return;
+    }
+
+    setSubmitting(true);
+    const ok = await updateProfile({
+      fullName: formData.fullName,
+      eventTypes: formData.eventTypes,
+      referralSource: formData.referralSource,
+    });
+    setSubmitting(false);
+
+    if (ok) {
       onClose();
     }
   };
@@ -338,9 +354,24 @@ export function OnboardingModal({ open, onClose }: OnboardingModalProps) {
             Previous
           </Button>
 
-          <Button onClick={handleNext} className="bg-blue-600 hover:bg-blue-700 flex items-center">
-            {step === totalSteps ? 'Get Started' : 'Next'}
-            {step !== totalSteps && <ChevronRight className="h-4 w-4 ml-2" />}
+          <Button
+            onClick={handleNext}
+            disabled={submitting}
+            className="bg-blue-600 hover:bg-blue-700 flex items-center"
+          >
+            {submitting ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Saving...
+              </>
+            ) : step === totalSteps ? (
+              'Get Started'
+            ) : (
+              <>
+                Next
+                <ChevronRight className="h-4 w-4 ml-2" />
+              </>
+            )}
           </Button>
         </div>
       </DialogContent>

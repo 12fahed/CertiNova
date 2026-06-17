@@ -2,6 +2,9 @@ export interface User {
   id: string;
   organisation: string;
   email: string;
+  fullName?: string;
+  avatar?: string;
+  onboardingCompleted?: boolean;
   createdAt: string;
 }
 
@@ -25,6 +28,13 @@ export interface LoginData {
   password: string;
 }
 
+export interface UpdateProfileData {
+  fullName?: string;
+  eventTypes?: string;
+  referralSource?: string;
+  avatar?: string;
+}
+
 export interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
@@ -32,4 +42,5 @@ export interface AuthContextType {
   login: (data: LoginData) => Promise<boolean>;
   signup: (data: SignupData) => Promise<boolean>;
   logout: () => void;
+  updateProfile: (data: UpdateProfileData) => Promise<boolean>;
 }

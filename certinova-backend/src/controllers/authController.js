@@ -41,6 +41,9 @@ export const signup = async (req, res) => {
           id: user._id,
           organisation: user.organisation,
           email: user.email,
+          fullName: user.fullName || '',
+          onboardingCompleted: user.onboardingCompleted || false,
+          avatar: user.avatar || '',
           createdAt: user.createdAt,
         },
       },
@@ -114,12 +117,73 @@ export const login = async (req, res) => {
           id: user._id,
           organisation: user.organisation,
           email: user.email,
+          fullName: user.fullName || '',
+          onboardingCompleted: user.onboardingCompleted || false,
+          avatar: user.avatar || '',
           createdAt: user.createdAt,
         },
       },
     });
   } catch (error) {
     console.error('Login error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+    });
+  }
+};
+
+// @desc    Update user profile (onboarding data)
+// @route   PATCH /api/auth/profile
+// @access  Private
+export const updateProfile = async (req, res) => {
+  try {
+    const { fullName, eventTypes, referralSource, avatar } = req.body;
+    const { userId } = req;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'Authentication required',
+      });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
+    }
+
+    if (fullName !== undefined) user.fullName = fullName;
+    if (eventTypes !== undefined) user.eventTypes = eventTypes;
+    if (referralSource !== undefined) user.referralSource = referralSource;
+    if (avatar !== undefined) user.avatar = avatar;
+
+    user.onboardingCompleted = true;
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Profile updated successfully',
+      data: {
+        user: {
+          id: user._id,
+          organisation: user.organisation,
+          email: user.email,
+          fullName: user.fullName || '',
+          eventTypes: user.eventTypes || '',
+          referralSource: user.referralSource || '',
+          avatar: user.avatar || '',
+          onboardingCompleted: user.onboardingCompleted,
+          createdAt: user.createdAt,
+        },
+      },
+    });
+  } catch (error) {
+    console.error('Profile update error:', error);
     res.status(500).json({
       success: false,
       message: 'Internal server error',

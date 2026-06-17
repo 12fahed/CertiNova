@@ -36,7 +36,7 @@ import { useAuth } from '@/context/AuthContext';
 import { CertificateVerificationModal } from '@/components/certificate-verification-modal';
 
 export default function HomePage() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
   const router = useRouter();
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
@@ -44,9 +44,13 @@ export default function HomePage() {
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
-      router.push('/dashboard');
+      if (user && user.onboardingCompleted === false) {
+        setShowOnboarding(true);
+      } else {
+        router.push('/dashboard');
+      }
     }
-  }, [isAuthenticated, isLoading, router]);
+  }, [isAuthenticated, isLoading, router, user]);
 
   if (isLoading) {
     return (
@@ -212,7 +216,9 @@ export default function HomePage() {
 
   const handleLogin = () => {};
 
-  if (!isAuthenticated && !isLoading) {
+  const showLanding = !isLoading && (!isAuthenticated || (isAuthenticated && user?.onboardingCompleted === false));
+
+  if (showLanding) {
     return (
       <div className="min-h-screen bg-white text-gray-900">
         {/* Navbar */}
@@ -590,7 +596,13 @@ export default function HomePage() {
           </div>
         </footer>
 
-        <OnboardingModal open={showOnboarding} onClose={() => setShowOnboarding(false)} />
+        <OnboardingModal
+          open={showOnboarding}
+          onClose={() => {
+            setShowOnboarding(false);
+            router.push('/dashboard');
+          }}
+        />
 
         <CertificateVerificationModal
           open={showVerificationModal}

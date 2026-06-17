@@ -1,4 +1,5 @@
-import { AuthResponse, LoginData, SignupData } from '@/types/auth';
+import { AuthResponse, LoginData, SignupData, UpdateProfileData } from '@/types/auth';
+import { authStorage } from '@/lib/auth-storage';
 import config from '@/config/env';
 
 const API_BASE_URL = config.API_BASE_URL;
@@ -38,6 +39,19 @@ class AuthService {
     return this.makeRequest('/auth/login', {
       method: 'POST',
       body: JSON.stringify(userData),
+    });
+  }
+
+  async updateProfile(profileData: UpdateProfileData): Promise<AuthResponse> {
+    const { user } = authStorage.getAuth();
+    const userId = user?.id;
+
+    return this.makeRequest('/auth/profile', {
+      method: 'PATCH',
+      headers: {
+        'x-auth-user-id': userId || '',
+      },
+      body: JSON.stringify(profileData),
     });
   }
 }

@@ -22,6 +22,28 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Password is required'],
       minlength: [6, 'Password must be at least 6 characters long'],
+      select: false,
+    },
+    fullName: {
+      type: String,
+      trim: true,
+      maxlength: [100, 'Full name cannot exceed 100 characters'],
+    },
+    eventTypes: {
+      type: String,
+      trim: true,
+    },
+    referralSource: {
+      type: String,
+      trim: true,
+    },
+    avatar: {
+      type: String,
+      default: '',
+    },
+    onboardingCompleted: {
+      type: Boolean,
+      default: false,
     },
   },
   {

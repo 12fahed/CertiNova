@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { AuthContextType, LoginData, SignupData, User } from '@/types/auth';
+import { AuthContextType, LoginData, SignupData, UpdateProfileData, User } from '@/types/auth';
 import { authService } from '@/services/auth';
 import { authStorage } from '@/lib/auth-storage';
 import { toast } from 'sonner';
@@ -96,6 +96,31 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     router.push('/');
   };
 
+  const updateProfile = async (data: UpdateProfileData): Promise<boolean> => {
+    try {
+      setIsLoading(true);
+      const response = await authService.updateProfile(data);
+
+      if (response.success && response.data?.user) {
+        const userData = response.data.user;
+        setUser(userData);
+        authStorage.updateUser(userData);
+        toast.success('Profile updated successfully!');
+        return true;
+      } else {
+        toast.error(response.message || 'Profile update failed');
+        return false;
+      }
+    } catch (error: unknown) {
+      console.error('Profile update error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Profile update failed';
+      toast.error(errorMessage);
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const value: AuthContextType = {
     user,
     isAuthenticated,
@@ -103,6 +128,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     login,
     signup,
     logout,
+    updateProfile,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
