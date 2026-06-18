@@ -48,6 +48,9 @@ export default function CertificatesPage() {
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterBy, setFilterBy] = useState('all');
+
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [selectedCertificate, setSelectedCertificate] = useState<CertificateListItem | null>(null);
   const [recipientSearchTerm, setRecipientSearchTerm] = useState('');
 
@@ -82,6 +85,8 @@ export default function CertificatesPage() {
         sortBy: 'date',
         sortOrder: 'desc',
         generatedBy: user?.id,
+        startDate,
+        endDate,
       });
 
       if (response.success && response.data) {
@@ -112,7 +117,7 @@ export default function CertificatesPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, searchTerm, filterBy, user?.id]);
+  }, [currentPage, searchTerm, filterBy, startDate, endDate, user?.id]);
 
   // Fetch decrypted certificates with password
   const fetchDecryptedCertificates = useCallback(
@@ -130,6 +135,8 @@ export default function CertificatesPage() {
           sortBy: 'date',
           sortOrder: 'desc',
           generatedBy: user?.id,
+          startDate,
+          endDate,
         });
 
         if (response.success && response.data) {
@@ -169,7 +176,7 @@ export default function CertificatesPage() {
         setShowPasswordDialog(false);
       }
     },
-    [currentPage, searchTerm, filterBy, user?.id]
+    [currentPage, searchTerm, filterBy, startDate, endDate, user?.id]
   );
 
   // Handle password dialog confirmation
@@ -190,7 +197,7 @@ export default function CertificatesPage() {
   // Reset to first page when search or filter changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, filterBy]);
+  }, [searchTerm, filterBy, startDate, endDate]);
 
   // Filter certificates is no longer needed as filtering is done on server
   const filteredCertificates = certificates;
@@ -298,6 +305,31 @@ export default function CertificatesPage() {
                       <SelectItem value="without-rank">Without Rank</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="border-gray-200 bg-white"
+                  />
+
+                  <Input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="border-gray-200 bg-white"
+                  />
+                  <Button onClick={() => fetchCertificates()}>Apply Filter</Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setStartDate('');
+                      setEndDate('');
+                    }}
+                  >
+                    Clear
+                  </Button>
                 </div>
               </div>
             </CardContent>
