@@ -238,16 +238,16 @@ npm run dev
 
 Join our growing community to get help, share your feedback, and stay updated:
 
-- **Discord**: [Join our server](https://discord.gg/sQ4sSMRjP)
+- **Discord**: [Join our server](https://discord.gg/bMGuKat7e3)
 - **Contributing**: Check out our [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines
 - **Code of Conduct**: We follow the [Contributor Covenant](./CODE_OF_CONDUCT.md)
 
 ---
 
-## The project is officially Selected for GSSoC 2026 Contributions
+## The project is officially Selected for GSSoC 2026 & SSoC 2026 Contributions
 
 <p align="center">
-  <img src="./assets/gssoc-26.png" alt="gssoc-26" width="50%">
+  <img src="./assets/ossProgram.png" alt="ssoc-26" width="75%">
 </p>
 
 ## License
