@@ -86,6 +86,11 @@ cp ../.env.example .env
 | `CLOUDINARY_CLOUD_NAME` | Yes      | Your Cloudinary cloud name                                                             |
 | `CLOUDINARY_API_KEY`    | Yes      | Cloudinary API key                                                                     |
 | `CLOUDINARY_API_SECRET` | Yes      | Cloudinary API secret                                                                  |
+| `SMTP_HOST`             | Yes      | SMTP server host for sending emails                                                    |
+| `SMTP_PORT`             | Yes      | SMTP server port (usually 587 or 465)                                                  |
+| `SMTP_USER`             | Yes      | SMTP authentication username                                                           |
+| `SMTP_PASSWORD`         | Yes      | SMTP authentication password                                                           |
+| `EMAIL_FROM_ADDRESS`    | No       | From address for emails (defaults to SMTP_USER)                                        |
 | `PORT`                  | No       | Server port (default: `5000`)                                                          |
 | `NODE_ENV`              | No       | `development` \| `production` (default: `development`)                                 |
 | `FRONTEND_URL`          | No       | Production frontend origin for CORS                                                    |
@@ -211,6 +216,7 @@ All endpoints are prefixed with `/api`. See [`docs/api-reference.md`](./docs/api
 | `GET`   | `/organization-stats/:name` | Organisation statistics                |
 | `GET`   | `/all-organization-stats`   | Statistics for all organisations       |
 | `PATCH` | `/update-recipient-count`   | Update recipient counter               |
+| `POST`  | `/send-emails`              | Send certificates via email (SMTP)     |
 
 ---
 
