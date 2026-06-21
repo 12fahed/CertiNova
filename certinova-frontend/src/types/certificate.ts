@@ -143,6 +143,8 @@ export interface CertificateListItem {
   createdAt: string;
   updatedAt: string;
   encrypted?: boolean; // Indicates if data is encrypted
+  deliveryStatus?: 'pending' | 'completed' | 'failed' | 'partial';
+  deliveredCount?: number;
 }
 
 export interface CertificatesListResponse {

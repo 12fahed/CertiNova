@@ -342,6 +342,7 @@ export default function CertificatesPage() {
                       <TableHead className="text-gray-700">Date</TableHead>
                       <TableHead className="text-gray-700">Event Name</TableHead>
                       <TableHead className="text-gray-700">No. of Recipients</TableHead>
+                      <TableHead className="text-gray-700">Delivery Status</TableHead>
                       <TableHead className="text-gray-700">Generated ID</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -350,6 +351,9 @@ export default function CertificatesPage() {
                       ? // Loading skeleton rows
                         Array.from({ length: 5 }).map((_, i) => (
                           <TableRow key={i} className="border-gray-200">
+                            <TableCell>
+                              <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                            </TableCell>
                             <TableCell>
                               <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
                             </TableCell>
@@ -399,6 +403,28 @@ export default function CertificatesPage() {
                                 <Users className="h-4 w-4 mr-1" />
                                 {certificate.noOfRecipient} Recipients
                               </Button>
+                            </TableCell>
+                            <TableCell>
+                              {certificate.deliveryStatus ? (
+                                <Badge
+                                  variant="outline"
+                                  className={
+                                    certificate.deliveryStatus === 'completed'
+                                      ? 'bg-green-50 text-green-700 border-green-300'
+                                      : certificate.deliveryStatus === 'partial'
+                                      ? 'bg-yellow-50 text-yellow-700 border-yellow-300'
+                                      : certificate.deliveryStatus === 'failed'
+                                      ? 'bg-red-50 text-red-700 border-red-300'
+                                      : 'bg-blue-50 text-blue-700 border-blue-300'
+                                  }
+                                >
+                                  {certificate.deliveryStatus === 'pending'
+                                    ? 'Sending...'
+                                    : `${certificate.deliveredCount || 0}/${certificate.noOfRecipient} Delivered`}
+                                </Badge>
+                              ) : (
+                                <span className="text-gray-400 text-sm">Not sent</span>
+                              )}
                             </TableCell>
                             <TableCell className="text-gray-600">
                               <div className="flex items-center gap-2">
