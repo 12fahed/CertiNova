@@ -25,6 +25,7 @@ interface AuthModalProps {
 
 export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
   const [open, setOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<'signin' | 'signup'>('signin');
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
@@ -139,7 +140,14 @@ export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         {triggerText ? (
-          <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8">
+          <Button
+            size="lg"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8"
+            onClick={() => {
+              setActiveTab('signin');
+              setOpen(true);
+            }}
+          >
             {triggerText}
           </Button>
         ) : (
@@ -147,10 +155,22 @@ export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
             <Button
               variant="outline"
               className="border-gray-300 text-gray-700 hover:bg-gray-50 bg-transparent"
+              onClick={() => {
+                setActiveTab('signin');
+                setOpen(true);
+              }}
             >
               Sign In
             </Button>
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white">Sign Up</Button>
+            <Button
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+              onClick={() => {
+                setActiveTab('signup');
+                setOpen(true);
+              }}
+            >
+              Sign Up
+            </Button>
           </div>
         )}
       </DialogTrigger>
@@ -161,7 +181,16 @@ export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
           </DialogTitle>
         </DialogHeader>
 
-        <Tabs defaultValue="signin" className="w-full" onValueChange={() => setErrors({})}>
+        <Tabs
+          value={activeTab}
+          onValueChange={(val) => {
+            if (val === "signin" || val === "signup") {
+              setActiveTab(val);
+              setErrors({});
+            }
+          }}
+          className="w-full"
+        >
           <TabsList className="grid w-full grid-cols-2 mb-6 bg-gray-100">
             <TabsTrigger value="signin" className="data-[state=active]:bg-white">
               Sign In
