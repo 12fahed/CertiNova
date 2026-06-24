@@ -4,6 +4,9 @@ import { useState, useMemo, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Calendar as DatePickerCalendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import type { DateRange } from 'react-day-picker';
 import { Badge } from '@/components/ui/badge';
 import {
   Table,
@@ -51,6 +54,7 @@ export default function CertificatesPage() {
 
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [selectedCertificate, setSelectedCertificate] = useState<CertificateListItem | null>(null);
   const [recipientSearchTerm, setRecipientSearchTerm] = useState('');
 
@@ -307,23 +311,34 @@ export default function CertificatesPage() {
                   </Select>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Input
-                    type="date"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    className="border-gray-200 bg-white"
-                  />
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" className="justify-start text-left font-normal">
+                        <Calendar className="mr-2 h-4 w-4" />
+                        {startDate && endDate ? `${startDate} → ${endDate}` : 'Select date range'}
+                      </Button>
+                    </PopoverTrigger>
 
-                  <Input
-                    type="date"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    className="border-gray-200 bg-white"
-                  />
-                  <Button onClick={() => fetchCertificates()}>Apply Filter</Button>
+                    <PopoverContent className="w-auto p-0">
+                      <DatePickerCalendar
+                        mode="range"
+                        selected={dateRange}
+                        onSelect={(range) => {
+                          setDateRange(range);
+
+                          setStartDate(range?.from ? range.from.toISOString().split('T')[0] : '');
+
+                          setEndDate(range?.to ? range.to.toISOString().split('T')[0] : '');
+                        }}
+                        numberOfMonths={2}
+                      />
+                    </PopoverContent>
+                  </Popover>
+
                   <Button
                     variant="outline"
                     onClick={() => {
+                      setDateRange(undefined);
                       setStartDate('');
                       setEndDate('');
                     }}
