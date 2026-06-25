@@ -270,6 +270,37 @@ class CertificateService {
     }
   }
 
+  // Bulk verify UUIDs
+async verifyBulkCertificates(
+  uuids: string[]
+): Promise<{
+  success: boolean;
+  total: number;
+  valid: number;
+  invalid: number;
+  results: Array<{
+    uuid: string;
+    status: string;
+    verified: boolean;
+  }>;
+}> {
+  try {
+    const response = await fetch(`${this.baseURL}/verify-bulk`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ uuids }),
+    });
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Bulk verification failed:', error);
+    throw error;
+  }
+}
+
   // Update recipient count immediately (before password confirmation)
   async updateRecipientCount(
     orgName: string,
