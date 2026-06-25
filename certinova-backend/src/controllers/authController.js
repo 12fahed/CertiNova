@@ -16,7 +16,11 @@ export const signup = async (req, res) => {
     }
 
     // Check if user already exists
-    const existingUser = await User.findOne({ email });
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const existingUser = await User.findOne({
+      email: normalizedEmail,
+    });
     if (existingUser) {
       return res.status(400).json({
         success: false,
@@ -27,7 +31,7 @@ export const signup = async (req, res) => {
     // Create new user
     const user = new User({
       organisation,
-      email,
+      email: normalizedEmail,
       password,
     });
 
@@ -89,7 +93,11 @@ export const login = async (req, res) => {
     }
 
     // Find user by email (include password for comparison)
-    const user = await User.findOne({ email }).select('+password');
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const user = await User.findOne({
+      email: normalizedEmail,
+    }).select('+password');
     if (!user) {
       return res.status(401).json({
         success: false,
