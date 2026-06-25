@@ -10,6 +10,7 @@ import {
   getDecryptedGeneratedCertificates,
   verifyUUID,
   verifyCertificateFullByUUID,
+  verifyBulkCertificates,
   getCertificateUUIDs,
   getOrganizationStats,
   getAllOrganizationStats,
@@ -43,6 +44,7 @@ router.post('/generated/decrypt', decryptLimiter, getDecryptedGeneratedCertifica
 
 // UUID verification routes
 router.get('/verify/:uuid', verifyLimiter, verifyUUID);
+router.post('/verify-bulk', verifyLimiter, verifyBulkCertificates);
 router.get('/verify-full/:uuid', verifyLimiter, verifyCertificateFullByUUID);
 router.get('/generated/:id/uuids', readLimiter, getCertificateUUIDs);
 
