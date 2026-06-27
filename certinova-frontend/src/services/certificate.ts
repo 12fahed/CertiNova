@@ -287,6 +287,8 @@ class CertificateService {
       return response as { success: boolean; message: string };
     } catch (error) {
       console.error('Failed to update recipient count:', error);
+      throw error;
+    }
   }
   
   // Send emails using the backend SMTP script
