@@ -54,6 +54,7 @@
     "file-saver": "^2.0.5",
     "framer-motion": "^12.23.12",
     "input-otp": "^1.4.2",
+    "jspdf": "^3.0.1",
     "jszip": "^3.10.1",
     "lucide-react": "^0.539.0",
     "next": "15.4.6",
