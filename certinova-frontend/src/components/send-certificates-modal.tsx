@@ -827,7 +827,10 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
     }
   };
 
-  const handleUnifiedExport = async (format: 'pdf' | 'image', mode: 'batch' | 'individual' = 'batch') => {
+  const handleUnifiedExport = async (
+    format: 'pdf' | 'image',
+    mode: 'batch' | 'individual' = 'batch'
+  ) => {
     if (generatedDataUrls.length === 0) {
       toast.error('No certificates available to download');
       return;
