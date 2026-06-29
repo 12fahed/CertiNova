@@ -326,9 +326,18 @@ export default function CertificatesPage() {
                         onSelect={(range) => {
                           setDateRange(range);
 
-                          setStartDate(range?.from ? range.from.toISOString().split('T')[0] : '');
+                          // Clear filter when selection is cleared
+                          if (!range?.from && !range?.to) {
+                            setStartDate('');
+                            setEndDate('');
+                            return;
+                          }
 
-                          setEndDate(range?.to ? range.to.toISOString().split('T')[0] : '');
+                          // Apply filter only after both dates are selected
+                          if (range?.from && range?.to) {
+                            setStartDate(range.from.toISOString().split('T')[0]);
+                            setEndDate(range.to.toISOString().split('T')[0]);
+                          }
                         }}
                         numberOfMonths={2}
                       />
