@@ -243,13 +243,13 @@ Join our growing community to get help, share your feedback, and stay updated:
 - **Code of Conduct**: We follow the [Contributor Covenant](./CODE_OF_CONDUCT.md)
 
 ---
+## Open Source Programs
 
-## The project is officially Selected for GSSoC 2026 & SSoC 2026 Contributions
+The project is officially selected for GSSoC 2026 & SSoC 2026 Contributions.
 
 <p align="center">
   <img src="./assets/ossProgram.png" alt="ssoc-26" width="75%">
 </p>
-
 ## License
 
 This project is licensed under the MIT License.
