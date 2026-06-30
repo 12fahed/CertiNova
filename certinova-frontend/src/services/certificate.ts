@@ -113,6 +113,8 @@ class CertificateService {
     sortBy?: 'date' | 'recipients' | 'certificateId';
     sortOrder?: 'asc' | 'desc';
     generatedBy?: string;
+    startDate?: string;
+    endDate?: string;
   }): Promise<CertificatesListResponse> {
     const searchParams = new URLSearchParams();
 
@@ -123,6 +125,8 @@ class CertificateService {
     if (params?.sortBy) searchParams.append('sortBy', params.sortBy);
     if (params?.sortOrder) searchParams.append('sortOrder', params.sortOrder);
     if (params?.generatedBy) searchParams.append('generatedBy', params.generatedBy);
+    if (params?.startDate) searchParams.append('startDate', params.startDate);
+    if (params?.endDate) searchParams.append('endDate', params.endDate);
 
     const queryString = searchParams.toString();
     const url = queryString ? `/certificates/generated?${queryString}` : '/certificates/generated';
@@ -142,6 +146,8 @@ class CertificateService {
     sortBy?: 'date' | 'recipients' | 'certificateId';
     sortOrder?: 'asc' | 'desc';
     generatedBy?: string;
+    startDate?: string;
+    endDate?: string;
   }): Promise<CertificatesListResponse> {
     return this.makeRequest('/certificates/generated/decrypt', {
       method: 'POST',

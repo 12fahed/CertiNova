@@ -106,11 +106,7 @@ interface CertificateEditorProps {
 }
 
 type FieldType =
-  | 'recipientName'
-  | 'organizationName'
-  | 'certificateLink'
-  | 'certificateQR'
-  | 'rank';
+  'recipientName' | 'organizationName' | 'certificateLink' | 'certificateQR' | 'rank';
 
 export function CertificateEditor({
   certificate,
