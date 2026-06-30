@@ -1181,6 +1181,64 @@ export const verifyCertificateFullByUUID = async (req, res) => {
 // @desc    Get all UUID verifications for a specific generated certificate
 // @route   GET /api/certificates/generated/:id/uuids
 // @access  Protected
+export const verifyBulkCertificates = async (req, res) => {
+  try {
+    const { uuids } = req.body;
+
+    if (!Array.isArray(uuids) || uuids.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide a non-empty array of UUIDs.',
+      });
+    }
+
+    const results = [];
+
+    for (const uuid of uuids) {
+      try {
+        const verifyRecord = await VerifyUUID.findOne({ uuid });
+
+        if (!verifyRecord) {
+          results.push({
+            uuid,
+            status: 'invalid',
+            verified: false,
+          });
+          continue;
+        }
+
+        results.push({
+          uuid,
+          status: 'valid',
+          verified: true,
+        });
+      } catch (error) {
+        results.push({
+          uuid,
+          status: 'error',
+          verified: false,
+          error: error.message,
+        });
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      total: uuids.length,
+      valid: results.filter((r) => r.status === 'valid').length,
+      invalid: results.filter((r) => r.status === 'invalid').length,
+      results,
+    });
+  } catch (error) {
+    console.error('Bulk verification error:', error);
+
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to verify certificates.',
+    });
+  }
+};
+
 export const getCertificateUUIDs = async (req, res) => {
   try {
     const { id } = req.params;
