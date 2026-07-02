@@ -6,6 +6,13 @@ import Record from '../models/Record.js';
 import mongoose from 'mongoose';
 import { validateValidFields, isValidObjectId } from '../utils/validation.js';
 import { encryptData, decryptData, hashPassword } from '../utils/crypto.js';
+import { generateCertificateEmailHtml } from '../utils/emailTemplate.js';
+import { spawn } from 'child_process';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // @desc    Add certificate configuration
 // @route   POST /api/certificates/addCertificateConfig
@@ -1364,3 +1371,174 @@ export const updateRecipientCount = async (req, res) => {
     });
   }
 };
+
+// @desc    Send certificates via email using Python SMTP script
+// @route   POST /api/certificates/send-emails
+// @access  Protected (should be protected later with JWT)
+export const sendCertificateEmails = async (req, res) => {
+  try {
+    const { generatedCertificateId, recipients } = req.body;
+
+    if (!generatedCertificateId || !recipients || !Array.isArray(recipients) || recipients.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide generatedCertificateId and an array of recipients',
+      });
+    }
+
+    // Validate generatedCertificateId format
+    if (!isValidObjectId(generatedCertificateId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid certificate ID format',
+      });
+    }
+
+    const generatedCert = await GeneratedCertificate.findById(generatedCertificateId)
+      .populate({
+        path: 'certificateId',
+        populate: {
+          path: 'eventId',
+        }
+      });
+
+    if (!generatedCert) {
+      return res.status(404).json({
+        success: false,
+        message: 'Generated certificate not found',
+      });
+    }
+
+    const eventName = generatedCert.certificateId?.eventId?.eventName || 'Event';
+    const organisationName = generatedCert.certificateId?.eventId?.organisation || 'Organisation';
+    
+    // Check if SMTP is configured
+    if (!process.env.SMTP_HOST || !process.env.SMTP_PORT || !process.env.SMTP_EMAIL || !process.env.SMTP_PASSWORD) {
+      return res.status(500).json({
+        success: false,
+        message: 'Email service is not configured (SMTP credentials missing)',
+      });
+    }
+
+    const emailPayload = {
+      smtpHost: process.env.SMTP_HOST,
+      smtpPort: process.env.SMTP_PORT,
+      smtpEmail: process.env.SMTP_EMAIL,
+      smtpPass: process.env.SMTP_PASSWORD,
+      fromAddress: process.env.SMTP_USER 
+        ? `${process.env.SMTP_USER} <${process.env.EMAIL_FROM_ADDRESS || process.env.SMTP_EMAIL}>`
+        : (process.env.EMAIL_FROM_ADDRESS || process.env.SMTP_EMAIL),
+      recipients: recipients.map((r) => {
+        const verificationUrl = r.uuid ? `${process.env.FRONTEND_URL || 'http://localhost:3000'}/verify/${r.uuid}` : '';
+        return {
+          name: r.name,
+          email: r.email,
+          subject: `Your ${eventName} Certificate`,
+          htmlBody: generateCertificateEmailHtml(r.name, eventName, organisationName, verificationUrl),
+          base64Image: r.base64Image,
+          fileName: `${r.name.replace(/[^a-z0-9]/gi, '_')}_certificate.png`
+        };
+      })
+    };
+
+    // Execute python script
+    const pythonScriptPath = path.join(__dirname, '../utils/mailer.py');
+    const child = spawn('python', [pythonScriptPath]);
+
+    let outputData = '';
+    let errorData = '';
+
+    child.stdout.on('data', (data) => {
+      outputData += data.toString();
+    });
+
+    child.stderr.on('data', (data) => {
+      errorData += data.toString();
+    });
+
+    // Write payload to stdin and close it
+    child.stdin.write(JSON.stringify(emailPayload));
+    child.stdin.end();
+
+    child.on('close', async (code) => {
+      try {
+        let result = {};
+        if (outputData) {
+          try {
+            result = JSON.parse(outputData);
+          } catch(e) {
+            console.error('Failed to parse python output:', outputData);
+            result = { success: false, error: 'Failed to parse python output', raw: outputData };
+          }
+        } else {
+          result = { success: false, error: 'Python script produced no output', stderr: errorData };
+        }
+
+        // Update Delivery Status in DB
+        const currentDetails = generatedCert.deliveryStatus?.details || [];
+        let newDelivered = 0;
+        let newFailed = 0;
+
+        if (result.results && Array.isArray(result.results)) {
+          result.results.forEach((r) => {
+            currentDetails.push({
+              email: r.email,
+              status: r.status,
+              error: r.error
+            });
+            if (r.status === 'sent') newDelivered++;
+            if (r.status === 'failed') newFailed++;
+          });
+        }
+
+        const totalDelivered = (generatedCert.deliveryStatus?.deliveredCount || 0) + newDelivered;
+        const totalFailed = (generatedCert.deliveryStatus?.failedCount || 0) + newFailed;
+        
+        let overallStatus = 'pending';
+        // Basic logic for status. In reality, you'd compare against noOfRecipient
+        if (totalDelivered > 0 && totalFailed === 0) overallStatus = 'completed';
+        else if (totalDelivered > 0 && totalFailed > 0) overallStatus = 'partial';
+        else if (totalDelivered === 0 && totalFailed > 0) overallStatus = 'failed';
+
+        generatedCert.deliveryStatus = {
+          status: overallStatus,
+          deliveredCount: totalDelivered,
+          failedCount: totalFailed,
+          details: currentDetails
+        };
+
+        await generatedCert.save();
+
+        if (!result.success) {
+          return res.status(500).json({
+            success: false,
+            message: 'Failed to send some or all emails',
+            error: result.error,
+          });
+        }
+
+        res.status(200).json({
+          success: true,
+          message: 'Emails processed successfully',
+          data: result.results
+        });
+
+      } catch (err) {
+        console.error('Error handling python script output:', err);
+        res.status(500).json({
+          success: false,
+          message: 'Internal server error during email processing'
+        });
+      }
+    });
+
+  } catch (error) {
+    console.error('Send certificate emails error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to process email requests',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
+    });
+  }
+};
+

@@ -78,6 +78,19 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
   >([]);
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
   const [isStoringData, setIsStoringData] = useState(false);
+  const [generatedImages, setGeneratedImages] = useState<string[]>([]);
+  const [generatedCertificateId, setGeneratedCertificateId] = useState<string>('');
+  
+  // Email sending state
+  const [isSendingEmails, setIsSendingEmails] = useState(false);
+  const [emailProgress, setEmailProgress] = useState<{
+    sent: number;
+    failed: number;
+    total: number;
+    status: 'idle' | 'sending' | 'completed';
+    details: Array<{ email: string; status: 'sent' | 'failed' | 'pending'; error?: string }>;
+  }>({ sent: 0, failed: 0, total: 0, status: 'idle', details: [] });
+  
   const nameFields = ['name', 'full name', 'student name', 'participant', 'recipient', 'candidate'];
   const emailFields = ['email', 'email address', 'mail'];
   const rankFields = ['rank', 'position', 'standing'];
@@ -691,6 +704,8 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
         }
         generatedUrls.push(dataUrl);
       }
+      
+      setGeneratedImages(generatedUrls);
 
       // Store certificate data URLs for PDF export
       setGeneratedDataUrls(
@@ -785,12 +800,16 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
         // console.log("Using certificateConfig.id:", certificateConfig.id);
         // console.log("Selected certificate (eventId):", selectedCertificate);
 
-        await certificateService.storeGeneratedCertificate({
+        const response = await certificateService.storeGeneratedCertificate({
           certificateId: certificateConfig.id, // Use the actual CertificateConfig ObjectId
           recipients: recipients,
           generatedBy: generatedBy,
           password: password,
         });
+
+        if (response.success && response.data?.id) {
+          setGeneratedCertificateId(response.data.id);
+        }
 
         // console.log("Generated certificate data stored successfully with encryption");
 
@@ -861,6 +880,86 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
     setCertificateConfig(null);
   };
 
+  const handleSendEmails = async () => {
+    if (!generatedCertificateId) {
+      toast.error('No certificate ID found. Please try generating again.');
+      return;
+    }
+
+    const recipientsWithEmail = recipients.filter(r => r.email);
+    if (recipientsWithEmail.length === 0) {
+      toast.error('No recipients have an email address provided.');
+      return;
+    }
+
+    setStep(4);
+    setIsSendingEmails(true);
+    setEmailProgress({
+      sent: 0,
+      failed: 0,
+      total: recipientsWithEmail.length,
+      status: 'sending',
+      details: recipientsWithEmail.map(r => ({ email: r.email!, status: 'pending' }))
+    });
+
+    const batchSize = 5;
+    let sentCount = 0;
+    let failedCount = 0;
+
+    for (let i = 0; i < recipientsWithEmail.length; i += batchSize) {
+      const batch = recipientsWithEmail.slice(i, i + batchSize);
+      
+      const payloadRecipients = batch.map((r) => {
+        // Find the index in original recipients to match with generatedImages
+        const originalIndex = recipients.findIndex(orig => orig === r);
+        return {
+          name: r.name,
+          email: r.email!,
+          uuid: r.uuid,
+          base64Image: generatedImages[originalIndex] || '',
+        };
+      });
+
+      try {
+        const response = await certificateService.sendCertificateEmails({
+          generatedCertificateId,
+          recipients: payloadRecipients
+        });
+
+        if (response.success && response.data) {
+          response.data.forEach((res: any) => {
+            if (res.status === 'sent') sentCount++;
+            else failedCount++;
+            
+            setEmailProgress(prev => ({
+              ...prev,
+              sent: sentCount,
+              failed: failedCount,
+              details: prev.details.map(d => d.email === res.email ? { email: d.email, status: res.status, error: res.error } : d)
+            }));
+          });
+        }
+      } catch (error) {
+        console.error('Batch email send error:', error);
+        failedCount += batch.length;
+        setEmailProgress(prev => ({
+          ...prev,
+          failed: failedCount,
+          details: prev.details.map(d => batch.some(b => b.email === d.email) ? { email: d.email, status: 'failed', error: 'Batch request failed' } : d)
+        }));
+      }
+    }
+
+    setIsSendingEmails(false);
+    setEmailProgress(prev => ({ ...prev, status: 'completed' }));
+    
+    if (failedCount === 0) {
+      toast.success('All emails sent successfully!');
+    } else {
+      toast.warning(`${sentCount} emails sent, ${failedCount} failed.`);
+    }
+  };
+
   const handleClose = () => {
     resetModal();
     onClose();
@@ -871,7 +970,7 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
       <DialogContent className="sm:max-w-4xl bg-white border border-gray-200 max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-center text-gray-900">
-            Send Certificates
+            {step === 4 ? 'Email Delivery Status' : 'Send Certificates'}
           </DialogTitle>
         </DialogHeader>
 
@@ -1338,11 +1437,86 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
                     </Button>
                   </div>
                   <Button
+                    onClick={handleSendEmails}
+                    disabled={!generatedCertificateId || recipients.filter(r => r.email).length === 0}
+                    className="w-full bg-green-600 hover:bg-green-700"
+                  >
+                    <Send className="h-4 w-4 mr-2" />
+                    Send via Email
+                  </Button>
+                  <Button
                     variant="outline"
                     onClick={handleClose}
                     className="w-full border-gray-300 text-gray-700 hover:bg-gray-50 bg-transparent"
                   >
                     Close
+                  </Button>
+                </div>
+              )}
+            </motion.div>
+          )}
+
+          {step === 4 && (
+            <motion.div
+              key="step4"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-6 py-4"
+            >
+              <div className="text-center">
+                {emailProgress.status === 'completed' ? (
+                  <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle className="h-8 w-8 text-green-600" />
+                  </div>
+                ) : (
+                  <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Loader2 className="h-8 w-8 text-blue-600 animate-spin" />
+                  </div>
+                )}
+                <h3 className="text-lg font-semibold mb-2 text-gray-900">
+                  {emailProgress.status === 'completed' ? 'Email Delivery Complete' : 'Sending Emails...'}
+                </h3>
+                <p className="text-gray-600">
+                  {emailProgress.sent} of {emailProgress.total} delivered. {emailProgress.failed} failed.
+                </p>
+              </div>
+
+              <Card className="border-gray-200">
+                <CardHeader>
+                  <CardTitle className="text-sm text-gray-700">Delivery Status</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="max-h-60 overflow-y-auto space-y-2">
+                    {emailProgress.details.map((detail, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200"
+                      >
+                        <span className="font-medium text-gray-900">{detail.email}</span>
+                        <Badge
+                          variant={detail.status === 'sent' ? 'default' : detail.status === 'failed' ? 'destructive' : 'secondary'}
+                          className={
+                            detail.status === 'sent' ? 'bg-green-100 text-green-700' : 
+                            detail.status === 'failed' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700'
+                          }
+                        >
+                          {detail.status.charAt(0).toUpperCase() + detail.status.slice(1)}
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {emailProgress.status === 'completed' && (
+                <div className="space-y-3">
+                  <Button
+                    variant="outline"
+                    onClick={handleClose}
+                    className="w-full border-gray-300 text-gray-700 hover:bg-gray-50"
+                  >
+                    Done
                   </Button>
                 </div>
               )}
