@@ -558,6 +558,8 @@ export const getGeneratedCertificates = async (req, res) => {
       sortBy = 'date',
       sortOrder = 'desc',
       generatedBy,
+      startDate,
+      endDate,
     } = req.query;
 
     console.log('=== GET GENERATED CERTIFICATES REQUEST ===');
@@ -588,6 +590,20 @@ export const getGeneratedCertificates = async (req, res) => {
         });
       }
       filterQuery.generatedBy = generatedBy;
+    }
+    // Date range filter
+    if (startDate || endDate) {
+      filterQuery.date = {};
+
+      if (startDate) {
+        filterQuery.date.$gte = new Date(startDate);
+      }
+
+      if (endDate) {
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        filterQuery.date.$lte = end;
+      }
     }
 
     switch (filter) {
@@ -735,6 +751,8 @@ export const getDecryptedGeneratedCertificates = async (req, res) => {
       sortBy = 'date',
       sortOrder = 'desc',
       generatedBy,
+      startDate,
+      endDate,
     } = req.body;
 
     console.log('=== DECRYPT GENERATED CERTIFICATES REQUEST ===');
@@ -772,6 +790,20 @@ export const getDecryptedGeneratedCertificates = async (req, res) => {
         });
       }
       filterQuery.generatedBy = generatedBy;
+    }
+    // Date range filter
+    if (startDate || endDate) {
+      filterQuery.date = {};
+
+      if (startDate) {
+        filterQuery.date.$gte = new Date(startDate);
+      }
+
+      if (endDate) {
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        filterQuery.date.$lte = end;
+      }
     }
 
     switch (filter) {

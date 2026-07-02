@@ -16,25 +16,28 @@ import {
   Send,
   Upload,
   User,
-  FileSpreadsheet,
   Award,
   Download,
-  Loader2,
-  CheckCircle,
+  FileText,
   FileDown,
+  ChevronDown,
+  ChevronUp,
+  CheckCircle,
+  Loader2,
+  FileSpreadsheet,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import confetti from 'canvas-confetti';
 import { useCertificates } from '@/context/CertificateContext';
 import { CertificateConfig } from '@/types/certificate';
 import { certificateService } from '@/services/certificate';
-import JSZip from 'jszip';
-import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
 import { v4 as uuidv4 } from 'uuid';
 import QRCode from 'qrcode';
 import { PasswordDialog } from '@/components/password-dialog';
 import { EncryptedCache } from '@/utils/crypto';
+import { exportCertificatesUnified } from '@/lib/pdfExport';
+import { getFullImageUrl } from '@/lib/utils';
 
 interface CertificateForSending {
   id: string;
@@ -69,7 +72,10 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationComplete, setGenerationComplete] = useState(false);
   const [certificateConfig, setCertificateConfig] = useState<CertificateConfig | null>(null);
-  const [zipBlob, setZipBlob] = useState<Blob | null>(null);
+  // Stores rendered certificate data URLs (from canvas) for PDF export
+  const [generatedDataUrls, setGeneratedDataUrls] = useState<
+    { recipientName: string; imageDataUrl: string }[]
+  >([]);
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
   const [isStoringData, setIsStoringData] = useState(false);
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
@@ -372,25 +378,10 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
       const certificate = certificates.find((c) => c.id === selectedCertificate);
       if (!certificate) throw new Error('Certificate not found');
 
-      let imageUrl = certificate.image;
-
-      // Handle different URL types
-      if (imageUrl.startsWith('http')) {
-        // External URL (including Cloudinary) - use directly
-        // console.log("Using external URL (Cloudinary):", imageUrl);
-      } else if (imageUrl.startsWith('/')) {
-        // Legacy local path - convert to full URL
-        imageUrl = `http://localhost:5000${imageUrl}`;
-        // console.log("Using local backend URL:", imageUrl);
-      }
+      const imageUrl = getFullImageUrl(certificate.image);
       // If it's already a full URL, use it as is
 
-      const zip = new JSZip();
       const generatedUrls: string[] = [];
-
-      // Create a folder in the zip for the certificates
-      const folder = zip.folder('certificates');
-      if (!folder) throw new Error('Failed to create folder in zip');
 
       // Process each recipient
       for (let i = 0; i < recipients.length; i++) {
@@ -695,21 +686,34 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
           console.warn('Using original image without custom text due to CORS restrictions');
         }
 
-        // Add to zip
-        const fileName = `${recipient.name.replace(/[^a-z0-9]/gi, '_')}_certificate.png`;
-        folder.file(fileName, blob);
-        // console.log(`Added certificate to zip: ${fileName} for recipient: ${recipient.name}`);
-
-        // Store data URL for preview if needed
-        const dataUrl = canvas.toDataURL('image/png');
+        // Store data URL for preview and PDF export
+        let dataUrl: string;
+        try {
+          dataUrl = canvas.toDataURL('image/png');
+        } catch (error) {
+          console.warn(
+            'Canvas toDataURL failed due to CORS, converting fallback blob to data URL:',
+            error
+          );
+          dataUrl = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.onerror = () => reject(new Error('Failed to convert fallback blob to data URL'));
+            reader.readAsDataURL(blob);
+          });
+        }
         generatedUrls.push(dataUrl);
       }
       
       setGeneratedImages(generatedUrls);
 
-      // Generate the zip file
-      const zipBlob = await zip.generateAsync({ type: 'blob' });
-      setZipBlob(zipBlob);
+      // Store certificate data URLs for PDF export
+      setGeneratedDataUrls(
+        recipients.map((r, idx) => ({
+          recipientName: r.name,
+          imageDataUrl: generatedUrls[idx],
+        }))
+      );
 
       setIsGenerating(false);
       setGenerationComplete(true);
@@ -842,16 +846,27 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
     }
   };
 
-  const handleDownloadZip = () => {
-    if (zipBlob) {
-      // Use FileSaver to download the zip
-      saveAs(zipBlob, `certificates-${selectedCertificate}-${Date.now()}.zip`);
+  const handleUnifiedExport = async (format: 'pdf' | 'image', mode: 'batch' | 'individual' = 'batch') => {
+    if (generatedDataUrls.length === 0) {
+      toast.error('No certificates available to download');
+      return;
+    }
+
+    try {
+      const eventName = certificates.find((c) => c.id === selectedCertificate)?.name;
+      await exportCertificatesUnified({
+        certificates: generatedDataUrls,
+        exportFormat: format,
+        pdfMode: mode,
+        eventName,
+      });
 
       toast('Download Started', {
-        description: 'Your certificate zip file is being downloaded.',
+        description: 'Your export is being generated and downloaded.',
       });
-    } else {
-      toast.error('No certificates available to download');
+    } catch (error) {
+      console.error('Error exporting certificates:', error);
+      toast.error('Failed to export certificates');
     }
   };
 
@@ -859,9 +874,10 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
     setStep(1);
     setSelectedCertificate('');
     setRecipients([]);
+    setIsGenerating(false);
     setGenerationComplete(false);
+    setGeneratedDataUrls([]);
     setCertificateConfig(null);
-    setZipBlob(null);
   };
 
   const handleSendEmails = async () => {
@@ -1397,13 +1413,29 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
 
               {generationComplete && (
                 <div className="space-y-3">
-                  <Button
-                    onClick={handleDownloadZip}
-                    className="w-full bg-blue-600 hover:bg-blue-700"
-                  >
-                    <Download className="h-4 w-4 mr-2" />
-                    Download ZIP File
-                  </Button>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <Button
+                      onClick={() => handleUnifiedExport('image')}
+                      className="w-full bg-blue-600 hover:bg-blue-700"
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      Download ZIP (Images)
+                    </Button>
+                    <Button
+                      onClick={() => handleUnifiedExport('pdf', 'batch')}
+                      className="w-full bg-green-600 hover:bg-green-700"
+                    >
+                      <FileText className="h-4 w-4 mr-2" />
+                      Combined PDF
+                    </Button>
+                    <Button
+                      onClick={() => handleUnifiedExport('pdf', 'individual')}
+                      className="w-full bg-teal-600 hover:bg-teal-700"
+                    >
+                      <FileDown className="h-4 w-4 mr-2" />
+                      Individual PDFs
+                    </Button>
+                  </div>
                   <Button
                     onClick={handleSendEmails}
                     disabled={!generatedCertificateId || recipients.filter(r => r.email).length === 0}
