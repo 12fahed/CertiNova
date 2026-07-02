@@ -1413,7 +1413,7 @@ export const sendCertificateEmails = async (req, res) => {
     const organisationName = generatedCert.certificateId?.eventId?.organisation || 'Organisation';
     
     // Check if SMTP is configured
-    if (!process.env.SMTP_HOST || !process.env.SMTP_PORT || !process.env.SMTP_USER || !process.env.SMTP_PASSWORD) {
+    if (!process.env.SMTP_HOST || !process.env.SMTP_PORT || !process.env.SMTP_EMAIL || !process.env.SMTP_PASSWORD) {
       return res.status(500).json({
         success: false,
         message: 'Email service is not configured (SMTP credentials missing)',
@@ -1423,9 +1423,11 @@ export const sendCertificateEmails = async (req, res) => {
     const emailPayload = {
       smtpHost: process.env.SMTP_HOST,
       smtpPort: process.env.SMTP_PORT,
-      smtpUser: process.env.SMTP_USER,
+      smtpEmail: process.env.SMTP_EMAIL,
       smtpPass: process.env.SMTP_PASSWORD,
-      fromAddress: process.env.EMAIL_FROM_ADDRESS || process.env.SMTP_USER,
+      fromAddress: process.env.SMTP_USER 
+        ? `${process.env.SMTP_USER} <${process.env.EMAIL_FROM_ADDRESS || process.env.SMTP_EMAIL}>`
+        : (process.env.EMAIL_FROM_ADDRESS || process.env.SMTP_EMAIL),
       recipients: recipients.map((r) => {
         const verificationUrl = r.uuid ? `${process.env.FRONTEND_URL || 'http://localhost:3000'}/verify/${r.uuid}` : '';
         return {

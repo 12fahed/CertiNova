@@ -88,9 +88,10 @@ cp ../.env.example .env
 | `CLOUDINARY_API_SECRET` | Yes      | Cloudinary API secret                                                                  |
 | `SMTP_HOST`             | Yes      | SMTP server host for sending emails                                                    |
 | `SMTP_PORT`             | Yes      | SMTP server port (usually 587 or 465)                                                  |
-| `SMTP_USER`             | Yes      | SMTP authentication username                                                           |
+| `SMTP_EMAIL`            | Yes      | SMTP authentication email address (used for login)                                     |
 | `SMTP_PASSWORD`         | Yes      | SMTP authentication password                                                           |
-| `EMAIL_FROM_ADDRESS`    | No       | From address for emails (defaults to SMTP_USER)                                        |
+| `SMTP_USER`             | No       | Display name for the From address (e.g. "CertiNova")                                   |
+| `EMAIL_FROM_ADDRESS`    | No       | From address for emails (defaults to SMTP_EMAIL)                                       |
 | `PORT`                  | No       | Server port (default: `5000`)                                                          |
 | `NODE_ENV`              | No       | `development` \| `production` (default: `development`)                                 |
 | `FRONTEND_URL`          | No       | Production frontend origin for CORS                                                    |

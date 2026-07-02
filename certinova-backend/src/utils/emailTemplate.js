@@ -28,7 +28,7 @@ export const generateCertificateEmailHtml = (
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     }
     .header {
-      background-color: #4f46e5;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       padding: 30px 40px;
       text-align: center;
       color: #ffffff;
@@ -60,7 +60,7 @@ export const generateCertificateEmailHtml = (
     }
     .button {
       display: inline-block;
-      background-color: #4f46e5;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: #ffffff;
       text-decoration: none;
       padding: 12px 24px;

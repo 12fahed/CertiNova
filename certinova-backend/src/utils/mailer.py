@@ -8,12 +8,12 @@ import traceback
 def send_emails(payload):
     smtp_host = payload.get("smtpHost")
     smtp_port = payload.get("smtpPort")
-    smtp_user = payload.get("smtpUser")
+    smtp_email = payload.get("smtpEmail")
     smtp_pass = payload.get("smtpPass")
     from_address = payload.get("fromAddress")
     recipients = payload.get("recipients", [])
 
-    if not all([smtp_host, smtp_port, smtp_user, smtp_pass, from_address]):
+    if not all([smtp_host, smtp_port, smtp_email, smtp_pass, from_address]):
         return {"success": False, "error": "Missing SMTP configuration"}
 
     results = []
@@ -22,7 +22,7 @@ def send_emails(payload):
         # Connect to SMTP server
         server = smtplib.SMTP(smtp_host, int(smtp_port))
         server.starttls()
-        server.login(smtp_user, smtp_pass)
+        server.login(smtp_email, smtp_pass)
 
         for recipient in recipients:
             email_addr = recipient.get("email")
