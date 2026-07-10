@@ -39,11 +39,17 @@ interface VerificationData {
   verifiedAt: string;
 }
 
+const UUID_SEGMENTS = [
+  { length: 8, placeholder: 'xxxxxxxx', inputClassName: 'w-[9.5ch]' },
+  { length: 4, placeholder: 'xxxx', inputClassName: 'w-[5.5ch]' },
+  { length: 4, placeholder: 'xxxx', inputClassName: 'w-[5.5ch]' },
+  { length: 4, placeholder: 'xxxx', inputClassName: 'w-[5.5ch]' },
+  { length: 12, placeholder: 'xxxxxxxxxxxx', inputClassName: 'w-[13.5ch]' },
+] as const;
+
 export function CertificateVerificationModal({ open, onClose }: CertificateVerificationModalProps) {
   const [certificateNumber, setCertificateNumber] = useState(['', '', '', '', '']);
   const [showVerification, setShowVerification] = useState(false);
-  const [currentStep, setCurrentStep] = useState(0);
-  const [isVerifying, setIsVerifying] = useState(false);
   const [verificationComplete, setVerificationComplete] = useState(false);
   const [verificationData, setVerificationData] = useState<VerificationData | null>(null);
   const [verificationError, setVerificationError] = useState<string | null>(null);
@@ -81,8 +87,7 @@ export function CertificateVerificationModal({ open, onClose }: CertificateVerif
   const handleInputChange = (index: number, value: string) => {
     const newCertificateNumber = [...certificateNumber];
 
-    // Set different max lengths for each part
-    const maxLengths = [8, 4, 4, 4, 12]; // Standard UUID format
+    const maxLengths = UUID_SEGMENTS.map((segment) => segment.length);
 
     if (value.length <= maxLengths[index]) {
       newCertificateNumber[index] = value;
@@ -126,7 +131,7 @@ export function CertificateVerificationModal({ open, onClose }: CertificateVerif
   };
 
   const isValidCertificate = certificateNumber.every((part, index) => {
-    const requiredLengths = [8, 4, 4, 4, 12];
+    const requiredLengths = UUID_SEGMENTS.map((segment) => segment.length);
     return part.length === requiredLengths[index];
   });
 
@@ -134,8 +139,6 @@ export function CertificateVerificationModal({ open, onClose }: CertificateVerif
     if (!isValidCertificate) return;
 
     setShowVerification(true);
-    setIsVerifying(true);
-    setCurrentStep(0);
     setVerificationComplete(false);
     setVerificationError(null);
     setVerificationData(null);
@@ -161,14 +164,12 @@ export function CertificateVerificationModal({ open, onClose }: CertificateVerif
     } catch (error) {
       console.error('Verification failed:', error);
       setVerificationError('Verification process failed. Please try again.');
-      setIsVerifying(false);
     }
   };
 
   const startRealVerificationProcess = async (uuid: string) => {
     try {
       // Step 1: UUID Lookup
-      setCurrentStep(0);
       await animateProgress(0);
 
       const result = await certificateService.verifyUUID(uuid);
@@ -189,7 +190,6 @@ export function CertificateVerificationModal({ open, onClose }: CertificateVerif
           )
         );
         setVerificationError(result.message || result.error || 'Verification failed');
-        setIsVerifying(false);
         return;
       }
 
@@ -221,12 +221,10 @@ export function CertificateVerificationModal({ open, onClose }: CertificateVerif
       await animateProgress(1);
       await animateProgress(2);
 
-      setIsVerifying(false);
       setVerificationComplete(true);
     } catch (error) {
       console.error('API verification error:', error);
       setVerificationError('Network error. Please check your connection and try again.');
-      setIsVerifying(false);
     }
   };
 
@@ -270,17 +268,15 @@ export function CertificateVerificationModal({ open, onClose }: CertificateVerif
   const handleClose = () => {
     setCertificateNumber(['', '', '', '', '']);
     setShowVerification(false);
-    setIsVerifying(false);
     setVerificationComplete(false);
     setVerificationError(null);
     setVerificationData(null);
-    setCurrentStep(0);
     onClose();
   };
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-max">
+      <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-max">
         <DialogHeader>
           <DialogTitle className="text-center">
             {showVerification ? 'Credential Verification' : 'Verify Certificate'}
@@ -301,24 +297,20 @@ export function CertificateVerificationModal({ open, onClose }: CertificateVerif
                   Enter your certificate number to verify its authenticity
                 </p>
 
-                <div className="flex items-center justify-center space-x-2 mb-6">
+                <div className="mb-6 flex flex-wrap items-center justify-center gap-2 sm:flex-nowrap">
                   {certificateNumber.map((part, index) => (
-                    <div key={index} className="flex items-center">
+                    <div key={index} className="flex shrink-0 items-center">
                       <Input
                         id={`uuid-part-${index}`}
                         value={part}
                         onChange={(e) => handleInputChange(index, e.target.value)}
                         onPaste={handlePaste}
-                        className={`text-center font-mono text-sm ${
-                          [0, 4].includes(index) ? 'w-24' : 'w-16'
-                        }`} // Wider for first and last parts
-                        placeholder={
-                          index === 0 ? 'xxxxxxxx' : index === 4 ? 'xxxxxxxxxxxx' : 'xxxx'
-                        }
-                        maxLength={[8, 4, 4, 4, 12][index]}
+                        className={`h-11 px-2 text-center font-mono text-sm ${UUID_SEGMENTS[index].inputClassName}`}
+                        placeholder={UUID_SEGMENTS[index].placeholder}
+                        maxLength={UUID_SEGMENTS[index].length}
                       />
                       {index < certificateNumber.length - 1 && (
-                        <span className="mx-1 text-gray-400">-</span>
+                        <span className="mx-1 text-gray-400 sm:mx-2">-</span>
                       )}
                     </div>
                   ))}
