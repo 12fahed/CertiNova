@@ -18,6 +18,45 @@ router.get('/image-proxy', async (req, res) => {
       });
     }
 
+    // Validate URL to prevent SSRF attacks
+    let parsedUrl;
+    try {
+      parsedUrl = new URL(url);
+    } catch {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid URL format',
+      });
+    }
+
+    // Only allow HTTP/HTTPS protocols
+    if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
+      return res.status(400).json({
+        success: false,
+        message: 'Only HTTP and HTTPS URLs are allowed',
+      });
+    }
+
+    // Block private/internal IP ranges to prevent SSRF
+    const hostname = parsedUrl.hostname.toLowerCase();
+    const blockedPatterns = [
+      /^localhost$/i,
+      /^127\./,
+      /^10\./,
+      /^172\.(1[6-9]|2\d|3[01])\./,
+      /^192\.168\./,
+      /^0\.0\.0\.0$/,
+      /^::1$/,
+      /^fc00:/,
+      /^fe80:/,
+    ];
+    if (blockedPatterns.some(p => p.test(hostname))) {
+      return res.status(403).json({
+        success: false,
+        message: 'Access to internal resources is not allowed',
+      });
+    }
+
     // Fetch the image
     const response = await fetch(url);
     if (!response.ok) {
