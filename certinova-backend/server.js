@@ -16,9 +16,6 @@ import testCloudinaryConfig from './test/cloudinary-test.js';
 // Test Cloudinary configuration after env variables are loaded
 testCloudinaryConfig();
 
-// Connect to MongoDB
-connectDB();
-
 const app = express();
 const trustProxy = process.env.TRUST_PROXY;
 if (trustProxy && trustProxy !== 'false') {
@@ -78,7 +75,16 @@ app.use('/api', proxyRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
-});
+// Connect to DB then start server
+async function start() {
+  try {
+    await connectDB();
+    app.listen(PORT, () => {
+      console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+    });
+  } catch (err) {
+    console.error('Failed to start server:', err);
+    process.exit(1);
+  }
+}
+start();
