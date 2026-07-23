@@ -601,8 +601,10 @@ export const getGeneratedCertificates = async (req, res) => {
 
     switch (filter) {
       case 'recent':
-        const sevenDaysAgo = new Date(currentDate.getTime() - 7 * 24 * 60 * 60 * 1000);
-        filterQuery.date = { $gte: sevenDaysAgo };
+        if (!startDate && !endDate) {
+          const sevenDaysAgo = new Date(currentDate.getTime() - 7 * 24 * 60 * 60 * 1000);
+          filterQuery.date = { $gte: sevenDaysAgo };
+        }
         break;
       case 'high-recipients':
         filterQuery.noOfRecipient = { $gt: 2 };
@@ -801,8 +803,10 @@ export const getDecryptedGeneratedCertificates = async (req, res) => {
 
     switch (filter) {
       case 'recent':
-        const sevenDaysAgo = new Date(currentDate.getTime() - 7 * 24 * 60 * 60 * 1000);
-        filterQuery.date = { $gte: sevenDaysAgo };
+        if (!startDate && !endDate) {
+          const sevenDaysAgo = new Date(currentDate.getTime() - 7 * 24 * 60 * 60 * 1000);
+          filterQuery.date = { $gte: sevenDaysAgo };
+        }
         break;
       case 'high-recipients':
         filterQuery.noOfRecipient = { $gt: 2 };
@@ -820,6 +824,19 @@ export const getDecryptedGeneratedCertificates = async (req, res) => {
     // Build sort object
     let sortObject = {};
     switch (sortBy) {
+      case 'date':
+        sortObject.date = sortOrder === 'asc' ? 1 : -1;
+        break;
+      case 'recipients':
+        sortObject.noOfRecipient = sortOrder === 'asc' ? 1 : -1;
+        break;
+      case 'certificateId':
+        sortObject.certificateId = sortOrder === 'asc' ? 1 : -1;
+        break;
+      default:
+        sortObject.date = -1;
+        break;
+    }
       case 'date':
         sortObject.date = sortOrder === 'asc' ? 1 : -1;
         break;
@@ -1317,7 +1334,7 @@ export const updateRecipientCount = async (req, res) => {
     if (!orgName || !recipientCount || typeof recipientCount !== 'number') {
       return res.status(400).json({
         success: false,
-        message: 'Please provide certificateId and recipientCount (number)',
+        message: 'Please provide orgName and recipientCount (number)',
       });
     }
 
