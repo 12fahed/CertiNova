@@ -306,10 +306,13 @@ class CertificateService {
       uuid?: string;
       base64Image: string;
     }>;
+    
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   }): Promise<{ success: boolean; message: string; data: any }> {
     return this.makeRequest('/certificates/send-emails', {
       method: 'POST',
       body: JSON.stringify(data),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     }) as Promise<{ success: boolean; message: string; data: any }>;
   }
 }

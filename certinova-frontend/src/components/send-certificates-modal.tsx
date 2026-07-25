@@ -918,7 +918,7 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
           uuid: r.uuid,
           base64Image: generatedImages[originalIndex] || '',
         };
-      });
+      }); ``
 
       try {
         const response = await certificateService.sendCertificateEmails({
@@ -927,6 +927,7 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
         });
 
         if (response.success && response.data) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           response.data.forEach((res: any) => {
             if (res.status === 'sent') sentCount++;
             else failedCount++;
@@ -998,8 +999,8 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
                   <Card
                     key={certificate.id}
                     className={`cursor-pointer transition-all duration-200 border-2 ${selectedCertificate === certificate.id
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
                       }`}
                     onClick={() => {
                       // console.log('Selecting certificate:', certificate.id);
