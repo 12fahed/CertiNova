@@ -48,47 +48,59 @@ export function Navbar({ variant = 'dashboard', onCreateNew, onSendCertificates 
       animate={{ opacity: 1, y: 0 }}
       className="bg-white border-b border-gray-200 sticky top-0 z-50"
     >
-      <div className="container mx-auto px-6 py-4">
-        <div className="flex justify-between items-center">
-          <Link href="/" className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-              <Award className="h-6 w-6 text-white" />
+      <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4">
+        <div className="flex justify-between items-center gap-2">
+          <Link href="/" className="flex items-center space-x-2 sm:space-x-3 shrink-0">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+              <Award className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
             </div>
-            <span className="text-2xl font-bold text-gray-900">CertiNova</span>
+            <span className="text-xl sm:text-2xl font-bold text-gray-900">CertiNova</span>
           </Link>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             {variant === 'dashboard' ? (
               <>
-                <Button onClick={onLearn} className="bg-blue-600 hover:bg-blue-700 text-white">
-                  <Book className="h-4 w-4 mr-2" />
-                  Learn how to use
+                {/* "Learn how to use" – hidden on mobile, shown sm+ */}
+                <Button
+                  onClick={onLearn}
+                  className="hidden sm:inline-flex bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  <Book className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Learn how to use</span>
                 </Button>
 
-                <Button onClick={onCreateNew} className="bg-blue-600 hover:bg-blue-700 text-white">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create Certificate
+                {/* "Create Certificate" – always visible; icon-only on xs, text on sm+ */}
+                <Button
+                  onClick={onCreateNew}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-2.5 sm:px-4"
+                >
+                  <Plus className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Create Certificate</span>
                 </Button>
 
+                {/* "Send Certificates" – hidden on mobile */}
                 <Button
                   onClick={onSendCertificates}
                   variant="outline"
-                  className="border-gray-300 text-gray-700 hover:bg-gray-50 bg-transparent"
+                  className="hidden md:inline-flex border-gray-300 text-gray-700 hover:bg-gray-50 bg-transparent"
                 >
-                  <Send className="h-4 w-4 mr-2" />
-                  Send Certificates
+                  <Send className="h-4 w-4 md:mr-2" />
+                  <span className="hidden md:inline">Send Certificates</span>
                 </Button>
 
-                <ViewHistoryButton />
+                {/* "View History" – hidden on mobile */}
+                <div className="hidden md:block">
+                  <ViewHistoryButton />
+                </div>
               </>
             ) : (
               <Button
                 onClick={handleBackToDashboard}
                 variant="outline"
-                className="border-gray-300 text-gray-700 hover:bg-gray-50 bg-transparent"
+                className="border-gray-300 text-gray-700 hover:bg-gray-50 bg-transparent px-2.5 sm:px-4"
               >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Dashboard
+                <ArrowLeft className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Back to Dashboard</span>
               </Button>
             )}
 
