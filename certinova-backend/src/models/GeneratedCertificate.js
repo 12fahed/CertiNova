@@ -66,6 +66,22 @@ const generatedCertificateSchema = new mongoose.Schema(
       ref: 'User',
       required: true,
     },
+    deliveryStatus: {
+      status: {
+        type: String,
+        enum: ['pending', 'completed', 'failed', 'partial'],
+        default: 'pending'
+      },
+      deliveredCount: { type: Number, default: 0 },
+      failedCount: { type: Number, default: 0 },
+      details: [
+        {
+          email: String,
+          status: { type: String, enum: ['sent', 'failed'] },
+          error: String
+        }
+      ]
+    },
   },
   {
     timestamps: true,

@@ -14,6 +14,7 @@ import {
   getOrganizationStats,
   getAllOrganizationStats,
   updateRecipientCount,
+  sendCertificateEmails,
 } from '../controllers/certificateController.js';
 import {
   decryptLimiter,
@@ -51,5 +52,9 @@ router.get('/organization-stats/:organizationName', getOrganizationStats);
 router.get('/all-organization-stats', getAllOrganizationStats);
 
 router.patch('/update-recipient-count', updateRecipientCount);
+
+// Send certificates via email
+// Using generationLimiter as it's an expensive operation
+router.post('/send-emails', generationLimiter, sendCertificateEmails);
 
 export default router;

@@ -296,6 +296,22 @@ class CertificateService {
       throw error;
     }
   }
+  
+  // Send emails using the backend SMTP script
+  async sendCertificateEmails(data: {
+    generatedCertificateId: string;
+    recipients: Array<{
+      name: string;
+      email: string;
+      uuid?: string;
+      base64Image: string;
+    }>;
+  }): Promise<{ success: boolean; message: string; data: any }> {
+    return this.makeRequest('/certificates/send-emails', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }) as Promise<{ success: boolean; message: string; data: any }>;
+  }
 }
 
 export const certificateService = new CertificateService();
