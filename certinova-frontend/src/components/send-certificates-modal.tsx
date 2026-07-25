@@ -80,7 +80,7 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
   const [isStoringData, setIsStoringData] = useState(false);
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
   const [generatedCertificateId, setGeneratedCertificateId] = useState<string>('');
-  
+
   // Email sending state
   const [isSendingEmails, setIsSendingEmails] = useState(false);
   const [emailProgress, setEmailProgress] = useState<{
@@ -90,7 +90,7 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
     status: 'idle' | 'sending' | 'completed';
     details: Array<{ email: string; status: 'sent' | 'failed' | 'pending'; error?: string }>;
   }>({ sent: 0, failed: 0, total: 0, status: 'idle', details: [] });
-  
+
   const nameFields = ['name', 'full name', 'student name', 'participant', 'recipient', 'candidate'];
   const emailFields = ['email', 'email address', 'mail'];
   const rankFields = ['rank', 'position', 'standing'];
@@ -704,7 +704,7 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
         }
         generatedUrls.push(dataUrl);
       }
-      
+
       setGeneratedImages(generatedUrls);
 
       // Store certificate data URLs for PDF export
@@ -908,7 +908,7 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
 
     for (let i = 0; i < recipientsWithEmail.length; i += batchSize) {
       const batch = recipientsWithEmail.slice(i, i + batchSize);
-      
+
       const payloadRecipients = batch.map((r) => {
         // Find the index in original recipients to match with generatedImages
         const originalIndex = recipients.findIndex(orig => orig === r);
@@ -930,7 +930,7 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
           response.data.forEach((res: any) => {
             if (res.status === 'sent') sentCount++;
             else failedCount++;
-            
+
             setEmailProgress(prev => ({
               ...prev,
               sent: sentCount,
@@ -952,7 +952,7 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
 
     setIsSendingEmails(false);
     setEmailProgress(prev => ({ ...prev, status: 'completed' }));
-    
+
     if (failedCount === 0) {
       toast.success('All emails sent successfully!');
     } else {
@@ -997,11 +997,10 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
                 {certificates.map((certificate) => (
                   <Card
                     key={certificate.id}
-                    className={`cursor-pointer transition-all duration-200 border-2 ${
-                      selectedCertificate === certificate.id
+                    className={`cursor-pointer transition-all duration-200 border-2 ${selectedCertificate === certificate.id
                         ? 'border-blue-500 bg-blue-50'
                         : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
-                    }`}
+                      }`}
                     onClick={() => {
                       // console.log('Selecting certificate:', certificate.id);
                       setSelectedCertificate(certificate.id);
@@ -1113,9 +1112,8 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div
-                        className={`grid grid-cols-1 gap-4 ${
-                          certificateConfig?.validFields?.rank ? 'md:grid-cols-3' : 'md:grid-cols-2'
-                        }`}
+                        className={`grid grid-cols-1 gap-4 ${certificateConfig?.validFields?.rank ? 'md:grid-cols-3' : 'md:grid-cols-2'
+                          }`}
                       >
                         <div className="space-y-2">
                           <Label htmlFor="manualName" className="text-gray-700">
@@ -1436,14 +1434,14 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
                       Individual PDFs
                     </Button>
                   </div>
-                  <Button
+                  {/* <Button
                     onClick={handleSendEmails}
                     disabled={!generatedCertificateId || recipients.filter(r => r.email).length === 0}
                     className="w-full bg-green-600 hover:bg-green-700"
                   >
                     <Send className="h-4 w-4 mr-2" />
                     Send via Email
-                  </Button>
+                  </Button> */}
                   <Button
                     variant="outline"
                     onClick={handleClose}
@@ -1497,8 +1495,8 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
                         <Badge
                           variant={detail.status === 'sent' ? 'default' : detail.status === 'failed' ? 'destructive' : 'secondary'}
                           className={
-                            detail.status === 'sent' ? 'bg-green-100 text-green-700' : 
-                            detail.status === 'failed' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700'
+                            detail.status === 'sent' ? 'bg-green-100 text-green-700' :
+                              detail.status === 'failed' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700'
                           }
                         >
                           {detail.status.charAt(0).toUpperCase() + detail.status.slice(1)}

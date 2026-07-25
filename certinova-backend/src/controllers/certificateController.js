@@ -1,5 +1,6 @@
 import CertificateConfig from '../models/CertificateConfig.js';
 import GeneratedCertificate from '../models/GeneratedCertificate.js';
+import Feature from '../models/Feature.js';
 import VerifyUUID from '../models/VerifyUUID.js';
 import Event from '../models/Event.js';
 import Record from '../models/Record.js';
@@ -1393,6 +1394,18 @@ export const sendCertificateEmails = async (req, res) => {
         message: 'Invalid certificate ID format',
       });
     }
+
+    // hide behind feature flag
+    const featurePermission = await Feature.findOne({featureName: "email-certificates"})
+
+    if(!featurePermission.enable) {
+      return res.status(403).json({
+        success: false,
+        message: 'Permission Denied'
+      })
+    }
+
+    console.log(featurePermission)
 
     const generatedCert = await GeneratedCertificate.findById(generatedCertificateId)
       .populate({
