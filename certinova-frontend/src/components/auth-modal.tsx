@@ -184,7 +184,7 @@ export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
         <Tabs
           value={activeTab}
           onValueChange={(val) => {
-            if (val === "signin" || val === "signup") {
+            if (val === 'signin' || val === 'signup') {
               setActiveTab(val);
               setErrors({});
             }

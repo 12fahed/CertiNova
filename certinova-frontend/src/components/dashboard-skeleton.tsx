@@ -26,7 +26,7 @@ interface SkeletonListProps {
 
 export function CertificateGridSkeleton({ count = 6 }: SkeletonListProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
       {Array.from({ length: count }).map((_, i) => (
         <Card key={i} className="bg-white border-gray-200 h-full flex flex-col">
           <CardContent className="p-6 flex flex-col h-full">
@@ -52,7 +52,7 @@ export function CertificateGridSkeleton({ count = 6 }: SkeletonListProps) {
 
 export function CertificateTableSkeleton({ count = 6 }: SkeletonListProps) {
   return (
-    <div className="flex flex-col lg:flex-row gap-6 h-[600px]">
+    <div className="flex flex-col gap-4 sm:gap-6 lg:flex-row lg:h-[600px]">
       <Card className="bg-white border-gray-200 flex-1 flex flex-col shadow-sm overflow-hidden h-full">
         <div className="overflow-y-auto w-full flex-1">
           <table className="w-full text-sm text-left">
@@ -90,7 +90,7 @@ export function CertificateTableSkeleton({ count = 6 }: SkeletonListProps) {
         </div>
       </Card>
 
-      <div className="w-full lg:w-1/3 min-w-[320px] max-w-[400px] flex-shrink-0 h-full">
+      <div className="w-full lg:w-1/3 lg:min-w-[320px] lg:max-w-[400px] lg:flex-shrink-0 lg:h-full">
         <Card className="bg-white border-gray-200 h-full flex flex-col shadow-sm">
           <div className="px-6 py-3 border-b border-gray-100 bg-gray-50/50">
             <Skeleton className="h-5 w-40" />
