@@ -4,6 +4,9 @@ import { useState, useMemo, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Calendar as DatePickerCalendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import type { DateRange } from 'react-day-picker';
 import { Badge } from '@/components/ui/badge';
 import {
   Table,
@@ -48,6 +51,10 @@ export default function CertificatesPage() {
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterBy, setFilterBy] = useState('all');
+
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [selectedCertificate, setSelectedCertificate] = useState<CertificateListItem | null>(null);
   const [recipientSearchTerm, setRecipientSearchTerm] = useState('');
 
@@ -82,6 +89,8 @@ export default function CertificatesPage() {
         sortBy: 'date',
         sortOrder: 'desc',
         generatedBy: user?.id,
+        startDate,
+        endDate,
       });
 
       if (response.success && response.data) {
@@ -112,7 +121,7 @@ export default function CertificatesPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, searchTerm, filterBy, user?.id]);
+  }, [currentPage, searchTerm, filterBy, startDate, endDate, user?.id]);
 
   // Fetch decrypted certificates with password
   const fetchDecryptedCertificates = useCallback(
@@ -130,6 +139,8 @@ export default function CertificatesPage() {
           sortBy: 'date',
           sortOrder: 'desc',
           generatedBy: user?.id,
+          startDate,
+          endDate,
         });
 
         if (response.success && response.data) {
@@ -169,7 +180,7 @@ export default function CertificatesPage() {
         setShowPasswordDialog(false);
       }
     },
-    [currentPage, searchTerm, filterBy, user?.id]
+    [currentPage, searchTerm, filterBy, startDate, endDate, user?.id]
   );
 
   // Handle password dialog confirmation
@@ -190,7 +201,7 @@ export default function CertificatesPage() {
   // Reset to first page when search or filter changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, filterBy]);
+  }, [searchTerm, filterBy, startDate, endDate]);
 
   // Filter certificates is no longer needed as filtering is done on server
   const filteredCertificates = certificates;
@@ -301,6 +312,51 @@ export default function CertificatesPage() {
                     </SelectContent>
                   </Select>
                 </div>
+                <div className="flex items-center gap-2">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" className="justify-start text-left font-normal">
+                        <Calendar className="mr-2 h-4 w-4" />
+                        {startDate && endDate ? `${startDate} → ${endDate}` : 'Select date range'}
+                      </Button>
+                    </PopoverTrigger>
+
+                    <PopoverContent className="w-auto p-0">
+                      <DatePickerCalendar
+                        mode="range"
+                        selected={dateRange}
+                        onSelect={(range) => {
+                          setDateRange(range);
+
+                          // Clear filter when selection is cleared
+                          if (!range?.from && !range?.to) {
+                            setStartDate('');
+                            setEndDate('');
+                            return;
+                          }
+
+                          // Apply filter only after both dates are selected
+                          if (range?.from && range?.to) {
+                            setStartDate(range.from.toISOString().split('T')[0]);
+                            setEndDate(range.to.toISOString().split('T')[0]);
+                          }
+                        }}
+                        numberOfMonths={2}
+                      />
+                    </PopoverContent>
+                  </Popover>
+
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setDateRange(undefined);
+                      setStartDate('');
+                      setEndDate('');
+                    }}
+                  >
+                    Clear
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -344,6 +400,7 @@ export default function CertificatesPage() {
                       <TableHead className="text-gray-700">Date</TableHead>
                       <TableHead className="text-gray-700">Event Name</TableHead>
                       <TableHead className="text-gray-700">No. of Recipients</TableHead>
+                      <TableHead className="text-gray-700">Delivery Status</TableHead>
                       <TableHead className="text-gray-700">Generated ID</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -352,6 +409,9 @@ export default function CertificatesPage() {
                       ? // Loading skeleton rows
                         Array.from({ length: 5 }).map((_, i) => (
                           <TableRow key={i} className="border-gray-200">
+                            <TableCell>
+                              <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                            </TableCell>
                             <TableCell>
                               <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
                             </TableCell>
@@ -401,6 +461,28 @@ export default function CertificatesPage() {
                                 <Users className="h-4 w-4 mr-1" />
                                 {certificate.noOfRecipient} Recipients
                               </Button>
+                            </TableCell>
+                            <TableCell>
+                              {certificate.deliveryStatus ? (
+                                <Badge
+                                  variant="outline"
+                                  className={
+                                    certificate.deliveryStatus === 'completed'
+                                      ? 'bg-green-50 text-green-700 border-green-300'
+                                      : certificate.deliveryStatus === 'partial'
+                                      ? 'bg-yellow-50 text-yellow-700 border-yellow-300'
+                                      : certificate.deliveryStatus === 'failed'
+                                      ? 'bg-red-50 text-red-700 border-red-300'
+                                      : 'bg-blue-50 text-blue-700 border-blue-300'
+                                  }
+                                >
+                                  {certificate.deliveryStatus === 'pending'
+                                    ? 'Sending...'
+                                    : `${certificate.deliveredCount || 0}/${certificate.noOfRecipient} Delivered`}
+                                </Badge>
+                              ) : (
+                                <span className="text-gray-400 text-sm">Not sent</span>
+                              )}
                             </TableCell>
                             <TableCell className="text-gray-600">
                               <div className="flex items-center gap-2">
