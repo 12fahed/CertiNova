@@ -296,7 +296,7 @@ class CertificateService {
       throw error;
     }
   }
-  
+
   // Send emails using the backend SMTP script
   async sendCertificateEmails(data: {
     generatedCertificateId: string;
@@ -306,7 +306,7 @@ class CertificateService {
       uuid?: string;
       base64Image: string;
     }>;
-    
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   }): Promise<{ success: boolean; message: string; data: any }> {
     return this.makeRequest('/certificates/send-emails', {

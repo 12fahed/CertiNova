@@ -40,6 +40,21 @@ class AuthService {
       body: JSON.stringify(userData),
     });
   }
+
+  // Complete onboarding
+  async completeOnboarding(userData: {
+    email: string;
+    fullName: string;
+    organisation: string;
+    organizationLogo?: string | null;
+    eventTypes: string;
+    referralSource?: string | null;
+  }): Promise<AuthResponse> {
+    return this.makeRequest('/auth/onboarding', {
+      method: 'PUT',
+      body: JSON.stringify(userData),
+    });
+  }
 }
 
 export const authService = new AuthService();

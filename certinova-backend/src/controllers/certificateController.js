@@ -1380,7 +1380,12 @@ export const sendCertificateEmails = async (req, res) => {
   try {
     const { generatedCertificateId, recipients } = req.body;
 
-    if (!generatedCertificateId || !recipients || !Array.isArray(recipients) || recipients.length === 0) {
+    if (
+      !generatedCertificateId ||
+      !recipients ||
+      !Array.isArray(recipients) ||
+      recipients.length === 0
+    ) {
       return res.status(400).json({
         success: false,
         message: 'Please provide generatedCertificateId and an array of recipients',
@@ -1396,24 +1401,23 @@ export const sendCertificateEmails = async (req, res) => {
     }
 
     // hide behind feature flag
-    const featurePermission = await Feature.findOne({featureName: "email-certificates"})
+    const featurePermission = await Feature.findOne({ featureName: 'email-certificates' });
 
-    if(!featurePermission.enable) {
+    if (!featurePermission.enable) {
       return res.status(403).json({
         success: false,
-        message: 'Permission Denied'
-      })
+        message: 'Permission Denied',
+      });
     }
 
-    console.log(featurePermission)
+    console.log(featurePermission);
 
-    const generatedCert = await GeneratedCertificate.findById(generatedCertificateId)
-      .populate({
-        path: 'certificateId',
-        populate: {
-          path: 'eventId',
-        }
-      });
+    const generatedCert = await GeneratedCertificate.findById(generatedCertificateId).populate({
+      path: 'certificateId',
+      populate: {
+        path: 'eventId',
+      },
+    });
 
     if (!generatedCert) {
       return res.status(404).json({
@@ -1424,9 +1428,14 @@ export const sendCertificateEmails = async (req, res) => {
 
     const eventName = generatedCert.certificateId?.eventId?.eventName || 'Event';
     const organisationName = generatedCert.certificateId?.eventId?.organisation || 'Organisation';
-    
+
     // Check if SMTP is configured
-    if (!process.env.SMTP_HOST || !process.env.SMTP_PORT || !process.env.SMTP_EMAIL || !process.env.SMTP_PASSWORD) {
+    if (
+      !process.env.SMTP_HOST ||
+      !process.env.SMTP_PORT ||
+      !process.env.SMTP_EMAIL ||
+      !process.env.SMTP_PASSWORD
+    ) {
       return res.status(500).json({
         success: false,
         message: 'Email service is not configured (SMTP credentials missing)',
@@ -1438,20 +1447,27 @@ export const sendCertificateEmails = async (req, res) => {
       smtpPort: process.env.SMTP_PORT,
       smtpEmail: process.env.SMTP_EMAIL,
       smtpPass: process.env.SMTP_PASSWORD,
-      fromAddress: process.env.SMTP_USER 
+      fromAddress: process.env.SMTP_USER
         ? `${process.env.SMTP_USER} <${process.env.EMAIL_FROM_ADDRESS || process.env.SMTP_EMAIL}>`
-        : (process.env.EMAIL_FROM_ADDRESS || process.env.SMTP_EMAIL),
+        : process.env.EMAIL_FROM_ADDRESS || process.env.SMTP_EMAIL,
       recipients: recipients.map((r) => {
-        const verificationUrl = r.uuid ? `${process.env.FRONTEND_URL || 'http://localhost:3000'}/verify/${r.uuid}` : '';
+        const verificationUrl = r.uuid
+          ? `${process.env.FRONTEND_URL || 'http://localhost:3000'}/verify/${r.uuid}`
+          : '';
         return {
           name: r.name,
           email: r.email,
           subject: `Your ${eventName} Certificate`,
-          htmlBody: generateCertificateEmailHtml(r.name, eventName, organisationName, verificationUrl),
+          htmlBody: generateCertificateEmailHtml(
+            r.name,
+            eventName,
+            organisationName,
+            verificationUrl
+          ),
           base64Image: r.base64Image,
-          fileName: `${r.name.replace(/[^a-z0-9]/gi, '_')}_certificate.png`
+          fileName: `${r.name.replace(/[^a-z0-9]/gi, '_')}_certificate.png`,
         };
-      })
+      }),
     };
 
     // Execute python script
@@ -1479,7 +1495,7 @@ export const sendCertificateEmails = async (req, res) => {
         if (outputData) {
           try {
             result = JSON.parse(outputData);
-          } catch(e) {
+          } catch (e) {
             console.error('Failed to parse python output:', outputData);
             result = { success: false, error: 'Failed to parse python output', raw: outputData };
           }
@@ -1497,7 +1513,7 @@ export const sendCertificateEmails = async (req, res) => {
             currentDetails.push({
               email: r.email,
               status: r.status,
-              error: r.error
+              error: r.error,
             });
             if (r.status === 'sent') newDelivered++;
             if (r.status === 'failed') newFailed++;
@@ -1506,7 +1522,7 @@ export const sendCertificateEmails = async (req, res) => {
 
         const totalDelivered = (generatedCert.deliveryStatus?.deliveredCount || 0) + newDelivered;
         const totalFailed = (generatedCert.deliveryStatus?.failedCount || 0) + newFailed;
-        
+
         let overallStatus = 'pending';
         // Basic logic for status. In reality, you'd compare against noOfRecipient
         if (totalDelivered > 0 && totalFailed === 0) overallStatus = 'completed';
@@ -1517,7 +1533,7 @@ export const sendCertificateEmails = async (req, res) => {
           status: overallStatus,
           deliveredCount: totalDelivered,
           failedCount: totalFailed,
-          details: currentDetails
+          details: currentDetails,
         };
 
         await generatedCert.save();
@@ -1533,18 +1549,16 @@ export const sendCertificateEmails = async (req, res) => {
         res.status(200).json({
           success: true,
           message: 'Emails processed successfully',
-          data: result.results
+          data: result.results,
         });
-
       } catch (err) {
         console.error('Error handling python script output:', err);
         res.status(500).json({
           success: false,
-          message: 'Internal server error during email processing'
+          message: 'Internal server error during email processing',
         });
       }
     });
-
   } catch (error) {
     console.error('Send certificate emails error:', error);
     res.status(500).json({
@@ -1554,4 +1568,3 @@ export const sendCertificateEmails = async (req, res) => {
     });
   }
 };
-

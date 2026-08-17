@@ -6,6 +6,7 @@ import { authService } from '@/services/auth';
 import { authStorage } from '@/lib/auth-storage';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
+import { OnboardingModal } from '@/components/onboarding-modal';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -19,6 +20,15 @@ export const useAuth = () => {
 
 interface AuthProviderProps {
   children: React.ReactNode;
+}
+
+interface OnboardingData {
+  email: string;
+  fullName: string;
+  organisation: string;
+  organizationLogo?: string | null;
+  eventTypes: string;
+  referralSource?: string | null;
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
@@ -46,6 +56,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setIsAuthenticated(true);
         authStorage.saveAuth(userData);
         toast.success('Login successful!');
+        if (userData.onboardingCompleted) {
+          router.push('/dashboard');
+        } else {
+          router.push('/dashboard');
+        }
         return true;
       } else {
         toast.error(response.message || 'Login failed');
@@ -88,6 +103,42 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const completeOnboarding = async (data: OnboardingData): Promise<boolean> => {
+    try {
+      setIsLoading(true);
+
+      const response = await authService.completeOnboarding(data);
+
+      if (response.success && response.data?.user) {
+        const userData = response.data.user;
+
+        setUser(userData);
+        setIsAuthenticated(true);
+        authStorage.saveAuth(userData);
+
+        toast.success('Onboarding completed successfully!');
+
+        return true;
+      } else {
+        const errorMessage = response.errors ? response.errors.join(', ') : response.message;
+
+        toast.error(errorMessage || 'Failed to complete onboarding');
+
+        return false;
+      }
+    } catch (error: unknown) {
+      console.error('Onboarding error:', error);
+
+      const errorMessage = error instanceof Error ? error.message : 'Failed to complete onboarding';
+
+      toast.error(errorMessage);
+
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const logout = () => {
     setUser(null);
     setIsAuthenticated(false);
@@ -102,6 +153,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isLoading,
     login,
     signup,
+    completeOnboarding,
     logout,
   };
 

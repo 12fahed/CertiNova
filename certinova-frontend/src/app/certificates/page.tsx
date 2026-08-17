@@ -470,10 +470,10 @@ export default function CertificatesPage() {
                                     certificate.deliveryStatus === 'completed'
                                       ? 'bg-green-50 text-green-700 border-green-300'
                                       : certificate.deliveryStatus === 'partial'
-                                      ? 'bg-yellow-50 text-yellow-700 border-yellow-300'
-                                      : certificate.deliveryStatus === 'failed'
-                                      ? 'bg-red-50 text-red-700 border-red-300'
-                                      : 'bg-blue-50 text-blue-700 border-blue-300'
+                                        ? 'bg-yellow-50 text-yellow-700 border-yellow-300'
+                                        : certificate.deliveryStatus === 'failed'
+                                          ? 'bg-red-50 text-red-700 border-red-300'
+                                          : 'bg-blue-50 text-blue-700 border-blue-300'
                                   }
                                 >
                                   {certificate.deliveryStatus === 'pending'

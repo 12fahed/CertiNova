@@ -23,6 +23,37 @@ const userSchema = new mongoose.Schema(
       required: [true, 'Password is required'],
       minlength: [6, 'Password must be at least 6 characters long'],
     },
+    //added new fields : onboarding fields
+
+    // Onboarding fields
+    fullName: {
+      type: String,
+      trim: true,
+      maxlength: [100, 'Full name cannot exceed 100 characters'],
+      default: '',
+    },
+
+    organizationLogo: {
+      type: String,
+      default: '',
+    },
+
+    eventTypes: {
+      type: String,
+      enum: ['', 'academic', 'corporate', 'workshops', 'competitions', 'conferences', 'other'],
+      default: '',
+    },
+
+    referralSource: {
+      type: String,
+      enum: ['', 'google', 'social', 'friend', 'advertisement', 'other'],
+      default: '',
+    },
+
+    onboardingCompleted: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
