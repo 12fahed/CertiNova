@@ -24,6 +24,7 @@ import { CertificateEditor } from '@/components/certificate-editor';
 import { SendCertificatesModal } from '@/components/send-certificates-modal';
 import { DeleteConfirmationModal } from '@/components/delete-confirmation-modal';
 import { Navbar } from '@/components/navbar';
+import { OnboardingModal } from '@/components/onboarding-modal';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { ViewHistoryButton } from '@/components/view-history-button';
 import { useAuth } from '@/context/AuthContext';
@@ -39,7 +40,7 @@ import {
 } from '@/components/dashboard-skeleton';
 
 export default function DashboardPage() {
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const { events, isFetchingEvents, createEvent, fetchEvents, deleteEvent } = useEvents();
   const showInitialLoading = isFetchingEvents && events.length === 0;
   const {
@@ -52,6 +53,7 @@ export default function DashboardPage() {
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditor, setShowEditor] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [currentEvent, setCurrentEvent] = useState<Event | null>(null);
   const [currentCertificateConfig, setCurrentCertificateConfig] =
@@ -67,6 +69,12 @@ export default function DashboardPage() {
   useEffect(() => {
     fetchEvents();
   }, [fetchEvents]);
+
+  useEffect(() => {
+    if (isAuthenticated && user && !user.onboardingCompleted) {
+      setShowOnboarding(true);
+    }
+  }, [isAuthenticated, user]);
 
   // Create certificate images mapping from events data
   useEffect(() => {
@@ -386,7 +394,7 @@ export default function DashboardPage() {
             className="mb-6 sm:mb-8"
           >
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-              Welcome back, {user?.organisation}!
+              Welcome back, {user?.fullName || user?.organisation}!
             </h1>
             <p className="text-sm sm:text-base text-gray-600">
               Manage and create certificates for your organization
@@ -836,6 +844,8 @@ export default function DashboardPage() {
         </div>
 
         {/* Modals */}
+
+        <OnboardingModal open={showOnboarding} onClose={() => setShowOnboarding(false)} />
         <CreateCertificateModal
           open={showCreateModal}
           onClose={() => setShowCreateModal(false)}

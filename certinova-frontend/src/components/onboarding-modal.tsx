@@ -3,6 +3,7 @@
 import type React from 'react';
 
 import { useState, useEffect } from 'react';
+import { useAuth } from '@/context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -33,10 +34,11 @@ interface OnboardingModalProps {
 }
 
 export function OnboardingModal({ open, onClose }: OnboardingModalProps) {
+  const { user, completeOnboarding, isLoading } = useAuth();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     fullName: '',
-    organization: '',
+    organisation: '',
     organizationLogo: null as File | null,
     eventTypes: '',
     referralSource: '',
@@ -56,7 +58,7 @@ export function OnboardingModal({ open, onClose }: OnboardingModalProps) {
       setErrors({});
       setFormData({
         fullName: '',
-        organization: '',
+        organisation: '',
         organizationLogo: null,
         eventTypes: '',
         referralSource: '',
@@ -64,7 +66,7 @@ export function OnboardingModal({ open, onClose }: OnboardingModalProps) {
     }
   }, [open]);
 
-  const handleNext = () => {
+  const handleNext = async () => {
     setErrors({});
     if (step === 1) {
       if (!formData.fullName.trim()) {
@@ -72,7 +74,7 @@ export function OnboardingModal({ open, onClose }: OnboardingModalProps) {
         return;
       }
     } else if (step === 2) {
-      if (!formData.organization.trim()) {
+      if (!formData.organisation.trim()) {
         setErrors({ organization: 'Organization name is required' });
         return;
       }
@@ -85,7 +87,24 @@ export function OnboardingModal({ open, onClose }: OnboardingModalProps) {
 
     if (step < totalSteps) {
       setStep(step + 1);
-    } else {
+      return;
+    }
+    if (!user?.email) {
+      setErrors({
+        fullName: 'User information is missing. Please sign in again.',
+      });
+      return;
+    }
+    const success = await completeOnboarding({
+      email: user.email,
+      fullName: formData.fullName.trim(),
+      organisation: formData.organisation.trim(),
+      organizationLogo: null,
+      eventTypes: formData.eventTypes,
+      referralSource: formData.referralSource || null,
+    });
+
+    if (success) {
       onClose();
     }
   };
@@ -122,7 +141,7 @@ export function OnboardingModal({ open, onClose }: OnboardingModalProps) {
           </div>
         </DialogHeader>
 
-        <AnimatePresence mode="wait">
+        <AnimatePresence initial={false}>
           {step === 1 && (
             <motion.div
               key="step1"
@@ -168,10 +187,11 @@ export function OnboardingModal({ open, onClose }: OnboardingModalProps) {
           {step === 2 && (
             <motion.div
               key="step2"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="space-y-6 py-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="space-y-6 py-4 relative z-10"
             >
               <div className="text-center">
                 <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -188,12 +208,14 @@ export function OnboardingModal({ open, onClose }: OnboardingModalProps) {
                   </Label>
                   <Input
                     id="organization"
-                    value={formData.organization}
+                    type="text"
+                    value={formData.organisation}
                     onChange={(e) => {
-                      setFormData((prev) => ({ ...prev, organization: e.target.value }));
+                      setFormData((prev) => ({ ...prev, organisation: e.target.value }));
                       setErrors((prev) => ({ ...prev, organization: undefined }));
                     }}
                     placeholder="Enter your organization name"
+                    autoComplete="organization"
                     className={`border-gray-200 ${errors.organization ? 'border-red-500 focus-visible:ring-red-500' : 'border-gray-200'}`}
                   />
                   {errors.organization && (

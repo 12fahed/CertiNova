@@ -43,10 +43,10 @@ export default function HomePage() {
   const authTriggerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!isLoading && isAuthenticated) {
+    if (!isLoading && isAuthenticated && !showOnboarding) {
       router.push('/dashboard');
     }
-  }, [isAuthenticated, isLoading, router]);
+  }, [isAuthenticated, isLoading, showOnboarding, router]);
 
   if (isLoading) {
     return (
@@ -236,7 +236,12 @@ export default function HomePage() {
                 animate={{ opacity: 1, x: 0 }}
                 className="flex items-center gap-3"
               >
-                <AuthModal onLogin={handleLogin} />
+                <AuthModal
+                  onLogin={handleLogin}
+                  onSignup={() => {
+                    setShowOnboarding(true);
+                  }}
+                />
               </motion.div>
             </div>
           </div>
@@ -270,7 +275,13 @@ export default function HomePage() {
                 certifications.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <AuthModal onLogin={handleLogin} triggerText="Start Free Trial" />
+                <AuthModal
+                  onLogin={handleLogin}
+                  onSignup={() => {
+                    setShowOnboarding(true);
+                  }}
+                  triggerText="Start Free Trial"
+                />
                 <Button
                   variant="outline"
                   size="lg"
@@ -477,7 +488,13 @@ export default function HomePage() {
                 certification workflows.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <AuthModal onLogin={handleLogin} triggerText="Get Started Today" />
+                <AuthModal
+                  onLogin={handleLogin}
+                  onSignup={() => {
+                    setShowOnboarding(true);
+                  }}
+                  triggerText="Get Started Today"
+                />
                 <Button
                   variant="outline"
                   size="lg"
@@ -590,7 +607,14 @@ export default function HomePage() {
           </div>
         </footer>
 
-        <OnboardingModal open={showOnboarding} onClose={() => setShowOnboarding(false)} />
+        <OnboardingModal
+          open={showOnboarding}
+          onClose={() => {
+            setShowOnboarding(false);
+
+            router.push('/dashboard');
+          }}
+        />
 
         <CertificateVerificationModal
           open={showVerificationModal}
@@ -599,4 +623,13 @@ export default function HomePage() {
       </div>
     );
   }
+  return (
+    <OnboardingModal
+      open={showOnboarding}
+      onClose={() => {
+        setShowOnboarding(false);
+        router.push('/dashboard');
+      }}
+    />
+  );
 }

@@ -20,10 +20,11 @@ import { toast } from 'sonner';
 
 interface AuthModalProps {
   onLogin?: () => void;
+  onSignup?: () => void;
   triggerText?: string;
 }
 
-export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
+export function AuthModal({ onLogin, onSignup, triggerText }: AuthModalProps) {
   const [open, setOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'signin' | 'signup'>('signin');
   const [showPassword, setShowPassword] = useState(false);
@@ -118,7 +119,7 @@ export function AuthModal({ onLogin, triggerText }: AuthModalProps) {
       setOpen(false);
       setFormData({ email: '', password: '', organisation: '' });
       setErrors({});
-      onLogin?.();
+      onSignup?.();
     }
   };
 

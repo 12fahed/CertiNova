@@ -3,6 +3,21 @@ export interface User {
   organisation: string;
   email: string;
   createdAt: string;
+
+  fullName?: string;
+  organizationLogo?: string;
+  eventTypes?: string;
+  referralSource?: string;
+  onboardingCompleted?: boolean;
+}
+
+export interface OnboardingData {
+  email: string;
+  fullName: string;
+  organisation: string;
+  organizationLogo?: string | null;
+  eventTypes: string;
+  referralSource?: string | null;
 }
 
 export interface AuthResponse {
@@ -31,5 +46,6 @@ export interface AuthContextType {
   isLoading: boolean;
   login: (data: LoginData) => Promise<boolean>;
   signup: (data: SignupData) => Promise<boolean>;
+  completeOnboarding: (data: OnboardingData) => Promise<boolean>;
   logout: () => void;
 }

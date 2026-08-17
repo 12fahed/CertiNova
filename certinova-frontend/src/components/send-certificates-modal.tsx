@@ -889,7 +889,7 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
       return;
     }
 
-    const recipientsWithEmail = recipients.filter(r => r.email);
+    const recipientsWithEmail = recipients.filter((r) => r.email);
     if (recipientsWithEmail.length === 0) {
       toast.error('No recipients have an email address provided.');
       return;
@@ -902,7 +902,7 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
       failed: 0,
       total: recipientsWithEmail.length,
       status: 'sending',
-      details: recipientsWithEmail.map(r => ({ email: r.email!, status: 'pending' }))
+      details: recipientsWithEmail.map((r) => ({ email: r.email!, status: 'pending' })),
     });
 
     const batchSize = 5;
@@ -914,19 +914,20 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
 
       const payloadRecipients = batch.map((r) => {
         // Find the index in original recipients to match with generatedImages
-        const originalIndex = recipients.findIndex(orig => orig === r);
+        const originalIndex = recipients.findIndex((orig) => orig === r);
         return {
           name: r.name,
           email: r.email!,
           uuid: r.uuid,
           base64Image: generatedImages[originalIndex] || '',
         };
-      }); ``
+      });
+      ``;
 
       try {
         const response = await certificateService.sendCertificateEmails({
           generatedCertificateId,
-          recipients: payloadRecipients
+          recipients: payloadRecipients,
         });
 
         if (response.success && response.data) {
@@ -935,27 +936,33 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
             if (res.status === 'sent') sentCount++;
             else failedCount++;
 
-            setEmailProgress(prev => ({
+            setEmailProgress((prev) => ({
               ...prev,
               sent: sentCount,
               failed: failedCount,
-              details: prev.details.map(d => d.email === res.email ? { email: d.email, status: res.status, error: res.error } : d)
+              details: prev.details.map((d) =>
+                d.email === res.email ? { email: d.email, status: res.status, error: res.error } : d
+              ),
             }));
           });
         }
       } catch (error) {
         console.error('Batch email send error:', error);
         failedCount += batch.length;
-        setEmailProgress(prev => ({
+        setEmailProgress((prev) => ({
           ...prev,
           failed: failedCount,
-          details: prev.details.map(d => batch.some(b => b.email === d.email) ? { email: d.email, status: 'failed', error: 'Batch request failed' } : d)
+          details: prev.details.map((d) =>
+            batch.some((b) => b.email === d.email)
+              ? { email: d.email, status: 'failed', error: 'Batch request failed' }
+              : d
+          ),
         }));
       }
     }
 
     setIsSendingEmails(false);
-    setEmailProgress(prev => ({ ...prev, status: 'completed' }));
+    setEmailProgress((prev) => ({ ...prev, status: 'completed' }));
 
     if (failedCount === 0) {
       toast.success('All emails sent successfully!');
@@ -1001,10 +1008,11 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
                 {certificates.map((certificate) => (
                   <Card
                     key={certificate.id}
-                    className={`cursor-pointer transition-all duration-200 border-2 ${selectedCertificate === certificate.id
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
-                      }`}
+                    className={`cursor-pointer transition-all duration-200 border-2 ${
+                      selectedCertificate === certificate.id
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
+                    }`}
                     onClick={() => {
                       // console.log('Selecting certificate:', certificate.id);
                       setSelectedCertificate(certificate.id);
@@ -1116,8 +1124,9 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div
-                        className={`grid grid-cols-1 gap-4 ${certificateConfig?.validFields?.rank ? 'md:grid-cols-3' : 'md:grid-cols-2'
-                          }`}
+                        className={`grid grid-cols-1 gap-4 ${
+                          certificateConfig?.validFields?.rank ? 'md:grid-cols-3' : 'md:grid-cols-2'
+                        }`}
                       >
                         <div className="space-y-2">
                           <Label htmlFor="manualName" className="text-gray-700">
@@ -1477,10 +1486,13 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
                   </div>
                 )}
                 <h3 className="text-lg font-semibold mb-2 text-gray-900">
-                  {emailProgress.status === 'completed' ? 'Email Delivery Complete' : 'Sending Emails...'}
+                  {emailProgress.status === 'completed'
+                    ? 'Email Delivery Complete'
+                    : 'Sending Emails...'}
                 </h3>
                 <p className="text-gray-600">
-                  {emailProgress.sent} of {emailProgress.total} delivered. {emailProgress.failed} failed.
+                  {emailProgress.sent} of {emailProgress.total} delivered. {emailProgress.failed}{' '}
+                  failed.
                 </p>
               </div>
 
@@ -1497,10 +1509,19 @@ export function SendCertificatesModal({ open, onClose, certificates }: SendCerti
                       >
                         <span className="font-medium text-gray-900">{detail.email}</span>
                         <Badge
-                          variant={detail.status === 'sent' ? 'default' : detail.status === 'failed' ? 'destructive' : 'secondary'}
+                          variant={
+                            detail.status === 'sent'
+                              ? 'default'
+                              : detail.status === 'failed'
+                                ? 'destructive'
+                                : 'secondary'
+                          }
                           className={
-                            detail.status === 'sent' ? 'bg-green-100 text-green-700' :
-                              detail.status === 'failed' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700'
+                            detail.status === 'sent'
+                              ? 'bg-green-100 text-green-700'
+                              : detail.status === 'failed'
+                                ? 'bg-red-100 text-red-700'
+                                : 'bg-gray-100 text-gray-700'
                           }
                         >
                           {detail.status.charAt(0).toUpperCase() + detail.status.slice(1)}

@@ -70,7 +70,7 @@ const generatedCertificateSchema = new mongoose.Schema(
       status: {
         type: String,
         enum: ['pending', 'completed', 'failed', 'partial'],
-        default: 'pending'
+        default: 'pending',
       },
       deliveredCount: { type: Number, default: 0 },
       failedCount: { type: Number, default: 0 },
@@ -78,9 +78,9 @@ const generatedCertificateSchema = new mongoose.Schema(
         {
           email: String,
           status: { type: String, enum: ['sent', 'failed'] },
-          error: String
-        }
-      ]
+          error: String,
+        },
+      ],
     },
   },
   {
