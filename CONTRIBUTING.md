@@ -2,6 +2,14 @@
 
 Thank you for your interest in contributing to CertiNova! We welcome contributions from the community to help make this platform better, more secure, and more accessible.
 
+## Revamp in Progress: Feature Freeze
+
+CertiNova is moving to a new stack. Read [docs/revamp](./docs/revamp/README.md) and the [decision records](./docs/adr/README.md) first.
+
+- `certinova-backend` and `certinova-frontend` accept **bug fixes only**. Maintainers close pull requests that add features to these folders.
+- Put new work in `apps/`, `hasura/`, `supabase/` or `tools/`. Open an issue first and link it to a task in the revamp tracker.
+- The old folders will be deleted after cutover.
+
 ## How Can I Contribute?
 
 ### Reporting Bugs
