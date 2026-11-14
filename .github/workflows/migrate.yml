@@ -1,0 +1,28 @@
+name: migrate
+
+on:
+  push:
+    branches: [main, 'revamp/**']
+    paths:
+      - 'tools/migrate/**'
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - '.github/workflows/migrate.yml'
+      - '.github/workflows/_python-package.yml'
+  pull_request:
+    paths:
+      - 'tools/migrate/**'
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - '.github/workflows/migrate.yml'
+      - '.github/workflows/_python-package.yml'
+
+concurrency:
+  group: migrate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    uses: ./.github/workflows/_python-package.yml
+    with:
+      directory: tools/migrate
