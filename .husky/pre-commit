@@ -1,5 +1,4 @@
 #!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
 
 # ---------- Colors ----------
 RESET='\033[0m'
@@ -21,115 +20,111 @@ header() {
   printf "${CYAN}${BOLD}============================================================${RESET}\n"
 }
 
-step() {
-  printf "${BLUE}[RUNNING]${RESET} %s\n" "$1"
+step() { printf "${BLUE}[RUNNING]${RESET} %s\n" "$1"; }
+ok() { printf "${GREEN}[PASS]${RESET} %s\n" "$1"; }
+warn() { printf "${YELLOW}[WARN]${RESET} %s\n" "$1"; }
+fail() { printf "${RED}[FAIL]${RESET} %s\n" "$1"; }
+divider() { printf "${GRAY}------------------------------------------------------------${RESET}\n"; }
+
+has_staged() {
+  git diff --cached --name-only --diff-filter=ACMR -- "$1" | grep -q .
 }
 
-ok() {
-  printf "${GREEN}[PASS]${RESET} %s\n" "$1"
+# Re-stage only files that were already staged, so formatter fixes never pull in unrelated work.
+restage() {
+  git diff --cached --name-only --diff-filter=ACMR -- "$1" | xargs -r git add --
 }
 
-warn() {
-  printf "${YELLOW}[WARN]${RESET} %s\n" "$1"
-}
+# ---------- Legacy Node apps ----------
 
-fail() {
-  printf "${RED}[FAIL]${RESET} %s\n" "$1"
-}
-
-divider() {
-  printf "${GRAY}------------------------------------------------------------${RESET}\n"
-}
-
-check_directory() {
+check_legacy() {
   DIR=$1
   TS=$2
 
   header "Checking: $DIR"
-
   START=$(date +%s)
-
   cd "$DIR" || exit 1
 
-  # Dependencies
   if [ ! -d "node_modules" ]; then
     step "Installing dependencies"
-
-    if npm install; then
-      ok "Dependencies installed"
-    else
-      fail "Dependency installation failed"
-      exit 1
-    fi
-  else
-    ok "Dependencies available"
+    npm install || { fail "Dependency installation failed"; exit 1; }
   fi
-
+  ok "Dependencies available"
   divider
 
-  # TypeScript
   if [ "$TS" = true ]; then
     step "Running TypeScript"
-
-    if npx tsc --noEmit --pretty; then
-      ok "TypeScript passed"
-    else
-      fail "TypeScript errors found"
-      cd - >/dev/null
-      exit 1
-    fi
-  else
-    warn "Skipping TypeScript"
+    npx tsc --noEmit --pretty || { fail "TypeScript errors found"; exit 1; }
+    ok "TypeScript passed"
+    divider
   fi
 
-  divider
-
-  # Prettier
   step "Checking formatting"
-
   if npx prettier --check . >/dev/null 2>&1; then
     ok "Formatting passed"
   else
-    warn "Formatting issues detected"
-
-    npx prettier --write .
-    git add .
-
+    npx prettier --write . >/dev/null
+    cd - >/dev/null
+    restage "$DIR"
+    cd "$DIR" || exit 1
     ok "Formatting fixed"
   fi
-
   divider
 
-  # ESLint
-  if [ -f "eslint.config.js" ] || \
-     [ -f ".eslintrc.js" ] || \
-     [ -f ".eslintrc.json" ]; then
-
-    step "Running ESLint"
-
-    if npx eslint . --fix --no-error-on-unmatched-pattern; then
-      ok "Lint passed"
-    else
-      warn "Lint warnings (non-blocking)"
-    fi
-  else
-    warn "No ESLint configuration found"
-  fi
+  step "Running ESLint"
+  npx eslint . --fix --no-error-on-unmatched-pattern && ok "Lint passed" || warn "Lint warnings (non-blocking)"
 
   cd - >/dev/null
-
-  END=$(date +%s)
-
-  echo ""
-  printf "${GREEN}${BOLD}Completed in %ss${RESET}\n" "$((END - START))"
+  printf "${GREEN}${BOLD}Completed in %ss${RESET}\n" "$(($(date +%s) - START))"
 }
 
-clear
+# ---------- Revamp: Python packages ----------
+
+check_python() {
+  DIR=$1
+
+  header "Checking: $DIR"
+  command -v uv >/dev/null || { fail "uv is not installed (https://docs.astral.sh/uv/)"; exit 1; }
+
+  step "Running ruff format"
+  uv run --directory "$DIR" ruff format . >/dev/null || { fail "ruff format failed"; exit 1; }
+  restage "$DIR"
+  ok "Formatting passed"
+
+  step "Running ruff check"
+  uv run --directory "$DIR" ruff check . || { fail "ruff found problems"; exit 1; }
+  ok "Lint passed"
+}
+
+# ---------- Revamp: web app ----------
+
+check_web() {
+  DIR=$1
+
+  header "Checking: $DIR"
+  [ -d "$DIR/node_modules" ] || (cd "$DIR" && npm ci) || { fail "npm ci failed"; exit 1; }
+
+  step "Running prettier"
+  (cd "$DIR" && npx prettier --write . >/dev/null) || { fail "prettier failed"; exit 1; }
+  restage "$DIR"
+  ok "Formatting passed"
+
+  step "Running ESLint"
+  (cd "$DIR" && npm run --silent lint) || { fail "ESLint found problems"; exit 1; }
+  ok "Lint passed"
+
+  step "Running vue-tsc"
+  (cd "$DIR" && npm run --silent type-check) || { fail "Type errors found"; exit 1; }
+  ok "Types passed"
+}
 
 header "PRE-COMMIT CHECKS"
 
-check_directory "certinova-backend" false
-check_directory "certinova-frontend" true
+has_staged certinova-backend && check_legacy certinova-backend false
+has_staged certinova-frontend && check_legacy certinova-frontend true
+has_staged apps/api && check_python apps/api
+has_staged tools/migrate && check_python tools/migrate
+has_staged apps/web && check_web apps/web
 
 echo ""
 printf "${GREEN}${BOLD}============================================================${RESET}\n"
