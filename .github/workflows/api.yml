@@ -1,0 +1,28 @@
+name: api
+
+on:
+  push:
+    branches: [main, 'revamp/**']
+    paths:
+      - 'apps/api/**'
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - '.github/workflows/api.yml'
+      - '.github/workflows/_python-package.yml'
+  pull_request:
+    paths:
+      - 'apps/api/**'
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - '.github/workflows/api.yml'
+      - '.github/workflows/_python-package.yml'
+
+concurrency:
+  group: api-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    uses: ./.github/workflows/_python-package.yml
+    with:
+      directory: apps/api
