@@ -18,7 +18,8 @@
     "precommit": "bash .husky/pre-commit",
     "check:backend": "cd certinova-backend && npm run check",
     "check:frontend": "cd certinova-frontend && npm run check",
-    "check:all": "npm run check:backend && npm run check:frontend"
+    "check:all": "npm run check:backend && npm run check:frontend",
+    "supabase": "npx --yes supabase@2.122.1"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",

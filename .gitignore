@@ -50,3 +50,25 @@ Thumbs.db
 .vercel
 
 .env
+# Revamp: env files (only *.example is tracked)
+**/.env
+**/.env.*
+!**/.env.example
+
+# Revamp: Python
+.venv/
+__pycache__/
+*.py[cod]
+.ruff_cache/
+.mypy_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Revamp: web
+apps/web/node_modules/
+apps/web/dist/
+
+# Revamp: Supabase CLI local state
+supabase/.branches/
+supabase/.temp/

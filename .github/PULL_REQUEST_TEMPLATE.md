@@ -30,6 +30,10 @@ Closes #[issue-number]
 - [ ] Error messages are user-friendly
 - [ ] Screenshots/recordings attached below
 
+### Revamp
+- [ ] This PR changes only the new stack (`apps/`, `hasura/`, `supabase/`, `tools/`, `docs/`), **or** it is a bug fix for `certinova-backend` / `certinova-frontend` (no new features)
+- [ ] Revamp tracker task ID (e.g. P1.3):
+
 ## Type of Change
 
 <!-- Delete options that aren't relevant -->
