@@ -24,6 +24,9 @@
   <img src="./assets/landing.png" alt="banner" width="75%">
 </p>
 
+> [!IMPORTANT]
+> CertiNova is moving to a new stack (Flask, Vue 3 + Frappe UI, Supabase, Hasura). The current apps accept **bug fixes only** until cutover. See [docs/revamp](./docs/revamp/README.md).
+
 ---
 
 ## Table of Contents

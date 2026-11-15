@@ -1,0 +1,7 @@
+version: 3
+# Endpoint and admin secret come from hasura/.env (HASURA_GRAPHQL_ENDPOINT, HASURA_GRAPHQL_ADMIN_SECRET).
+endpoint: http://localhost:8080
+metadata_directory: metadata
+actions:
+  kind: synchronous
+  handler_webhook_baseurl: '{{ACTION_BASE_URL}}'
