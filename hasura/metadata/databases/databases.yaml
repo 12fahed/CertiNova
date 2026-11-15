@@ -1,0 +1,8 @@
+- name: certinova-dev
+  kind: postgres
+  configuration:
+    connection_info:
+      database_url: postgresql://postgres.offbtudwxcddbswzdoxf:Ciq#5!!z_RJ!t_*@aws-0-ap-northeast-1.pooler.supabase.com:5432/postgres
+      isolation_level: read-committed
+      use_prepared_statements: false
+  tables: "!include certinova-dev/tables/tables.yaml"
