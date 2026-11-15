@@ -1,0 +1,9 @@
+[extend]
+useDefault = true
+
+[[rules]]
+id = "connection-string-password"
+description = "Database or Redis URL with an inline password"
+regex = '''(?i)(?:postgres(?:ql)?|mongodb(?:\+srv)?|rediss?)://[^:/\s]+:([^@\s<]+)@'''
+secretGroup = 1
+entropy = 3.0
