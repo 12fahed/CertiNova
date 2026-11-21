@@ -1,0 +1,25 @@
+{
+  "password": "legacy-pass-123",
+  "recipients": [
+    {
+      "name": "Aarav Sharma",
+      "email": "aarav@example.com",
+      "rank": "1st",
+      "uuid": "6f1c2a9e-4b7d-4e8a-9c1f-2d3e4f5a6b7c"
+    },
+    {
+      "name": "Diya Patel",
+      "email": "diya@example.com",
+      "uuid": "7a2b3c4d-5e6f-4a1b-8c9d-0e1f2a3b4c5d"
+    },
+    {
+      "name": "Kabir Rao",
+      "email": "not-an-email"
+    }
+  ],
+  "blob": {
+    "encryptedData": "3a61c5b86b793c4453530d889f3baadfa79e88f8ddc370a0ccad75d41637317c826501fdc9b74d117f1c9422a4c858ef535e20f318b1e80333787805bcee93ed696a1dd3dd67175cca4e0692f027571d90648aad902e86b95cb3a406bb35e625ed8fdcf395a03a81476a569feee610b4765579440f90b7e4a141a66de39afc586404572d33d38a5b48e64ff1314efd892ca21cca9c4e46161a51c363f522d4e94fbe3adb8dda92badfc56d44c630516ec6b43b712d045ebfb85b619f901d8de4d81c90bb22e581079cc9835eb008319db64bc6399de1fdb64be06aae1a45496594123c038cfb659510c9aa290ea52f409a870b068ed74730e167710990a21865",
+    "salt": "d778e7044ab20c1404c7b6ecb2cab699",
+    "iv": "0f4bf38230fbfbe1f5353f24512ea6f5"
+  }
+}
