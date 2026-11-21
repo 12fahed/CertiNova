@@ -20,7 +20,9 @@ Each value has one home for each environment. Do not copy secrets into other pla
 | `HASURA_ACTION_SECRET` | apps/api, Hasura | Render env group and Hasura Cloud env vars (same value) | yes |
 | `SUPABASE_URL` | apps/api, tools/migrate | Render env group, local `.env` | no |
 | `SUPABASE_SERVICE_ROLE_KEY` | apps/api, tools/migrate | Render env group, local `.env` | yes |
-| `SMTP_*`, `EMAIL_FROM_ADDRESS` | worker | Render env group `certinova-dev` | yes |
+| `SMTP_*`, `EMAIL_FROM_ADDRESS` | apps/api, worker | Render env group `certinova-dev` | yes |
+| `APP_ENV` | apps/api, worker | Render env group (`staging` or `prod` turns on the secret checks) | no |
+| `FRONTEND_URL` | apps/api, worker | Render env group (public web app URL, used in QR codes and emails) | no |
 | `VITE_SUPABASE_URL` | apps/web | Vercel project env, local `.env.local` | no |
 | `VITE_SUPABASE_ANON_KEY` | apps/web | Vercel project env, local `.env.local` | no (public) |
 | `VITE_HASURA_GRAPHQL_URL` | apps/web | Vercel project env, local `.env.local` | no |
