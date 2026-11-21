@@ -1,26 +1,22 @@
 <script setup lang="ts">
 import { useMutation, useQuery } from '@urql/vue'
-import {
-  Button,
-  Dropdown,
-  ErrorMessage,
-  LoadingText,
-  PageHeader,
-  PageHeaderTitle,
-  dialog,
-  toast,
-} from 'frappe-ui'
+import { Button, Dropdown, ErrorMessage, LoadingText, dialog, toast } from 'frappe-ui'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import EmptyState from '@/components/EmptyState.vue'
 import EventFormDialog from '@/components/EventFormDialog.vue'
-import StatusBadge from '@/components/StatusBadge.vue'
+import EmptyState from '@/components/ui/EmptyState.vue'
+import PageTitle from '@/components/ui/PageTitle.vue'
+import TonePill from '@/components/ui/TonePill.vue'
+import StatusBadge from '@/components/ui/StatusBadge.vue'
 import { useSignedUrl } from '@/composables/useSignedUrl'
+import { FIELD_COLORS } from '@/editor/fieldColors'
+import { boxStyle } from '@/editor/geometry'
 import { EventQuery, UpdateEventMutation } from '@/graphql/operations/events'
 import { errorMessage, unwrap } from '@/lib/errors'
 import { formatDate, formatDateTime, plural } from '@/lib/format'
 import { BUCKETS } from '@/lib/supabase'
 import { useCurrentOrg } from '@/org/currentOrg'
+import { FIELD_KEYS, FIELD_LABELS } from '@/rendering/layout'
 
 const props = defineProps<{ id: string }>()
 const router = useRouter()
@@ -37,12 +33,19 @@ const templateUrl = useSignedUrl(
   BUCKETS.templates,
   computed(() => template.value?.image_path),
 )
+const imageSize = computed(() =>
+  template.value
+    ? { width: template.value.image_width, height: template.value.image_height }
+    : null,
+)
+const placedFields = computed(() =>
+  FIELD_KEYS.flatMap((key) => template.value?.fields.filter((f) => f.field_key === key) ?? []),
+)
 const editing = ref(false)
 
-const menu = computed(() => [
-  { label: 'Edit details', icon: 'lucide-pencil', onClick: () => (editing.value = true) },
+const menu = [
   { label: 'Delete event', icon: 'lucide-trash-2', theme: 'red' as const, onClick: confirmDelete },
-])
+]
 
 function confirmDelete() {
   dialog.danger({
@@ -74,103 +77,141 @@ function confirmDelete() {
   <EmptyState
     v-else-if="!event"
     icon="lucide-calendar-x"
+    tone="bad"
     title="Event not found"
     description="It was deleted, or it belongs to another organisation."
   >
-    <Button label="Back to dashboard" :route="{ name: 'dashboard' }" />
+    <Button variant="outline" label="Back to dashboard" :route="{ name: 'dashboard' }" />
   </EmptyState>
   <template v-else>
-    <PageHeader>
-      <PageHeaderTitle :title="event.name" />
-      <div class="flex items-center gap-2">
-        <Dropdown
-          v-if="isAdmin"
-          :options="menu"
-          :button="{ icon: 'lucide-ellipsis', label: 'Event options' }"
-        />
+    <PageTitle
+      :title="event.name"
+      :crumbs="[{ label: 'Dashboard', to: { name: 'dashboard' } }, { label: event.name }]"
+    >
+      <template #meta>
+        <div class="flex flex-wrap gap-2">
+          <TonePill tone="neutral" :label="`Issued by ${event.issuer_name}`" />
+          <TonePill tone="neutral" :label="formatDate(event.event_date)" />
+          <TonePill v-if="template" tone="good" label="Design ready" dot />
+          <TonePill v-else tone="accent" label="Needs design" dot />
+        </div>
+      </template>
+      <template #actions>
+        <template v-if="isAdmin">
+          <Button variant="outline" size="md" label="Edit details" @click="editing = true" />
+          <Dropdown
+            :options="menu"
+            align="end"
+            :button="{
+              icon: 'lucide-ellipsis',
+              label: 'Event options',
+              variant: 'outline',
+              size: 'md',
+            }"
+          />
+        </template>
         <Button
           variant="solid"
+          theme="blue"
+          size="md"
           icon-left="lucide-sparkles"
-          label="Generate"
+          label="Generate certificates"
           :disabled="!template || template.fields.length === 0"
           :tooltip="template ? undefined : 'Add a certificate design first'"
           :route="{ name: 'generate', params: { id: event.id } }"
         />
-      </div>
-    </PageHeader>
+      </template>
+    </PageTitle>
 
-    <p class="text-sm text-ink-gray-6">
-      Issued by {{ event.issuer_name }} · {{ formatDate(event.event_date) }}
-    </p>
+    <div class="flex flex-wrap items-start gap-5">
+      <section class="card min-w-0 flex-[3_1_420px] overflow-hidden">
+        <div class="flex items-center justify-between px-5 py-3.5">
+          <h2 class="font-semibold text-ink-gray-9">Certificate design</h2>
+          <Button
+            v-if="isAdmin"
+            theme="blue"
+            :icon-left="template ? 'lucide-pen-tool' : 'lucide-image-plus'"
+            :label="template ? 'Edit design' : 'Add design'"
+            :route="{ name: 'template-editor', params: { id: event.id } }"
+          />
+        </div>
+        <div v-if="template && imageSize" class="border-y border-edge-soft bg-canvas p-6">
+          <div class="relative mx-auto w-full max-w-xl shadow-lift">
+            <img
+              v-if="templateUrl"
+              :src="templateUrl"
+              :alt="`Certificate design for ${event.name}`"
+              class="block w-full"
+            />
+            <div v-else :style="{ aspectRatio: `${imageSize.width} / ${imageSize.height}` }" />
+            <div
+              v-for="field in placedFields"
+              :key="field.field_key"
+              class="pointer-events-none absolute rounded-sm border-2 border-dashed"
+              :class="FIELD_COLORS[field.field_key].box"
+              :style="boxStyle(field, imageSize)"
+            />
+          </div>
+        </div>
+        <div v-if="template" class="flex flex-wrap gap-2 px-5 py-3.5">
+          <TonePill
+            v-for="field in placedFields"
+            :key="field.field_key"
+            :tone="FIELD_COLORS[field.field_key].tone"
+            :label="
+              field.field_key === 'certificate_qr'
+                ? FIELD_LABELS[field.field_key]
+                : `${FIELD_LABELS[field.field_key]} · ${field.font_family}`
+            "
+          />
+        </div>
+        <EmptyState
+          v-else
+          class="m-5"
+          icon="lucide-image-plus"
+          title="No design yet"
+          :description="
+            isAdmin
+              ? 'Upload the certificate image and mark where the name, QR code and other fields go.'
+              : 'An owner or admin must add the certificate design.'
+          "
+        />
+      </section>
 
-    <section class="flex flex-col gap-3">
-      <div class="flex items-center justify-between">
-        <h2 class="text-lg font-semibold text-ink-gray-9">Certificate design</h2>
-        <Button
-          v-if="isAdmin && template"
-          icon-left="lucide-pen-tool"
-          label="Edit design"
-          :route="{ name: 'template-editor', params: { id: event.id } }"
-        />
-      </div>
-      <div
-        v-if="template"
-        class="overflow-hidden rounded-lg border border-outline-gray-2 bg-surface-gray-1"
-      >
-        <img
-          v-if="templateUrl"
-          :src="templateUrl"
-          :alt="`Certificate design for ${event.name}`"
-          class="mx-auto max-h-96 w-auto"
-        />
-        <div v-else class="aspect-[1.414] max-h-96" />
-      </div>
-      <EmptyState
-        v-else
-        icon="lucide-image-plus"
-        title="No design yet"
-        :description="
-          isAdmin
-            ? 'Upload the certificate image and mark where the name, QR code and other fields go.'
-            : 'An owner or admin must add the certificate design.'
-        "
-      >
-        <Button
-          v-if="isAdmin"
-          variant="solid"
-          label="Add design"
-          :route="{ name: 'template-editor', params: { id: event.id } }"
-        />
-      </EmptyState>
-    </section>
-
-    <section class="flex flex-col gap-3">
-      <h2 class="text-lg font-semibold text-ink-gray-9">Batches</h2>
-      <p v-if="event.batches.length === 0" class="text-sm text-ink-gray-6">
-        No certificates were generated for this event yet.
-      </p>
-      <ul v-else class="divide-y divide-outline-gray-1 rounded-lg border border-outline-gray-2">
-        <li v-for="batch in event.batches" :key="batch.id">
-          <RouterLink
-            :to="{ name: 'batch', params: { id: batch.id } }"
-            class="flex flex-col gap-1 px-4 py-3 hover:bg-surface-gray-1 sm:flex-row sm:items-center sm:justify-between"
-          >
-            <span class="flex flex-col">
-              <span class="font-medium text-ink-gray-9">
-                {{ plural(batch.recipient_count, 'certificate') }}
-              </span>
-              <span class="text-sm text-ink-gray-6">
-                {{ formatDateTime(batch.created_at) }}
-                <template v-if="batch.creator">
-                  · {{ batch.creator.full_name || batch.creator.email }}
-                </template>
-              </span>
+      <section class="card min-w-0 flex-[2_1_320px] overflow-hidden">
+        <div class="flex items-center justify-between px-5 py-3.5">
+          <h2 class="font-semibold text-ink-gray-9">Batches</h2>
+          <span class="text-sm text-ink-gray-6">
+            {{ plural(event.batches.length, 'batch', 'batches') }}
+          </span>
+        </div>
+        <p
+          v-if="event.batches.length === 0"
+          class="border-t border-edge-soft px-5 py-6 text-sm text-ink-gray-6"
+        >
+          No certificates were generated for this event yet.
+        </p>
+        <RouterLink
+          v-for="batch in event.batches"
+          :key="batch.id"
+          :to="{ name: 'batch', params: { id: batch.id } }"
+          class="flex items-center justify-between gap-3 border-t border-edge-soft px-5 py-3.5 hover:bg-canvas"
+        >
+          <span class="min-w-0">
+            <span class="block text-sm font-semibold text-ink-gray-9">
+              {{ plural(batch.recipient_count, 'certificate') }}
             </span>
-            <StatusBadge :status="batch.status" />
-          </RouterLink>
-        </li>
-      </ul>
-    </section>
+            <span class="block truncate text-xs text-ink-gray-6">
+              {{ formatDateTime(batch.created_at) }}
+              <template v-if="batch.creator">
+                · {{ batch.creator.full_name || batch.creator.email }}
+              </template>
+            </span>
+          </span>
+          <StatusBadge :status="batch.status" />
+        </RouterLink>
+      </section>
+    </div>
 
     <EventFormDialog v-model:open="editing" :event="event" @saved="eventQuery.executeQuery()" />
   </template>

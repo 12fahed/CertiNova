@@ -14,8 +14,11 @@ const recipients = defineModel<Recipient[]>({ required: true })
 const selected = defineModel<number>('selected', { default: 0 })
 
 const fileInput = ref<HTMLInputElement>()
+const fileName = ref<string | null>(null)
+const importedCount = ref(0)
 const importErrors = ref<RowError[]>([])
 const importing = ref(false)
+const dragging = ref(false)
 
 const rowErrors = computed(() => recipients.value.map(validateRecipient))
 const full = computed(() => recipients.value.length >= MAX_RECIPIENTS)
@@ -30,14 +33,12 @@ function removeRow(index: number) {
   selected.value = Math.min(selected.value, Math.max(recipients.value.length - 1, 0))
 }
 
-async function onFile(event: Event) {
-  const input = event.target as HTMLInputElement
-  const file = input.files?.[0]
-  input.value = ''
-  if (!file) return
+async function importFile(file: File) {
   importing.value = true
   try {
     const result = await readRecipientFile(file)
+    fileName.value = file.name
+    importedCount.value = Math.min(result.recipients.length, MAX_RECIPIENTS)
     importErrors.value = result.errors
     if (result.recipients.length > 0) {
       recipients.value = result.recipients.slice(0, MAX_RECIPIENTS)
@@ -47,28 +48,47 @@ async function onFile(event: Event) {
     importing.value = false
   }
 }
+
+function onFile(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  input.value = ''
+  if (file) void importFile(file)
+}
+
+function onDrop(event: DragEvent) {
+  dragging.value = false
+  const file = event.dataTransfer?.files[0]
+  if (file) void importFile(file)
+}
 </script>
 
 <template>
   <div class="flex flex-col gap-3">
-    <div class="flex flex-wrap items-center gap-2">
+    <div
+      class="flex flex-wrap items-center gap-4 rounded-xl border-[1.5px] border-dashed p-4 transition-colors"
+      :class="dragging ? 'border-brand-600 bg-brand-100' : 'border-brand-200 bg-brand-50'"
+      @dragover.prevent="dragging = true"
+      @dragleave="dragging = false"
+      @drop.prevent="onDrop"
+    >
+      <span class="grid size-11 place-items-center rounded-xl bg-brand-100" aria-hidden="true">
+        <span class="lucide-file-up size-5 text-brand-600" />
+      </span>
+      <div class="min-w-48 flex-1">
+        <div class="font-semibold text-ink-gray-9">Drop a CSV or XLSX file</div>
+        <div class="text-sm text-ink-gray-6">
+          Columns: name (required), email, rank.
+          <a class="link" href="/sample-recipients.csv" download>Sample file</a>
+        </div>
+      </div>
       <Button
-        icon-left="lucide-file-up"
-        label="Import CSV or XLSX"
+        variant="solid"
+        theme="blue"
+        label="Choose file"
         :loading="importing"
         @click="fileInput?.click()"
       />
-      <Button icon-left="lucide-plus" label="Add row" :disabled="full" @click="addRow" />
-      <a
-        class="text-sm text-ink-gray-6 underline hover:text-ink-gray-9"
-        href="/sample-recipients.csv"
-        download
-      >
-        Sample file
-      </a>
-      <span class="ml-auto text-sm text-ink-gray-6">
-        {{ plural(recipients.length, 'recipient') }} (at most {{ MAX_RECIPIENTS }})
-      </span>
       <input
         ref="fileInput"
         type="file"
@@ -78,59 +98,92 @@ async function onFile(event: Event) {
       />
     </div>
 
-    <div v-if="importErrors.length" class="rounded-md bg-surface-red-1 p-3 text-sm text-ink-red-6">
-      <p class="font-medium">Some rows were not imported:</p>
+    <div class="flex flex-wrap items-center gap-2">
+      <span
+        v-if="fileName"
+        class="inline-flex items-center gap-2 rounded-full border border-edge bg-surface-base px-3 py-1 text-sm"
+      >
+        <span class="lucide-file-spreadsheet size-4 text-ink-gray-5" aria-hidden="true" />
+        {{ fileName }}
+        <span class="font-semibold text-good-700">{{ importedCount }} imported</span>
+        <span v-if="importErrors.length" class="font-semibold text-bad-700">
+          {{ importErrors.length }} skipped
+        </span>
+      </span>
+      <Button
+        variant="ghost"
+        theme="blue"
+        icon-left="lucide-plus"
+        label="Add row"
+        :disabled="full"
+        @click="addRow"
+      />
+      <span class="ml-auto text-sm text-ink-gray-6">
+        {{ plural(recipients.length, 'recipient') }} of {{ MAX_RECIPIENTS }}
+      </span>
+    </div>
+
+    <details v-if="importErrors.length" class="rounded-lg bg-bad-50 px-3 py-2 text-sm text-bad-800">
+      <summary class="cursor-pointer font-medium">See the skipped rows</summary>
       <ul class="mt-1 max-h-32 list-disc overflow-y-auto pl-5">
         <li v-for="error in importErrors" :key="`${error.row}-${error.message}`">
           Row {{ error.row }}: {{ error.message }}
         </li>
       </ul>
-    </div>
+    </details>
 
-    <div class="max-h-[28rem] overflow-auto rounded-lg border border-outline-gray-2">
-      <table class="w-full min-w-[36rem] text-sm">
-        <thead class="sticky top-0 bg-surface-gray-1 text-left text-xs text-ink-gray-6">
+    <div class="card max-h-[28rem] overflow-auto">
+      <table class="data-table min-w-[36rem]">
+        <thead class="sticky top-0 z-[1]">
           <tr>
-            <th class="w-10 px-2 py-2 font-medium">#</th>
-            <th class="px-2 py-2 font-medium">Name *</th>
-            <th class="px-2 py-2 font-medium">Email</th>
-            <th class="px-2 py-2 font-medium">Rank</th>
-            <th class="w-10" />
+            <th class="w-10">#</th>
+            <th>Name *</th>
+            <th>Email</th>
+            <th>Rank</th>
+            <th class="w-10"><span class="sr-only">Actions</span></th>
           </tr>
         </thead>
         <tbody>
           <tr
             v-for="(recipient, index) in recipients"
             :key="index"
-            class="border-t border-outline-gray-1"
-            :class="{ 'bg-surface-gray-1': index === selected }"
+            :class="
+              rowErrors[index]
+                ? 'bg-bad-25'
+                : index === selected
+                  ? 'bg-brand-50 shadow-[inset_3px_0_0_theme(colors.brand.600)]'
+                  : ''
+            "
             @focusin="selected = index"
           >
-            <td class="px-2 text-xs tabular-nums text-ink-gray-5">{{ index + 1 }}</td>
-            <td class="p-1">
+            <td class="!py-1 text-xs tabular-nums text-ink-gray-5">{{ index + 1 }}</td>
+            <td class="!p-1">
               <input
                 v-model.trim="recipient.name"
-                class="w-full rounded border-0 bg-transparent px-1.5 py-1 text-sm focus:bg-surface-base focus:ring-1 focus:ring-outline-gray-3"
+                class="cell-input"
                 :aria-label="`Name, row ${index + 1}`"
                 :aria-invalid="rowErrors[index] !== null"
               />
             </td>
-            <td class="p-1">
+            <td class="!p-1">
               <input
                 v-model.trim="recipient.email"
                 type="email"
-                class="w-full rounded border-0 bg-transparent px-1.5 py-1 text-sm focus:bg-surface-base focus:ring-1 focus:ring-outline-gray-3"
+                class="cell-input"
                 :aria-label="`Email, row ${index + 1}`"
               />
+              <div v-if="rowErrors[index]" class="px-1.5 pb-1 text-xs text-bad-700">
+                {{ rowErrors[index] }}
+              </div>
             </td>
-            <td class="p-1">
+            <td class="!p-1">
               <input
                 v-model.trim="recipient.rank"
-                class="w-full rounded border-0 bg-transparent px-1.5 py-1 text-sm focus:bg-surface-base focus:ring-1 focus:ring-outline-gray-3"
+                class="cell-input"
                 :aria-label="`Rank, row ${index + 1}`"
               />
             </td>
-            <td class="px-1">
+            <td class="!p-1">
               <Button
                 variant="ghost"
                 icon="lucide-x"
@@ -140,22 +193,18 @@ async function onFile(event: Event) {
             </td>
           </tr>
           <tr v-if="recipients.length === 0">
-            <td colspan="5" class="px-3 py-8 text-center text-ink-gray-5">
+            <td colspan="5" class="!py-8 text-center text-ink-gray-5">
               Import a file or add rows by hand.
             </td>
           </tr>
         </tbody>
       </table>
     </div>
-    <p v-if="rowErrors.some((error) => error)" class="text-sm text-ink-red-6">
-      Fix the rows with problems:
-      {{
-        rowErrors
-          .map((error, index) => (error ? `row ${index + 1} (${error})` : null))
-          .filter(Boolean)
-          .slice(0, 5)
-          .join(', ')
-      }}
-    </p>
   </div>
 </template>
+
+<style scoped>
+.cell-input {
+  @apply w-full rounded-md border-0 bg-transparent px-1.5 py-1 text-sm text-ink-gray-9 focus:bg-surface-base focus:ring-1 focus:ring-brand-600;
+}
+</style>
