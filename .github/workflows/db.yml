@@ -1,0 +1,57 @@
+name: db
+
+on:
+  push:
+    branches: [main, 'revamp/**']
+    paths:
+      - 'supabase/**'
+      - 'scripts/db-codegen.sh'
+      - 'apps/web/src/types/database.ts'
+      - 'apps/api/src/certinova_api/db/**'
+      - '.github/workflows/db.yml'
+  pull_request:
+    paths:
+      - 'supabase/**'
+      - 'scripts/db-codegen.sh'
+      - 'apps/web/src/types/database.ts'
+      - 'apps/api/src/certinova_api/db/**'
+      - '.github/workflows/db.yml'
+
+concurrency:
+  group: db-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  SUPABASE: npx --yes supabase@2.122.1
+
+jobs:
+  migrations:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: apps/web/.nvmrc
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - name: Install
+        run: |
+          uv sync --locked --all-packages
+          (cd apps/web && npm ci)
+      - name: Start Supabase and apply migrations
+        run: $SUPABASE start -x studio,imgproxy,mailpit,edge-runtime,logflare,vector,supavisor,realtime,postgres-meta
+      - name: Lint SQL
+        run: $SUPABASE db lint --level warning --fail-on error -s public,private,legacy
+      - name: Test
+        run: $SUPABASE test db
+      - name: Check generated types are current
+        run: |
+          ./scripts/db-codegen.sh
+          git diff --exit-code -- apps/web/src/types/database.ts apps/api/src/certinova_api/db/models.py \
+            || { echo "::error::Generated types are stale. Run npm run db:codegen and commit."; exit 1; }
