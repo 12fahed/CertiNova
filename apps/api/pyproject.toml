@@ -5,7 +5,9 @@ description = "CertiNova API: Hasura action and event-trigger handlers, render a
 requires-python = ">=3.12"
 dependencies = [
   "flask>=3.1",
+  "psycopg[binary]>=3.2",
   "pydantic-settings>=2.6",
+  "sqlalchemy>=2.0",
 ]
 
 [build-system]
@@ -24,3 +26,8 @@ plugins = ["pydantic.mypy"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+
+[dependency-groups]
+dev = [
+    "sqlacodegen>=3.0",
+]
