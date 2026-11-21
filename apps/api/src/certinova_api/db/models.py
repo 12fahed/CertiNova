@@ -206,7 +206,9 @@ class Users(Base):
     reauthentication_sent_at: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime(True))
     deleted_at: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime(True))
 
-    profiles: Mapped["Profiles"] = relationship("Profiles", uselist=False, back_populates="users")
+    profiles: Mapped["Profiles"] = relationship(
+        "Profiles", uselist=False, viewonly=True, back_populates="users"
+    )
 
 
 class IdMap(Base):
@@ -250,7 +252,7 @@ class Fonts(Base):
     )
 
     template_fields: Mapped[list["TemplateFields"]] = relationship(
-        "TemplateFields", back_populates="fonts"
+        "TemplateFields", viewonly=True, back_populates="fonts"
     )
 
 
@@ -300,15 +302,19 @@ class Organizations(Base):
         DateTime(True), nullable=False, server_default=text("now()")
     )
 
-    feature_flags: Mapped[list["FeatureFlags"]] = relationship("FeatureFlags", back_populates="org")
-    audit_log: Mapped[list["AuditLog"]] = relationship("AuditLog", back_populates="org")
-    events: Mapped[list["Events"]] = relationship("Events", back_populates="org")
-    jobs: Mapped[list["Jobs"]] = relationship("Jobs", back_populates="org")
+    feature_flags: Mapped[list["FeatureFlags"]] = relationship(
+        "FeatureFlags", viewonly=True, back_populates="org"
+    )
+    audit_log: Mapped[list["AuditLog"]] = relationship(
+        "AuditLog", viewonly=True, back_populates="org"
+    )
+    events: Mapped[list["Events"]] = relationship("Events", viewonly=True, back_populates="org")
+    jobs: Mapped[list["Jobs"]] = relationship("Jobs", viewonly=True, back_populates="org")
     organization_invites: Mapped[list["OrganizationInvites"]] = relationship(
-        "OrganizationInvites", back_populates="org"
+        "OrganizationInvites", viewonly=True, back_populates="org"
     )
     organization_members: Mapped[list["OrganizationMembers"]] = relationship(
-        "OrganizationMembers", back_populates="org"
+        "OrganizationMembers", viewonly=True, back_populates="org"
     )
 
 
@@ -346,7 +352,7 @@ class FeatureFlags(Base):
     org_id: Mapped[Optional[uuid.UUID]] = mapped_column(Uuid)
 
     org: Mapped[Optional["Organizations"]] = relationship(
-        "Organizations", back_populates="feature_flags"
+        "Organizations", viewonly=True, back_populates="feature_flags"
     )
 
 
@@ -372,18 +378,26 @@ class Profiles(Base):
     )
     full_name: Mapped[Optional[str]] = mapped_column(Text)
 
-    users: Mapped["Users"] = relationship("Users", back_populates="profiles")
-    audit_log: Mapped[list["AuditLog"]] = relationship("AuditLog", back_populates="actor")
-    events: Mapped[list["Events"]] = relationship("Events", back_populates="profiles")
-    jobs: Mapped[list["Jobs"]] = relationship("Jobs", back_populates="profiles")
+    users: Mapped["Users"] = relationship("Users", viewonly=True, back_populates="profiles")
+    audit_log: Mapped[list["AuditLog"]] = relationship(
+        "AuditLog", viewonly=True, back_populates="actor"
+    )
+    events: Mapped[list["Events"]] = relationship(
+        "Events", viewonly=True, back_populates="profiles"
+    )
+    jobs: Mapped[list["Jobs"]] = relationship("Jobs", viewonly=True, back_populates="profiles")
     organization_invites: Mapped[list["OrganizationInvites"]] = relationship(
-        "OrganizationInvites", back_populates="profiles"
+        "OrganizationInvites", viewonly=True, back_populates="profiles"
     )
     organization_members: Mapped[list["OrganizationMembers"]] = relationship(
-        "OrganizationMembers", back_populates="user"
+        "OrganizationMembers", viewonly=True, back_populates="user"
     )
-    templates: Mapped[list["Templates"]] = relationship("Templates", back_populates="profiles")
-    batches: Mapped[list["Batches"]] = relationship("Batches", back_populates="profiles")
+    templates: Mapped[list["Templates"]] = relationship(
+        "Templates", viewonly=True, back_populates="profiles"
+    )
+    batches: Mapped[list["Batches"]] = relationship(
+        "Batches", viewonly=True, back_populates="profiles"
+    )
 
 
 class AuditLog(Base):
@@ -431,9 +445,11 @@ class AuditLog(Base):
     actor_id: Mapped[Optional[uuid.UUID]] = mapped_column(Uuid)
     entity_id: Mapped[Optional[uuid.UUID]] = mapped_column(Uuid)
 
-    actor: Mapped[Optional["Profiles"]] = relationship("Profiles", back_populates="audit_log")
+    actor: Mapped[Optional["Profiles"]] = relationship(
+        "Profiles", viewonly=True, back_populates="audit_log"
+    )
     org: Mapped[Optional["Organizations"]] = relationship(
-        "Organizations", back_populates="audit_log"
+        "Organizations", viewonly=True, back_populates="audit_log"
     )
 
 
@@ -485,10 +501,18 @@ class Events(Base):
     created_by: Mapped[Optional[uuid.UUID]] = mapped_column(Uuid)
     deleted_at: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime(True))
 
-    profiles: Mapped[Optional["Profiles"]] = relationship("Profiles", back_populates="events")
-    org: Mapped["Organizations"] = relationship("Organizations", back_populates="events")
-    templates: Mapped[list["Templates"]] = relationship("Templates", back_populates="events")
-    batches: Mapped[list["Batches"]] = relationship("Batches", back_populates="events")
+    profiles: Mapped[Optional["Profiles"]] = relationship(
+        "Profiles", viewonly=True, back_populates="events"
+    )
+    org: Mapped["Organizations"] = relationship(
+        "Organizations", viewonly=True, back_populates="events"
+    )
+    templates: Mapped[list["Templates"]] = relationship(
+        "Templates", viewonly=True, back_populates="events"
+    )
+    batches: Mapped[list["Batches"]] = relationship(
+        "Batches", viewonly=True, back_populates="events"
+    )
 
 
 class Jobs(Base):
@@ -555,8 +579,12 @@ class Jobs(Base):
         comment='Output of a finished job, e.g. {"path": "<org_id>/<job_id>.zip", "format": "images_zip"} for exports.',
     )
 
-    profiles: Mapped[Optional["Profiles"]] = relationship("Profiles", back_populates="jobs")
-    org: Mapped["Organizations"] = relationship("Organizations", back_populates="jobs")
+    profiles: Mapped[Optional["Profiles"]] = relationship(
+        "Profiles", viewonly=True, back_populates="jobs"
+    )
+    org: Mapped["Organizations"] = relationship(
+        "Organizations", viewonly=True, back_populates="jobs"
+    )
 
 
 class OrganizationInvites(Base):
@@ -620,10 +648,10 @@ class OrganizationInvites(Base):
     accepted_at: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime(True))
 
     profiles: Mapped[Optional["Profiles"]] = relationship(
-        "Profiles", back_populates="organization_invites"
+        "Profiles", viewonly=True, back_populates="organization_invites"
     )
     org: Mapped["Organizations"] = relationship(
-        "Organizations", back_populates="organization_invites"
+        "Organizations", viewonly=True, back_populates="organization_invites"
     )
 
 
@@ -664,9 +692,11 @@ class OrganizationMembers(Base):
     )
 
     org: Mapped["Organizations"] = relationship(
-        "Organizations", back_populates="organization_members"
+        "Organizations", viewonly=True, back_populates="organization_members"
     )
-    user: Mapped["Profiles"] = relationship("Profiles", back_populates="organization_members")
+    user: Mapped["Profiles"] = relationship(
+        "Profiles", viewonly=True, back_populates="organization_members"
+    )
 
 
 class Templates(Base):
@@ -714,11 +744,15 @@ class Templates(Base):
     )
     created_by: Mapped[Optional[uuid.UUID]] = mapped_column(Uuid)
 
-    profiles: Mapped[Optional["Profiles"]] = relationship("Profiles", back_populates="templates")
-    events: Mapped["Events"] = relationship("Events", back_populates="templates")
-    batches: Mapped[list["Batches"]] = relationship("Batches", back_populates="templates")
+    profiles: Mapped[Optional["Profiles"]] = relationship(
+        "Profiles", viewonly=True, back_populates="templates"
+    )
+    events: Mapped["Events"] = relationship("Events", viewonly=True, back_populates="templates")
+    batches: Mapped[list["Batches"]] = relationship(
+        "Batches", viewonly=True, back_populates="templates"
+    )
     template_fields: Mapped[list["TemplateFields"]] = relationship(
-        "TemplateFields", back_populates="template"
+        "TemplateFields", viewonly=True, back_populates="template"
     )
 
 
@@ -782,14 +816,18 @@ class Batches(Base):
     )
     created_by: Mapped[Optional[uuid.UUID]] = mapped_column(Uuid)
 
-    profiles: Mapped[Optional["Profiles"]] = relationship("Profiles", back_populates="batches")
-    events: Mapped["Events"] = relationship("Events", back_populates="batches")
-    templates: Mapped["Templates"] = relationship("Templates", back_populates="batches")
+    profiles: Mapped[Optional["Profiles"]] = relationship(
+        "Profiles", viewonly=True, back_populates="batches"
+    )
+    events: Mapped["Events"] = relationship("Events", viewonly=True, back_populates="batches")
+    templates: Mapped["Templates"] = relationship(
+        "Templates", viewonly=True, back_populates="batches"
+    )
     encrypted_batches: Mapped["EncryptedBatches"] = relationship(
-        "EncryptedBatches", uselist=False, back_populates="batch"
+        "EncryptedBatches", uselist=False, viewonly=True, back_populates="batch"
     )
     certificates: Mapped[list["Certificates"]] = relationship(
-        "Certificates", back_populates="batches"
+        "Certificates", viewonly=True, back_populates="batches"
     )
 
 
@@ -872,8 +910,10 @@ class TemplateFields(Base):
     )
     color: Mapped[str] = mapped_column(Text, nullable=False, server_default=text("'#000000'::text"))
 
-    fonts: Mapped["Fonts"] = relationship("Fonts", back_populates="template_fields")
-    template: Mapped["Templates"] = relationship("Templates", back_populates="template_fields")
+    fonts: Mapped["Fonts"] = relationship("Fonts", viewonly=True, back_populates="template_fields")
+    template: Mapped["Templates"] = relationship(
+        "Templates", viewonly=True, back_populates="template_fields"
+    )
 
 
 class EncryptedBatches(Base):
@@ -907,7 +947,9 @@ class EncryptedBatches(Base):
     iv: Mapped[Optional[str]] = mapped_column(Text)
     unlocked_at: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime(True))
 
-    batch: Mapped["Batches"] = relationship("Batches", back_populates="encrypted_batches")
+    batch: Mapped["Batches"] = relationship(
+        "Batches", viewonly=True, back_populates="encrypted_batches"
+    )
 
 
 class Certificates(Base):
@@ -989,9 +1031,11 @@ class Certificates(Base):
     revoked_at: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime(True))
     revoked_reason: Mapped[Optional[str]] = mapped_column(Text)
 
-    batches: Mapped["Batches"] = relationship("Batches", back_populates="certificates")
+    batches: Mapped["Batches"] = relationship(
+        "Batches", viewonly=True, back_populates="certificates"
+    )
     email_deliveries: Mapped[list["EmailDeliveries"]] = relationship(
-        "EmailDeliveries", back_populates="certificates"
+        "EmailDeliveries", viewonly=True, back_populates="certificates"
     )
 
 
@@ -1039,5 +1083,5 @@ class EmailDeliveries(Base):
     sent_at: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime(True))
 
     certificates: Mapped["Certificates"] = relationship(
-        "Certificates", back_populates="email_deliveries"
+        "Certificates", viewonly=True, back_populates="email_deliveries"
     )

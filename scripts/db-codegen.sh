@@ -24,4 +24,7 @@ uv run --directory apps/api sqlacodegen \
   --schemas public,legacy \
   --outfile "$API_MODELS" \
   "postgresql+psycopg://${DB_URL#postgresql://}?options=-csearch_path%3Dextensions"
+# Composite foreign keys share columns, so relationships would fight over writes.
+# The API sets foreign key columns directly; relationships are for reads only.
+sed -i 's/back_populates=/viewonly=True, back_populates=/' "apps/api/$API_MODELS"
 uv run --directory apps/api ruff format "$API_MODELS" >/dev/null
