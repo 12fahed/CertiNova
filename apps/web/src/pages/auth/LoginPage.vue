@@ -23,27 +23,36 @@ const login = useTask(async () => {
 
 <template>
   <form class="flex flex-col gap-4" @submit.prevent="login.run()">
-    <h1 class="text-xl font-semibold text-ink-gray-9">Log in</h1>
-    <FormControl v-model="email" label="Email" type="email" autocomplete="email" required />
+    <div>
+      <h1 class="text-h1 font-bold text-ink-gray-9">Welcome back</h1>
+      <p class="mt-1 text-p-sm text-ink-gray-6">Log in to your organisation.</p>
+    </div>
+    <FormControl
+      v-model="email"
+      variant="outline"
+      label="Email"
+      type="email"
+      autocomplete="email"
+      required
+    />
     <FormControl
       v-model="password"
+      variant="outline"
       label="Password"
       type="password"
       autocomplete="current-password"
       required
     />
     <ErrorMessage :message="login.error" />
-    <Button type="submit" variant="solid" label="Log in" :loading="login.loading" />
-    <div class="flex justify-between text-sm">
-      <RouterLink class="text-ink-gray-6 hover:text-ink-gray-9" :to="{ name: 'forgot-password' }">
-        Forgot password?
-      </RouterLink>
-      <RouterLink
-        class="text-ink-gray-6 hover:text-ink-gray-9"
-        :to="{ name: 'signup', query: route.query }"
-      >
-        Make an account
-      </RouterLink>
+    <Button type="submit" variant="solid" theme="blue" label="Log in" :loading="login.loading" />
+    <div class="flex flex-col items-center gap-2 text-sm text-ink-gray-6">
+      <RouterLink class="link" :to="{ name: 'forgot-password' }">Forgot password?</RouterLink>
+      <span>
+        New here?
+        <RouterLink class="link" :to="{ name: 'signup', query: route.query }"
+          >Make an account</RouterLink
+        >
+      </span>
     </div>
   </form>
 </template>

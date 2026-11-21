@@ -34,7 +34,7 @@ onMounted(() => accept.run())
 
 <template>
   <div class="flex flex-col gap-4">
-    <h1 class="text-xl font-semibold text-ink-gray-9">Join an organisation</h1>
+    <h1 class="text-h1 font-bold text-ink-gray-9">Join an organisation</h1>
     <LoadingText v-if="accept.loading" text="Accepting the invite…" />
     <template v-else-if="accept.error">
       <ErrorMessage :message="accept.error" />
@@ -42,7 +42,7 @@ onMounted(() => accept.run())
         You are logged in as <b>{{ user?.email }}</b>. The invite must be for this email.
       </p>
       <div class="flex gap-2">
-        <Button variant="solid" label="Use another account" @click="switchAccount" />
+        <Button variant="solid" theme="blue" label="Use another account" @click="switchAccount" />
         <Button label="Go to dashboard" :route="{ name: 'dashboard' }" />
       </div>
     </template>
