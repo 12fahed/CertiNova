@@ -1,0 +1,78 @@
+name: hasura
+
+on:
+  push:
+    branches: [main, 'revamp/**']
+    paths:
+      - 'hasura/**'
+      - 'supabase/**'
+      - 'apps/web/codegen*.ts'
+      - 'apps/web/src/graphql/**'
+      - '.github/workflows/hasura.yml'
+  pull_request:
+    paths:
+      - 'hasura/**'
+      - 'supabase/**'
+      - 'apps/web/codegen*.ts'
+      - 'apps/web/src/graphql/**'
+      - '.github/workflows/hasura.yml'
+
+concurrency:
+  group: hasura-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  SUPABASE: npx --yes supabase@2.122.1
+  HASURA_GRAPHQL_URL: http://localhost:8080/v1/graphql
+  HASURA_GRAPHQL_ADMIN_SECRET: local-admin-secret
+
+jobs:
+  metadata:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: apps/web/.nvmrc
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - name: Install
+        run: |
+          uv sync --locked --all-packages
+          (cd apps/web && npm ci)
+      - name: Start Supabase
+        run: |
+          $SUPABASE start -x studio,imgproxy,mailpit,edge-runtime,logflare,vector,supavisor,realtime,postgres-meta
+          $SUPABASE status -o env | grep '^ANON_KEY=' | sed 's/^ANON_KEY=/SUPABASE_ANON_KEY=/' | tr -d '"' >> "$GITHUB_ENV"
+      - name: Start Hasura with the committed metadata
+        run: docker compose -f hasura/docker-compose.yml up -d --wait
+      - name: Check metadata is consistent
+        run: |
+          result=$(curl -sf "${HASURA_GRAPHQL_URL%/v1/graphql}/v1/metadata" \
+            -H "x-hasura-admin-secret: $HASURA_GRAPHQL_ADMIN_SECRET" \
+            -d '{"type": "get_inconsistent_metadata", "args": {}}')
+          echo "$result"
+          echo "$result" | jq -e '.is_consistent == true' > /dev/null
+      - name: Permission tests
+        working-directory: hasura/tests
+        run: |
+          uv run ruff format --check .
+          uv run ruff check .
+          uv run mypy tests
+          uv run pytest
+      - name: Check generated GraphQL types are current
+        working-directory: apps/web
+        run: |
+          npm run codegen:schema
+          npm run codegen
+          git diff --exit-code -- src/graphql \
+            || { echo "::error::GraphQL types are stale. Run codegen:schema and codegen in apps/web and commit."; exit 1; }
+      - name: Hasura logs on failure
+        if: failure()
+        run: docker compose -f hasura/docker-compose.yml logs --tail 200
