@@ -1,0 +1,14 @@
+@import 'frappe-ui/style.css';
+
+@layer base {
+  /* DesktopShell fills its parent, so the chain to the root needs a height. */
+  html,
+  body,
+  #app {
+    @apply h-full;
+  }
+
+  body {
+    @apply bg-surface-base text-ink-gray-8 antialiased;
+  }
+}
