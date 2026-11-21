@@ -98,12 +98,12 @@ select throws_ok(
   'an unlocked legacy row cannot keep its encrypted blob'
 );
 
-insert into public.feature_flags (key, enabled) values ('email-certificates', false);
+insert into public.feature_flags (key, enabled) values ('pgtap-test-flag', false);
 insert into public.feature_flags (key, org_id, enabled) values
-  ('email-certificates', '10000000-0000-0000-0000-00000000000a', true);
+  ('pgtap-test-flag', '10000000-0000-0000-0000-00000000000a', true);
 select ok(
-  public.feature_enabled('email-certificates', '10000000-0000-0000-0000-00000000000a')
-  and not public.feature_enabled('email-certificates', null),
+  public.feature_enabled('pgtap-test-flag', '10000000-0000-0000-0000-00000000000a')
+  and not public.feature_enabled('pgtap-test-flag', null),
   'an org feature flag overrides the global value'
 );
 
