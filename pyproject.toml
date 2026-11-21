@@ -7,7 +7,7 @@ requires-python = ">=3.12"
 package = false
 
 [tool.uv.workspace]
-members = ["apps/api", "tools/migrate"]
+members = ["apps/api", "tools/migrate", "hasura/tests"]
 
 [dependency-groups]
 dev = [

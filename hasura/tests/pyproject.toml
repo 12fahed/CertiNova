@@ -1,0 +1,19 @@
+[project]
+name = "certinova-hasura-tests"
+version = "0.1.0"
+description = "Permission tests for the CertiNova Hasura metadata against the local stack"
+requires-python = ">=3.12"
+dependencies = [
+  "httpx>=0.28",
+]
+
+[tool.uv]
+package = false
+
+[tool.mypy]
+strict = true
+python_version = "3.12"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
