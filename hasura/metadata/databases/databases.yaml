@@ -1,4 +1,4 @@
-- name: certinova-dev
+- name: certinova
   kind: postgres
   configuration:
     connection_info:
@@ -6,4 +6,69 @@
         from_env: PG_DATABASE_URL
       isolation_level: read-committed
       use_prepared_statements: false
-  tables: "!include certinova-dev/tables/tables.yaml"
+  logical_models:
+    - name: certificate_verification
+      fields:
+        - name: certificate_id
+          type:
+            nullable: false
+            scalar: uuid
+        - name: organisation_name
+          type:
+            nullable: false
+            scalar: text
+        - name: issuer_name
+          type:
+            nullable: false
+            scalar: text
+        - name: event_name
+          type:
+            nullable: false
+            scalar: text
+        - name: event_date
+          type:
+            nullable: false
+            scalar: date
+        - name: issued_at
+          type:
+            nullable: false
+            scalar: timestamptz
+        - name: recipient_name
+          type:
+            nullable: true
+            scalar: text
+        - name: rank
+          type:
+            nullable: true
+            scalar: text
+        - name: is_revoked
+          type:
+            nullable: false
+            scalar: boolean
+      select_permissions:
+        - role: anonymous
+          permission:
+            columns: &verification_columns
+              - certificate_id
+              - organisation_name
+              - issuer_name
+              - event_name
+              - event_date
+              - issued_at
+              - recipient_name
+              - rank
+              - is_revoked
+            filter: {}
+        - role: user
+          permission:
+            columns: *verification_columns
+            filter: {}
+  native_queries:
+    - root_field_name: verify_certificate
+      arguments:
+        certificate_id:
+          nullable: false
+          type: uuid
+      code: select * from public.verify_certificate({{certificate_id}})
+      returns: certificate_verification
+  tables: "!include certinova/tables/tables.yaml"

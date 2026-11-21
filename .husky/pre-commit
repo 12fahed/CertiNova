@@ -124,6 +124,7 @@ has_staged certinova-backend && check_legacy certinova-backend false
 has_staged certinova-frontend && check_legacy certinova-frontend true
 has_staged apps/api && check_python apps/api
 has_staged tools/migrate && check_python tools/migrate
+has_staged hasura/tests && check_python hasura/tests
 has_staged apps/web && check_web apps/web
 
 echo ""

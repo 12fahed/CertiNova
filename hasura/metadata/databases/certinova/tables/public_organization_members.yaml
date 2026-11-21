@@ -1,0 +1,101 @@
+table:
+  name: organization_members
+  schema: public
+object_relationships:
+  - name: organization
+    using:
+      foreign_key_constraint_on: org_id
+  - name: profile
+    using:
+      foreign_key_constraint_on: user_id
+insert_permissions:
+  - role: user
+    permission:
+      columns: [org_id, user_id, role]
+      check:
+        _and:
+          - organization:
+              members:
+                _and:
+                  - user_id:
+                      _eq: X-Hasura-User-Id
+                  - role:
+                      _in: [owner, admin]
+          - _or:
+              - role:
+                  _neq: owner
+              - organization:
+                  members:
+                    _and:
+                      - user_id:
+                          _eq: X-Hasura-User-Id
+                      - role:
+                          _eq: owner
+select_permissions:
+  - role: user
+    permission:
+      columns: [org_id, user_id, role, created_at]
+      filter:
+        organization:
+          members:
+            user_id:
+              _eq: X-Hasura-User-Id
+update_permissions:
+  - role: user
+    permission:
+      columns: [role]
+      filter:
+        _and:
+          - organization:
+              members:
+                _and:
+                  - user_id:
+                      _eq: X-Hasura-User-Id
+                  - role:
+                      _in: [owner, admin]
+          - _or:
+              - role:
+                  _neq: owner
+              - organization:
+                  members:
+                    _and:
+                      - user_id:
+                          _eq: X-Hasura-User-Id
+                      - role:
+                          _eq: owner
+      check:
+        _or:
+          - role:
+              _neq: owner
+          - organization:
+              members:
+                _and:
+                  - user_id:
+                      _eq: X-Hasura-User-Id
+                  - role:
+                      _eq: owner
+delete_permissions:
+  - role: user
+    permission:
+      filter:
+        _or:
+          - user_id:
+              _eq: X-Hasura-User-Id
+          - _and:
+              - organization:
+                  members:
+                    _and:
+                      - user_id:
+                          _eq: X-Hasura-User-Id
+                      - role:
+                          _in: [owner, admin]
+              - _or:
+                  - role:
+                      _neq: owner
+                  - organization:
+                      members:
+                        _and:
+                          - user_id:
+                              _eq: X-Hasura-User-Id
+                          - role:
+                              _eq: owner

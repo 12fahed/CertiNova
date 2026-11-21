@@ -19,3 +19,4 @@ Each file records one decision for the revamp. Copy `0000-template.md` for a new
 | [0013](0013-show-name-on-verify-by-default.md) | Show the recipient name on verify by default | Accepted |
 | [0014](0014-host-on-hasura-cloud-and-render.md) | Host on Hasura Cloud, Render and a static host | Accepted |
 | [0015](0015-generate-types-from-schema.md) | Generate types from the schema | Accepted |
+| [0016](0016-expose-verify-through-native-query.md) | Expose verify through a Hasura native query | Accepted |

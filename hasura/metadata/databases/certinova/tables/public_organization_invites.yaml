@@ -1,0 +1,33 @@
+table:
+  name: organization_invites
+  schema: public
+object_relationships:
+  - name: inviter
+    using:
+      foreign_key_constraint_on: invited_by
+  - name: organization
+    using:
+      foreign_key_constraint_on: org_id
+select_permissions:
+  - role: user
+    permission:
+      columns: [id, org_id, email, role, invited_by, expires_at, accepted_at, created_at]
+      filter:
+        organization:
+          members:
+            _and:
+              - user_id:
+                  _eq: X-Hasura-User-Id
+              - role:
+                  _in: [owner, admin]
+delete_permissions:
+  - role: user
+    permission:
+      filter:
+        organization:
+          members:
+            _and:
+              - user_id:
+                  _eq: X-Hasura-User-Id
+              - role:
+                  _in: [owner, admin]

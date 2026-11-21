@@ -1,0 +1,72 @@
+table:
+  name: batches
+  schema: public
+object_relationships:
+  - name: creator
+    using:
+      foreign_key_constraint_on: created_by
+  - name: event
+    using:
+      manual_configuration:
+        remote_table:
+          name: events
+          schema: public
+        column_mapping:
+          event_id: id
+  - name: organization
+    using:
+      manual_configuration:
+        remote_table:
+          name: organizations
+          schema: public
+        column_mapping:
+          org_id: id
+  - name: template
+    using:
+      manual_configuration:
+        remote_table:
+          name: templates
+          schema: public
+        column_mapping:
+          template_id: id
+array_relationships:
+  - name: certificates
+    using:
+      manual_configuration:
+        remote_table:
+          name: certificates
+          schema: public
+        column_mapping:
+          id: batch_id
+insert_permissions:
+  - role: user
+    permission:
+      columns: [org_id, event_id, template_id, recipient_count, has_rank]
+      set:
+        created_by: X-Hasura-User-Id
+      check:
+        organization:
+          members:
+            user_id:
+              _eq: X-Hasura-User-Id
+select_permissions:
+  - role: user
+    permission:
+      columns: [id, org_id, event_id, template_id, status, recipient_count, has_rank, template_snapshot, created_by, created_at, updated_at]
+      filter:
+        organization:
+          members:
+            user_id:
+              _eq: X-Hasura-User-Id
+      allow_aggregations: true
+delete_permissions:
+  - role: user
+    permission:
+      filter:
+        organization:
+          members:
+            _and:
+              - user_id:
+                  _eq: X-Hasura-User-Id
+              - role:
+                  _in: [owner, admin]

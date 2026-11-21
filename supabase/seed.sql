@@ -4,7 +4,8 @@ with users (id, email, full_name) as (
   values
     ('a0000000-0000-4000-8000-000000000001'::uuid, 'owner@certinova.local', 'Olivia Owner'),
     ('a0000000-0000-4000-8000-000000000002'::uuid, 'admin@certinova.local', 'Adam Admin'),
-    ('a0000000-0000-4000-8000-000000000003'::uuid, 'member@certinova.local', 'Maya Member')
+    ('a0000000-0000-4000-8000-000000000003'::uuid, 'member@certinova.local', 'Maya Member'),
+    ('a0000000-0000-4000-8000-000000000004'::uuid, 'outsider@certinova.local', 'Omar Outsider')
 )
 insert into auth.users (
   instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
@@ -62,3 +63,12 @@ insert into public.certificates (id, org_id, batch_id, recipient_name, recipient
    'e0000000-0000-4000-8000-000000000001', 'Kabir Rao', null, '3rd', 'done');
 
 insert into public.feature_flags (key, enabled) values ('email-certificates', false);
+
+-- A second organisation, so cross-org access can be tested.
+insert into public.organizations (id, name, slug) values
+  ('b0000000-0000-4000-8000-000000000002', 'Other College', 'other-college');
+insert into public.organization_members (org_id, user_id, role) values
+  ('b0000000-0000-4000-8000-000000000002', 'a0000000-0000-4000-8000-000000000004', 'owner');
+insert into public.events (id, org_id, name, issuer_name, created_by) values
+  ('c0000000-0000-4000-8000-000000000002', 'b0000000-0000-4000-8000-000000000002',
+   'Robotics Meetup', 'Prof. Lin', 'a0000000-0000-4000-8000-000000000004');

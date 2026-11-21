@@ -1,0 +1,8 @@
+table:
+  name: fonts
+  schema: public
+select_permissions:
+  - role: user
+    permission:
+      columns: [family, category, is_system, render_family]
+      filter: {}

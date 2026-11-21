@@ -25,17 +25,30 @@ Each value has one home for each environment. Do not copy secrets into other pla
 | `VITE_SUPABASE_ANON_KEY` | apps/web | Vercel project env, local `.env.local` | no (public) |
 | `VITE_HASURA_GRAPHQL_URL` | apps/web | Vercel project env, local `.env.local` | no |
 | `PG_DATABASE_URL` | Hasura | Hasura Cloud env vars | yes |
-| `HASURA_GRAPHQL_JWT_SECRET` | Hasura | Hasura Cloud env vars (P2) | no (JWKS URL) |
-| `HASURA_GRAPHQL_UNAUTHORIZED_ROLE` | Hasura | Hasura Cloud env vars (P2) | no |
-| `ACTION_BASE_URL` | Hasura | Hasura Cloud env vars (P2) | no |
-| `HASURA_GRAPHQL_ENDPOINT` | Hasura CLI | local `hasura/.env`, GitHub Actions variable (P2) | no |
-| `HASURA_GRAPHQL_ADMIN_SECRET` | Hasura CLI | local `hasura/.env`, GitHub Actions secret (P2) | yes |
-| `SUPABASE_ACCESS_TOKEN` | Supabase CLI in CI | GitHub Actions secret (P1) | yes |
-| `SUPABASE_DB_PASSWORD` | Supabase CLI in CI | GitHub Actions secret (P1) | yes |
+| `HASURA_GRAPHQL_JWT_SECRET` | Hasura | Hasura Cloud env vars | no (JWKS URL) |
+| `HASURA_GRAPHQL_UNAUTHORIZED_ROLE` | Hasura | Hasura Cloud env vars | no |
+| `ACTION_BASE_URL` | Hasura | Hasura Cloud env vars | no |
+| `HASURA_GRAPHQL_ENDPOINT` | Hasura CLI | local `hasura/.env` | no |
+| `HASURA_GRAPHQL_ADMIN_SECRET` | Hasura CLI | local `hasura/.env` | yes |
+| `SUPABASE_ACCESS_TOKEN` | Supabase CLI deploys | not needed yet (CI uses a local stack) | yes |
+| `SUPABASE_DB_PASSWORD` | Supabase CLI deploys | not needed yet (CI uses a local stack) | yes |
 | `MONGODB_URI` | tools/migrate | local `tools/migrate/.env` only (read-only user) | yes |
 | `CLOUDINARY_*` | tools/migrate | local `tools/migrate/.env` only | yes |
 
 Staging and prod use the same names. Each one gets its own Render env group, Hasura Cloud project and Vercel environment.
+
+## Hasura Cloud values
+
+Supabase signs access tokens with ES256 (asymmetric keys). Hasura must read the public keys from the JWKS URL. Do not use the old shared JWT secret.
+
+| Variable | Value |
+|---|---|
+| `HASURA_GRAPHQL_JWT_SECRET` | `{"jwk_url": "https://<project-ref>.supabase.co/auth/v1/.well-known/jwks.json"}` |
+| `HASURA_GRAPHQL_UNAUTHORIZED_ROLE` | `anonymous` |
+| `ACTION_BASE_URL` | Base URL of the Flask API on Render, with no trailing slash |
+| `HASURA_ACTION_SECRET` | The same value as in the Render env group |
+
+Hasura checks that each env var in the metadata exists when you apply it. Set these values first.
 
 ## Local files
 

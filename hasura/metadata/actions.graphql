@@ -1,0 +1,67 @@
+type Mutation {
+  bootstrap_org(name: String!, slug: String!): BootstrapOrgOutput!
+}
+
+type Mutation {
+  invite_member(org_id: uuid!, email: String!, role: String!): InviteMemberOutput!
+}
+
+type Mutation {
+  accept_invite(token: String!): AcceptInviteOutput!
+}
+
+type Mutation {
+  start_batch_render(batch_id: uuid!): JobOutput!
+}
+
+type Mutation {
+  export_batch(batch_id: uuid!, format: ExportFormat!): JobOutput!
+}
+
+type Mutation {
+  send_batch_emails(batch_id: uuid!): JobOutput!
+}
+
+type Mutation {
+  unlock_legacy_data(org_id: uuid!, password: String!): UnlockLegacyDataOutput!
+}
+
+type Query {
+  get_export_url(job_id: uuid!): SignedUrlOutput!
+}
+
+type Query {
+  get_verify_preview_url(certificate_id: uuid!): SignedUrlOutput
+}
+
+enum ExportFormat {
+  images_zip
+  combined_pdf
+  individual_pdfs
+}
+
+type BootstrapOrgOutput {
+  org_id: uuid!
+}
+
+type InviteMemberOutput {
+  invite_id: uuid!
+}
+
+type AcceptInviteOutput {
+  org_id: uuid!
+}
+
+type JobOutput {
+  job_id: uuid!
+}
+
+type UnlockLegacyDataOutput {
+  unlocked_batches: Int!
+  unlocked_certificates: Int!
+}
+
+type SignedUrlOutput {
+  url: String!
+  expires_at: timestamptz!
+}

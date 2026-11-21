@@ -1,0 +1,21 @@
+table:
+  name: org_stats
+  schema: public
+object_relationships:
+  - name: organization
+    using:
+      manual_configuration:
+        remote_table:
+          name: organizations
+          schema: public
+        column_mapping:
+          org_id: id
+select_permissions:
+  - role: user
+    permission:
+      columns: [org_id, events_count, batches_count, certificates_count, last_batch_at]
+      filter:
+        organization:
+          members:
+            user_id:
+              _eq: X-Hasura-User-Id

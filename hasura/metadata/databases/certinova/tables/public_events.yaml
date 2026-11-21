@@ -1,0 +1,64 @@
+table:
+  name: events
+  schema: public
+object_relationships:
+  - name: creator
+    using:
+      foreign_key_constraint_on: created_by
+  - name: organization
+    using:
+      foreign_key_constraint_on: org_id
+  - name: template
+    using:
+      manual_configuration:
+        remote_table:
+          name: templates
+          schema: public
+        column_mapping:
+          id: event_id
+array_relationships:
+  - name: batches
+    using:
+      manual_configuration:
+        remote_table:
+          name: batches
+          schema: public
+        column_mapping:
+          id: event_id
+insert_permissions:
+  - role: user
+    permission:
+      columns: [org_id, name, issuer_name, event_date]
+      set:
+        created_by: X-Hasura-User-Id
+      check:
+        organization:
+          members:
+            _and:
+              - user_id:
+                  _eq: X-Hasura-User-Id
+              - role:
+                  _in: [owner, admin]
+select_permissions:
+  - role: user
+    permission:
+      columns: [id, org_id, name, issuer_name, event_date, created_by, created_at, updated_at, deleted_at]
+      filter:
+        organization:
+          members:
+            user_id:
+              _eq: X-Hasura-User-Id
+      allow_aggregations: true
+update_permissions:
+  - role: user
+    permission:
+      columns: [name, issuer_name, event_date, deleted_at]
+      filter:
+        organization:
+          members:
+            _and:
+              - user_id:
+                  _eq: X-Hasura-User-Id
+              - role:
+                  _in: [owner, admin]
+      check: null

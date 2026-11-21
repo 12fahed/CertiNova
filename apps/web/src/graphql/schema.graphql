@@ -1,0 +1,7160 @@
+schema {
+  query: query_root
+  mutation: mutation_root
+  subscription: subscription_root
+}
+
+"""
+whether this query should be cached (Hasura Cloud only)
+"""
+directive @cached(
+  """
+  refresh the cache entry
+  """
+  refresh: Boolean! = false
+
+  """
+  measured in seconds
+  """
+  ttl: Int! = 60
+) on QUERY
+
+type AcceptInviteOutput {
+  org_id: uuid!
+  organization: organizations
+}
+
+"""
+Boolean expression to compare columns of type "Boolean". All fields are combined with logical 'AND'.
+"""
+input Boolean_comparison_exp {
+  _eq: Boolean
+  _gt: Boolean
+  _gte: Boolean
+  _in: [Boolean!]
+  _is_null: Boolean
+  _lt: Boolean
+  _lte: Boolean
+  _neq: Boolean
+  _nin: [Boolean!]
+}
+
+type BootstrapOrgOutput {
+  org_id: uuid!
+  organization: organizations
+}
+
+enum ExportFormat {
+  combined_pdf
+  images_zip
+  individual_pdfs
+}
+
+"""
+Boolean expression to compare columns of type "Int". All fields are combined with logical 'AND'.
+"""
+input Int_comparison_exp {
+  _eq: Int
+  _gt: Int
+  _gte: Int
+  _in: [Int!]
+  _is_null: Boolean
+  _lt: Int
+  _lte: Int
+  _neq: Int
+  _nin: [Int!]
+}
+
+type InviteMemberOutput {
+  invite_id: uuid!
+}
+
+type JobOutput {
+  job: jobs
+  job_id: uuid!
+}
+
+type SignedUrlOutput {
+  expires_at: timestamptz!
+  url: String!
+}
+
+"""
+Boolean expression to compare columns of type "String". All fields are combined with logical 'AND'.
+"""
+input String_comparison_exp {
+  _eq: String
+  _gt: String
+  _gte: String
+
+  """
+  does the column match the given case-insensitive pattern
+  """
+  _ilike: String
+  _in: [String!]
+
+  """
+  does the column match the given POSIX regular expression, case insensitive
+  """
+  _iregex: String
+  _is_null: Boolean
+
+  """
+  does the column match the given pattern
+  """
+  _like: String
+  _lt: String
+  _lte: String
+  _neq: String
+
+  """
+  does the column NOT match the given case-insensitive pattern
+  """
+  _nilike: String
+  _nin: [String!]
+
+  """
+  does the column NOT match the given POSIX regular expression, case insensitive
+  """
+  _niregex: String
+
+  """
+  does the column NOT match the given pattern
+  """
+  _nlike: String
+
+  """
+  does the column NOT match the given POSIX regular expression, case sensitive
+  """
+  _nregex: String
+
+  """
+  does the column NOT match the given SQL regular expression
+  """
+  _nsimilar: String
+
+  """
+  does the column match the given POSIX regular expression, case sensitive
+  """
+  _regex: String
+
+  """
+  does the column match the given SQL regular expression
+  """
+  _similar: String
+}
+
+type UnlockLegacyDataOutput {
+  unlocked_batches: Int!
+  unlocked_certificates: Int!
+}
+
+"""
+columns and relationships of "audit_log"
+"""
+type audit_log {
+  action: String!
+
+  """
+  An object relationship
+  """
+  actor: profiles
+  actor_id: uuid
+  at: timestamptz!
+  data(
+    """
+    JSON select path
+    """
+    path: String
+  ): jsonb!
+  entity: String!
+  entity_id: uuid
+  id: bigint!
+  org_id: uuid
+
+  """
+  An object relationship
+  """
+  organization: organizations
+}
+
+"""
+Boolean expression to filter rows from the table "audit_log". All fields are combined with a logical 'AND'.
+"""
+input audit_log_bool_exp {
+  _and: [audit_log_bool_exp!]
+  _not: audit_log_bool_exp
+  _or: [audit_log_bool_exp!]
+  action: String_comparison_exp
+  actor: profiles_bool_exp
+  actor_id: uuid_comparison_exp
+  at: timestamptz_comparison_exp
+  data: jsonb_comparison_exp
+  entity: String_comparison_exp
+  entity_id: uuid_comparison_exp
+  id: bigint_comparison_exp
+  org_id: uuid_comparison_exp
+  organization: organizations_bool_exp
+}
+
+"""
+Ordering options when selecting data from "audit_log".
+"""
+input audit_log_order_by {
+  action: order_by
+  actor: profiles_order_by
+  actor_id: order_by
+  at: order_by
+  data: order_by
+  entity: order_by
+  entity_id: order_by
+  id: order_by
+  org_id: order_by
+  organization: organizations_order_by
+}
+
+"""
+select columns of table "audit_log"
+"""
+enum audit_log_select_column {
+  """
+  column name
+  """
+  action
+
+  """
+  column name
+  """
+  actor_id
+
+  """
+  column name
+  """
+  at
+
+  """
+  column name
+  """
+  data
+
+  """
+  column name
+  """
+  entity
+
+  """
+  column name
+  """
+  entity_id
+
+  """
+  column name
+  """
+  id
+
+  """
+  column name
+  """
+  org_id
+}
+
+"""
+Streaming cursor of the table "audit_log"
+"""
+input audit_log_stream_cursor_input {
+  """
+  Stream column input with initial value
+  """
+  initial_value: audit_log_stream_cursor_value_input!
+
+  """
+  cursor ordering
+  """
+  ordering: cursor_ordering
+}
+
+"""
+Initial value of the column from where the streaming should start
+"""
+input audit_log_stream_cursor_value_input {
+  action: String
+  actor_id: uuid
+  at: timestamptz
+  data: jsonb
+  entity: String
+  entity_id: uuid
+  id: bigint
+  org_id: uuid
+}
+
+scalar batch_status
+
+"""
+Boolean expression to compare columns of type "batch_status". All fields are combined with logical 'AND'.
+"""
+input batch_status_comparison_exp {
+  _eq: batch_status
+  _gt: batch_status
+  _gte: batch_status
+  _in: [batch_status!]
+  _is_null: Boolean
+  _lt: batch_status
+  _lte: batch_status
+  _neq: batch_status
+  _nin: [batch_status!]
+}
+
+"""
+columns and relationships of "batches"
+"""
+type batches {
+  """
+  An array relationship
+  """
+  certificates(
+    """
+    distinct select on columns
+    """
+    distinct_on: [certificates_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [certificates_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: certificates_bool_exp
+  ): [certificates!]!
+
+  """
+  An aggregate relationship
+  """
+  certificates_aggregate(
+    """
+    distinct select on columns
+    """
+    distinct_on: [certificates_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [certificates_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: certificates_bool_exp
+  ): certificates_aggregate!
+  created_at: timestamptz!
+  created_by: uuid
+
+  """
+  An object relationship
+  """
+  creator: profiles
+
+  """
+  An object relationship
+  """
+  event: events
+  event_id: uuid!
+  has_rank: Boolean!
+  id: uuid!
+  org_id: uuid!
+
+  """
+  An object relationship
+  """
+  organization: organizations
+  recipient_count: Int!
+  status: batch_status!
+
+  """
+  An object relationship
+  """
+  template: templates
+  template_id: uuid!
+  template_snapshot(
+    """
+    JSON select path
+    """
+    path: String
+  ): jsonb
+  updated_at: timestamptz!
+}
+
+"""
+aggregated selection of "batches"
+"""
+type batches_aggregate {
+  aggregate: batches_aggregate_fields
+  nodes: [batches!]!
+}
+
+input batches_aggregate_bool_exp {
+  bool_and: batches_aggregate_bool_exp_bool_and
+  bool_or: batches_aggregate_bool_exp_bool_or
+  count: batches_aggregate_bool_exp_count
+}
+
+input batches_aggregate_bool_exp_bool_and {
+  arguments: batches_select_column_batches_aggregate_bool_exp_bool_and_arguments_columns!
+  distinct: Boolean
+  filter: batches_bool_exp
+  predicate: Boolean_comparison_exp!
+}
+
+input batches_aggregate_bool_exp_bool_or {
+  arguments: batches_select_column_batches_aggregate_bool_exp_bool_or_arguments_columns!
+  distinct: Boolean
+  filter: batches_bool_exp
+  predicate: Boolean_comparison_exp!
+}
+
+input batches_aggregate_bool_exp_count {
+  arguments: [batches_select_column!]
+  distinct: Boolean
+  filter: batches_bool_exp
+  predicate: Int_comparison_exp!
+}
+
+"""
+aggregate fields of "batches"
+"""
+type batches_aggregate_fields {
+  avg: batches_avg_fields
+  count(columns: [batches_select_column!], distinct: Boolean): Int!
+  max: batches_max_fields
+  min: batches_min_fields
+  stddev: batches_stddev_fields
+  stddev_pop: batches_stddev_pop_fields
+  stddev_samp: batches_stddev_samp_fields
+  sum: batches_sum_fields
+  var_pop: batches_var_pop_fields
+  var_samp: batches_var_samp_fields
+  variance: batches_variance_fields
+}
+
+"""
+order by aggregate values of table "batches"
+"""
+input batches_aggregate_order_by {
+  avg: batches_avg_order_by
+  count: order_by
+  max: batches_max_order_by
+  min: batches_min_order_by
+  stddev: batches_stddev_order_by
+  stddev_pop: batches_stddev_pop_order_by
+  stddev_samp: batches_stddev_samp_order_by
+  sum: batches_sum_order_by
+  var_pop: batches_var_pop_order_by
+  var_samp: batches_var_samp_order_by
+  variance: batches_variance_order_by
+}
+
+"""
+input type for inserting array relation for remote table "batches"
+"""
+input batches_arr_rel_insert_input {
+  data: [batches_insert_input!]!
+
+  """
+  upsert condition
+  """
+  on_conflict: batches_on_conflict
+}
+
+"""
+aggregate avg on columns
+"""
+type batches_avg_fields {
+  recipient_count: Float
+}
+
+"""
+order by avg() on columns of table "batches"
+"""
+input batches_avg_order_by {
+  recipient_count: order_by
+}
+
+"""
+Boolean expression to filter rows from the table "batches". All fields are combined with a logical 'AND'.
+"""
+input batches_bool_exp {
+  _and: [batches_bool_exp!]
+  _not: batches_bool_exp
+  _or: [batches_bool_exp!]
+  certificates: certificates_bool_exp
+  certificates_aggregate: certificates_aggregate_bool_exp
+  created_at: timestamptz_comparison_exp
+  created_by: uuid_comparison_exp
+  creator: profiles_bool_exp
+  event: events_bool_exp
+  event_id: uuid_comparison_exp
+  has_rank: Boolean_comparison_exp
+  id: uuid_comparison_exp
+  org_id: uuid_comparison_exp
+  organization: organizations_bool_exp
+  recipient_count: Int_comparison_exp
+  status: batch_status_comparison_exp
+  template: templates_bool_exp
+  template_id: uuid_comparison_exp
+  template_snapshot: jsonb_comparison_exp
+  updated_at: timestamptz_comparison_exp
+}
+
+"""
+unique or primary key constraints on table "batches"
+"""
+enum batches_constraint {
+  """
+  unique or primary key constraint on columns "id", "org_id"
+  """
+  batches_id_org_id_key
+
+  """
+  unique or primary key constraint on columns "id"
+  """
+  batches_pkey
+}
+
+"""
+input type for inserting data into table "batches"
+"""
+input batches_insert_input {
+  certificates: certificates_arr_rel_insert_input
+  event: events_obj_rel_insert_input
+  event_id: uuid
+  has_rank: Boolean
+  org_id: uuid
+  recipient_count: Int
+  template: templates_obj_rel_insert_input
+  template_id: uuid
+}
+
+"""
+aggregate max on columns
+"""
+type batches_max_fields {
+  created_at: timestamptz
+  created_by: uuid
+  event_id: uuid
+  id: uuid
+  org_id: uuid
+  recipient_count: Int
+  status: batch_status
+  template_id: uuid
+  updated_at: timestamptz
+}
+
+"""
+order by max() on columns of table "batches"
+"""
+input batches_max_order_by {
+  created_at: order_by
+  created_by: order_by
+  event_id: order_by
+  id: order_by
+  org_id: order_by
+  recipient_count: order_by
+  status: order_by
+  template_id: order_by
+  updated_at: order_by
+}
+
+"""
+aggregate min on columns
+"""
+type batches_min_fields {
+  created_at: timestamptz
+  created_by: uuid
+  event_id: uuid
+  id: uuid
+  org_id: uuid
+  recipient_count: Int
+  status: batch_status
+  template_id: uuid
+  updated_at: timestamptz
+}
+
+"""
+order by min() on columns of table "batches"
+"""
+input batches_min_order_by {
+  created_at: order_by
+  created_by: order_by
+  event_id: order_by
+  id: order_by
+  org_id: order_by
+  recipient_count: order_by
+  status: order_by
+  template_id: order_by
+  updated_at: order_by
+}
+
+"""
+response of any mutation on the table "batches"
+"""
+type batches_mutation_response {
+  """
+  number of rows affected by the mutation
+  """
+  affected_rows: Int!
+
+  """
+  data from the rows affected by the mutation
+  """
+  returning: [batches!]!
+}
+
+"""
+input type for inserting object relation for remote table "batches"
+"""
+input batches_obj_rel_insert_input {
+  data: batches_insert_input!
+
+  """
+  upsert condition
+  """
+  on_conflict: batches_on_conflict
+}
+
+"""
+on_conflict condition type for table "batches"
+"""
+input batches_on_conflict {
+  constraint: batches_constraint!
+  update_columns: [batches_update_column!]! = []
+  where: batches_bool_exp
+}
+
+"""
+Ordering options when selecting data from "batches".
+"""
+input batches_order_by {
+  certificates_aggregate: certificates_aggregate_order_by
+  created_at: order_by
+  created_by: order_by
+  creator: profiles_order_by
+  event: events_order_by
+  event_id: order_by
+  has_rank: order_by
+  id: order_by
+  org_id: order_by
+  organization: organizations_order_by
+  recipient_count: order_by
+  status: order_by
+  template: templates_order_by
+  template_id: order_by
+  template_snapshot: order_by
+  updated_at: order_by
+}
+
+"""
+select columns of table "batches"
+"""
+enum batches_select_column {
+  """
+  column name
+  """
+  created_at
+
+  """
+  column name
+  """
+  created_by
+
+  """
+  column name
+  """
+  event_id
+
+  """
+  column name
+  """
+  has_rank
+
+  """
+  column name
+  """
+  id
+
+  """
+  column name
+  """
+  org_id
+
+  """
+  column name
+  """
+  recipient_count
+
+  """
+  column name
+  """
+  status
+
+  """
+  column name
+  """
+  template_id
+
+  """
+  column name
+  """
+  template_snapshot
+
+  """
+  column name
+  """
+  updated_at
+}
+
+"""
+select "batches_aggregate_bool_exp_bool_and_arguments_columns" columns of table "batches"
+"""
+enum batches_select_column_batches_aggregate_bool_exp_bool_and_arguments_columns {
+  """
+  column name
+  """
+  has_rank
+}
+
+"""
+select "batches_aggregate_bool_exp_bool_or_arguments_columns" columns of table "batches"
+"""
+enum batches_select_column_batches_aggregate_bool_exp_bool_or_arguments_columns {
+  """
+  column name
+  """
+  has_rank
+}
+
+"""
+aggregate stddev on columns
+"""
+type batches_stddev_fields {
+  recipient_count: Float
+}
+
+"""
+order by stddev() on columns of table "batches"
+"""
+input batches_stddev_order_by {
+  recipient_count: order_by
+}
+
+"""
+aggregate stddev_pop on columns
+"""
+type batches_stddev_pop_fields {
+  recipient_count: Float
+}
+
+"""
+order by stddev_pop() on columns of table "batches"
+"""
+input batches_stddev_pop_order_by {
+  recipient_count: order_by
+}
+
+"""
+aggregate stddev_samp on columns
+"""
+type batches_stddev_samp_fields {
+  recipient_count: Float
+}
+
+"""
+order by stddev_samp() on columns of table "batches"
+"""
+input batches_stddev_samp_order_by {
+  recipient_count: order_by
+}
+
+"""
+Streaming cursor of the table "batches"
+"""
+input batches_stream_cursor_input {
+  """
+  Stream column input with initial value
+  """
+  initial_value: batches_stream_cursor_value_input!
+
+  """
+  cursor ordering
+  """
+  ordering: cursor_ordering
+}
+
+"""
+Initial value of the column from where the streaming should start
+"""
+input batches_stream_cursor_value_input {
+  created_at: timestamptz
+  created_by: uuid
+  event_id: uuid
+  has_rank: Boolean
+  id: uuid
+  org_id: uuid
+  recipient_count: Int
+  status: batch_status
+  template_id: uuid
+  template_snapshot: jsonb
+  updated_at: timestamptz
+}
+
+"""
+aggregate sum on columns
+"""
+type batches_sum_fields {
+  recipient_count: Int
+}
+
+"""
+order by sum() on columns of table "batches"
+"""
+input batches_sum_order_by {
+  recipient_count: order_by
+}
+
+"""
+placeholder for update columns of table "batches" (current role has no relevant permissions)
+"""
+enum batches_update_column {
+  """
+  placeholder (do not use)
+  """
+  _PLACEHOLDER
+}
+
+"""
+aggregate var_pop on columns
+"""
+type batches_var_pop_fields {
+  recipient_count: Float
+}
+
+"""
+order by var_pop() on columns of table "batches"
+"""
+input batches_var_pop_order_by {
+  recipient_count: order_by
+}
+
+"""
+aggregate var_samp on columns
+"""
+type batches_var_samp_fields {
+  recipient_count: Float
+}
+
+"""
+order by var_samp() on columns of table "batches"
+"""
+input batches_var_samp_order_by {
+  recipient_count: order_by
+}
+
+"""
+aggregate variance on columns
+"""
+type batches_variance_fields {
+  recipient_count: Float
+}
+
+"""
+order by variance() on columns of table "batches"
+"""
+input batches_variance_order_by {
+  recipient_count: order_by
+}
+
+scalar bigint
+
+"""
+Boolean expression to compare columns of type "bigint". All fields are combined with logical 'AND'.
+"""
+input bigint_comparison_exp {
+  _eq: bigint
+  _gt: bigint
+  _gte: bigint
+  _in: [bigint!]
+  _is_null: Boolean
+  _lt: bigint
+  _lte: bigint
+  _neq: bigint
+  _nin: [bigint!]
+}
+
+type certificate_verification {
+  certificate_id: uuid!
+  event_date: date!
+  event_name: String!
+  is_revoked: Boolean!
+  issued_at: timestamptz!
+  issuer_name: String!
+  organisation_name: String!
+  rank: String
+  recipient_name: String
+}
+
+"""
+Boolean expression to filter rows from the logical model for "certificate_verification". All fields are combined with a logical 'AND'.
+"""
+input certificate_verification_bool_exp_bool_exp {
+  _and: [certificate_verification_bool_exp_bool_exp!]
+  _not: certificate_verification_bool_exp_bool_exp
+  _or: [certificate_verification_bool_exp_bool_exp!]
+  certificate_id: uuid_comparison_exp
+  event_date: date_comparison_exp
+  event_name: String_comparison_exp
+  is_revoked: Boolean_comparison_exp
+  issued_at: timestamptz_comparison_exp
+  issuer_name: String_comparison_exp
+  organisation_name: String_comparison_exp
+  rank: String_comparison_exp
+  recipient_name: String_comparison_exp
+}
+
+enum certificate_verification_enum_name {
+  """
+  column name
+  """
+  certificate_id
+
+  """
+  column name
+  """
+  event_date
+
+  """
+  column name
+  """
+  event_name
+
+  """
+  column name
+  """
+  is_revoked
+
+  """
+  column name
+  """
+  issued_at
+
+  """
+  column name
+  """
+  issuer_name
+
+  """
+  column name
+  """
+  organisation_name
+
+  """
+  column name
+  """
+  rank
+
+  """
+  column name
+  """
+  recipient_name
+}
+
+"""
+Ordering options when selecting data from "certificate_verification".
+"""
+input certificate_verification_order_by {
+  certificate_id: order_by
+  event_date: order_by
+  event_name: order_by
+  is_revoked: order_by
+  issued_at: order_by
+  issuer_name: order_by
+  organisation_name: order_by
+  rank: order_by
+  recipient_name: order_by
+}
+
+"""
+columns and relationships of "certificates"
+"""
+type certificates {
+  """
+  An object relationship
+  """
+  batch: batches
+  batch_id: uuid!
+  created_at: timestamptz!
+
+  """
+  An array relationship
+  """
+  email_deliveries(
+    """
+    distinct select on columns
+    """
+    distinct_on: [email_deliveries_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [email_deliveries_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: email_deliveries_bool_exp
+  ): [email_deliveries!]!
+
+  """
+  An aggregate relationship
+  """
+  email_deliveries_aggregate(
+    """
+    distinct select on columns
+    """
+    distinct_on: [email_deliveries_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [email_deliveries_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: email_deliveries_bool_exp
+  ): email_deliveries_aggregate!
+  file_path: String
+  id: uuid!
+  org_id: uuid!
+
+  """
+  An object relationship
+  """
+  organization: organizations
+  rank: String
+  recipient_email: citext
+  recipient_name: String
+  render_status: render_status!
+  revoked_at: timestamptz
+  revoked_reason: String
+  updated_at: timestamptz!
+}
+
+"""
+aggregated selection of "certificates"
+"""
+type certificates_aggregate {
+  aggregate: certificates_aggregate_fields
+  nodes: [certificates!]!
+}
+
+input certificates_aggregate_bool_exp {
+  count: certificates_aggregate_bool_exp_count
+}
+
+input certificates_aggregate_bool_exp_count {
+  arguments: [certificates_select_column!]
+  distinct: Boolean
+  filter: certificates_bool_exp
+  predicate: Int_comparison_exp!
+}
+
+"""
+aggregate fields of "certificates"
+"""
+type certificates_aggregate_fields {
+  count(columns: [certificates_select_column!], distinct: Boolean): Int!
+  max: certificates_max_fields
+  min: certificates_min_fields
+}
+
+"""
+order by aggregate values of table "certificates"
+"""
+input certificates_aggregate_order_by {
+  count: order_by
+  max: certificates_max_order_by
+  min: certificates_min_order_by
+}
+
+"""
+input type for inserting array relation for remote table "certificates"
+"""
+input certificates_arr_rel_insert_input {
+  data: [certificates_insert_input!]!
+
+  """
+  upsert condition
+  """
+  on_conflict: certificates_on_conflict
+}
+
+"""
+Boolean expression to filter rows from the table "certificates". All fields are combined with a logical 'AND'.
+"""
+input certificates_bool_exp {
+  _and: [certificates_bool_exp!]
+  _not: certificates_bool_exp
+  _or: [certificates_bool_exp!]
+  batch: batches_bool_exp
+  batch_id: uuid_comparison_exp
+  created_at: timestamptz_comparison_exp
+  email_deliveries: email_deliveries_bool_exp
+  email_deliveries_aggregate: email_deliveries_aggregate_bool_exp
+  file_path: String_comparison_exp
+  id: uuid_comparison_exp
+  org_id: uuid_comparison_exp
+  organization: organizations_bool_exp
+  rank: String_comparison_exp
+  recipient_email: citext_comparison_exp
+  recipient_name: String_comparison_exp
+  render_status: render_status_comparison_exp
+  revoked_at: timestamptz_comparison_exp
+  revoked_reason: String_comparison_exp
+  updated_at: timestamptz_comparison_exp
+}
+
+"""
+unique or primary key constraints on table "certificates"
+"""
+enum certificates_constraint {
+  """
+  unique or primary key constraint on columns "id", "org_id"
+  """
+  certificates_id_org_id_key
+
+  """
+  unique or primary key constraint on columns "id"
+  """
+  certificates_pkey
+}
+
+"""
+input type for inserting data into table "certificates"
+"""
+input certificates_insert_input {
+  batch: batches_obj_rel_insert_input
+  batch_id: uuid
+  org_id: uuid
+  rank: String
+  recipient_email: citext
+  recipient_name: String
+}
+
+"""
+aggregate max on columns
+"""
+type certificates_max_fields {
+  batch_id: uuid
+  created_at: timestamptz
+  file_path: String
+  id: uuid
+  org_id: uuid
+  rank: String
+  recipient_email: citext
+  recipient_name: String
+  render_status: render_status
+  revoked_at: timestamptz
+  revoked_reason: String
+  updated_at: timestamptz
+}
+
+"""
+order by max() on columns of table "certificates"
+"""
+input certificates_max_order_by {
+  batch_id: order_by
+  created_at: order_by
+  file_path: order_by
+  id: order_by
+  org_id: order_by
+  rank: order_by
+  recipient_email: order_by
+  recipient_name: order_by
+  render_status: order_by
+  revoked_at: order_by
+  revoked_reason: order_by
+  updated_at: order_by
+}
+
+"""
+aggregate min on columns
+"""
+type certificates_min_fields {
+  batch_id: uuid
+  created_at: timestamptz
+  file_path: String
+  id: uuid
+  org_id: uuid
+  rank: String
+  recipient_email: citext
+  recipient_name: String
+  render_status: render_status
+  revoked_at: timestamptz
+  revoked_reason: String
+  updated_at: timestamptz
+}
+
+"""
+order by min() on columns of table "certificates"
+"""
+input certificates_min_order_by {
+  batch_id: order_by
+  created_at: order_by
+  file_path: order_by
+  id: order_by
+  org_id: order_by
+  rank: order_by
+  recipient_email: order_by
+  recipient_name: order_by
+  render_status: order_by
+  revoked_at: order_by
+  revoked_reason: order_by
+  updated_at: order_by
+}
+
+"""
+response of any mutation on the table "certificates"
+"""
+type certificates_mutation_response {
+  """
+  number of rows affected by the mutation
+  """
+  affected_rows: Int!
+
+  """
+  data from the rows affected by the mutation
+  """
+  returning: [certificates!]!
+}
+
+"""
+on_conflict condition type for table "certificates"
+"""
+input certificates_on_conflict {
+  constraint: certificates_constraint!
+  update_columns: [certificates_update_column!]! = []
+  where: certificates_bool_exp
+}
+
+"""
+Ordering options when selecting data from "certificates".
+"""
+input certificates_order_by {
+  batch: batches_order_by
+  batch_id: order_by
+  created_at: order_by
+  email_deliveries_aggregate: email_deliveries_aggregate_order_by
+  file_path: order_by
+  id: order_by
+  org_id: order_by
+  organization: organizations_order_by
+  rank: order_by
+  recipient_email: order_by
+  recipient_name: order_by
+  render_status: order_by
+  revoked_at: order_by
+  revoked_reason: order_by
+  updated_at: order_by
+}
+
+"""
+primary key columns input for table: certificates
+"""
+input certificates_pk_columns_input {
+  id: uuid!
+}
+
+"""
+select columns of table "certificates"
+"""
+enum certificates_select_column {
+  """
+  column name
+  """
+  batch_id
+
+  """
+  column name
+  """
+  created_at
+
+  """
+  column name
+  """
+  file_path
+
+  """
+  column name
+  """
+  id
+
+  """
+  column name
+  """
+  org_id
+
+  """
+  column name
+  """
+  rank
+
+  """
+  column name
+  """
+  recipient_email
+
+  """
+  column name
+  """
+  recipient_name
+
+  """
+  column name
+  """
+  render_status
+
+  """
+  column name
+  """
+  revoked_at
+
+  """
+  column name
+  """
+  revoked_reason
+
+  """
+  column name
+  """
+  updated_at
+}
+
+"""
+input type for updating data in table "certificates"
+"""
+input certificates_set_input {
+  revoked_at: timestamptz
+  revoked_reason: String
+}
+
+"""
+Streaming cursor of the table "certificates"
+"""
+input certificates_stream_cursor_input {
+  """
+  Stream column input with initial value
+  """
+  initial_value: certificates_stream_cursor_value_input!
+
+  """
+  cursor ordering
+  """
+  ordering: cursor_ordering
+}
+
+"""
+Initial value of the column from where the streaming should start
+"""
+input certificates_stream_cursor_value_input {
+  batch_id: uuid
+  created_at: timestamptz
+  file_path: String
+  id: uuid
+  org_id: uuid
+  rank: String
+  recipient_email: citext
+  recipient_name: String
+  render_status: render_status
+  revoked_at: timestamptz
+  revoked_reason: String
+  updated_at: timestamptz
+}
+
+"""
+update columns of table "certificates"
+"""
+enum certificates_update_column {
+  """
+  column name
+  """
+  revoked_at
+
+  """
+  column name
+  """
+  revoked_reason
+}
+
+input certificates_updates {
+  """
+  sets the columns of the filtered rows to the given values
+  """
+  _set: certificates_set_input
+
+  """
+  filter the rows which have to be updated
+  """
+  where: certificates_bool_exp!
+}
+
+scalar citext
+
+"""
+Boolean expression to compare columns of type "citext". All fields are combined with logical 'AND'.
+"""
+input citext_comparison_exp {
+  _eq: citext
+  _gt: citext
+  _gte: citext
+
+  """
+  does the column match the given case-insensitive pattern
+  """
+  _ilike: citext
+  _in: [citext!]
+
+  """
+  does the column match the given POSIX regular expression, case insensitive
+  """
+  _iregex: citext
+  _is_null: Boolean
+
+  """
+  does the column match the given pattern
+  """
+  _like: citext
+  _lt: citext
+  _lte: citext
+  _neq: citext
+
+  """
+  does the column NOT match the given case-insensitive pattern
+  """
+  _nilike: citext
+  _nin: [citext!]
+
+  """
+  does the column NOT match the given POSIX regular expression, case insensitive
+  """
+  _niregex: citext
+
+  """
+  does the column NOT match the given pattern
+  """
+  _nlike: citext
+
+  """
+  does the column NOT match the given POSIX regular expression, case sensitive
+  """
+  _nregex: citext
+
+  """
+  does the column NOT match the given SQL regular expression
+  """
+  _nsimilar: citext
+
+  """
+  does the column match the given POSIX regular expression, case sensitive
+  """
+  _regex: citext
+
+  """
+  does the column match the given SQL regular expression
+  """
+  _similar: citext
+}
+
+"""
+ordering argument of a cursor
+"""
+enum cursor_ordering {
+  """
+  ascending ordering of the cursor
+  """
+  ASC
+
+  """
+  descending ordering of the cursor
+  """
+  DESC
+}
+
+scalar date
+
+"""
+Boolean expression to compare columns of type "date". All fields are combined with logical 'AND'.
+"""
+input date_comparison_exp {
+  _eq: date
+  _gt: date
+  _gte: date
+  _in: [date!]
+  _is_null: Boolean
+  _lt: date
+  _lte: date
+  _neq: date
+  _nin: [date!]
+}
+
+scalar delivery_status
+
+"""
+Boolean expression to compare columns of type "delivery_status". All fields are combined with logical 'AND'.
+"""
+input delivery_status_comparison_exp {
+  _eq: delivery_status
+  _gt: delivery_status
+  _gte: delivery_status
+  _in: [delivery_status!]
+  _is_null: Boolean
+  _lt: delivery_status
+  _lte: delivery_status
+  _neq: delivery_status
+  _nin: [delivery_status!]
+}
+
+"""
+columns and relationships of "email_deliveries"
+"""
+type email_deliveries {
+  attempts: Int!
+
+  """
+  An object relationship
+  """
+  certificate: certificates
+  certificate_id: uuid!
+  created_at: timestamptz!
+  email: citext!
+  error: String
+  id: uuid!
+  org_id: uuid!
+
+  """
+  An object relationship
+  """
+  organization: organizations
+  sent_at: timestamptz
+  status: delivery_status!
+  updated_at: timestamptz!
+}
+
+"""
+aggregated selection of "email_deliveries"
+"""
+type email_deliveries_aggregate {
+  aggregate: email_deliveries_aggregate_fields
+  nodes: [email_deliveries!]!
+}
+
+input email_deliveries_aggregate_bool_exp {
+  count: email_deliveries_aggregate_bool_exp_count
+}
+
+input email_deliveries_aggregate_bool_exp_count {
+  arguments: [email_deliveries_select_column!]
+  distinct: Boolean
+  filter: email_deliveries_bool_exp
+  predicate: Int_comparison_exp!
+}
+
+"""
+aggregate fields of "email_deliveries"
+"""
+type email_deliveries_aggregate_fields {
+  avg: email_deliveries_avg_fields
+  count(columns: [email_deliveries_select_column!], distinct: Boolean): Int!
+  max: email_deliveries_max_fields
+  min: email_deliveries_min_fields
+  stddev: email_deliveries_stddev_fields
+  stddev_pop: email_deliveries_stddev_pop_fields
+  stddev_samp: email_deliveries_stddev_samp_fields
+  sum: email_deliveries_sum_fields
+  var_pop: email_deliveries_var_pop_fields
+  var_samp: email_deliveries_var_samp_fields
+  variance: email_deliveries_variance_fields
+}
+
+"""
+order by aggregate values of table "email_deliveries"
+"""
+input email_deliveries_aggregate_order_by {
+  avg: email_deliveries_avg_order_by
+  count: order_by
+  max: email_deliveries_max_order_by
+  min: email_deliveries_min_order_by
+  stddev: email_deliveries_stddev_order_by
+  stddev_pop: email_deliveries_stddev_pop_order_by
+  stddev_samp: email_deliveries_stddev_samp_order_by
+  sum: email_deliveries_sum_order_by
+  var_pop: email_deliveries_var_pop_order_by
+  var_samp: email_deliveries_var_samp_order_by
+  variance: email_deliveries_variance_order_by
+}
+
+"""
+aggregate avg on columns
+"""
+type email_deliveries_avg_fields {
+  attempts: Float
+}
+
+"""
+order by avg() on columns of table "email_deliveries"
+"""
+input email_deliveries_avg_order_by {
+  attempts: order_by
+}
+
+"""
+Boolean expression to filter rows from the table "email_deliveries". All fields are combined with a logical 'AND'.
+"""
+input email_deliveries_bool_exp {
+  _and: [email_deliveries_bool_exp!]
+  _not: email_deliveries_bool_exp
+  _or: [email_deliveries_bool_exp!]
+  attempts: Int_comparison_exp
+  certificate: certificates_bool_exp
+  certificate_id: uuid_comparison_exp
+  created_at: timestamptz_comparison_exp
+  email: citext_comparison_exp
+  error: String_comparison_exp
+  id: uuid_comparison_exp
+  org_id: uuid_comparison_exp
+  organization: organizations_bool_exp
+  sent_at: timestamptz_comparison_exp
+  status: delivery_status_comparison_exp
+  updated_at: timestamptz_comparison_exp
+}
+
+"""
+aggregate max on columns
+"""
+type email_deliveries_max_fields {
+  attempts: Int
+  certificate_id: uuid
+  created_at: timestamptz
+  email: citext
+  error: String
+  id: uuid
+  org_id: uuid
+  sent_at: timestamptz
+  status: delivery_status
+  updated_at: timestamptz
+}
+
+"""
+order by max() on columns of table "email_deliveries"
+"""
+input email_deliveries_max_order_by {
+  attempts: order_by
+  certificate_id: order_by
+  created_at: order_by
+  email: order_by
+  error: order_by
+  id: order_by
+  org_id: order_by
+  sent_at: order_by
+  status: order_by
+  updated_at: order_by
+}
+
+"""
+aggregate min on columns
+"""
+type email_deliveries_min_fields {
+  attempts: Int
+  certificate_id: uuid
+  created_at: timestamptz
+  email: citext
+  error: String
+  id: uuid
+  org_id: uuid
+  sent_at: timestamptz
+  status: delivery_status
+  updated_at: timestamptz
+}
+
+"""
+order by min() on columns of table "email_deliveries"
+"""
+input email_deliveries_min_order_by {
+  attempts: order_by
+  certificate_id: order_by
+  created_at: order_by
+  email: order_by
+  error: order_by
+  id: order_by
+  org_id: order_by
+  sent_at: order_by
+  status: order_by
+  updated_at: order_by
+}
+
+"""
+Ordering options when selecting data from "email_deliveries".
+"""
+input email_deliveries_order_by {
+  attempts: order_by
+  certificate: certificates_order_by
+  certificate_id: order_by
+  created_at: order_by
+  email: order_by
+  error: order_by
+  id: order_by
+  org_id: order_by
+  organization: organizations_order_by
+  sent_at: order_by
+  status: order_by
+  updated_at: order_by
+}
+
+"""
+select columns of table "email_deliveries"
+"""
+enum email_deliveries_select_column {
+  """
+  column name
+  """
+  attempts
+
+  """
+  column name
+  """
+  certificate_id
+
+  """
+  column name
+  """
+  created_at
+
+  """
+  column name
+  """
+  email
+
+  """
+  column name
+  """
+  error
+
+  """
+  column name
+  """
+  id
+
+  """
+  column name
+  """
+  org_id
+
+  """
+  column name
+  """
+  sent_at
+
+  """
+  column name
+  """
+  status
+
+  """
+  column name
+  """
+  updated_at
+}
+
+"""
+aggregate stddev on columns
+"""
+type email_deliveries_stddev_fields {
+  attempts: Float
+}
+
+"""
+order by stddev() on columns of table "email_deliveries"
+"""
+input email_deliveries_stddev_order_by {
+  attempts: order_by
+}
+
+"""
+aggregate stddev_pop on columns
+"""
+type email_deliveries_stddev_pop_fields {
+  attempts: Float
+}
+
+"""
+order by stddev_pop() on columns of table "email_deliveries"
+"""
+input email_deliveries_stddev_pop_order_by {
+  attempts: order_by
+}
+
+"""
+aggregate stddev_samp on columns
+"""
+type email_deliveries_stddev_samp_fields {
+  attempts: Float
+}
+
+"""
+order by stddev_samp() on columns of table "email_deliveries"
+"""
+input email_deliveries_stddev_samp_order_by {
+  attempts: order_by
+}
+
+"""
+Streaming cursor of the table "email_deliveries"
+"""
+input email_deliveries_stream_cursor_input {
+  """
+  Stream column input with initial value
+  """
+  initial_value: email_deliveries_stream_cursor_value_input!
+
+  """
+  cursor ordering
+  """
+  ordering: cursor_ordering
+}
+
+"""
+Initial value of the column from where the streaming should start
+"""
+input email_deliveries_stream_cursor_value_input {
+  attempts: Int
+  certificate_id: uuid
+  created_at: timestamptz
+  email: citext
+  error: String
+  id: uuid
+  org_id: uuid
+  sent_at: timestamptz
+  status: delivery_status
+  updated_at: timestamptz
+}
+
+"""
+aggregate sum on columns
+"""
+type email_deliveries_sum_fields {
+  attempts: Int
+}
+
+"""
+order by sum() on columns of table "email_deliveries"
+"""
+input email_deliveries_sum_order_by {
+  attempts: order_by
+}
+
+"""
+aggregate var_pop on columns
+"""
+type email_deliveries_var_pop_fields {
+  attempts: Float
+}
+
+"""
+order by var_pop() on columns of table "email_deliveries"
+"""
+input email_deliveries_var_pop_order_by {
+  attempts: order_by
+}
+
+"""
+aggregate var_samp on columns
+"""
+type email_deliveries_var_samp_fields {
+  attempts: Float
+}
+
+"""
+order by var_samp() on columns of table "email_deliveries"
+"""
+input email_deliveries_var_samp_order_by {
+  attempts: order_by
+}
+
+"""
+aggregate variance on columns
+"""
+type email_deliveries_variance_fields {
+  attempts: Float
+}
+
+"""
+order by variance() on columns of table "email_deliveries"
+"""
+input email_deliveries_variance_order_by {
+  attempts: order_by
+}
+
+"""
+columns and relationships of "events"
+"""
+type events {
+  """
+  An array relationship
+  """
+  batches(
+    """
+    distinct select on columns
+    """
+    distinct_on: [batches_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [batches_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: batches_bool_exp
+  ): [batches!]!
+
+  """
+  An aggregate relationship
+  """
+  batches_aggregate(
+    """
+    distinct select on columns
+    """
+    distinct_on: [batches_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [batches_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: batches_bool_exp
+  ): batches_aggregate!
+  created_at: timestamptz!
+  created_by: uuid
+
+  """
+  An object relationship
+  """
+  creator: profiles
+  deleted_at: timestamptz
+  event_date: date!
+  id: uuid!
+  issuer_name: String!
+  name: String!
+  org_id: uuid!
+
+  """
+  An object relationship
+  """
+  organization: organizations!
+
+  """
+  An object relationship
+  """
+  template: templates
+  updated_at: timestamptz!
+}
+
+"""
+aggregated selection of "events"
+"""
+type events_aggregate {
+  aggregate: events_aggregate_fields
+  nodes: [events!]!
+}
+
+input events_aggregate_bool_exp {
+  count: events_aggregate_bool_exp_count
+}
+
+input events_aggregate_bool_exp_count {
+  arguments: [events_select_column!]
+  distinct: Boolean
+  filter: events_bool_exp
+  predicate: Int_comparison_exp!
+}
+
+"""
+aggregate fields of "events"
+"""
+type events_aggregate_fields {
+  count(columns: [events_select_column!], distinct: Boolean): Int!
+  max: events_max_fields
+  min: events_min_fields
+}
+
+"""
+order by aggregate values of table "events"
+"""
+input events_aggregate_order_by {
+  count: order_by
+  max: events_max_order_by
+  min: events_min_order_by
+}
+
+"""
+Boolean expression to filter rows from the table "events". All fields are combined with a logical 'AND'.
+"""
+input events_bool_exp {
+  _and: [events_bool_exp!]
+  _not: events_bool_exp
+  _or: [events_bool_exp!]
+  batches: batches_bool_exp
+  batches_aggregate: batches_aggregate_bool_exp
+  created_at: timestamptz_comparison_exp
+  created_by: uuid_comparison_exp
+  creator: profiles_bool_exp
+  deleted_at: timestamptz_comparison_exp
+  event_date: date_comparison_exp
+  id: uuid_comparison_exp
+  issuer_name: String_comparison_exp
+  name: String_comparison_exp
+  org_id: uuid_comparison_exp
+  organization: organizations_bool_exp
+  template: templates_bool_exp
+  updated_at: timestamptz_comparison_exp
+}
+
+"""
+unique or primary key constraints on table "events"
+"""
+enum events_constraint {
+  """
+  unique or primary key constraint on columns "id", "org_id"
+  """
+  events_id_org_id_key
+
+  """
+  unique or primary key constraint on columns "id"
+  """
+  events_pkey
+}
+
+"""
+input type for inserting data into table "events"
+"""
+input events_insert_input {
+  batches: batches_arr_rel_insert_input
+  event_date: date
+  issuer_name: String
+  name: String
+  org_id: uuid
+  template: templates_obj_rel_insert_input
+}
+
+"""
+aggregate max on columns
+"""
+type events_max_fields {
+  created_at: timestamptz
+  created_by: uuid
+  deleted_at: timestamptz
+  event_date: date
+  id: uuid
+  issuer_name: String
+  name: String
+  org_id: uuid
+  updated_at: timestamptz
+}
+
+"""
+order by max() on columns of table "events"
+"""
+input events_max_order_by {
+  created_at: order_by
+  created_by: order_by
+  deleted_at: order_by
+  event_date: order_by
+  id: order_by
+  issuer_name: order_by
+  name: order_by
+  org_id: order_by
+  updated_at: order_by
+}
+
+"""
+aggregate min on columns
+"""
+type events_min_fields {
+  created_at: timestamptz
+  created_by: uuid
+  deleted_at: timestamptz
+  event_date: date
+  id: uuid
+  issuer_name: String
+  name: String
+  org_id: uuid
+  updated_at: timestamptz
+}
+
+"""
+order by min() on columns of table "events"
+"""
+input events_min_order_by {
+  created_at: order_by
+  created_by: order_by
+  deleted_at: order_by
+  event_date: order_by
+  id: order_by
+  issuer_name: order_by
+  name: order_by
+  org_id: order_by
+  updated_at: order_by
+}
+
+"""
+response of any mutation on the table "events"
+"""
+type events_mutation_response {
+  """
+  number of rows affected by the mutation
+  """
+  affected_rows: Int!
+
+  """
+  data from the rows affected by the mutation
+  """
+  returning: [events!]!
+}
+
+"""
+input type for inserting object relation for remote table "events"
+"""
+input events_obj_rel_insert_input {
+  data: events_insert_input!
+
+  """
+  upsert condition
+  """
+  on_conflict: events_on_conflict
+}
+
+"""
+on_conflict condition type for table "events"
+"""
+input events_on_conflict {
+  constraint: events_constraint!
+  update_columns: [events_update_column!]! = []
+  where: events_bool_exp
+}
+
+"""
+Ordering options when selecting data from "events".
+"""
+input events_order_by {
+  batches_aggregate: batches_aggregate_order_by
+  created_at: order_by
+  created_by: order_by
+  creator: profiles_order_by
+  deleted_at: order_by
+  event_date: order_by
+  id: order_by
+  issuer_name: order_by
+  name: order_by
+  org_id: order_by
+  organization: organizations_order_by
+  template: templates_order_by
+  updated_at: order_by
+}
+
+"""
+primary key columns input for table: events
+"""
+input events_pk_columns_input {
+  id: uuid!
+}
+
+"""
+select columns of table "events"
+"""
+enum events_select_column {
+  """
+  column name
+  """
+  created_at
+
+  """
+  column name
+  """
+  created_by
+
+  """
+  column name
+  """
+  deleted_at
+
+  """
+  column name
+  """
+  event_date
+
+  """
+  column name
+  """
+  id
+
+  """
+  column name
+  """
+  issuer_name
+
+  """
+  column name
+  """
+  name
+
+  """
+  column name
+  """
+  org_id
+
+  """
+  column name
+  """
+  updated_at
+}
+
+"""
+input type for updating data in table "events"
+"""
+input events_set_input {
+  deleted_at: timestamptz
+  event_date: date
+  issuer_name: String
+  name: String
+}
+
+"""
+Streaming cursor of the table "events"
+"""
+input events_stream_cursor_input {
+  """
+  Stream column input with initial value
+  """
+  initial_value: events_stream_cursor_value_input!
+
+  """
+  cursor ordering
+  """
+  ordering: cursor_ordering
+}
+
+"""
+Initial value of the column from where the streaming should start
+"""
+input events_stream_cursor_value_input {
+  created_at: timestamptz
+  created_by: uuid
+  deleted_at: timestamptz
+  event_date: date
+  id: uuid
+  issuer_name: String
+  name: String
+  org_id: uuid
+  updated_at: timestamptz
+}
+
+"""
+update columns of table "events"
+"""
+enum events_update_column {
+  """
+  column name
+  """
+  deleted_at
+
+  """
+  column name
+  """
+  event_date
+
+  """
+  column name
+  """
+  issuer_name
+
+  """
+  column name
+  """
+  name
+}
+
+input events_updates {
+  """
+  sets the columns of the filtered rows to the given values
+  """
+  _set: events_set_input
+
+  """
+  filter the rows which have to be updated
+  """
+  where: events_bool_exp!
+}
+
+"""
+columns and relationships of "feature_flags"
+"""
+type feature_flags {
+  enabled: Boolean!
+  id: uuid!
+  key: String!
+  org_id: uuid
+
+  """
+  An object relationship
+  """
+  organization: organizations
+}
+
+"""
+order by aggregate values of table "feature_flags"
+"""
+input feature_flags_aggregate_order_by {
+  count: order_by
+  max: feature_flags_max_order_by
+  min: feature_flags_min_order_by
+}
+
+"""
+Boolean expression to filter rows from the table "feature_flags". All fields are combined with a logical 'AND'.
+"""
+input feature_flags_bool_exp {
+  _and: [feature_flags_bool_exp!]
+  _not: feature_flags_bool_exp
+  _or: [feature_flags_bool_exp!]
+  enabled: Boolean_comparison_exp
+  id: uuid_comparison_exp
+  key: String_comparison_exp
+  org_id: uuid_comparison_exp
+  organization: organizations_bool_exp
+}
+
+"""
+order by max() on columns of table "feature_flags"
+"""
+input feature_flags_max_order_by {
+  id: order_by
+  key: order_by
+  org_id: order_by
+}
+
+"""
+order by min() on columns of table "feature_flags"
+"""
+input feature_flags_min_order_by {
+  id: order_by
+  key: order_by
+  org_id: order_by
+}
+
+"""
+Ordering options when selecting data from "feature_flags".
+"""
+input feature_flags_order_by {
+  enabled: order_by
+  id: order_by
+  key: order_by
+  org_id: order_by
+  organization: organizations_order_by
+}
+
+"""
+select columns of table "feature_flags"
+"""
+enum feature_flags_select_column {
+  """
+  column name
+  """
+  enabled
+
+  """
+  column name
+  """
+  id
+
+  """
+  column name
+  """
+  key
+
+  """
+  column name
+  """
+  org_id
+}
+
+"""
+Streaming cursor of the table "feature_flags"
+"""
+input feature_flags_stream_cursor_input {
+  """
+  Stream column input with initial value
+  """
+  initial_value: feature_flags_stream_cursor_value_input!
+
+  """
+  cursor ordering
+  """
+  ordering: cursor_ordering
+}
+
+"""
+Initial value of the column from where the streaming should start
+"""
+input feature_flags_stream_cursor_value_input {
+  enabled: Boolean
+  id: uuid
+  key: String
+  org_id: uuid
+}
+
+scalar field_key
+
+"""
+Boolean expression to compare columns of type "field_key". All fields are combined with logical 'AND'.
+"""
+input field_key_comparison_exp {
+  _eq: field_key
+  _gt: field_key
+  _gte: field_key
+  _in: [field_key!]
+  _is_null: Boolean
+  _lt: field_key
+  _lte: field_key
+  _neq: field_key
+  _nin: [field_key!]
+}
+
+scalar font_style
+
+"""
+Boolean expression to compare columns of type "font_style". All fields are combined with logical 'AND'.
+"""
+input font_style_comparison_exp {
+  _eq: font_style
+  _gt: font_style
+  _gte: font_style
+  _in: [font_style!]
+  _is_null: Boolean
+  _lt: font_style
+  _lte: font_style
+  _neq: font_style
+  _nin: [font_style!]
+}
+
+scalar font_weight
+
+"""
+Boolean expression to compare columns of type "font_weight". All fields are combined with logical 'AND'.
+"""
+input font_weight_comparison_exp {
+  _eq: font_weight
+  _gt: font_weight
+  _gte: font_weight
+  _in: [font_weight!]
+  _is_null: Boolean
+  _lt: font_weight
+  _lte: font_weight
+  _neq: font_weight
+  _nin: [font_weight!]
+}
+
+"""
+columns and relationships of "fonts"
+"""
+type fonts {
+  category: String!
+  family: String!
+  is_system: Boolean!
+  render_family: String!
+}
+
+"""
+Boolean expression to filter rows from the table "fonts". All fields are combined with a logical 'AND'.
+"""
+input fonts_bool_exp {
+  _and: [fonts_bool_exp!]
+  _not: fonts_bool_exp
+  _or: [fonts_bool_exp!]
+  category: String_comparison_exp
+  family: String_comparison_exp
+  is_system: Boolean_comparison_exp
+  render_family: String_comparison_exp
+}
+
+"""
+Ordering options when selecting data from "fonts".
+"""
+input fonts_order_by {
+  category: order_by
+  family: order_by
+  is_system: order_by
+  render_family: order_by
+}
+
+"""
+select columns of table "fonts"
+"""
+enum fonts_select_column {
+  """
+  column name
+  """
+  category
+
+  """
+  column name
+  """
+  family
+
+  """
+  column name
+  """
+  is_system
+
+  """
+  column name
+  """
+  render_family
+}
+
+"""
+Streaming cursor of the table "fonts"
+"""
+input fonts_stream_cursor_input {
+  """
+  Stream column input with initial value
+  """
+  initial_value: fonts_stream_cursor_value_input!
+
+  """
+  cursor ordering
+  """
+  ordering: cursor_ordering
+}
+
+"""
+Initial value of the column from where the streaming should start
+"""
+input fonts_stream_cursor_value_input {
+  category: String
+  family: String
+  is_system: Boolean
+  render_family: String
+}
+
+scalar job_kind
+
+"""
+Boolean expression to compare columns of type "job_kind". All fields are combined with logical 'AND'.
+"""
+input job_kind_comparison_exp {
+  _eq: job_kind
+  _gt: job_kind
+  _gte: job_kind
+  _in: [job_kind!]
+  _is_null: Boolean
+  _lt: job_kind
+  _lte: job_kind
+  _neq: job_kind
+  _nin: [job_kind!]
+}
+
+scalar job_status
+
+"""
+Boolean expression to compare columns of type "job_status". All fields are combined with logical 'AND'.
+"""
+input job_status_comparison_exp {
+  _eq: job_status
+  _gt: job_status
+  _gte: job_status
+  _in: [job_status!]
+  _is_null: Boolean
+  _lt: job_status
+  _lte: job_status
+  _neq: job_status
+  _nin: [job_status!]
+}
+
+"""
+columns and relationships of "jobs"
+"""
+type jobs {
+  created_at: timestamptz!
+  created_by: uuid
+
+  """
+  An object relationship
+  """
+  creator: profiles
+  error: String
+  finished_at: timestamptz
+  id: uuid!
+  kind: job_kind!
+  org_id: uuid!
+
+  """
+  An object relationship
+  """
+  organization: organizations!
+  progress: Int!
+  ref_id: uuid
+  started_at: timestamptz
+  status: job_status!
+  total: Int!
+  updated_at: timestamptz!
+}
+
+"""
+order by aggregate values of table "jobs"
+"""
+input jobs_aggregate_order_by {
+  avg: jobs_avg_order_by
+  count: order_by
+  max: jobs_max_order_by
+  min: jobs_min_order_by
+  stddev: jobs_stddev_order_by
+  stddev_pop: jobs_stddev_pop_order_by
+  stddev_samp: jobs_stddev_samp_order_by
+  sum: jobs_sum_order_by
+  var_pop: jobs_var_pop_order_by
+  var_samp: jobs_var_samp_order_by
+  variance: jobs_variance_order_by
+}
+
+"""
+order by avg() on columns of table "jobs"
+"""
+input jobs_avg_order_by {
+  progress: order_by
+  total: order_by
+}
+
+"""
+Boolean expression to filter rows from the table "jobs". All fields are combined with a logical 'AND'.
+"""
+input jobs_bool_exp {
+  _and: [jobs_bool_exp!]
+  _not: jobs_bool_exp
+  _or: [jobs_bool_exp!]
+  created_at: timestamptz_comparison_exp
+  created_by: uuid_comparison_exp
+  creator: profiles_bool_exp
+  error: String_comparison_exp
+  finished_at: timestamptz_comparison_exp
+  id: uuid_comparison_exp
+  kind: job_kind_comparison_exp
+  org_id: uuid_comparison_exp
+  organization: organizations_bool_exp
+  progress: Int_comparison_exp
+  ref_id: uuid_comparison_exp
+  started_at: timestamptz_comparison_exp
+  status: job_status_comparison_exp
+  total: Int_comparison_exp
+  updated_at: timestamptz_comparison_exp
+}
+
+"""
+order by max() on columns of table "jobs"
+"""
+input jobs_max_order_by {
+  created_at: order_by
+  created_by: order_by
+  error: order_by
+  finished_at: order_by
+  id: order_by
+  kind: order_by
+  org_id: order_by
+  progress: order_by
+  ref_id: order_by
+  started_at: order_by
+  status: order_by
+  total: order_by
+  updated_at: order_by
+}
+
+"""
+order by min() on columns of table "jobs"
+"""
+input jobs_min_order_by {
+  created_at: order_by
+  created_by: order_by
+  error: order_by
+  finished_at: order_by
+  id: order_by
+  kind: order_by
+  org_id: order_by
+  progress: order_by
+  ref_id: order_by
+  started_at: order_by
+  status: order_by
+  total: order_by
+  updated_at: order_by
+}
+
+"""
+Ordering options when selecting data from "jobs".
+"""
+input jobs_order_by {
+  created_at: order_by
+  created_by: order_by
+  creator: profiles_order_by
+  error: order_by
+  finished_at: order_by
+  id: order_by
+  kind: order_by
+  org_id: order_by
+  organization: organizations_order_by
+  progress: order_by
+  ref_id: order_by
+  started_at: order_by
+  status: order_by
+  total: order_by
+  updated_at: order_by
+}
+
+"""
+select columns of table "jobs"
+"""
+enum jobs_select_column {
+  """
+  column name
+  """
+  created_at
+
+  """
+  column name
+  """
+  created_by
+
+  """
+  column name
+  """
+  error
+
+  """
+  column name
+  """
+  finished_at
+
+  """
+  column name
+  """
+  id
+
+  """
+  column name
+  """
+  kind
+
+  """
+  column name
+  """
+  org_id
+
+  """
+  column name
+  """
+  progress
+
+  """
+  column name
+  """
+  ref_id
+
+  """
+  column name
+  """
+  started_at
+
+  """
+  column name
+  """
+  status
+
+  """
+  column name
+  """
+  total
+
+  """
+  column name
+  """
+  updated_at
+}
+
+"""
+order by stddev() on columns of table "jobs"
+"""
+input jobs_stddev_order_by {
+  progress: order_by
+  total: order_by
+}
+
+"""
+order by stddev_pop() on columns of table "jobs"
+"""
+input jobs_stddev_pop_order_by {
+  progress: order_by
+  total: order_by
+}
+
+"""
+order by stddev_samp() on columns of table "jobs"
+"""
+input jobs_stddev_samp_order_by {
+  progress: order_by
+  total: order_by
+}
+
+"""
+Streaming cursor of the table "jobs"
+"""
+input jobs_stream_cursor_input {
+  """
+  Stream column input with initial value
+  """
+  initial_value: jobs_stream_cursor_value_input!
+
+  """
+  cursor ordering
+  """
+  ordering: cursor_ordering
+}
+
+"""
+Initial value of the column from where the streaming should start
+"""
+input jobs_stream_cursor_value_input {
+  created_at: timestamptz
+  created_by: uuid
+  error: String
+  finished_at: timestamptz
+  id: uuid
+  kind: job_kind
+  org_id: uuid
+  progress: Int
+  ref_id: uuid
+  started_at: timestamptz
+  status: job_status
+  total: Int
+  updated_at: timestamptz
+}
+
+"""
+order by sum() on columns of table "jobs"
+"""
+input jobs_sum_order_by {
+  progress: order_by
+  total: order_by
+}
+
+"""
+order by var_pop() on columns of table "jobs"
+"""
+input jobs_var_pop_order_by {
+  progress: order_by
+  total: order_by
+}
+
+"""
+order by var_samp() on columns of table "jobs"
+"""
+input jobs_var_samp_order_by {
+  progress: order_by
+  total: order_by
+}
+
+"""
+order by variance() on columns of table "jobs"
+"""
+input jobs_variance_order_by {
+  progress: order_by
+  total: order_by
+}
+
+scalar jsonb
+
+input jsonb_cast_exp {
+  String: String_comparison_exp
+}
+
+"""
+Boolean expression to compare columns of type "jsonb". All fields are combined with logical 'AND'.
+"""
+input jsonb_comparison_exp {
+  _cast: jsonb_cast_exp
+
+  """
+  is the column contained in the given json value
+  """
+  _contained_in: jsonb
+
+  """
+  does the column contain the given json value at the top level
+  """
+  _contains: jsonb
+  _eq: jsonb
+  _gt: jsonb
+  _gte: jsonb
+
+  """
+  does the string exist as a top-level key in the column
+  """
+  _has_key: String
+
+  """
+  do all of these strings exist as top-level keys in the column
+  """
+  _has_keys_all: [String!]
+
+  """
+  do any of these strings exist as top-level keys in the column
+  """
+  _has_keys_any: [String!]
+  _in: [jsonb!]
+  _is_null: Boolean
+
+  """
+  does the jsonpath return any item for the specified JSON value
+  """
+  _jsonb_path_exists: String
+
+  """
+  does the jsonpath predicate check return true for the specified JSON value
+  """
+  _jsonb_path_match: String
+  _lt: jsonb
+  _lte: jsonb
+  _neq: jsonb
+  _nin: [jsonb!]
+}
+
+"""
+mutation root
+"""
+type mutation_root {
+  """
+  Join an organisation with an invite token.
+  """
+  accept_invite(token: String!): AcceptInviteOutput!
+
+  """
+  Create an organisation with the caller as owner.
+  """
+  bootstrap_org(name: String!, slug: String!): BootstrapOrgOutput!
+
+  """
+  delete data from the table: "batches"
+  """
+  delete_batches(
+    """
+    filter the rows which have to be deleted
+    """
+    where: batches_bool_exp!
+  ): batches_mutation_response
+
+  """
+  delete single row from the table: "batches"
+  """
+  delete_batches_by_pk(id: uuid!): batches
+
+  """
+  delete data from the table: "certificates"
+  """
+  delete_certificates(
+    """
+    filter the rows which have to be deleted
+    """
+    where: certificates_bool_exp!
+  ): certificates_mutation_response
+
+  """
+  delete single row from the table: "certificates"
+  """
+  delete_certificates_by_pk(id: uuid!): certificates
+
+  """
+  delete data from the table: "organization_invites"
+  """
+  delete_organization_invites(
+    """
+    filter the rows which have to be deleted
+    """
+    where: organization_invites_bool_exp!
+  ): organization_invites_mutation_response
+
+  """
+  delete single row from the table: "organization_invites"
+  """
+  delete_organization_invites_by_pk(id: uuid!): organization_invites
+
+  """
+  delete data from the table: "organization_members"
+  """
+  delete_organization_members(
+    """
+    filter the rows which have to be deleted
+    """
+    where: organization_members_bool_exp!
+  ): organization_members_mutation_response
+
+  """
+  delete single row from the table: "organization_members"
+  """
+  delete_organization_members_by_pk(org_id: uuid!, user_id: uuid!): organization_members
+
+  """
+  delete data from the table: "template_fields"
+  """
+  delete_template_fields(
+    """
+    filter the rows which have to be deleted
+    """
+    where: template_fields_bool_exp!
+  ): template_fields_mutation_response
+
+  """
+  delete single row from the table: "template_fields"
+  """
+  delete_template_fields_by_pk(field_key: field_key!, template_id: uuid!): template_fields
+
+  """
+  delete data from the table: "templates"
+  """
+  delete_templates(
+    """
+    filter the rows which have to be deleted
+    """
+    where: templates_bool_exp!
+  ): templates_mutation_response
+
+  """
+  delete single row from the table: "templates"
+  """
+  delete_templates_by_pk(id: uuid!): templates
+
+  """
+  Queue a ZIP or PDF export of a rendered batch.
+  """
+  export_batch(batch_id: uuid!, format: ExportFormat!): JobOutput!
+
+  """
+  insert data into the table: "batches"
+  """
+  insert_batches(
+    """
+    the rows to be inserted
+    """
+    objects: [batches_insert_input!]!
+
+    """
+    upsert condition
+    """
+    on_conflict: batches_on_conflict
+  ): batches_mutation_response
+
+  """
+  insert a single row into the table: "batches"
+  """
+  insert_batches_one(
+    """
+    the row to be inserted
+    """
+    object: batches_insert_input!
+
+    """
+    upsert condition
+    """
+    on_conflict: batches_on_conflict
+  ): batches
+
+  """
+  insert data into the table: "certificates"
+  """
+  insert_certificates(
+    """
+    the rows to be inserted
+    """
+    objects: [certificates_insert_input!]!
+
+    """
+    upsert condition
+    """
+    on_conflict: certificates_on_conflict
+  ): certificates_mutation_response
+
+  """
+  insert a single row into the table: "certificates"
+  """
+  insert_certificates_one(
+    """
+    the row to be inserted
+    """
+    object: certificates_insert_input!
+
+    """
+    upsert condition
+    """
+    on_conflict: certificates_on_conflict
+  ): certificates
+
+  """
+  insert data into the table: "events"
+  """
+  insert_events(
+    """
+    the rows to be inserted
+    """
+    objects: [events_insert_input!]!
+
+    """
+    upsert condition
+    """
+    on_conflict: events_on_conflict
+  ): events_mutation_response
+
+  """
+  insert a single row into the table: "events"
+  """
+  insert_events_one(
+    """
+    the row to be inserted
+    """
+    object: events_insert_input!
+
+    """
+    upsert condition
+    """
+    on_conflict: events_on_conflict
+  ): events
+
+  """
+  insert data into the table: "organization_members"
+  """
+  insert_organization_members(
+    """
+    the rows to be inserted
+    """
+    objects: [organization_members_insert_input!]!
+
+    """
+    upsert condition
+    """
+    on_conflict: organization_members_on_conflict
+  ): organization_members_mutation_response
+
+  """
+  insert a single row into the table: "organization_members"
+  """
+  insert_organization_members_one(
+    """
+    the row to be inserted
+    """
+    object: organization_members_insert_input!
+
+    """
+    upsert condition
+    """
+    on_conflict: organization_members_on_conflict
+  ): organization_members
+
+  """
+  insert data into the table: "template_fields"
+  """
+  insert_template_fields(
+    """
+    the rows to be inserted
+    """
+    objects: [template_fields_insert_input!]!
+
+    """
+    upsert condition
+    """
+    on_conflict: template_fields_on_conflict
+  ): template_fields_mutation_response
+
+  """
+  insert a single row into the table: "template_fields"
+  """
+  insert_template_fields_one(
+    """
+    the row to be inserted
+    """
+    object: template_fields_insert_input!
+
+    """
+    upsert condition
+    """
+    on_conflict: template_fields_on_conflict
+  ): template_fields
+
+  """
+  insert data into the table: "templates"
+  """
+  insert_templates(
+    """
+    the rows to be inserted
+    """
+    objects: [templates_insert_input!]!
+
+    """
+    upsert condition
+    """
+    on_conflict: templates_on_conflict
+  ): templates_mutation_response
+
+  """
+  insert a single row into the table: "templates"
+  """
+  insert_templates_one(
+    """
+    the row to be inserted
+    """
+    object: templates_insert_input!
+
+    """
+    upsert condition
+    """
+    on_conflict: templates_on_conflict
+  ): templates
+
+  """
+  Invite a person by email. Admins and owners only.
+  """
+  invite_member(email: String!, org_id: uuid!, role: String!): InviteMemberOutput!
+
+  """
+  Queue certificate emails. Needs the email-certificates feature flag.
+  """
+  send_batch_emails(batch_id: uuid!): JobOutput!
+
+  """
+  Queue the render job for a draft batch.
+  """
+  start_batch_render(batch_id: uuid!): JobOutput!
+
+  """
+  Decrypt migrated recipient data with the old password. Owners only.
+  """
+  unlock_legacy_data(org_id: uuid!, password: String!): UnlockLegacyDataOutput!
+
+  """
+  update data of the table: "certificates"
+  """
+  update_certificates(
+    """
+    sets the columns of the filtered rows to the given values
+    """
+    _set: certificates_set_input
+
+    """
+    filter the rows which have to be updated
+    """
+    where: certificates_bool_exp!
+  ): certificates_mutation_response
+
+  """
+  update single row of the table: "certificates"
+  """
+  update_certificates_by_pk(
+    """
+    sets the columns of the filtered rows to the given values
+    """
+    _set: certificates_set_input
+    pk_columns: certificates_pk_columns_input!
+  ): certificates
+
+  """
+  update multiples rows of table: "certificates"
+  """
+  update_certificates_many(
+    """
+    updates to execute, in order
+    """
+    updates: [certificates_updates!]!
+  ): [certificates_mutation_response]
+
+  """
+  update data of the table: "events"
+  """
+  update_events(
+    """
+    sets the columns of the filtered rows to the given values
+    """
+    _set: events_set_input
+
+    """
+    filter the rows which have to be updated
+    """
+    where: events_bool_exp!
+  ): events_mutation_response
+
+  """
+  update single row of the table: "events"
+  """
+  update_events_by_pk(
+    """
+    sets the columns of the filtered rows to the given values
+    """
+    _set: events_set_input
+    pk_columns: events_pk_columns_input!
+  ): events
+
+  """
+  update multiples rows of table: "events"
+  """
+  update_events_many(
+    """
+    updates to execute, in order
+    """
+    updates: [events_updates!]!
+  ): [events_mutation_response]
+
+  """
+  update data of the table: "organization_members"
+  """
+  update_organization_members(
+    """
+    sets the columns of the filtered rows to the given values
+    """
+    _set: organization_members_set_input
+
+    """
+    filter the rows which have to be updated
+    """
+    where: organization_members_bool_exp!
+  ): organization_members_mutation_response
+
+  """
+  update single row of the table: "organization_members"
+  """
+  update_organization_members_by_pk(
+    """
+    sets the columns of the filtered rows to the given values
+    """
+    _set: organization_members_set_input
+    pk_columns: organization_members_pk_columns_input!
+  ): organization_members
+
+  """
+  update multiples rows of table: "organization_members"
+  """
+  update_organization_members_many(
+    """
+    updates to execute, in order
+    """
+    updates: [organization_members_updates!]!
+  ): [organization_members_mutation_response]
+
+  """
+  update data of the table: "organizations"
+  """
+  update_organizations(
+    """
+    sets the columns of the filtered rows to the given values
+    """
+    _set: organizations_set_input
+
+    """
+    filter the rows which have to be updated
+    """
+    where: organizations_bool_exp!
+  ): organizations_mutation_response
+
+  """
+  update single row of the table: "organizations"
+  """
+  update_organizations_by_pk(
+    """
+    sets the columns of the filtered rows to the given values
+    """
+    _set: organizations_set_input
+    pk_columns: organizations_pk_columns_input!
+  ): organizations
+
+  """
+  update multiples rows of table: "organizations"
+  """
+  update_organizations_many(
+    """
+    updates to execute, in order
+    """
+    updates: [organizations_updates!]!
+  ): [organizations_mutation_response]
+
+  """
+  update data of the table: "profiles"
+  """
+  update_profiles(
+    """
+    sets the columns of the filtered rows to the given values
+    """
+    _set: profiles_set_input
+
+    """
+    filter the rows which have to be updated
+    """
+    where: profiles_bool_exp!
+  ): profiles_mutation_response
+
+  """
+  update single row of the table: "profiles"
+  """
+  update_profiles_by_pk(
+    """
+    sets the columns of the filtered rows to the given values
+    """
+    _set: profiles_set_input
+    pk_columns: profiles_pk_columns_input!
+  ): profiles
+
+  """
+  update multiples rows of table: "profiles"
+  """
+  update_profiles_many(
+    """
+    updates to execute, in order
+    """
+    updates: [profiles_updates!]!
+  ): [profiles_mutation_response]
+
+  """
+  update data of the table: "template_fields"
+  """
+  update_template_fields(
+    """
+    increments the numeric columns with given value of the filtered values
+    """
+    _inc: template_fields_inc_input
+
+    """
+    sets the columns of the filtered rows to the given values
+    """
+    _set: template_fields_set_input
+
+    """
+    filter the rows which have to be updated
+    """
+    where: template_fields_bool_exp!
+  ): template_fields_mutation_response
+
+  """
+  update single row of the table: "template_fields"
+  """
+  update_template_fields_by_pk(
+    """
+    increments the numeric columns with given value of the filtered values
+    """
+    _inc: template_fields_inc_input
+
+    """
+    sets the columns of the filtered rows to the given values
+    """
+    _set: template_fields_set_input
+    pk_columns: template_fields_pk_columns_input!
+  ): template_fields
+
+  """
+  update multiples rows of table: "template_fields"
+  """
+  update_template_fields_many(
+    """
+    updates to execute, in order
+    """
+    updates: [template_fields_updates!]!
+  ): [template_fields_mutation_response]
+
+  """
+  update data of the table: "templates"
+  """
+  update_templates(
+    """
+    increments the numeric columns with given value of the filtered values
+    """
+    _inc: templates_inc_input
+
+    """
+    sets the columns of the filtered rows to the given values
+    """
+    _set: templates_set_input
+
+    """
+    filter the rows which have to be updated
+    """
+    where: templates_bool_exp!
+  ): templates_mutation_response
+
+  """
+  update single row of the table: "templates"
+  """
+  update_templates_by_pk(
+    """
+    increments the numeric columns with given value of the filtered values
+    """
+    _inc: templates_inc_input
+
+    """
+    sets the columns of the filtered rows to the given values
+    """
+    _set: templates_set_input
+    pk_columns: templates_pk_columns_input!
+  ): templates
+
+  """
+  update multiples rows of table: "templates"
+  """
+  update_templates_many(
+    """
+    updates to execute, in order
+    """
+    updates: [templates_updates!]!
+  ): [templates_mutation_response]
+}
+
+scalar numeric
+
+"""
+Boolean expression to compare columns of type "numeric". All fields are combined with logical 'AND'.
+"""
+input numeric_comparison_exp {
+  _eq: numeric
+  _gt: numeric
+  _gte: numeric
+  _in: [numeric!]
+  _is_null: Boolean
+  _lt: numeric
+  _lte: numeric
+  _neq: numeric
+  _nin: [numeric!]
+}
+
+"""
+column ordering options
+"""
+enum order_by {
+  """
+  in ascending order, nulls last
+  """
+  asc
+
+  """
+  in ascending order, nulls first
+  """
+  asc_nulls_first
+
+  """
+  in ascending order, nulls last
+  """
+  asc_nulls_last
+
+  """
+  in descending order, nulls first
+  """
+  desc
+
+  """
+  in descending order, nulls first
+  """
+  desc_nulls_first
+
+  """
+  in descending order, nulls last
+  """
+  desc_nulls_last
+}
+
+scalar org_role
+
+"""
+Boolean expression to compare columns of type "org_role". All fields are combined with logical 'AND'.
+"""
+input org_role_comparison_exp {
+  _eq: org_role
+  _gt: org_role
+  _gte: org_role
+  _in: [org_role!]
+  _is_null: Boolean
+  _lt: org_role
+  _lte: org_role
+  _neq: org_role
+  _nin: [org_role!]
+}
+
+"""
+columns and relationships of "org_stats"
+"""
+type org_stats {
+  batches_count: bigint
+  certificates_count: bigint
+  events_count: bigint
+  last_batch_at: timestamptz
+  org_id: uuid
+
+  """
+  An object relationship
+  """
+  organization: organizations
+}
+
+"""
+Boolean expression to filter rows from the table "org_stats". All fields are combined with a logical 'AND'.
+"""
+input org_stats_bool_exp {
+  _and: [org_stats_bool_exp!]
+  _not: org_stats_bool_exp
+  _or: [org_stats_bool_exp!]
+  batches_count: bigint_comparison_exp
+  certificates_count: bigint_comparison_exp
+  events_count: bigint_comparison_exp
+  last_batch_at: timestamptz_comparison_exp
+  org_id: uuid_comparison_exp
+  organization: organizations_bool_exp
+}
+
+"""
+Ordering options when selecting data from "org_stats".
+"""
+input org_stats_order_by {
+  batches_count: order_by
+  certificates_count: order_by
+  events_count: order_by
+  last_batch_at: order_by
+  org_id: order_by
+  organization: organizations_order_by
+}
+
+"""
+select columns of table "org_stats"
+"""
+enum org_stats_select_column {
+  """
+  column name
+  """
+  batches_count
+
+  """
+  column name
+  """
+  certificates_count
+
+  """
+  column name
+  """
+  events_count
+
+  """
+  column name
+  """
+  last_batch_at
+
+  """
+  column name
+  """
+  org_id
+}
+
+"""
+Streaming cursor of the table "org_stats"
+"""
+input org_stats_stream_cursor_input {
+  """
+  Stream column input with initial value
+  """
+  initial_value: org_stats_stream_cursor_value_input!
+
+  """
+  cursor ordering
+  """
+  ordering: cursor_ordering
+}
+
+"""
+Initial value of the column from where the streaming should start
+"""
+input org_stats_stream_cursor_value_input {
+  batches_count: bigint
+  certificates_count: bigint
+  events_count: bigint
+  last_batch_at: timestamptz
+  org_id: uuid
+}
+
+"""
+columns and relationships of "organization_invites"
+"""
+type organization_invites {
+  accepted_at: timestamptz
+  created_at: timestamptz!
+  email: citext!
+  expires_at: timestamptz!
+  id: uuid!
+  invited_by: uuid
+
+  """
+  An object relationship
+  """
+  inviter: profiles
+  org_id: uuid!
+
+  """
+  An object relationship
+  """
+  organization: organizations!
+  role: org_role!
+}
+
+"""
+order by aggregate values of table "organization_invites"
+"""
+input organization_invites_aggregate_order_by {
+  count: order_by
+  max: organization_invites_max_order_by
+  min: organization_invites_min_order_by
+}
+
+"""
+Boolean expression to filter rows from the table "organization_invites". All fields are combined with a logical 'AND'.
+"""
+input organization_invites_bool_exp {
+  _and: [organization_invites_bool_exp!]
+  _not: organization_invites_bool_exp
+  _or: [organization_invites_bool_exp!]
+  accepted_at: timestamptz_comparison_exp
+  created_at: timestamptz_comparison_exp
+  email: citext_comparison_exp
+  expires_at: timestamptz_comparison_exp
+  id: uuid_comparison_exp
+  invited_by: uuid_comparison_exp
+  inviter: profiles_bool_exp
+  org_id: uuid_comparison_exp
+  organization: organizations_bool_exp
+  role: org_role_comparison_exp
+}
+
+"""
+order by max() on columns of table "organization_invites"
+"""
+input organization_invites_max_order_by {
+  accepted_at: order_by
+  created_at: order_by
+  email: order_by
+  expires_at: order_by
+  id: order_by
+  invited_by: order_by
+  org_id: order_by
+  role: order_by
+}
+
+"""
+order by min() on columns of table "organization_invites"
+"""
+input organization_invites_min_order_by {
+  accepted_at: order_by
+  created_at: order_by
+  email: order_by
+  expires_at: order_by
+  id: order_by
+  invited_by: order_by
+  org_id: order_by
+  role: order_by
+}
+
+"""
+response of any mutation on the table "organization_invites"
+"""
+type organization_invites_mutation_response {
+  """
+  number of rows affected by the mutation
+  """
+  affected_rows: Int!
+
+  """
+  data from the rows affected by the mutation
+  """
+  returning: [organization_invites!]!
+}
+
+"""
+Ordering options when selecting data from "organization_invites".
+"""
+input organization_invites_order_by {
+  accepted_at: order_by
+  created_at: order_by
+  email: order_by
+  expires_at: order_by
+  id: order_by
+  invited_by: order_by
+  inviter: profiles_order_by
+  org_id: order_by
+  organization: organizations_order_by
+  role: order_by
+}
+
+"""
+select columns of table "organization_invites"
+"""
+enum organization_invites_select_column {
+  """
+  column name
+  """
+  accepted_at
+
+  """
+  column name
+  """
+  created_at
+
+  """
+  column name
+  """
+  email
+
+  """
+  column name
+  """
+  expires_at
+
+  """
+  column name
+  """
+  id
+
+  """
+  column name
+  """
+  invited_by
+
+  """
+  column name
+  """
+  org_id
+
+  """
+  column name
+  """
+  role
+}
+
+"""
+Streaming cursor of the table "organization_invites"
+"""
+input organization_invites_stream_cursor_input {
+  """
+  Stream column input with initial value
+  """
+  initial_value: organization_invites_stream_cursor_value_input!
+
+  """
+  cursor ordering
+  """
+  ordering: cursor_ordering
+}
+
+"""
+Initial value of the column from where the streaming should start
+"""
+input organization_invites_stream_cursor_value_input {
+  accepted_at: timestamptz
+  created_at: timestamptz
+  email: citext
+  expires_at: timestamptz
+  id: uuid
+  invited_by: uuid
+  org_id: uuid
+  role: org_role
+}
+
+"""
+columns and relationships of "organization_members"
+"""
+type organization_members {
+  created_at: timestamptz!
+  org_id: uuid!
+
+  """
+  An object relationship
+  """
+  organization: organizations!
+
+  """
+  An object relationship
+  """
+  profile: profiles!
+  role: org_role!
+  user_id: uuid!
+}
+
+"""
+order by aggregate values of table "organization_members"
+"""
+input organization_members_aggregate_order_by {
+  count: order_by
+  max: organization_members_max_order_by
+  min: organization_members_min_order_by
+}
+
+"""
+Boolean expression to filter rows from the table "organization_members". All fields are combined with a logical 'AND'.
+"""
+input organization_members_bool_exp {
+  _and: [organization_members_bool_exp!]
+  _not: organization_members_bool_exp
+  _or: [organization_members_bool_exp!]
+  created_at: timestamptz_comparison_exp
+  org_id: uuid_comparison_exp
+  organization: organizations_bool_exp
+  profile: profiles_bool_exp
+  role: org_role_comparison_exp
+  user_id: uuid_comparison_exp
+}
+
+"""
+unique or primary key constraints on table "organization_members"
+"""
+enum organization_members_constraint {
+  """
+  unique or primary key constraint on columns "user_id", "org_id"
+  """
+  organization_members_pkey
+}
+
+"""
+input type for inserting data into table "organization_members"
+"""
+input organization_members_insert_input {
+  org_id: uuid
+  role: org_role
+  user_id: uuid
+}
+
+"""
+order by max() on columns of table "organization_members"
+"""
+input organization_members_max_order_by {
+  created_at: order_by
+  org_id: order_by
+  role: order_by
+  user_id: order_by
+}
+
+"""
+order by min() on columns of table "organization_members"
+"""
+input organization_members_min_order_by {
+  created_at: order_by
+  org_id: order_by
+  role: order_by
+  user_id: order_by
+}
+
+"""
+response of any mutation on the table "organization_members"
+"""
+type organization_members_mutation_response {
+  """
+  number of rows affected by the mutation
+  """
+  affected_rows: Int!
+
+  """
+  data from the rows affected by the mutation
+  """
+  returning: [organization_members!]!
+}
+
+"""
+on_conflict condition type for table "organization_members"
+"""
+input organization_members_on_conflict {
+  constraint: organization_members_constraint!
+  update_columns: [organization_members_update_column!]! = []
+  where: organization_members_bool_exp
+}
+
+"""
+Ordering options when selecting data from "organization_members".
+"""
+input organization_members_order_by {
+  created_at: order_by
+  org_id: order_by
+  organization: organizations_order_by
+  profile: profiles_order_by
+  role: order_by
+  user_id: order_by
+}
+
+"""
+primary key columns input for table: organization_members
+"""
+input organization_members_pk_columns_input {
+  org_id: uuid!
+  user_id: uuid!
+}
+
+"""
+select columns of table "organization_members"
+"""
+enum organization_members_select_column {
+  """
+  column name
+  """
+  created_at
+
+  """
+  column name
+  """
+  org_id
+
+  """
+  column name
+  """
+  role
+
+  """
+  column name
+  """
+  user_id
+}
+
+"""
+input type for updating data in table "organization_members"
+"""
+input organization_members_set_input {
+  role: org_role
+}
+
+"""
+Streaming cursor of the table "organization_members"
+"""
+input organization_members_stream_cursor_input {
+  """
+  Stream column input with initial value
+  """
+  initial_value: organization_members_stream_cursor_value_input!
+
+  """
+  cursor ordering
+  """
+  ordering: cursor_ordering
+}
+
+"""
+Initial value of the column from where the streaming should start
+"""
+input organization_members_stream_cursor_value_input {
+  created_at: timestamptz
+  org_id: uuid
+  role: org_role
+  user_id: uuid
+}
+
+"""
+update columns of table "organization_members"
+"""
+enum organization_members_update_column {
+  """
+  column name
+  """
+  role
+}
+
+input organization_members_updates {
+  """
+  sets the columns of the filtered rows to the given values
+  """
+  _set: organization_members_set_input
+
+  """
+  filter the rows which have to be updated
+  """
+  where: organization_members_bool_exp!
+}
+
+"""
+columns and relationships of "organizations"
+"""
+type organizations {
+  created_at: timestamptz!
+
+  """
+  An array relationship
+  """
+  events(
+    """
+    distinct select on columns
+    """
+    distinct_on: [events_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [events_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: events_bool_exp
+  ): [events!]!
+
+  """
+  An aggregate relationship
+  """
+  events_aggregate(
+    """
+    distinct select on columns
+    """
+    distinct_on: [events_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [events_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: events_bool_exp
+  ): events_aggregate!
+
+  """
+  An array relationship
+  """
+  feature_flags(
+    """
+    distinct select on columns
+    """
+    distinct_on: [feature_flags_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [feature_flags_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: feature_flags_bool_exp
+  ): [feature_flags!]!
+  id: uuid!
+
+  """
+  An array relationship
+  """
+  invites(
+    """
+    distinct select on columns
+    """
+    distinct_on: [organization_invites_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [organization_invites_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: organization_invites_bool_exp
+  ): [organization_invites!]!
+
+  """
+  An array relationship
+  """
+  jobs(
+    """
+    distinct select on columns
+    """
+    distinct_on: [jobs_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [jobs_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: jobs_bool_exp
+  ): [jobs!]!
+
+  """
+  An array relationship
+  """
+  members(
+    """
+    distinct select on columns
+    """
+    distinct_on: [organization_members_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [organization_members_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: organization_members_bool_exp
+  ): [organization_members!]!
+  name: String!
+  show_name_on_verify: Boolean!
+  slug: String!
+
+  """
+  An object relationship
+  """
+  stats: org_stats
+  updated_at: timestamptz!
+}
+
+"""
+Boolean expression to filter rows from the table "organizations". All fields are combined with a logical 'AND'.
+"""
+input organizations_bool_exp {
+  _and: [organizations_bool_exp!]
+  _not: organizations_bool_exp
+  _or: [organizations_bool_exp!]
+  created_at: timestamptz_comparison_exp
+  events: events_bool_exp
+  events_aggregate: events_aggregate_bool_exp
+  feature_flags: feature_flags_bool_exp
+  id: uuid_comparison_exp
+  invites: organization_invites_bool_exp
+  jobs: jobs_bool_exp
+  members: organization_members_bool_exp
+  name: String_comparison_exp
+  show_name_on_verify: Boolean_comparison_exp
+  slug: String_comparison_exp
+  stats: org_stats_bool_exp
+  updated_at: timestamptz_comparison_exp
+}
+
+"""
+response of any mutation on the table "organizations"
+"""
+type organizations_mutation_response {
+  """
+  number of rows affected by the mutation
+  """
+  affected_rows: Int!
+
+  """
+  data from the rows affected by the mutation
+  """
+  returning: [organizations!]!
+}
+
+"""
+Ordering options when selecting data from "organizations".
+"""
+input organizations_order_by {
+  created_at: order_by
+  events_aggregate: events_aggregate_order_by
+  feature_flags_aggregate: feature_flags_aggregate_order_by
+  id: order_by
+  invites_aggregate: organization_invites_aggregate_order_by
+  jobs_aggregate: jobs_aggregate_order_by
+  members_aggregate: organization_members_aggregate_order_by
+  name: order_by
+  show_name_on_verify: order_by
+  slug: order_by
+  stats: org_stats_order_by
+  updated_at: order_by
+}
+
+"""
+primary key columns input for table: organizations
+"""
+input organizations_pk_columns_input {
+  id: uuid!
+}
+
+"""
+select columns of table "organizations"
+"""
+enum organizations_select_column {
+  """
+  column name
+  """
+  created_at
+
+  """
+  column name
+  """
+  id
+
+  """
+  column name
+  """
+  name
+
+  """
+  column name
+  """
+  show_name_on_verify
+
+  """
+  column name
+  """
+  slug
+
+  """
+  column name
+  """
+  updated_at
+}
+
+"""
+input type for updating data in table "organizations"
+"""
+input organizations_set_input {
+  name: String
+  show_name_on_verify: Boolean
+}
+
+"""
+Streaming cursor of the table "organizations"
+"""
+input organizations_stream_cursor_input {
+  """
+  Stream column input with initial value
+  """
+  initial_value: organizations_stream_cursor_value_input!
+
+  """
+  cursor ordering
+  """
+  ordering: cursor_ordering
+}
+
+"""
+Initial value of the column from where the streaming should start
+"""
+input organizations_stream_cursor_value_input {
+  created_at: timestamptz
+  id: uuid
+  name: String
+  show_name_on_verify: Boolean
+  slug: String
+  updated_at: timestamptz
+}
+
+input organizations_updates {
+  """
+  sets the columns of the filtered rows to the given values
+  """
+  _set: organizations_set_input
+
+  """
+  filter the rows which have to be updated
+  """
+  where: organizations_bool_exp!
+}
+
+"""
+columns and relationships of "profiles"
+"""
+type profiles {
+  created_at: timestamptz!
+  email: citext!
+  full_name: String
+  id: uuid!
+
+  """
+  An array relationship
+  """
+  memberships(
+    """
+    distinct select on columns
+    """
+    distinct_on: [organization_members_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [organization_members_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: organization_members_bool_exp
+  ): [organization_members!]!
+  updated_at: timestamptz!
+}
+
+"""
+Boolean expression to filter rows from the table "profiles". All fields are combined with a logical 'AND'.
+"""
+input profiles_bool_exp {
+  _and: [profiles_bool_exp!]
+  _not: profiles_bool_exp
+  _or: [profiles_bool_exp!]
+  created_at: timestamptz_comparison_exp
+  email: citext_comparison_exp
+  full_name: String_comparison_exp
+  id: uuid_comparison_exp
+  memberships: organization_members_bool_exp
+  updated_at: timestamptz_comparison_exp
+}
+
+"""
+response of any mutation on the table "profiles"
+"""
+type profiles_mutation_response {
+  """
+  number of rows affected by the mutation
+  """
+  affected_rows: Int!
+
+  """
+  data from the rows affected by the mutation
+  """
+  returning: [profiles!]!
+}
+
+"""
+Ordering options when selecting data from "profiles".
+"""
+input profiles_order_by {
+  created_at: order_by
+  email: order_by
+  full_name: order_by
+  id: order_by
+  memberships_aggregate: organization_members_aggregate_order_by
+  updated_at: order_by
+}
+
+"""
+primary key columns input for table: profiles
+"""
+input profiles_pk_columns_input {
+  id: uuid!
+}
+
+"""
+select columns of table "profiles"
+"""
+enum profiles_select_column {
+  """
+  column name
+  """
+  created_at
+
+  """
+  column name
+  """
+  email
+
+  """
+  column name
+  """
+  full_name
+
+  """
+  column name
+  """
+  id
+
+  """
+  column name
+  """
+  updated_at
+}
+
+"""
+input type for updating data in table "profiles"
+"""
+input profiles_set_input {
+  full_name: String
+}
+
+"""
+Streaming cursor of the table "profiles"
+"""
+input profiles_stream_cursor_input {
+  """
+  Stream column input with initial value
+  """
+  initial_value: profiles_stream_cursor_value_input!
+
+  """
+  cursor ordering
+  """
+  ordering: cursor_ordering
+}
+
+"""
+Initial value of the column from where the streaming should start
+"""
+input profiles_stream_cursor_value_input {
+  created_at: timestamptz
+  email: citext
+  full_name: String
+  id: uuid
+  updated_at: timestamptz
+}
+
+input profiles_updates {
+  """
+  sets the columns of the filtered rows to the given values
+  """
+  _set: profiles_set_input
+
+  """
+  filter the rows which have to be updated
+  """
+  where: profiles_bool_exp!
+}
+
+type query_root {
+  """
+  fetch data from the table: "audit_log"
+  """
+  audit_log(
+    """
+    distinct select on columns
+    """
+    distinct_on: [audit_log_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [audit_log_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: audit_log_bool_exp
+  ): [audit_log!]!
+
+  """
+  fetch data from the table: "audit_log" using primary key columns
+  """
+  audit_log_by_pk(id: bigint!): audit_log
+
+  """
+  An array relationship
+  """
+  batches(
+    """
+    distinct select on columns
+    """
+    distinct_on: [batches_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [batches_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: batches_bool_exp
+  ): [batches!]!
+
+  """
+  An aggregate relationship
+  """
+  batches_aggregate(
+    """
+    distinct select on columns
+    """
+    distinct_on: [batches_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [batches_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: batches_bool_exp
+  ): batches_aggregate!
+
+  """
+  fetch data from the table: "batches" using primary key columns
+  """
+  batches_by_pk(id: uuid!): batches
+
+  """
+  An array relationship
+  """
+  certificates(
+    """
+    distinct select on columns
+    """
+    distinct_on: [certificates_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [certificates_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: certificates_bool_exp
+  ): [certificates!]!
+
+  """
+  An aggregate relationship
+  """
+  certificates_aggregate(
+    """
+    distinct select on columns
+    """
+    distinct_on: [certificates_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [certificates_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: certificates_bool_exp
+  ): certificates_aggregate!
+
+  """
+  fetch data from the table: "certificates" using primary key columns
+  """
+  certificates_by_pk(id: uuid!): certificates
+
+  """
+  An array relationship
+  """
+  email_deliveries(
+    """
+    distinct select on columns
+    """
+    distinct_on: [email_deliveries_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [email_deliveries_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: email_deliveries_bool_exp
+  ): [email_deliveries!]!
+
+  """
+  An aggregate relationship
+  """
+  email_deliveries_aggregate(
+    """
+    distinct select on columns
+    """
+    distinct_on: [email_deliveries_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [email_deliveries_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: email_deliveries_bool_exp
+  ): email_deliveries_aggregate!
+
+  """
+  fetch data from the table: "email_deliveries" using primary key columns
+  """
+  email_deliveries_by_pk(id: uuid!): email_deliveries
+
+  """
+  An array relationship
+  """
+  events(
+    """
+    distinct select on columns
+    """
+    distinct_on: [events_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [events_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: events_bool_exp
+  ): [events!]!
+
+  """
+  An aggregate relationship
+  """
+  events_aggregate(
+    """
+    distinct select on columns
+    """
+    distinct_on: [events_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [events_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: events_bool_exp
+  ): events_aggregate!
+
+  """
+  fetch data from the table: "events" using primary key columns
+  """
+  events_by_pk(id: uuid!): events
+
+  """
+  An array relationship
+  """
+  feature_flags(
+    """
+    distinct select on columns
+    """
+    distinct_on: [feature_flags_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [feature_flags_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: feature_flags_bool_exp
+  ): [feature_flags!]!
+
+  """
+  fetch data from the table: "feature_flags" using primary key columns
+  """
+  feature_flags_by_pk(id: uuid!): feature_flags
+
+  """
+  fetch data from the table: "fonts"
+  """
+  fonts(
+    """
+    distinct select on columns
+    """
+    distinct_on: [fonts_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [fonts_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: fonts_bool_exp
+  ): [fonts!]!
+
+  """
+  fetch data from the table: "fonts" using primary key columns
+  """
+  fonts_by_pk(family: String!): fonts
+
+  """
+  Signed download URL for a finished export job.
+  """
+  get_export_url(job_id: uuid!): SignedUrlOutput!
+
+  """
+  Signed image URL for the public verify page.
+  """
+  get_verify_preview_url(certificate_id: uuid!): SignedUrlOutput
+
+  """
+  An array relationship
+  """
+  jobs(
+    """
+    distinct select on columns
+    """
+    distinct_on: [jobs_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [jobs_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: jobs_bool_exp
+  ): [jobs!]!
+
+  """
+  fetch data from the table: "jobs" using primary key columns
+  """
+  jobs_by_pk(id: uuid!): jobs
+
+  """
+  fetch data from the table: "org_stats"
+  """
+  org_stats(
+    """
+    distinct select on columns
+    """
+    distinct_on: [org_stats_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [org_stats_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: org_stats_bool_exp
+  ): [org_stats!]!
+
+  """
+  fetch data from the table: "organization_invites"
+  """
+  organization_invites(
+    """
+    distinct select on columns
+    """
+    distinct_on: [organization_invites_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [organization_invites_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: organization_invites_bool_exp
+  ): [organization_invites!]!
+
+  """
+  fetch data from the table: "organization_invites" using primary key columns
+  """
+  organization_invites_by_pk(id: uuid!): organization_invites
+
+  """
+  fetch data from the table: "organization_members"
+  """
+  organization_members(
+    """
+    distinct select on columns
+    """
+    distinct_on: [organization_members_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [organization_members_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: organization_members_bool_exp
+  ): [organization_members!]!
+
+  """
+  fetch data from the table: "organization_members" using primary key columns
+  """
+  organization_members_by_pk(org_id: uuid!, user_id: uuid!): organization_members
+
+  """
+  fetch data from the table: "organizations"
+  """
+  organizations(
+    """
+    distinct select on columns
+    """
+    distinct_on: [organizations_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [organizations_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: organizations_bool_exp
+  ): [organizations!]!
+
+  """
+  fetch data from the table: "organizations" using primary key columns
+  """
+  organizations_by_pk(id: uuid!): organizations
+
+  """
+  fetch data from the table: "profiles"
+  """
+  profiles(
+    """
+    distinct select on columns
+    """
+    distinct_on: [profiles_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [profiles_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: profiles_bool_exp
+  ): [profiles!]!
+
+  """
+  fetch data from the table: "profiles" using primary key columns
+  """
+  profiles_by_pk(id: uuid!): profiles
+
+  """
+  fetch data from the table: "template_fields"
+  """
+  template_fields(
+    """
+    distinct select on columns
+    """
+    distinct_on: [template_fields_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [template_fields_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: template_fields_bool_exp
+  ): [template_fields!]!
+
+  """
+  fetch data from the table: "template_fields" using primary key columns
+  """
+  template_fields_by_pk(field_key: field_key!, template_id: uuid!): template_fields
+
+  """
+  fetch data from the table: "templates"
+  """
+  templates(
+    """
+    distinct select on columns
+    """
+    distinct_on: [templates_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [templates_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: templates_bool_exp
+  ): [templates!]!
+
+  """
+  fetch data from the table: "templates" using primary key columns
+  """
+  templates_by_pk(id: uuid!): templates
+  verify_certificate(
+    """
+    verify_certificateNative Query Arguments
+    """
+    args: verify_certificate_arguments!
+
+    """
+    distinct select on columns
+    """
+    distinct_on: [certificate_verification_enum_name!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [certificate_verification_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: certificate_verification_bool_exp_bool_exp
+  ): [certificate_verification!]!
+}
+
+scalar render_status
+
+"""
+Boolean expression to compare columns of type "render_status". All fields are combined with logical 'AND'.
+"""
+input render_status_comparison_exp {
+  _eq: render_status
+  _gt: render_status
+  _gte: render_status
+  _in: [render_status!]
+  _is_null: Boolean
+  _lt: render_status
+  _lte: render_status
+  _neq: render_status
+  _nin: [render_status!]
+}
+
+type subscription_root {
+  """
+  fetch data from the table: "audit_log"
+  """
+  audit_log(
+    """
+    distinct select on columns
+    """
+    distinct_on: [audit_log_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [audit_log_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: audit_log_bool_exp
+  ): [audit_log!]!
+
+  """
+  fetch data from the table: "audit_log" using primary key columns
+  """
+  audit_log_by_pk(id: bigint!): audit_log
+
+  """
+  fetch data from the table in a streaming manner: "audit_log"
+  """
+  audit_log_stream(
+    """
+    maximum number of rows returned in a single batch
+    """
+    batch_size: Int!
+
+    """
+    cursor to stream the results returned by the query
+    """
+    cursor: [audit_log_stream_cursor_input]!
+
+    """
+    filter the rows returned
+    """
+    where: audit_log_bool_exp
+  ): [audit_log!]!
+
+  """
+  An array relationship
+  """
+  batches(
+    """
+    distinct select on columns
+    """
+    distinct_on: [batches_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [batches_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: batches_bool_exp
+  ): [batches!]!
+
+  """
+  An aggregate relationship
+  """
+  batches_aggregate(
+    """
+    distinct select on columns
+    """
+    distinct_on: [batches_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [batches_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: batches_bool_exp
+  ): batches_aggregate!
+
+  """
+  fetch data from the table: "batches" using primary key columns
+  """
+  batches_by_pk(id: uuid!): batches
+
+  """
+  fetch data from the table in a streaming manner: "batches"
+  """
+  batches_stream(
+    """
+    maximum number of rows returned in a single batch
+    """
+    batch_size: Int!
+
+    """
+    cursor to stream the results returned by the query
+    """
+    cursor: [batches_stream_cursor_input]!
+
+    """
+    filter the rows returned
+    """
+    where: batches_bool_exp
+  ): [batches!]!
+
+  """
+  An array relationship
+  """
+  certificates(
+    """
+    distinct select on columns
+    """
+    distinct_on: [certificates_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [certificates_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: certificates_bool_exp
+  ): [certificates!]!
+
+  """
+  An aggregate relationship
+  """
+  certificates_aggregate(
+    """
+    distinct select on columns
+    """
+    distinct_on: [certificates_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [certificates_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: certificates_bool_exp
+  ): certificates_aggregate!
+
+  """
+  fetch data from the table: "certificates" using primary key columns
+  """
+  certificates_by_pk(id: uuid!): certificates
+
+  """
+  fetch data from the table in a streaming manner: "certificates"
+  """
+  certificates_stream(
+    """
+    maximum number of rows returned in a single batch
+    """
+    batch_size: Int!
+
+    """
+    cursor to stream the results returned by the query
+    """
+    cursor: [certificates_stream_cursor_input]!
+
+    """
+    filter the rows returned
+    """
+    where: certificates_bool_exp
+  ): [certificates!]!
+
+  """
+  An array relationship
+  """
+  email_deliveries(
+    """
+    distinct select on columns
+    """
+    distinct_on: [email_deliveries_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [email_deliveries_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: email_deliveries_bool_exp
+  ): [email_deliveries!]!
+
+  """
+  An aggregate relationship
+  """
+  email_deliveries_aggregate(
+    """
+    distinct select on columns
+    """
+    distinct_on: [email_deliveries_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [email_deliveries_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: email_deliveries_bool_exp
+  ): email_deliveries_aggregate!
+
+  """
+  fetch data from the table: "email_deliveries" using primary key columns
+  """
+  email_deliveries_by_pk(id: uuid!): email_deliveries
+
+  """
+  fetch data from the table in a streaming manner: "email_deliveries"
+  """
+  email_deliveries_stream(
+    """
+    maximum number of rows returned in a single batch
+    """
+    batch_size: Int!
+
+    """
+    cursor to stream the results returned by the query
+    """
+    cursor: [email_deliveries_stream_cursor_input]!
+
+    """
+    filter the rows returned
+    """
+    where: email_deliveries_bool_exp
+  ): [email_deliveries!]!
+
+  """
+  An array relationship
+  """
+  events(
+    """
+    distinct select on columns
+    """
+    distinct_on: [events_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [events_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: events_bool_exp
+  ): [events!]!
+
+  """
+  An aggregate relationship
+  """
+  events_aggregate(
+    """
+    distinct select on columns
+    """
+    distinct_on: [events_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [events_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: events_bool_exp
+  ): events_aggregate!
+
+  """
+  fetch data from the table: "events" using primary key columns
+  """
+  events_by_pk(id: uuid!): events
+
+  """
+  fetch data from the table in a streaming manner: "events"
+  """
+  events_stream(
+    """
+    maximum number of rows returned in a single batch
+    """
+    batch_size: Int!
+
+    """
+    cursor to stream the results returned by the query
+    """
+    cursor: [events_stream_cursor_input]!
+
+    """
+    filter the rows returned
+    """
+    where: events_bool_exp
+  ): [events!]!
+
+  """
+  An array relationship
+  """
+  feature_flags(
+    """
+    distinct select on columns
+    """
+    distinct_on: [feature_flags_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [feature_flags_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: feature_flags_bool_exp
+  ): [feature_flags!]!
+
+  """
+  fetch data from the table: "feature_flags" using primary key columns
+  """
+  feature_flags_by_pk(id: uuid!): feature_flags
+
+  """
+  fetch data from the table in a streaming manner: "feature_flags"
+  """
+  feature_flags_stream(
+    """
+    maximum number of rows returned in a single batch
+    """
+    batch_size: Int!
+
+    """
+    cursor to stream the results returned by the query
+    """
+    cursor: [feature_flags_stream_cursor_input]!
+
+    """
+    filter the rows returned
+    """
+    where: feature_flags_bool_exp
+  ): [feature_flags!]!
+
+  """
+  fetch data from the table: "fonts"
+  """
+  fonts(
+    """
+    distinct select on columns
+    """
+    distinct_on: [fonts_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [fonts_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: fonts_bool_exp
+  ): [fonts!]!
+
+  """
+  fetch data from the table: "fonts" using primary key columns
+  """
+  fonts_by_pk(family: String!): fonts
+
+  """
+  fetch data from the table in a streaming manner: "fonts"
+  """
+  fonts_stream(
+    """
+    maximum number of rows returned in a single batch
+    """
+    batch_size: Int!
+
+    """
+    cursor to stream the results returned by the query
+    """
+    cursor: [fonts_stream_cursor_input]!
+
+    """
+    filter the rows returned
+    """
+    where: fonts_bool_exp
+  ): [fonts!]!
+
+  """
+  An array relationship
+  """
+  jobs(
+    """
+    distinct select on columns
+    """
+    distinct_on: [jobs_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [jobs_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: jobs_bool_exp
+  ): [jobs!]!
+
+  """
+  fetch data from the table: "jobs" using primary key columns
+  """
+  jobs_by_pk(id: uuid!): jobs
+
+  """
+  fetch data from the table in a streaming manner: "jobs"
+  """
+  jobs_stream(
+    """
+    maximum number of rows returned in a single batch
+    """
+    batch_size: Int!
+
+    """
+    cursor to stream the results returned by the query
+    """
+    cursor: [jobs_stream_cursor_input]!
+
+    """
+    filter the rows returned
+    """
+    where: jobs_bool_exp
+  ): [jobs!]!
+
+  """
+  fetch data from the table: "org_stats"
+  """
+  org_stats(
+    """
+    distinct select on columns
+    """
+    distinct_on: [org_stats_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [org_stats_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: org_stats_bool_exp
+  ): [org_stats!]!
+
+  """
+  fetch data from the table in a streaming manner: "org_stats"
+  """
+  org_stats_stream(
+    """
+    maximum number of rows returned in a single batch
+    """
+    batch_size: Int!
+
+    """
+    cursor to stream the results returned by the query
+    """
+    cursor: [org_stats_stream_cursor_input]!
+
+    """
+    filter the rows returned
+    """
+    where: org_stats_bool_exp
+  ): [org_stats!]!
+
+  """
+  fetch data from the table: "organization_invites"
+  """
+  organization_invites(
+    """
+    distinct select on columns
+    """
+    distinct_on: [organization_invites_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [organization_invites_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: organization_invites_bool_exp
+  ): [organization_invites!]!
+
+  """
+  fetch data from the table: "organization_invites" using primary key columns
+  """
+  organization_invites_by_pk(id: uuid!): organization_invites
+
+  """
+  fetch data from the table in a streaming manner: "organization_invites"
+  """
+  organization_invites_stream(
+    """
+    maximum number of rows returned in a single batch
+    """
+    batch_size: Int!
+
+    """
+    cursor to stream the results returned by the query
+    """
+    cursor: [organization_invites_stream_cursor_input]!
+
+    """
+    filter the rows returned
+    """
+    where: organization_invites_bool_exp
+  ): [organization_invites!]!
+
+  """
+  fetch data from the table: "organization_members"
+  """
+  organization_members(
+    """
+    distinct select on columns
+    """
+    distinct_on: [organization_members_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [organization_members_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: organization_members_bool_exp
+  ): [organization_members!]!
+
+  """
+  fetch data from the table: "organization_members" using primary key columns
+  """
+  organization_members_by_pk(org_id: uuid!, user_id: uuid!): organization_members
+
+  """
+  fetch data from the table in a streaming manner: "organization_members"
+  """
+  organization_members_stream(
+    """
+    maximum number of rows returned in a single batch
+    """
+    batch_size: Int!
+
+    """
+    cursor to stream the results returned by the query
+    """
+    cursor: [organization_members_stream_cursor_input]!
+
+    """
+    filter the rows returned
+    """
+    where: organization_members_bool_exp
+  ): [organization_members!]!
+
+  """
+  fetch data from the table: "organizations"
+  """
+  organizations(
+    """
+    distinct select on columns
+    """
+    distinct_on: [organizations_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [organizations_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: organizations_bool_exp
+  ): [organizations!]!
+
+  """
+  fetch data from the table: "organizations" using primary key columns
+  """
+  organizations_by_pk(id: uuid!): organizations
+
+  """
+  fetch data from the table in a streaming manner: "organizations"
+  """
+  organizations_stream(
+    """
+    maximum number of rows returned in a single batch
+    """
+    batch_size: Int!
+
+    """
+    cursor to stream the results returned by the query
+    """
+    cursor: [organizations_stream_cursor_input]!
+
+    """
+    filter the rows returned
+    """
+    where: organizations_bool_exp
+  ): [organizations!]!
+
+  """
+  fetch data from the table: "profiles"
+  """
+  profiles(
+    """
+    distinct select on columns
+    """
+    distinct_on: [profiles_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [profiles_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: profiles_bool_exp
+  ): [profiles!]!
+
+  """
+  fetch data from the table: "profiles" using primary key columns
+  """
+  profiles_by_pk(id: uuid!): profiles
+
+  """
+  fetch data from the table in a streaming manner: "profiles"
+  """
+  profiles_stream(
+    """
+    maximum number of rows returned in a single batch
+    """
+    batch_size: Int!
+
+    """
+    cursor to stream the results returned by the query
+    """
+    cursor: [profiles_stream_cursor_input]!
+
+    """
+    filter the rows returned
+    """
+    where: profiles_bool_exp
+  ): [profiles!]!
+
+  """
+  fetch data from the table: "template_fields"
+  """
+  template_fields(
+    """
+    distinct select on columns
+    """
+    distinct_on: [template_fields_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [template_fields_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: template_fields_bool_exp
+  ): [template_fields!]!
+
+  """
+  fetch data from the table: "template_fields" using primary key columns
+  """
+  template_fields_by_pk(field_key: field_key!, template_id: uuid!): template_fields
+
+  """
+  fetch data from the table in a streaming manner: "template_fields"
+  """
+  template_fields_stream(
+    """
+    maximum number of rows returned in a single batch
+    """
+    batch_size: Int!
+
+    """
+    cursor to stream the results returned by the query
+    """
+    cursor: [template_fields_stream_cursor_input]!
+
+    """
+    filter the rows returned
+    """
+    where: template_fields_bool_exp
+  ): [template_fields!]!
+
+  """
+  fetch data from the table: "templates"
+  """
+  templates(
+    """
+    distinct select on columns
+    """
+    distinct_on: [templates_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [templates_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: templates_bool_exp
+  ): [templates!]!
+
+  """
+  fetch data from the table: "templates" using primary key columns
+  """
+  templates_by_pk(id: uuid!): templates
+
+  """
+  fetch data from the table in a streaming manner: "templates"
+  """
+  templates_stream(
+    """
+    maximum number of rows returned in a single batch
+    """
+    batch_size: Int!
+
+    """
+    cursor to stream the results returned by the query
+    """
+    cursor: [templates_stream_cursor_input]!
+
+    """
+    filter the rows returned
+    """
+    where: templates_bool_exp
+  ): [templates!]!
+  verify_certificate(
+    """
+    verify_certificateNative Query Arguments
+    """
+    args: verify_certificate_arguments!
+
+    """
+    distinct select on columns
+    """
+    distinct_on: [certificate_verification_enum_name!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [certificate_verification_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: certificate_verification_bool_exp_bool_exp
+  ): [certificate_verification!]!
+}
+
+"""
+columns and relationships of "template_fields"
+"""
+type template_fields {
+  color: String!
+  field_key: field_key!
+
+  """
+  An object relationship
+  """
+  font: fonts!
+  font_family: String!
+  font_style: font_style!
+  font_weight: font_weight!
+  height: numeric!
+
+  """
+  An object relationship
+  """
+  template: templates!
+  template_id: uuid!
+  text_decoration: text_decoration!
+  width: numeric!
+  x: numeric!
+  y: numeric!
+}
+
+"""
+order by aggregate values of table "template_fields"
+"""
+input template_fields_aggregate_order_by {
+  avg: template_fields_avg_order_by
+  count: order_by
+  max: template_fields_max_order_by
+  min: template_fields_min_order_by
+  stddev: template_fields_stddev_order_by
+  stddev_pop: template_fields_stddev_pop_order_by
+  stddev_samp: template_fields_stddev_samp_order_by
+  sum: template_fields_sum_order_by
+  var_pop: template_fields_var_pop_order_by
+  var_samp: template_fields_var_samp_order_by
+  variance: template_fields_variance_order_by
+}
+
+"""
+input type for inserting array relation for remote table "template_fields"
+"""
+input template_fields_arr_rel_insert_input {
+  data: [template_fields_insert_input!]!
+
+  """
+  upsert condition
+  """
+  on_conflict: template_fields_on_conflict
+}
+
+"""
+order by avg() on columns of table "template_fields"
+"""
+input template_fields_avg_order_by {
+  height: order_by
+  width: order_by
+  x: order_by
+  y: order_by
+}
+
+"""
+Boolean expression to filter rows from the table "template_fields". All fields are combined with a logical 'AND'.
+"""
+input template_fields_bool_exp {
+  _and: [template_fields_bool_exp!]
+  _not: template_fields_bool_exp
+  _or: [template_fields_bool_exp!]
+  color: String_comparison_exp
+  field_key: field_key_comparison_exp
+  font: fonts_bool_exp
+  font_family: String_comparison_exp
+  font_style: font_style_comparison_exp
+  font_weight: font_weight_comparison_exp
+  height: numeric_comparison_exp
+  template: templates_bool_exp
+  template_id: uuid_comparison_exp
+  text_decoration: text_decoration_comparison_exp
+  width: numeric_comparison_exp
+  x: numeric_comparison_exp
+  y: numeric_comparison_exp
+}
+
+"""
+unique or primary key constraints on table "template_fields"
+"""
+enum template_fields_constraint {
+  """
+  unique or primary key constraint on columns "template_id", "field_key"
+  """
+  template_fields_pkey
+}
+
+"""
+input type for incrementing numeric columns in table "template_fields"
+"""
+input template_fields_inc_input {
+  height: numeric
+  width: numeric
+  x: numeric
+  y: numeric
+}
+
+"""
+input type for inserting data into table "template_fields"
+"""
+input template_fields_insert_input {
+  color: String
+  field_key: field_key
+  font_family: String
+  font_style: font_style
+  font_weight: font_weight
+  height: numeric
+  template: templates_obj_rel_insert_input
+  template_id: uuid
+  text_decoration: text_decoration
+  width: numeric
+  x: numeric
+  y: numeric
+}
+
+"""
+order by max() on columns of table "template_fields"
+"""
+input template_fields_max_order_by {
+  color: order_by
+  field_key: order_by
+  font_family: order_by
+  font_style: order_by
+  font_weight: order_by
+  height: order_by
+  template_id: order_by
+  text_decoration: order_by
+  width: order_by
+  x: order_by
+  y: order_by
+}
+
+"""
+order by min() on columns of table "template_fields"
+"""
+input template_fields_min_order_by {
+  color: order_by
+  field_key: order_by
+  font_family: order_by
+  font_style: order_by
+  font_weight: order_by
+  height: order_by
+  template_id: order_by
+  text_decoration: order_by
+  width: order_by
+  x: order_by
+  y: order_by
+}
+
+"""
+response of any mutation on the table "template_fields"
+"""
+type template_fields_mutation_response {
+  """
+  number of rows affected by the mutation
+  """
+  affected_rows: Int!
+
+  """
+  data from the rows affected by the mutation
+  """
+  returning: [template_fields!]!
+}
+
+"""
+on_conflict condition type for table "template_fields"
+"""
+input template_fields_on_conflict {
+  constraint: template_fields_constraint!
+  update_columns: [template_fields_update_column!]! = []
+  where: template_fields_bool_exp
+}
+
+"""
+Ordering options when selecting data from "template_fields".
+"""
+input template_fields_order_by {
+  color: order_by
+  field_key: order_by
+  font: fonts_order_by
+  font_family: order_by
+  font_style: order_by
+  font_weight: order_by
+  height: order_by
+  template: templates_order_by
+  template_id: order_by
+  text_decoration: order_by
+  width: order_by
+  x: order_by
+  y: order_by
+}
+
+"""
+primary key columns input for table: template_fields
+"""
+input template_fields_pk_columns_input {
+  field_key: field_key!
+  template_id: uuid!
+}
+
+"""
+select columns of table "template_fields"
+"""
+enum template_fields_select_column {
+  """
+  column name
+  """
+  color
+
+  """
+  column name
+  """
+  field_key
+
+  """
+  column name
+  """
+  font_family
+
+  """
+  column name
+  """
+  font_style
+
+  """
+  column name
+  """
+  font_weight
+
+  """
+  column name
+  """
+  height
+
+  """
+  column name
+  """
+  template_id
+
+  """
+  column name
+  """
+  text_decoration
+
+  """
+  column name
+  """
+  width
+
+  """
+  column name
+  """
+  x
+
+  """
+  column name
+  """
+  y
+}
+
+"""
+input type for updating data in table "template_fields"
+"""
+input template_fields_set_input {
+  color: String
+  font_family: String
+  font_style: font_style
+  font_weight: font_weight
+  height: numeric
+  text_decoration: text_decoration
+  width: numeric
+  x: numeric
+  y: numeric
+}
+
+"""
+order by stddev() on columns of table "template_fields"
+"""
+input template_fields_stddev_order_by {
+  height: order_by
+  width: order_by
+  x: order_by
+  y: order_by
+}
+
+"""
+order by stddev_pop() on columns of table "template_fields"
+"""
+input template_fields_stddev_pop_order_by {
+  height: order_by
+  width: order_by
+  x: order_by
+  y: order_by
+}
+
+"""
+order by stddev_samp() on columns of table "template_fields"
+"""
+input template_fields_stddev_samp_order_by {
+  height: order_by
+  width: order_by
+  x: order_by
+  y: order_by
+}
+
+"""
+Streaming cursor of the table "template_fields"
+"""
+input template_fields_stream_cursor_input {
+  """
+  Stream column input with initial value
+  """
+  initial_value: template_fields_stream_cursor_value_input!
+
+  """
+  cursor ordering
+  """
+  ordering: cursor_ordering
+}
+
+"""
+Initial value of the column from where the streaming should start
+"""
+input template_fields_stream_cursor_value_input {
+  color: String
+  field_key: field_key
+  font_family: String
+  font_style: font_style
+  font_weight: font_weight
+  height: numeric
+  template_id: uuid
+  text_decoration: text_decoration
+  width: numeric
+  x: numeric
+  y: numeric
+}
+
+"""
+order by sum() on columns of table "template_fields"
+"""
+input template_fields_sum_order_by {
+  height: order_by
+  width: order_by
+  x: order_by
+  y: order_by
+}
+
+"""
+update columns of table "template_fields"
+"""
+enum template_fields_update_column {
+  """
+  column name
+  """
+  color
+
+  """
+  column name
+  """
+  font_family
+
+  """
+  column name
+  """
+  font_style
+
+  """
+  column name
+  """
+  font_weight
+
+  """
+  column name
+  """
+  height
+
+  """
+  column name
+  """
+  text_decoration
+
+  """
+  column name
+  """
+  width
+
+  """
+  column name
+  """
+  x
+
+  """
+  column name
+  """
+  y
+}
+
+input template_fields_updates {
+  """
+  increments the numeric columns with given value of the filtered values
+  """
+  _inc: template_fields_inc_input
+
+  """
+  sets the columns of the filtered rows to the given values
+  """
+  _set: template_fields_set_input
+
+  """
+  filter the rows which have to be updated
+  """
+  where: template_fields_bool_exp!
+}
+
+"""
+order by var_pop() on columns of table "template_fields"
+"""
+input template_fields_var_pop_order_by {
+  height: order_by
+  width: order_by
+  x: order_by
+  y: order_by
+}
+
+"""
+order by var_samp() on columns of table "template_fields"
+"""
+input template_fields_var_samp_order_by {
+  height: order_by
+  width: order_by
+  x: order_by
+  y: order_by
+}
+
+"""
+order by variance() on columns of table "template_fields"
+"""
+input template_fields_variance_order_by {
+  height: order_by
+  width: order_by
+  x: order_by
+  y: order_by
+}
+
+"""
+columns and relationships of "templates"
+"""
+type templates {
+  created_at: timestamptz!
+  created_by: uuid
+
+  """
+  An object relationship
+  """
+  creator: profiles
+
+  """
+  An object relationship
+  """
+  event: events
+  event_id: uuid!
+
+  """
+  An array relationship
+  """
+  fields(
+    """
+    distinct select on columns
+    """
+    distinct_on: [template_fields_select_column!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    order_by: [template_fields_order_by!]
+
+    """
+    filter the rows returned
+    """
+    where: template_fields_bool_exp
+  ): [template_fields!]!
+  id: uuid!
+  image_height: Int!
+  image_path: String!
+  image_width: Int!
+  org_id: uuid!
+
+  """
+  An object relationship
+  """
+  organization: organizations
+  updated_at: timestamptz!
+}
+
+"""
+Boolean expression to filter rows from the table "templates". All fields are combined with a logical 'AND'.
+"""
+input templates_bool_exp {
+  _and: [templates_bool_exp!]
+  _not: templates_bool_exp
+  _or: [templates_bool_exp!]
+  created_at: timestamptz_comparison_exp
+  created_by: uuid_comparison_exp
+  creator: profiles_bool_exp
+  event: events_bool_exp
+  event_id: uuid_comparison_exp
+  fields: template_fields_bool_exp
+  id: uuid_comparison_exp
+  image_height: Int_comparison_exp
+  image_path: String_comparison_exp
+  image_width: Int_comparison_exp
+  org_id: uuid_comparison_exp
+  organization: organizations_bool_exp
+  updated_at: timestamptz_comparison_exp
+}
+
+"""
+unique or primary key constraints on table "templates"
+"""
+enum templates_constraint {
+  """
+  unique or primary key constraint on columns "event_id"
+  """
+  templates_event_id_key
+
+  """
+  unique or primary key constraint on columns "id", "event_id"
+  """
+  templates_id_event_id_key
+
+  """
+  unique or primary key constraint on columns "id", "org_id"
+  """
+  templates_id_org_id_key
+
+  """
+  unique or primary key constraint on columns "id"
+  """
+  templates_pkey
+}
+
+"""
+input type for incrementing numeric columns in table "templates"
+"""
+input templates_inc_input {
+  image_height: Int
+  image_width: Int
+}
+
+"""
+input type for inserting data into table "templates"
+"""
+input templates_insert_input {
+  event: events_obj_rel_insert_input
+  event_id: uuid
+  fields: template_fields_arr_rel_insert_input
+  image_height: Int
+  image_path: String
+  image_width: Int
+  org_id: uuid
+}
+
+"""
+response of any mutation on the table "templates"
+"""
+type templates_mutation_response {
+  """
+  number of rows affected by the mutation
+  """
+  affected_rows: Int!
+
+  """
+  data from the rows affected by the mutation
+  """
+  returning: [templates!]!
+}
+
+"""
+input type for inserting object relation for remote table "templates"
+"""
+input templates_obj_rel_insert_input {
+  data: templates_insert_input!
+
+  """
+  upsert condition
+  """
+  on_conflict: templates_on_conflict
+}
+
+"""
+on_conflict condition type for table "templates"
+"""
+input templates_on_conflict {
+  constraint: templates_constraint!
+  update_columns: [templates_update_column!]! = []
+  where: templates_bool_exp
+}
+
+"""
+Ordering options when selecting data from "templates".
+"""
+input templates_order_by {
+  created_at: order_by
+  created_by: order_by
+  creator: profiles_order_by
+  event: events_order_by
+  event_id: order_by
+  fields_aggregate: template_fields_aggregate_order_by
+  id: order_by
+  image_height: order_by
+  image_path: order_by
+  image_width: order_by
+  org_id: order_by
+  organization: organizations_order_by
+  updated_at: order_by
+}
+
+"""
+primary key columns input for table: templates
+"""
+input templates_pk_columns_input {
+  id: uuid!
+}
+
+"""
+select columns of table "templates"
+"""
+enum templates_select_column {
+  """
+  column name
+  """
+  created_at
+
+  """
+  column name
+  """
+  created_by
+
+  """
+  column name
+  """
+  event_id
+
+  """
+  column name
+  """
+  id
+
+  """
+  column name
+  """
+  image_height
+
+  """
+  column name
+  """
+  image_path
+
+  """
+  column name
+  """
+  image_width
+
+  """
+  column name
+  """
+  org_id
+
+  """
+  column name
+  """
+  updated_at
+}
+
+"""
+input type for updating data in table "templates"
+"""
+input templates_set_input {
+  image_height: Int
+  image_path: String
+  image_width: Int
+}
+
+"""
+Streaming cursor of the table "templates"
+"""
+input templates_stream_cursor_input {
+  """
+  Stream column input with initial value
+  """
+  initial_value: templates_stream_cursor_value_input!
+
+  """
+  cursor ordering
+  """
+  ordering: cursor_ordering
+}
+
+"""
+Initial value of the column from where the streaming should start
+"""
+input templates_stream_cursor_value_input {
+  created_at: timestamptz
+  created_by: uuid
+  event_id: uuid
+  id: uuid
+  image_height: Int
+  image_path: String
+  image_width: Int
+  org_id: uuid
+  updated_at: timestamptz
+}
+
+"""
+update columns of table "templates"
+"""
+enum templates_update_column {
+  """
+  column name
+  """
+  image_height
+
+  """
+  column name
+  """
+  image_path
+
+  """
+  column name
+  """
+  image_width
+}
+
+input templates_updates {
+  """
+  increments the numeric columns with given value of the filtered values
+  """
+  _inc: templates_inc_input
+
+  """
+  sets the columns of the filtered rows to the given values
+  """
+  _set: templates_set_input
+
+  """
+  filter the rows which have to be updated
+  """
+  where: templates_bool_exp!
+}
+
+scalar text_decoration
+
+"""
+Boolean expression to compare columns of type "text_decoration". All fields are combined with logical 'AND'.
+"""
+input text_decoration_comparison_exp {
+  _eq: text_decoration
+  _gt: text_decoration
+  _gte: text_decoration
+  _in: [text_decoration!]
+  _is_null: Boolean
+  _lt: text_decoration
+  _lte: text_decoration
+  _neq: text_decoration
+  _nin: [text_decoration!]
+}
+
+scalar timestamptz
+
+"""
+Boolean expression to compare columns of type "timestamptz". All fields are combined with logical 'AND'.
+"""
+input timestamptz_comparison_exp {
+  _eq: timestamptz
+  _gt: timestamptz
+  _gte: timestamptz
+  _in: [timestamptz!]
+  _is_null: Boolean
+  _lt: timestamptz
+  _lte: timestamptz
+  _neq: timestamptz
+  _nin: [timestamptz!]
+}
+
+scalar uuid
+
+"""
+Boolean expression to compare columns of type "uuid". All fields are combined with logical 'AND'.
+"""
+input uuid_comparison_exp {
+  _eq: uuid
+  _gt: uuid
+  _gte: uuid
+  _in: [uuid!]
+  _is_null: Boolean
+  _lt: uuid
+  _lte: uuid
+  _neq: uuid
+  _nin: [uuid!]
+}
+
+"""
+verify_certificateNative Query Arguments
+"""
+input verify_certificate_arguments {
+  """
+  Native Query argument certificate_id
+  """
+  certificate_id: uuid!
+}
