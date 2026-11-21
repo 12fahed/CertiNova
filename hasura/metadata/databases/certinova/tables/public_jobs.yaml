@@ -11,7 +11,7 @@ object_relationships:
 select_permissions:
   - role: user
     permission:
-      columns: [id, org_id, kind, status, progress, total, ref_id, error, created_by, created_at, updated_at, started_at, finished_at]
+      columns: [id, org_id, kind, status, progress, total, ref_id, result, error, created_by, created_at, updated_at, started_at, finished_at]
       filter:
         organization:
           members:

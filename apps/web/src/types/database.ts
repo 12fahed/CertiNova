@@ -361,6 +361,7 @@ export type Database = {
           org_id: string
           progress: number
           ref_id: string | null
+          result: Json | null
           started_at: string | null
           status: Database['public']['Enums']['job_status']
           total: number
@@ -377,6 +378,7 @@ export type Database = {
           org_id: string
           progress?: number
           ref_id?: string | null
+          result?: Json | null
           started_at?: string | null
           status?: Database['public']['Enums']['job_status']
           total?: number
@@ -392,6 +394,7 @@ export type Database = {
           org_id?: string
           progress?: number
           ref_id?: string | null
+          result?: Json | null
           started_at?: string | null
           status?: Database['public']['Enums']['job_status']
           total?: number

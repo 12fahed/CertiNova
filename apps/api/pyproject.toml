@@ -4,9 +4,16 @@ version = "0.1.0"
 description = "CertiNova API: Hasura action and event-trigger handlers, render and email workers"
 requires-python = ">=3.12"
 dependencies = [
+  "cryptography>=44",
   "flask>=3.1",
+  "gunicorn>=23",
+  "httpx>=0.28",
+  "pillow>=11",
   "psycopg[binary]>=3.2",
   "pydantic-settings>=2.6",
+  "qrcode>=8",
+  "redis>=5",
+  "rq>=2",
   "sqlalchemy>=2.0",
 ]
 
@@ -26,8 +33,20 @@ plugins = ["pydantic.mypy"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+markers = ["integration: needs the local Supabase database (DATABASE_URL)"]
 
 [dependency-groups]
 dev = [
+    "pytest-cov>=6",
     "sqlacodegen>=3.0",
+    "types-qrcode>=8.2.0.20260518",
 ]
+
+[tool.coverage.run]
+source = ["certinova_api"]
+omit = ["*/db/models.py", "*/worker/__main__.py"]
+
+[tool.coverage.report]
+fail_under = 85
+show_missing = true
+skip_covered = true

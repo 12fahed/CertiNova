@@ -1,0 +1,18 @@
+# Only the API image builds from the repo root; keep the context small.
+**/.git
+**/node_modules
+**/.venv
+**/__pycache__
+**/.mypy_cache
+**/.pytest_cache
+**/.ruff_cache
+**/.env
+**/.env.*
+!**/.env.example
+certinova-backend
+certinova-frontend
+apps/web
+assets
+diagram.png
+supabase/.temp
+supabase/.branches
