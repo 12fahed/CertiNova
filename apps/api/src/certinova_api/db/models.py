@@ -550,6 +550,10 @@ class Jobs(Base):
     created_by: Mapped[Optional[uuid.UUID]] = mapped_column(Uuid)
     started_at: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime(True))
     finished_at: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime(True))
+    result: Mapped[Optional[object]] = mapped_column(
+        JSONB,
+        comment='Output of a finished job, e.g. {"path": "<org_id>/<job_id>.zip", "format": "images_zip"} for exports.',
+    )
 
     profiles: Mapped[Optional["Profiles"]] = relationship("Profiles", back_populates="jobs")
     org: Mapped["Organizations"] = relationship("Organizations", back_populates="jobs")

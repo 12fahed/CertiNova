@@ -2676,6 +2676,12 @@ type jobs {
   organization: organizations!
   progress: Int!
   ref_id: uuid
+  result(
+    """
+    JSON select path
+    """
+    path: String
+  ): jsonb
   started_at: timestamptz
   status: job_status!
   total: Int!
@@ -2725,6 +2731,7 @@ input jobs_bool_exp {
   organization: organizations_bool_exp
   progress: Int_comparison_exp
   ref_id: uuid_comparison_exp
+  result: jsonb_comparison_exp
   started_at: timestamptz_comparison_exp
   status: job_status_comparison_exp
   total: Int_comparison_exp
@@ -2784,6 +2791,7 @@ input jobs_order_by {
   organization: organizations_order_by
   progress: order_by
   ref_id: order_by
+  result: order_by
   started_at: order_by
   status: order_by
   total: order_by
@@ -2838,6 +2846,11 @@ enum jobs_select_column {
   column name
   """
   ref_id
+
+  """
+  column name
+  """
+  result
 
   """
   column name
@@ -2912,6 +2925,7 @@ input jobs_stream_cursor_value_input {
   org_id: uuid
   progress: Int
   ref_id: uuid
+  result: jsonb
   started_at: timestamptz
   status: job_status
   total: Int

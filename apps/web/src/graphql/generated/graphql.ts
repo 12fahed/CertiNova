@@ -1886,10 +1886,16 @@ export type Jobs = {
   organization: Organizations
   progress: Scalars['Int']['output']
   ref_id?: Maybe<Scalars['uuid']['output']>
+  result?: Maybe<Scalars['jsonb']['output']>
   started_at?: Maybe<Scalars['timestamptz']['output']>
   status: Scalars['job_status']['output']
   total: Scalars['Int']['output']
   updated_at: Scalars['timestamptz']['output']
+}
+
+/** columns and relationships of "jobs" */
+export type JobsResultArgs = {
+  path?: InputMaybe<Scalars['String']['input']>
 }
 
 /** order by aggregate values of table "jobs" */
@@ -1929,6 +1935,7 @@ export type Jobs_Bool_Exp = {
   organization?: InputMaybe<Organizations_Bool_Exp>
   progress?: InputMaybe<Int_Comparison_Exp>
   ref_id?: InputMaybe<Uuid_Comparison_Exp>
+  result?: InputMaybe<Jsonb_Comparison_Exp>
   started_at?: InputMaybe<Timestamptz_Comparison_Exp>
   status?: InputMaybe<Job_Status_Comparison_Exp>
   total?: InputMaybe<Int_Comparison_Exp>
@@ -1982,6 +1989,7 @@ export type Jobs_Order_By = {
   organization?: InputMaybe<Organizations_Order_By>
   progress?: InputMaybe<Order_By>
   ref_id?: InputMaybe<Order_By>
+  result?: InputMaybe<Order_By>
   started_at?: InputMaybe<Order_By>
   status?: InputMaybe<Order_By>
   total?: InputMaybe<Order_By>
@@ -2008,6 +2016,8 @@ export type Jobs_Select_Column =
   | 'progress'
   /** column name */
   | 'ref_id'
+  /** column name */
+  | 'result'
   /** column name */
   | 'started_at'
   /** column name */
@@ -2054,6 +2064,7 @@ export type Jobs_Stream_Cursor_Value_Input = {
   org_id?: InputMaybe<Scalars['uuid']['input']>
   progress?: InputMaybe<Scalars['Int']['input']>
   ref_id?: InputMaybe<Scalars['uuid']['input']>
+  result?: InputMaybe<Scalars['jsonb']['input']>
   started_at?: InputMaybe<Scalars['timestamptz']['input']>
   status?: InputMaybe<Scalars['job_status']['input']>
   total?: InputMaybe<Scalars['Int']['input']>
