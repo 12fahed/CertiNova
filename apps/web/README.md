@@ -24,6 +24,15 @@ Rules:
 - Do not put a secret in a `VITE_*` variable.
 - The organisation role (owner, admin, member) only hides buttons. Hasura and RLS do the real checks.
 
+## Theme
+
+Palette "Ocean & Coral" with a light sidebar.
+
+- Colours: `brand` (ocean blue, actions and the active page), `accent` (coral), `good`, `bad`, `plum`, `sun`, plus `canvas` and `edge` for the page ground and borders. They are in `tailwind.config.js`.
+- `src/theme.css` points Frappe UI's blue tokens at `brand`. Use `theme="blue"` on primary buttons and `variant="outline"` on form inputs.
+- Use the parts in `src/components/ui/` (`PageTitle`, `StatCard`, `TonePill`, `StatusBadge`, `IconTile`, `InitialsAvatar`, `EmptyState`, `ProgressBar`) and the `card`, `link`, `section-label` and `data-table` classes from `src/style.css`.
+- The Frappe UI preset replaces some Tailwind scales. Its text sizes are small (`text-2xl` is 18 px), so headings use `text-h1`, `text-section` and `text-display`. `rounded-lg` and `rounded-xl` come from our config, and there is no `font-extrabold`.
+
 ## Run locally
 
 Start the local stack first (`supabase/README.md`, `hasura/README.md`, `apps/api/README.md`), then:
