@@ -1,5 +1,5 @@
 import { ref, watchEffect, type Ref } from 'vue'
-import { BUCKETS, signedUrl } from '@/lib/supabase'
+import { BUCKETS, signedUrl, signedUrls } from '@/lib/supabase'
 
 /** A short-lived URL for a private Storage object. Null while loading or when there is no path. */
 export function useSignedUrl(
@@ -21,4 +21,24 @@ export function useSignedUrl(
     }
   })
   return url
+}
+
+/** Signed URLs for a list of private objects, keyed by path. Empty until they load. */
+export function useSignedUrls(
+  bucket: (typeof BUCKETS)[keyof typeof BUCKETS],
+  paths: Ref<string[]>,
+): Ref<Map<string, string>> {
+  const urls = ref(new Map<string, string>())
+  watchEffect(async (onCleanup) => {
+    let cancelled = false
+    onCleanup(() => (cancelled = true))
+    const wanted = [...paths.value]
+    try {
+      const next = await signedUrls(bucket, wanted)
+      if (!cancelled) urls.value = next
+    } catch {
+      // Thumbnails are optional.
+    }
+  })
+  return urls
 }

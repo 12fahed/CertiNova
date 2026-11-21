@@ -29,6 +29,20 @@ export const BatchQuery = graphql(`
         id
         name
       }
+      creator {
+        full_name
+        email
+      }
+      rendered: certificates_aggregate(where: { render_status: { _eq: done } }) {
+        aggregate {
+          count
+        }
+      }
+      without_email: certificates_aggregate(where: { recipient_email: { _is_null: true } }) {
+        aggregate {
+          count
+        }
+      }
       certificates(order_by: { created_at: asc }, limit: $limit, offset: $offset) {
         id
         recipient_name
