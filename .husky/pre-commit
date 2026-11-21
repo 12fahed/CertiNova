@@ -116,6 +116,10 @@ check_web() {
   step "Running vue-tsc"
   (cd "$DIR" && npm run --silent type-check) || { fail "Type errors found"; exit 1; }
   ok "Types passed"
+
+  step "Running unit tests"
+  (cd "$DIR" && npm run --silent test) || { fail "Unit tests failed"; exit 1; }
+  ok "Tests passed"
 }
 
 header "PRE-COMMIT CHECKS"
