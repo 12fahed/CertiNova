@@ -6,16 +6,37 @@ import type { BatchJobsSubscription } from '@/graphql/generated/graphql'
 import { ExportBatchMutation, ExportUrlQuery } from '@/graphql/operations/batches'
 import { unwrap } from '@/lib/errors'
 import { useTask } from '@/lib/useTask'
+import IconTile from './ui/IconTile.vue'
+import ProgressBar from './ui/ProgressBar.vue'
+import type { Tone } from './ui/tones'
 
 type Job = BatchJobsSubscription['jobs'][number]
 type Format = 'images_zip' | 'combined_pdf' | 'individual_pdfs'
 
 const props = defineProps<{ batchId: string; jobs: readonly Job[] }>()
 
-const FORMATS: { value: Format; label: string; icon: string }[] = [
-  { value: 'images_zip', label: 'All images (ZIP)', icon: 'lucide-file-archive' },
-  { value: 'combined_pdf', label: 'One PDF', icon: 'lucide-file-text' },
-  { value: 'individual_pdfs', label: 'One PDF for each person (ZIP)', icon: 'lucide-files' },
+const FORMATS: { value: Format; label: string; detail: string; icon: string; tone: Tone }[] = [
+  {
+    value: 'images_zip',
+    label: 'All images',
+    detail: 'ZIP of PNG files',
+    icon: 'lucide-image',
+    tone: 'brand',
+  },
+  {
+    value: 'combined_pdf',
+    label: 'One PDF',
+    detail: 'Every certificate, one page each',
+    icon: 'lucide-file-text',
+    tone: 'bad',
+  },
+  {
+    value: 'individual_pdfs',
+    label: 'One PDF for each person',
+    detail: 'ZIP of PDF files',
+    icon: 'lucide-files',
+    tone: 'accent',
+  },
 ]
 
 const client = useClientHandle()
@@ -45,34 +66,59 @@ const download = useTask(async (jobId: string) => {
 </script>
 
 <template>
-  <section class="flex flex-col gap-3 rounded-lg border border-outline-gray-2 p-4">
-    <h2 class="font-medium text-ink-gray-9">Download</h2>
+  <section class="card flex flex-col gap-3 p-4">
+    <h2 class="font-semibold text-ink-gray-9">Download</h2>
     <ul class="flex flex-col gap-2">
       <li
         v-for="format in FORMATS"
         :key="format.value"
-        class="flex items-center justify-between gap-2"
+        class="flex items-center gap-3 rounded-lg border p-3"
+        :class="
+          latest.get(format.value)?.status === 'done'
+            ? 'border-brand-200 bg-brand-50'
+            : 'border-edge'
+        "
       >
-        <span class="flex items-center gap-2 text-sm text-ink-gray-8">
-          <span :class="[format.icon, 'size-4 text-ink-gray-5']" aria-hidden="true" />
-          {{ format.label }}
-        </span>
-        <template v-if="latest.get(format.value)?.status === 'done'">
-          <Button
-            variant="solid"
-            icon-left="lucide-download"
-            label="Download"
-            :loading="download.loading"
-            @click="download.run(latest.get(format.value)!.id)"
-          />
-        </template>
+        <IconTile :icon="format.icon" :tone="format.tone" size="sm" />
+        <div class="min-w-0 flex-1">
+          <div class="text-sm font-semibold text-ink-gray-9">{{ format.label }}</div>
+          <template v-if="['queued', 'running'].includes(latest.get(format.value)?.status ?? '')">
+            <div class="text-xs text-brand-700">
+              Preparing · {{ latest.get(format.value)!.progress }} of
+              {{ latest.get(format.value)!.total }}
+            </div>
+            <ProgressBar
+              class="mt-1.5"
+              :value="latest.get(format.value)!.progress"
+              :total="latest.get(format.value)!.total"
+            />
+          </template>
+          <div
+            v-else-if="latest.get(format.value)?.status === 'done'"
+            class="text-xs text-good-700"
+          >
+            Ready to download
+          </div>
+          <div
+            v-else-if="latest.get(format.value)?.status === 'failed'"
+            class="text-xs text-bad-700"
+          >
+            {{ latest.get(format.value)!.error || 'Failed. Try again.' }}
+          </div>
+          <div v-else class="text-xs text-ink-gray-6">{{ format.detail }}</div>
+        </div>
         <Button
-          v-else-if="['queued', 'running'].includes(latest.get(format.value)?.status ?? '')"
-          label="Preparing…"
-          loading
+          v-if="latest.get(format.value)?.status === 'done'"
+          variant="solid"
+          theme="blue"
+          icon-left="lucide-download"
+          label="Download"
+          :loading="download.loading"
+          @click="download.run(latest.get(format.value)!.id)"
         />
         <Button
-          v-else
+          v-else-if="!['queued', 'running'].includes(latest.get(format.value)?.status ?? '')"
+          variant="outline"
           label="Prepare"
           :loading="prepare.loading"
           @click="prepare.run(format.value)"
