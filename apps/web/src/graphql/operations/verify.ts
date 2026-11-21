@@ -15,3 +15,11 @@ export const VerifyCertificateQuery = graphql(`
     }
   }
 `)
+
+export const VerifyPreviewUrlQuery = graphql(`
+  query VerifyPreviewUrl($certificateId: uuid!) {
+    get_verify_preview_url(certificate_id: $certificateId) {
+      url
+    }
+  }
+`)

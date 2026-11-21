@@ -4438,6 +4438,367 @@ export type Verify_Certificate_Arguments = {
   certificate_id: Scalars['uuid']['input']
 }
 
+export type CreateBatchMutationVariables = Exact<{
+  object: Batches_Insert_Input
+}>
+
+export type CreateBatchMutation = { insert_batches_one?: { id: string } | null }
+
+export type StartBatchRenderMutationVariables = Exact<{
+  batchId: Scalars['uuid']['input']
+}>
+
+export type StartBatchRenderMutation = { start_batch_render: { job_id: string } }
+
+export type BatchQueryVariables = Exact<{
+  id: Scalars['uuid']['input']
+  limit: Scalars['Int']['input']
+  offset: Scalars['Int']['input']
+}>
+
+export type BatchQuery = {
+  batches_by_pk?: {
+    id: string
+    org_id: string
+    status: import('../../types/database').Database['public']['Enums']['batch_status']
+    recipient_count: number
+    has_rank: boolean
+    created_at: string
+    event?: { id: string; name: string } | null
+    certificates: Array<{
+      id: string
+      recipient_name?: string | null
+      recipient_email?: string | null
+      rank?: string | null
+      file_path?: string | null
+      render_status: import('../../types/database').Database['public']['Enums']['render_status']
+      revoked_at?: string | null
+      email_deliveries: Array<{
+        status: import('../../types/database').Database['public']['Enums']['delivery_status']
+        error?: string | null
+        sent_at?: string | null
+      }>
+    }>
+  } | null
+}
+
+export type BatchJobsSubscriptionVariables = Exact<{
+  batchId: Scalars['uuid']['input']
+}>
+
+export type BatchJobsSubscription = {
+  jobs: Array<{
+    id: string
+    kind: import('../../types/database').Database['public']['Enums']['job_kind']
+    status: import('../../types/database').Database['public']['Enums']['job_status']
+    progress: number
+    total: number
+    error?: string | null
+    result?: Record<string, unknown> | null
+    created_at: string
+    finished_at?: string | null
+  }>
+}
+
+export type ExportBatchMutationVariables = Exact<{
+  batchId: Scalars['uuid']['input']
+  format: ExportFormat
+}>
+
+export type ExportBatchMutation = { export_batch: { job_id: string } }
+
+export type ExportUrlQueryVariables = Exact<{
+  jobId: Scalars['uuid']['input']
+}>
+
+export type ExportUrlQuery = { get_export_url: { url: string; expires_at: string } }
+
+export type SendBatchEmailsMutationVariables = Exact<{
+  batchId: Scalars['uuid']['input']
+}>
+
+export type SendBatchEmailsMutation = { send_batch_emails: { job_id: string } }
+
+export type DeliveryCountsQueryVariables = Exact<{
+  batchId: Scalars['uuid']['input']
+}>
+
+export type DeliveryCountsQuery = {
+  sent: { aggregate?: { count: number } | null }
+  failed: { aggregate?: { count: number } | null }
+  queued: { aggregate?: { count: number } | null }
+}
+
+export type CertificatesSearchQueryVariables = Exact<{
+  where: Certificates_Bool_Exp
+  limit: Scalars['Int']['input']
+  offset: Scalars['Int']['input']
+  orderBy?: InputMaybe<Array<Certificates_Order_By> | Certificates_Order_By>
+}>
+
+export type CertificatesSearchQuery = {
+  certificates: Array<{
+    id: string
+    recipient_name?: string | null
+    recipient_email?: string | null
+    rank?: string | null
+    created_at: string
+    revoked_at?: string | null
+    revoked_reason?: string | null
+    render_status: import('../../types/database').Database['public']['Enums']['render_status']
+    batch?: { id: string; event?: { id: string; name: string } | null } | null
+  }>
+  certificates_aggregate: { aggregate?: { count: number } | null }
+}
+
+export type RevokeCertificateMutationVariables = Exact<{
+  id: Scalars['uuid']['input']
+  revokedAt?: InputMaybe<Scalars['timestamptz']['input']>
+  reason?: InputMaybe<Scalars['String']['input']>
+}>
+
+export type RevokeCertificateMutation = {
+  update_certificates_by_pk?: {
+    id: string
+    revoked_at?: string | null
+    revoked_reason?: string | null
+  } | null
+}
+
+export type DashboardQueryVariables = Exact<{
+  orgId: Scalars['uuid']['input']
+}>
+
+export type DashboardQuery = {
+  org_stats: Array<{
+    events_count?: number | null
+    batches_count?: number | null
+    certificates_count?: number | null
+    last_batch_at?: string | null
+  }>
+  events: Array<{
+    id: string
+    name: string
+    issuer_name: string
+    event_date: string
+    template?: { id: string } | null
+    batches_aggregate: { aggregate?: { count: number } | null }
+  }>
+}
+
+export type EventQueryVariables = Exact<{
+  id: Scalars['uuid']['input']
+}>
+
+export type EventQuery = {
+  events_by_pk?: {
+    id: string
+    org_id: string
+    name: string
+    issuer_name: string
+    event_date: string
+    deleted_at?: string | null
+    template?: {
+      id: string
+      image_path: string
+      image_width: number
+      image_height: number
+      fields: Array<{
+        field_key: import('../../types/database').Database['public']['Enums']['field_key']
+        x: number
+        y: number
+        width: number
+        height: number
+        font_family: string
+        font_weight: import('../../types/database').Database['public']['Enums']['font_weight']
+        font_style: import('../../types/database').Database['public']['Enums']['font_style']
+        text_decoration: import('../../types/database').Database['public']['Enums']['text_decoration']
+        color: string
+      }>
+    } | null
+    batches: Array<{
+      id: string
+      status: import('../../types/database').Database['public']['Enums']['batch_status']
+      recipient_count: number
+      created_at: string
+      creator?: { full_name?: string | null; email: string } | null
+    }>
+  } | null
+}
+
+export type CreateEventMutationVariables = Exact<{
+  object: Events_Insert_Input
+}>
+
+export type CreateEventMutation = { insert_events_one?: { id: string } | null }
+
+export type UpdateEventMutationVariables = Exact<{
+  id: Scalars['uuid']['input']
+  set: Events_Set_Input
+}>
+
+export type UpdateEventMutation = {
+  update_events_by_pk?: {
+    id: string
+    name: string
+    issuer_name: string
+    event_date: string
+    deleted_at?: string | null
+  } | null
+}
+
+export type FontsQueryVariables = Exact<{ [key: string]: never }>
+
+export type FontsQuery = {
+  fonts: Array<{ family: string; category: string; is_system: boolean; render_family: string }>
+}
+
+export type CreateTemplateMutationVariables = Exact<{
+  object: Templates_Insert_Input
+}>
+
+export type CreateTemplateMutation = { insert_templates_one?: { id: string } | null }
+
+export type ReplaceTemplateMutationVariables = Exact<{
+  id: Scalars['uuid']['input']
+  set: Templates_Set_Input
+  fields: Array<Template_Fields_Insert_Input> | Template_Fields_Insert_Input
+}>
+
+export type ReplaceTemplateMutation = {
+  delete_template_fields?: { affected_rows: number } | null
+  insert_template_fields?: { affected_rows: number } | null
+  update_templates_by_pk?: { id: string } | null
+}
+
+export type EventOptionsQueryVariables = Exact<{
+  orgId: Scalars['uuid']['input']
+}>
+
+export type EventOptionsQuery = { events: Array<{ id: string; name: string }> }
+
+export type MyMembershipsQueryVariables = Exact<{
+  userId: Scalars['uuid']['input']
+}>
+
+export type MyMembershipsQuery = {
+  organization_members: Array<{
+    role: import('../../types/database').Database['public']['Enums']['org_role']
+    organization: { id: string; name: string; slug: string; show_name_on_verify: boolean }
+  }>
+}
+
+export type BootstrapOrgMutationVariables = Exact<{
+  name: Scalars['String']['input']
+  slug: Scalars['String']['input']
+}>
+
+export type BootstrapOrgMutation = { bootstrap_org: { org_id: string } }
+
+export type AcceptInviteMutationVariables = Exact<{
+  token: Scalars['String']['input']
+}>
+
+export type AcceptInviteMutation = { accept_invite: { org_id: string } }
+
+export type UpdateOrganizationMutationVariables = Exact<{
+  id: Scalars['uuid']['input']
+  name: Scalars['String']['input']
+  showNameOnVerify: Scalars['Boolean']['input']
+}>
+
+export type UpdateOrganizationMutation = {
+  update_organizations_by_pk?: { id: string; name: string; show_name_on_verify: boolean } | null
+}
+
+export type MembersQueryVariables = Exact<{
+  orgId: Scalars['uuid']['input']
+}>
+
+export type MembersQuery = {
+  organization_members: Array<{
+    user_id: string
+    role: import('../../types/database').Database['public']['Enums']['org_role']
+    created_at: string
+    profile: { full_name?: string | null; email: string }
+  }>
+}
+
+export type InvitesQueryVariables = Exact<{
+  orgId: Scalars['uuid']['input']
+}>
+
+export type InvitesQuery = {
+  organization_invites: Array<{
+    id: string
+    email: string
+    role: import('../../types/database').Database['public']['Enums']['org_role']
+    expires_at: string
+    created_at: string
+  }>
+}
+
+export type InviteMemberMutationVariables = Exact<{
+  orgId: Scalars['uuid']['input']
+  email: Scalars['String']['input']
+  role: Scalars['String']['input']
+}>
+
+export type InviteMemberMutation = { invite_member: { invite_id: string } }
+
+export type DeleteInviteMutationVariables = Exact<{
+  id: Scalars['uuid']['input']
+}>
+
+export type DeleteInviteMutation = { delete_organization_invites_by_pk?: { id: string } | null }
+
+export type UpdateMemberRoleMutationVariables = Exact<{
+  orgId: Scalars['uuid']['input']
+  userId: Scalars['uuid']['input']
+  role: Scalars['org_role']['input']
+}>
+
+export type UpdateMemberRoleMutation = {
+  update_organization_members_by_pk?: {
+    user_id: string
+    role: import('../../types/database').Database['public']['Enums']['org_role']
+  } | null
+}
+
+export type RemoveMemberMutationVariables = Exact<{
+  orgId: Scalars['uuid']['input']
+  userId: Scalars['uuid']['input']
+}>
+
+export type RemoveMemberMutation = {
+  delete_organization_members_by_pk?: { user_id: string } | null
+}
+
+export type LockedLegacyCountQueryVariables = Exact<{
+  orgId: Scalars['uuid']['input']
+}>
+
+export type LockedLegacyCountQuery = {
+  certificates_aggregate: { aggregate?: { count: number } | null }
+}
+
+export type UnlockLegacyDataMutationVariables = Exact<{
+  orgId: Scalars['uuid']['input']
+  password: Scalars['String']['input']
+}>
+
+export type UnlockLegacyDataMutation = {
+  unlock_legacy_data: { unlocked_batches: number; unlocked_certificates: number }
+}
+
+export type FeatureFlagsQueryVariables = Exact<{
+  key: Scalars['String']['input']
+}>
+
+export type FeatureFlagsQuery = {
+  feature_flags: Array<{ org_id?: string | null; enabled: boolean }>
+}
+
 export type VerifyCertificateQueryVariables = Exact<{
   certificateId: Scalars['uuid']['input']
 }>
@@ -4456,6 +4817,2475 @@ export type VerifyCertificateQuery = {
   }>
 }
 
+export type VerifyPreviewUrlQueryVariables = Exact<{
+  certificateId: Scalars['uuid']['input']
+}>
+
+export type VerifyPreviewUrlQuery = { get_verify_preview_url?: { url: string } | null }
+
+export const CreateBatchDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'CreateBatch' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'object' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'batches_insert_input' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'insert_batches_one' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'object' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'object' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateBatchMutation, CreateBatchMutationVariables>
+export const StartBatchRenderDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'StartBatchRender' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'batchId' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'uuid' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'start_batch_render' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'batch_id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'batchId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'job_id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<StartBatchRenderMutation, StartBatchRenderMutationVariables>
+export const BatchDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'Batch' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'uuid' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'limit' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'offset' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'batches_by_pk' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'org_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'recipient_count' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'has_rank' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'created_at' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'event' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'certificates' },
+                  arguments: [
+                    {
+                      kind: 'Argument',
+                      name: { kind: 'Name', value: 'order_by' },
+                      value: {
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: 'created_at' },
+                            value: { kind: 'EnumValue', value: 'asc' },
+                          },
+                        ],
+                      },
+                    },
+                    {
+                      kind: 'Argument',
+                      name: { kind: 'Name', value: 'limit' },
+                      value: { kind: 'Variable', name: { kind: 'Name', value: 'limit' } },
+                    },
+                    {
+                      kind: 'Argument',
+                      name: { kind: 'Name', value: 'offset' },
+                      value: { kind: 'Variable', name: { kind: 'Name', value: 'offset' } },
+                    },
+                  ],
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'recipient_name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'recipient_email' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'rank' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'file_path' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'render_status' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'revoked_at' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'email_deliveries' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'order_by' },
+                            value: {
+                              kind: 'ObjectValue',
+                              fields: [
+                                {
+                                  kind: 'ObjectField',
+                                  name: { kind: 'Name', value: 'created_at' },
+                                  value: { kind: 'EnumValue', value: 'desc' },
+                                },
+                              ],
+                            },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'limit' },
+                            value: { kind: 'IntValue', value: '1' },
+                          },
+                        ],
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'error' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'sent_at' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<BatchQuery, BatchQueryVariables>
+export const BatchJobsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'subscription',
+      name: { kind: 'Name', value: 'BatchJobs' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'batchId' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'uuid' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'jobs' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'where' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'ref_id' },
+                      value: {
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: '_eq' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'batchId' } },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'order_by' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'created_at' },
+                      value: { kind: 'EnumValue', value: 'desc' },
+                    },
+                  ],
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'limit' },
+                value: { kind: 'IntValue', value: '10' },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'kind' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'progress' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'total' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'error' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'result' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'created_at' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'finished_at' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<BatchJobsSubscription, BatchJobsSubscriptionVariables>
+export const ExportBatchDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'ExportBatch' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'batchId' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'uuid' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'format' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ExportFormat' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'export_batch' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'batch_id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'batchId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'format' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'format' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'job_id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ExportBatchMutation, ExportBatchMutationVariables>
+export const ExportUrlDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'ExportUrl' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'jobId' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'uuid' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'get_export_url' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'job_id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'jobId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'url' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'expires_at' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ExportUrlQuery, ExportUrlQueryVariables>
+export const SendBatchEmailsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'SendBatchEmails' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'batchId' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'uuid' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'send_batch_emails' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'batch_id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'batchId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'job_id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<SendBatchEmailsMutation, SendBatchEmailsMutationVariables>
+export const DeliveryCountsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'DeliveryCounts' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'batchId' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'uuid' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            alias: { kind: 'Name', value: 'sent' },
+            name: { kind: 'Name', value: 'email_deliveries_aggregate' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'where' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'certificate' },
+                      value: {
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: 'batch_id' },
+                            value: {
+                              kind: 'ObjectValue',
+                              fields: [
+                                {
+                                  kind: 'ObjectField',
+                                  name: { kind: 'Name', value: '_eq' },
+                                  value: {
+                                    kind: 'Variable',
+                                    name: { kind: 'Name', value: 'batchId' },
+                                  },
+                                },
+                              ],
+                            },
+                          },
+                        ],
+                      },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'status' },
+                      value: {
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: '_eq' },
+                            value: { kind: 'EnumValue', value: 'sent' },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'aggregate' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'count' } }],
+                  },
+                },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            alias: { kind: 'Name', value: 'failed' },
+            name: { kind: 'Name', value: 'email_deliveries_aggregate' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'where' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'certificate' },
+                      value: {
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: 'batch_id' },
+                            value: {
+                              kind: 'ObjectValue',
+                              fields: [
+                                {
+                                  kind: 'ObjectField',
+                                  name: { kind: 'Name', value: '_eq' },
+                                  value: {
+                                    kind: 'Variable',
+                                    name: { kind: 'Name', value: 'batchId' },
+                                  },
+                                },
+                              ],
+                            },
+                          },
+                        ],
+                      },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'status' },
+                      value: {
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: '_eq' },
+                            value: { kind: 'EnumValue', value: 'failed' },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'aggregate' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'count' } }],
+                  },
+                },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            alias: { kind: 'Name', value: 'queued' },
+            name: { kind: 'Name', value: 'email_deliveries_aggregate' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'where' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'certificate' },
+                      value: {
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: 'batch_id' },
+                            value: {
+                              kind: 'ObjectValue',
+                              fields: [
+                                {
+                                  kind: 'ObjectField',
+                                  name: { kind: 'Name', value: '_eq' },
+                                  value: {
+                                    kind: 'Variable',
+                                    name: { kind: 'Name', value: 'batchId' },
+                                  },
+                                },
+                              ],
+                            },
+                          },
+                        ],
+                      },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'status' },
+                      value: {
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: '_eq' },
+                            value: { kind: 'EnumValue', value: 'queued' },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'aggregate' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'count' } }],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DeliveryCountsQuery, DeliveryCountsQueryVariables>
+export const CertificatesSearchDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'CertificatesSearch' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'where' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'certificates_bool_exp' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'limit' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'offset' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'orderBy' } },
+          type: {
+            kind: 'ListType',
+            type: {
+              kind: 'NonNullType',
+              type: { kind: 'NamedType', name: { kind: 'Name', value: 'certificates_order_by' } },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'certificates' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'where' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'where' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'limit' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'limit' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'offset' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'offset' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'order_by' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'orderBy' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'recipient_name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'recipient_email' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'rank' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'created_at' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'revoked_at' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'revoked_reason' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'render_status' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'batch' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'event' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'certificates_aggregate' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'where' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'where' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'aggregate' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'count' } }],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CertificatesSearchQuery, CertificatesSearchQueryVariables>
+export const RevokeCertificateDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'RevokeCertificate' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'uuid' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'revokedAt' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'timestamptz' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'reason' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'update_certificates_by_pk' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'pk_columns' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'id' },
+                      value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+                    },
+                  ],
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: '_set' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'revoked_at' },
+                      value: { kind: 'Variable', name: { kind: 'Name', value: 'revokedAt' } },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'revoked_reason' },
+                      value: { kind: 'Variable', name: { kind: 'Name', value: 'reason' } },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'revoked_at' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'revoked_reason' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<RevokeCertificateMutation, RevokeCertificateMutationVariables>
+export const DashboardDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'Dashboard' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'orgId' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'uuid' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'org_stats' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'where' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'org_id' },
+                      value: {
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: '_eq' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'orgId' } },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'events_count' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'batches_count' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'certificates_count' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'last_batch_at' } },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'events' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'where' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'org_id' },
+                      value: {
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: '_eq' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'orgId' } },
+                          },
+                        ],
+                      },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'deleted_at' },
+                      value: {
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: '_is_null' },
+                            value: { kind: 'BooleanValue', value: true },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'order_by' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'event_date' },
+                      value: { kind: 'EnumValue', value: 'desc' },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'issuer_name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'event_date' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'template' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'batches_aggregate' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'aggregate' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'count' } }],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DashboardQuery, DashboardQueryVariables>
+export const EventDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'Event' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'uuid' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'events_by_pk' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'org_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'issuer_name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'event_date' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'deleted_at' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'template' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'image_path' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'image_width' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'image_height' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'fields' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'field_key' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'x' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'y' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'width' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'height' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'font_family' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'font_weight' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'font_style' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'text_decoration' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'color' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'batches' },
+                  arguments: [
+                    {
+                      kind: 'Argument',
+                      name: { kind: 'Name', value: 'order_by' },
+                      value: {
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: 'created_at' },
+                            value: { kind: 'EnumValue', value: 'desc' },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'recipient_count' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'created_at' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'creator' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'full_name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<EventQuery, EventQueryVariables>
+export const CreateEventDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'CreateEvent' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'object' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'events_insert_input' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'insert_events_one' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'object' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'object' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateEventMutation, CreateEventMutationVariables>
+export const UpdateEventDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'UpdateEvent' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'uuid' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'set' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'events_set_input' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'update_events_by_pk' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'pk_columns' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'id' },
+                      value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+                    },
+                  ],
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: '_set' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'set' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'issuer_name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'event_date' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'deleted_at' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateEventMutation, UpdateEventMutationVariables>
+export const FontsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'Fonts' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'fonts' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'order_by' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'family' },
+                      value: { kind: 'EnumValue', value: 'asc' },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'family' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'category' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'is_system' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'render_family' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<FontsQuery, FontsQueryVariables>
+export const CreateTemplateDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'CreateTemplate' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'object' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'templates_insert_input' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'insert_templates_one' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'object' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'object' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateTemplateMutation, CreateTemplateMutationVariables>
+export const ReplaceTemplateDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'ReplaceTemplate' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'uuid' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'set' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'templates_set_input' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fields' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'ListType',
+              type: {
+                kind: 'NonNullType',
+                type: {
+                  kind: 'NamedType',
+                  name: { kind: 'Name', value: 'template_fields_insert_input' },
+                },
+              },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'delete_template_fields' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'where' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'template_id' },
+                      value: {
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: '_eq' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'affected_rows' } }],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'insert_template_fields' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'objects' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'fields' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'affected_rows' } }],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'update_templates_by_pk' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'pk_columns' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'id' },
+                      value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+                    },
+                  ],
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: '_set' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'set' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ReplaceTemplateMutation, ReplaceTemplateMutationVariables>
+export const EventOptionsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'EventOptions' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'orgId' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'uuid' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'events' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'where' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'org_id' },
+                      value: {
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: '_eq' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'orgId' } },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'order_by' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'event_date' },
+                      value: { kind: 'EnumValue', value: 'desc' },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<EventOptionsQuery, EventOptionsQueryVariables>
+export const MyMembershipsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'MyMemberships' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'uuid' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'organization_members' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'where' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'user_id' },
+                      value: {
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: '_eq' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'order_by' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'created_at' },
+                      value: { kind: 'EnumValue', value: 'asc' },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'role' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'organization' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'slug' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'show_name_on_verify' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<MyMembershipsQuery, MyMembershipsQueryVariables>
+export const BootstrapOrgDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'BootstrapOrg' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'slug' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'bootstrap_org' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'name' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'slug' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'slug' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'org_id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<BootstrapOrgMutation, BootstrapOrgMutationVariables>
+export const AcceptInviteDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'AcceptInvite' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'token' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'accept_invite' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'token' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'token' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'org_id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<AcceptInviteMutation, AcceptInviteMutationVariables>
+export const UpdateOrganizationDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'UpdateOrganization' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'uuid' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'showNameOnVerify' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'update_organizations_by_pk' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'pk_columns' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'id' },
+                      value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+                    },
+                  ],
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: '_set' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'name' },
+                      value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'show_name_on_verify' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'showNameOnVerify' },
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'show_name_on_verify' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateOrganizationMutation, UpdateOrganizationMutationVariables>
+export const MembersDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'Members' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'orgId' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'uuid' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'organization_members' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'where' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'org_id' },
+                      value: {
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: '_eq' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'orgId' } },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'order_by' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'created_at' },
+                      value: { kind: 'EnumValue', value: 'asc' },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'user_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'role' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'created_at' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'profile' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'full_name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<MembersQuery, MembersQueryVariables>
+export const InvitesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'Invites' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'orgId' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'uuid' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'organization_invites' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'where' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'org_id' },
+                      value: {
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: '_eq' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'orgId' } },
+                          },
+                        ],
+                      },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'accepted_at' },
+                      value: {
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: '_is_null' },
+                            value: { kind: 'BooleanValue', value: true },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'order_by' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'created_at' },
+                      value: { kind: 'EnumValue', value: 'desc' },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'role' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'expires_at' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'created_at' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<InvitesQuery, InvitesQueryVariables>
+export const InviteMemberDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'InviteMember' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'orgId' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'uuid' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'email' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'role' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'invite_member' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'org_id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'orgId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'email' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'email' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'role' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'role' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'invite_id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<InviteMemberMutation, InviteMemberMutationVariables>
+export const DeleteInviteDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'DeleteInvite' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'uuid' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'delete_organization_invites_by_pk' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DeleteInviteMutation, DeleteInviteMutationVariables>
+export const UpdateMemberRoleDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'UpdateMemberRole' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'orgId' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'uuid' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'uuid' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'role' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'org_role' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'update_organization_members_by_pk' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'pk_columns' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'org_id' },
+                      value: { kind: 'Variable', name: { kind: 'Name', value: 'orgId' } },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'user_id' },
+                      value: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+                    },
+                  ],
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: '_set' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'role' },
+                      value: { kind: 'Variable', name: { kind: 'Name', value: 'role' } },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'user_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'role' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateMemberRoleMutation, UpdateMemberRoleMutationVariables>
+export const RemoveMemberDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'RemoveMember' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'orgId' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'uuid' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'uuid' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'delete_organization_members_by_pk' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'org_id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'orgId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'user_id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'user_id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<RemoveMemberMutation, RemoveMemberMutationVariables>
+export const LockedLegacyCountDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'LockedLegacyCount' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'orgId' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'uuid' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'certificates_aggregate' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'where' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'org_id' },
+                      value: {
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: '_eq' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'orgId' } },
+                          },
+                        ],
+                      },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'recipient_name' },
+                      value: {
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: '_is_null' },
+                            value: { kind: 'BooleanValue', value: true },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'aggregate' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'count' } }],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<LockedLegacyCountQuery, LockedLegacyCountQueryVariables>
+export const UnlockLegacyDataDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'UnlockLegacyData' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'orgId' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'uuid' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'password' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'unlock_legacy_data' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'org_id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'orgId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'password' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'password' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'unlocked_batches' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'unlocked_certificates' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UnlockLegacyDataMutation, UnlockLegacyDataMutationVariables>
+export const FeatureFlagsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'FeatureFlags' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'key' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'feature_flags' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'where' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'key' },
+                      value: {
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: '_eq' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'key' } },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'org_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'enabled' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<FeatureFlagsQuery, FeatureFlagsQueryVariables>
 export const VerifyCertificateDocument = {
   kind: 'Document',
   definitions: [
@@ -4515,3 +7345,43 @@ export const VerifyCertificateDocument = {
     },
   ],
 } as unknown as DocumentNode<VerifyCertificateQuery, VerifyCertificateQueryVariables>
+export const VerifyPreviewUrlDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'VerifyPreviewUrl' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'certificateId' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'uuid' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'get_verify_preview_url' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'certificate_id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'certificateId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'url' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<VerifyPreviewUrlQuery, VerifyPreviewUrlQueryVariables>
