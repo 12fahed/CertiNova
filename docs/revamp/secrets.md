@@ -39,6 +39,15 @@ Each value has one home for each environment. Do not copy secrets into other pla
 
 Staging and prod use the same names. Each one gets its own Render env group, Hasura Cloud project and Vercel environment.
 
+## Supabase Auth URLs
+
+Auth emails (confirm, reset password) link back to the web app. Supabase opens only allowed URLs.
+
+| Setting (Authentication > URL Configuration) | Value |
+|---|---|
+| Site URL | Public web app URL, the same as `FRONTEND_URL` |
+| Redirect URLs | `<web app URL>/**` |
+
 ## Hasura Cloud values
 
 Supabase signs access tokens with ES256 (asymmetric keys). Hasura must read the public keys from the JWKS URL. Do not use the old shared JWT secret.
