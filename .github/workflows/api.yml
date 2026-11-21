@@ -5,15 +5,19 @@ on:
     branches: [main, 'revamp/**']
     paths:
       - 'apps/api/**'
+      - 'supabase/migrations/**'
       - 'pyproject.toml'
       - 'uv.lock'
+      - '.dockerignore'
       - '.github/workflows/api.yml'
       - '.github/workflows/_python-package.yml'
   pull_request:
     paths:
       - 'apps/api/**'
+      - 'supabase/migrations/**'
       - 'pyproject.toml'
       - 'uv.lock'
+      - '.dockerignore'
       - '.github/workflows/api.yml'
       - '.github/workflows/_python-package.yml'
 
@@ -21,8 +25,46 @@ concurrency:
   group: api-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   check:
     uses: ./.github/workflows/_python-package.yml
     with:
       directory: apps/api
+
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - name: Install
+        run: uv sync --locked --all-packages
+      - name: Start Supabase
+        run: |
+          npx --yes supabase@2.122.1 start -x studio,imgproxy,mailpit,edge-runtime,logflare,vector,supavisor,realtime,postgres-meta
+          npx --yes supabase@2.122.1 status -o env \
+            | grep -E '^(SERVICE_ROLE_KEY|SECRET_KEY)=' | sed 's/^/SUPABASE_/' | tr -d '"' >> "$GITHUB_ENV"
+          echo "DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:54322/postgres" >> "$GITHUB_ENV"
+      - name: Unit and integration tests with coverage
+        working-directory: apps/api
+        run: uv run pytest -W error --cov
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the API and worker image
+        run: docker build -f apps/api/Dockerfile -t certinova-api:ci .
+      - name: Smoke test
+        run: |
+          docker run -d --name api -p 5000:5000 certinova-api:ci
+          for i in $(seq 1 30); do curl -sf localhost:5000/health && exit 0; sleep 1; done
+          docker logs api
+          exit 1
