@@ -1,9 +1,9 @@
 <script setup lang="ts">
-const appName = 'CertiNova'
+import { FrappeUIProvider } from 'frappe-ui'
 </script>
 
 <template>
-  <main>
-    <h1>{{ appName }}</h1>
-  </main>
+  <FrappeUIProvider>
+    <RouterView />
+  </FrappeUIProvider>
 </template>
