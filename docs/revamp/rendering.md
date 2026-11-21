@@ -25,7 +25,20 @@ Fit the text with these steps:
 5. Draw with a left-baseline anchor at `x = box.x + (box.width − width) / 2`, `y = box.y + (box.height + ascent) / 2`.
 6. Underline: a line from `(x, y + 2)` to `(x + width, y + 2)`, thickness `max(1, round(size / 20))`, same colour as the text.
 
-Font: `fonts.render_family` for the field's `font_family`, weight 700 if bold, else 400, italic if set. If the variant does not exist, use the regular variant of the same family.
+Font: `fonts.render_family` for the field's `font_family`, weight 700 if bold, else 400, italic if set. If the variant does not exist, use the regular variant of the same family. Do not let the browser make a fake bold or italic.
+
+### Fonts in the browser
+
+The server uses Debian font packages for system fonts. The browser loads metric-compatible copies from Google Fonts instead:
+
+| `render_family` | Browser font |
+|---|---|
+| Liberation Sans | Arimo |
+| Liberation Serif | Tinos |
+| DejaVu Sans Mono | Cousine |
+| DejaVu Sans | Installed copy, else Verdana (not on Google Fonts, small drift possible) |
+
+The browser asks the Google Fonts CSS API (`/css?family=<name>:400,700,400italic,700italic`) one time for each family. It returns only the variants that exist, so the browser knows when to fall back to the regular variant. Do not use `/css2` for this: it answers 400 with no CORS header when one variant is missing.
 
 ## QR code
 
