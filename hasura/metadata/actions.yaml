@@ -1,6 +1,155 @@
-actions: []
+actions:
+- name: bootstrap_org
+  definition:
+    kind: synchronous
+    handler: '{{ACTION_BASE_URL}}/actions/bootstrap_org'
+    forward_client_headers: false
+    headers:
+    - name: X-Hasura-Action-Secret
+      value_from_env: HASURA_ACTION_SECRET
+    timeout: 30
+  permissions:
+  - role: user
+  comment: Create an organisation with the caller as owner.
+- name: invite_member
+  definition:
+    kind: synchronous
+    handler: '{{ACTION_BASE_URL}}/actions/invite_member'
+    forward_client_headers: false
+    headers:
+    - name: X-Hasura-Action-Secret
+      value_from_env: HASURA_ACTION_SECRET
+    timeout: 30
+  permissions:
+  - role: user
+  comment: Invite a person by email. Admins and owners only.
+- name: accept_invite
+  definition:
+    kind: synchronous
+    handler: '{{ACTION_BASE_URL}}/actions/accept_invite'
+    forward_client_headers: false
+    headers:
+    - name: X-Hasura-Action-Secret
+      value_from_env: HASURA_ACTION_SECRET
+    timeout: 30
+  permissions:
+  - role: user
+  comment: Join an organisation with an invite token.
+- name: start_batch_render
+  definition:
+    kind: synchronous
+    handler: '{{ACTION_BASE_URL}}/actions/start_batch_render'
+    forward_client_headers: false
+    headers:
+    - name: X-Hasura-Action-Secret
+      value_from_env: HASURA_ACTION_SECRET
+    timeout: 30
+  permissions:
+  - role: user
+  comment: Queue the render job for a draft batch.
+- name: export_batch
+  definition:
+    kind: synchronous
+    handler: '{{ACTION_BASE_URL}}/actions/export_batch'
+    forward_client_headers: false
+    headers:
+    - name: X-Hasura-Action-Secret
+      value_from_env: HASURA_ACTION_SECRET
+    timeout: 30
+  permissions:
+  - role: user
+  comment: Queue a ZIP or PDF export of a rendered batch.
+- name: send_batch_emails
+  definition:
+    kind: synchronous
+    handler: '{{ACTION_BASE_URL}}/actions/send_batch_emails'
+    forward_client_headers: false
+    headers:
+    - name: X-Hasura-Action-Secret
+      value_from_env: HASURA_ACTION_SECRET
+    timeout: 30
+  permissions:
+  - role: user
+  comment: Queue certificate emails. Needs the email-certificates feature flag.
+- name: unlock_legacy_data
+  definition:
+    kind: synchronous
+    handler: '{{ACTION_BASE_URL}}/actions/unlock_legacy_data'
+    forward_client_headers: false
+    headers:
+    - name: X-Hasura-Action-Secret
+      value_from_env: HASURA_ACTION_SECRET
+    timeout: 30
+  permissions:
+  - role: user
+  comment: Decrypt migrated recipient data with the old password. Owners only.
+- name: get_export_url
+  definition:
+    kind: synchronous
+    handler: '{{ACTION_BASE_URL}}/actions/get_export_url'
+    forward_client_headers: false
+    headers:
+    - name: X-Hasura-Action-Secret
+      value_from_env: HASURA_ACTION_SECRET
+    timeout: 30
+    type: query
+  permissions:
+  - role: user
+  comment: Signed download URL for a finished export job.
+- name: get_verify_preview_url
+  definition:
+    kind: synchronous
+    handler: '{{ACTION_BASE_URL}}/actions/get_verify_preview_url'
+    forward_client_headers: false
+    headers:
+    - name: X-Hasura-Action-Secret
+      value_from_env: HASURA_ACTION_SECRET
+    timeout: 30
+    type: query
+  permissions:
+  - role: anonymous
+  - role: user
+  comment: Signed image URL for the public verify page.
 custom_types:
-  enums: []
+  enums:
+  - name: ExportFormat
+    values:
+    - value: images_zip
+    - value: combined_pdf
+    - value: individual_pdfs
   input_objects: []
-  objects: []
+  objects:
+  - name: BootstrapOrgOutput
+    relationships:
+    - name: organization
+      type: object
+      source: certinova
+      remote_table:
+        schema: public
+        name: organizations
+      field_mapping:
+        org_id: id
+  - name: InviteMemberOutput
+  - name: AcceptInviteOutput
+    relationships:
+    - name: organization
+      type: object
+      source: certinova
+      remote_table:
+        schema: public
+        name: organizations
+      field_mapping:
+        org_id: id
+  - name: JobOutput
+    relationships:
+    - name: job
+      type: object
+      source: certinova
+      remote_table:
+        schema: public
+        name: jobs
+      field_mapping:
+        job_id: id
+  - name: UnlockLegacyDataOutput
+  - name: SignedUrlOutput
   scalars: []
