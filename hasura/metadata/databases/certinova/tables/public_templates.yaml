@@ -1,0 +1,78 @@
+table:
+  name: templates
+  schema: public
+object_relationships:
+  - name: creator
+    using:
+      foreign_key_constraint_on: created_by
+  - name: event
+    using:
+      manual_configuration:
+        remote_table:
+          name: events
+          schema: public
+        column_mapping:
+          event_id: id
+  - name: organization
+    using:
+      manual_configuration:
+        remote_table:
+          name: organizations
+          schema: public
+        column_mapping:
+          org_id: id
+array_relationships:
+  - name: fields
+    using:
+      foreign_key_constraint_on:
+        column: template_id
+        table:
+          name: template_fields
+          schema: public
+insert_permissions:
+  - role: user
+    permission:
+      columns: [org_id, event_id, image_path, image_width, image_height]
+      set:
+        created_by: X-Hasura-User-Id
+      check:
+        organization:
+          members:
+            _and:
+              - user_id:
+                  _eq: X-Hasura-User-Id
+              - role:
+                  _in: [owner, admin]
+select_permissions:
+  - role: user
+    permission:
+      columns: [id, org_id, event_id, image_path, image_width, image_height, created_by, created_at, updated_at]
+      filter:
+        organization:
+          members:
+            user_id:
+              _eq: X-Hasura-User-Id
+update_permissions:
+  - role: user
+    permission:
+      columns: [image_path, image_width, image_height]
+      filter:
+        organization:
+          members:
+            _and:
+              - user_id:
+                  _eq: X-Hasura-User-Id
+              - role:
+                  _in: [owner, admin]
+      check: null
+delete_permissions:
+  - role: user
+    permission:
+      filter:
+        organization:
+          members:
+            _and:
+              - user_id:
+                  _eq: X-Hasura-User-Id
+              - role:
+                  _in: [owner, admin]

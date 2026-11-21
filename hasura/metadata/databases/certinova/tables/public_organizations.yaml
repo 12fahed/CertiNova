@@ -1,0 +1,68 @@
+table:
+  name: organizations
+  schema: public
+object_relationships:
+  - name: stats
+    using:
+      manual_configuration:
+        remote_table:
+          name: org_stats
+          schema: public
+        column_mapping:
+          id: org_id
+array_relationships:
+  - name: events
+    using:
+      foreign_key_constraint_on:
+        column: org_id
+        table:
+          name: events
+          schema: public
+  - name: feature_flags
+    using:
+      foreign_key_constraint_on:
+        column: org_id
+        table:
+          name: feature_flags
+          schema: public
+  - name: invites
+    using:
+      foreign_key_constraint_on:
+        column: org_id
+        table:
+          name: organization_invites
+          schema: public
+  - name: jobs
+    using:
+      foreign_key_constraint_on:
+        column: org_id
+        table:
+          name: jobs
+          schema: public
+  - name: members
+    using:
+      foreign_key_constraint_on:
+        column: org_id
+        table:
+          name: organization_members
+          schema: public
+select_permissions:
+  - role: user
+    permission:
+      columns: [id, name, slug, show_name_on_verify, created_at, updated_at]
+      filter:
+        members:
+          user_id:
+            _eq: X-Hasura-User-Id
+update_permissions:
+  - role: user
+    permission:
+      columns: [name, show_name_on_verify]
+      filter:
+        members:
+          _and:
+            - user_id:
+                _eq: X-Hasura-User-Id
+            - role:
+                _in: [owner, admin]
+      check: null

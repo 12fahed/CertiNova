@@ -1,0 +1,19 @@
+table:
+  name: jobs
+  schema: public
+object_relationships:
+  - name: creator
+    using:
+      foreign_key_constraint_on: created_by
+  - name: organization
+    using:
+      foreign_key_constraint_on: org_id
+select_permissions:
+  - role: user
+    permission:
+      columns: [id, org_id, kind, status, progress, total, ref_id, error, created_by, created_at, updated_at, started_at, finished_at]
+      filter:
+        organization:
+          members:
+            user_id:
+              _eq: X-Hasura-User-Id

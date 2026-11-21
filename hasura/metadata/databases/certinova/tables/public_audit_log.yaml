@@ -1,0 +1,22 @@
+table:
+  name: audit_log
+  schema: public
+object_relationships:
+  - name: actor
+    using:
+      foreign_key_constraint_on: actor_id
+  - name: organization
+    using:
+      foreign_key_constraint_on: org_id
+select_permissions:
+  - role: user
+    permission:
+      columns: [id, org_id, actor_id, action, entity, entity_id, data, at]
+      filter:
+        organization:
+          members:
+            _and:
+              - user_id:
+                  _eq: X-Hasura-User-Id
+              - role:
+                  _in: [owner, admin]

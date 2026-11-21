@@ -1,0 +1,76 @@
+table:
+  name: certificates
+  schema: public
+object_relationships:
+  - name: batch
+    using:
+      manual_configuration:
+        remote_table:
+          name: batches
+          schema: public
+        column_mapping:
+          batch_id: id
+  - name: organization
+    using:
+      manual_configuration:
+        remote_table:
+          name: organizations
+          schema: public
+        column_mapping:
+          org_id: id
+array_relationships:
+  - name: email_deliveries
+    using:
+      manual_configuration:
+        remote_table:
+          name: email_deliveries
+          schema: public
+        column_mapping:
+          id: certificate_id
+insert_permissions:
+  - role: user
+    permission:
+      columns: [org_id, batch_id, recipient_name, recipient_email, rank]
+      check:
+        _and:
+          - organization:
+              members:
+                user_id:
+                  _eq: X-Hasura-User-Id
+          - batch:
+              status:
+                _eq: draft
+select_permissions:
+  - role: user
+    permission:
+      columns: [id, org_id, batch_id, recipient_name, recipient_email, rank, file_path, render_status, revoked_at, revoked_reason, created_at, updated_at]
+      filter:
+        organization:
+          members:
+            user_id:
+              _eq: X-Hasura-User-Id
+      allow_aggregations: true
+update_permissions:
+  - role: user
+    permission:
+      columns: [revoked_at, revoked_reason]
+      filter:
+        organization:
+          members:
+            _and:
+              - user_id:
+                  _eq: X-Hasura-User-Id
+              - role:
+                  _in: [owner, admin]
+      check: null
+delete_permissions:
+  - role: user
+    permission:
+      filter:
+        organization:
+          members:
+            _and:
+              - user_id:
+                  _eq: X-Hasura-User-Id
+              - role:
+                  _in: [owner, admin]

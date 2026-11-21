@@ -1,0 +1,30 @@
+table:
+  name: email_deliveries
+  schema: public
+object_relationships:
+  - name: certificate
+    using:
+      manual_configuration:
+        remote_table:
+          name: certificates
+          schema: public
+        column_mapping:
+          certificate_id: id
+  - name: organization
+    using:
+      manual_configuration:
+        remote_table:
+          name: organizations
+          schema: public
+        column_mapping:
+          org_id: id
+select_permissions:
+  - role: user
+    permission:
+      columns: [id, org_id, certificate_id, email, status, attempts, error, sent_at, created_at, updated_at]
+      filter:
+        organization:
+          members:
+            user_id:
+              _eq: X-Hasura-User-Id
+      allow_aggregations: true

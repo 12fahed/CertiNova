@@ -1,0 +1,59 @@
+table:
+  name: template_fields
+  schema: public
+object_relationships:
+  - name: font
+    using:
+      foreign_key_constraint_on: font_family
+  - name: template
+    using:
+      foreign_key_constraint_on: template_id
+insert_permissions:
+  - role: user
+    permission:
+      columns: [template_id, field_key, x, y, width, height, font_family, font_weight, font_style, text_decoration, color]
+      check:
+        template:
+          organization:
+            members:
+              _and:
+                - user_id:
+                    _eq: X-Hasura-User-Id
+                - role:
+                    _in: [owner, admin]
+select_permissions:
+  - role: user
+    permission:
+      columns: [template_id, field_key, x, y, width, height, font_family, font_weight, font_style, text_decoration, color]
+      filter:
+        template:
+          organization:
+            members:
+              user_id:
+                _eq: X-Hasura-User-Id
+update_permissions:
+  - role: user
+    permission:
+      columns: [x, y, width, height, font_family, font_weight, font_style, text_decoration, color]
+      filter:
+        template:
+          organization:
+            members:
+              _and:
+                - user_id:
+                    _eq: X-Hasura-User-Id
+                - role:
+                    _in: [owner, admin]
+      check: null
+delete_permissions:
+  - role: user
+    permission:
+      filter:
+        template:
+          organization:
+            members:
+              _and:
+                - user_id:
+                    _eq: X-Hasura-User-Id
+                - role:
+                    _in: [owner, admin]

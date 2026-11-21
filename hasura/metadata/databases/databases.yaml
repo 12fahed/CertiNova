@@ -1,4 +1,4 @@
-- name: certinova-dev
+- name: certinova
   kind: postgres
   configuration:
     connection_info:
@@ -6,4 +6,4 @@
         from_env: PG_DATABASE_URL
       isolation_level: read-committed
       use_prepared_statements: false
-  tables: "!include certinova-dev/tables/tables.yaml"
+  tables: "!include certinova/tables/tables.yaml"

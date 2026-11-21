@@ -1,0 +1,19 @@
+table:
+  name: feature_flags
+  schema: public
+object_relationships:
+  - name: organization
+    using:
+      foreign_key_constraint_on: org_id
+select_permissions:
+  - role: user
+    permission:
+      columns: [id, key, org_id, enabled]
+      filter:
+        _or:
+          - org_id:
+              _is_null: true
+          - organization:
+              members:
+                user_id:
+                  _eq: X-Hasura-User-Id

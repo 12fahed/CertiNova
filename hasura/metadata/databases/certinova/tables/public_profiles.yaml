@@ -1,0 +1,34 @@
+table:
+  name: profiles
+  schema: public
+array_relationships:
+  - name: memberships
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: organization_members
+          schema: public
+select_permissions:
+  - role: user
+    permission:
+      columns: [id, full_name, email, created_at, updated_at]
+      filter:
+        _or:
+          - id:
+              _eq: X-Hasura-User-Id
+          - memberships:
+              organization:
+                members:
+                  user_id:
+                    _eq: X-Hasura-User-Id
+update_permissions:
+  - role: user
+    permission:
+      columns: [full_name]
+      filter:
+        id:
+          _eq: X-Hasura-User-Id
+      check:
+        id:
+          _eq: X-Hasura-User-Id
