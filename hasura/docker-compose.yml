@@ -1,0 +1,36 @@
+# Local Hasura on top of the local Supabase stack (npm run supabase -- start).
+# The cli-migrations image applies ./metadata on start, so local and CI run what is in git.
+name: certinova-hasura
+
+services:
+  hasura:
+    image: hasura/graphql-engine:v2.51.9.cli-migrations-v3
+    ports:
+      - '8080:8080'
+    volumes:
+      - ./metadata:/hasura-metadata:ro
+    environment:
+      HASURA_GRAPHQL_METADATA_DATABASE_URL: postgres://postgres:postgres@supabase_db_certinova:5432/postgres
+      PG_DATABASE_URL: postgres://postgres:postgres@supabase_db_certinova:5432/postgres
+      HASURA_GRAPHQL_ADMIN_SECRET: local-admin-secret
+      HASURA_GRAPHQL_JWT_SECRET: '{"jwk_url": "http://supabase_kong_certinova:8000/auth/v1/.well-known/jwks.json"}'
+      HASURA_GRAPHQL_UNAUTHORIZED_ROLE: anonymous
+      ACTION_BASE_URL: http://host.docker.internal:5000
+      HASURA_ACTION_SECRET: local-action-secret
+      HASURA_GRAPHQL_ENABLE_CONSOLE: 'false'
+      HASURA_GRAPHQL_DEV_MODE: 'true'
+      HASURA_GRAPHQL_ENABLE_TELEMETRY: 'false'
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -sf http://localhost:8080/healthz || exit 1']
+      interval: 5s
+      timeout: 3s
+      retries: 30
+    networks:
+      - supabase
+
+networks:
+  supabase:
+    name: supabase_network_certinova
+    external: true
