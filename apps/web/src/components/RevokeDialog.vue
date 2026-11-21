@@ -39,7 +39,13 @@ const revoke = useTask(async () => {
         <b>{{ certificate?.recipient_name ?? 'this recipient' }}</b> is revoked. You can restore it
         later.
       </p>
-      <Textarea v-model="reason" label="Reason (optional)" maxlength="500" :rows="3" />
+      <Textarea
+        v-model="reason"
+        variant="outline"
+        label="Reason (optional)"
+        maxlength="500"
+        :rows="3"
+      />
       <ErrorMessage :message="revoke.error" />
     </form>
     <template #actions>

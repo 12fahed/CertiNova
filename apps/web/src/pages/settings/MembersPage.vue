@@ -1,19 +1,13 @@
 <script setup lang="ts">
 import { useMutation, useQuery } from '@urql/vue'
-import {
-  Badge,
-  Button,
-  Dropdown,
-  ErrorMessage,
-  LoadingText,
-  PageHeader,
-  PageHeaderTitle,
-  dialog,
-  toast,
-} from 'frappe-ui'
-import { computed, ref } from 'vue'
+import { Button, Dropdown, ErrorMessage, LoadingText, dialog, toast } from 'frappe-ui'
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import InviteMemberDialog from '@/components/InviteMemberDialog.vue'
+import InviteMemberCard from '@/components/InviteMemberCard.vue'
+import InitialsAvatar from '@/components/ui/InitialsAvatar.vue'
+import PageTitle from '@/components/ui/PageTitle.vue'
+import TonePill from '@/components/ui/TonePill.vue'
+import type { Tone } from '@/components/ui/tones'
 import { useSession } from '@/auth/session'
 import {
   DeleteInviteMutation,
@@ -23,7 +17,7 @@ import {
   UpdateMemberRoleMutation,
 } from '@/graphql/operations/orgs'
 import { errorMessage, unwrap } from '@/lib/errors'
-import { formatDate } from '@/lib/format'
+import { formatDate, plural } from '@/lib/format'
 import { loadMemberships, selectOrg, useCurrentOrg, type OrgRole } from '@/org/currentOrg'
 
 const router = useRouter()
@@ -42,9 +36,9 @@ const deleteInvite = useMutation(DeleteInviteMutation)
 
 const members = computed(() => membersQuery.data.value?.organization_members ?? [])
 const invites = computed(() => invitesQuery.data.value?.organization_invites ?? [])
-const inviting = ref(false)
 
 const ROLE_LABELS: Record<OrgRole, string> = { owner: 'Owner', admin: 'Admin', member: 'Member' }
+const ROLE_TONES: Record<OrgRole, Tone> = { owner: 'plum', admin: 'brand', member: 'neutral' }
 
 async function run(task: () => Promise<unknown>, message: string) {
   try {
@@ -134,41 +128,40 @@ function confirmLeave() {
 </script>
 
 <template>
-  <PageHeader>
-    <PageHeaderTitle title="Members" />
-    <Button
-      v-if="isAdmin"
-      variant="solid"
-      icon-left="lucide-user-plus"
-      label="Invite"
-      @click="inviting = true"
-    />
-  </PageHeader>
+  <PageTitle
+    title="Members"
+    subtitle="Owners and admins manage events, designs and people. Members make and send certificates."
+  />
 
   <ErrorMessage v-if="membersQuery.error.value" :message="errorMessage(membersQuery.error.value)" />
   <LoadingText v-else-if="membersQuery.fetching.value && !membersQuery.data.value" />
-  <ul v-else class="divide-y divide-outline-gray-1 rounded-lg border border-outline-gray-2">
-    <li
-      v-for="member in members"
-      :key="member.user_id"
-      class="flex items-center justify-between gap-2 px-4 py-3"
-    >
-      <div class="flex min-w-0 flex-col">
-        <span class="truncate font-medium text-ink-gray-9">
-          {{ member.profile.full_name || member.profile.email }}
-          <span v-if="member.user_id === user?.id" class="text-ink-gray-5">(you)</span>
-        </span>
-        <span class="truncate text-sm text-ink-gray-6">{{ member.profile.email }}</span>
+  <div v-else class="flex flex-wrap items-start gap-5">
+    <section class="card min-w-0 flex-[3_1_420px] overflow-hidden">
+      <div class="flex items-center justify-between px-4 py-3.5">
+        <h2 class="font-semibold text-ink-gray-9">People</h2>
+        <span class="text-sm text-ink-gray-6">{{ plural(members.length, 'member') }}</span>
       </div>
-      <div class="flex items-center gap-2">
-        <Badge
-          :label="ROLE_LABELS[member.role]"
-          :theme="member.role === 'owner' ? 'violet' : 'gray'"
-        />
+      <div
+        v-for="member in members"
+        :key="member.user_id"
+        class="flex flex-wrap items-center gap-3 border-t border-edge-soft px-4 py-3"
+      >
+        <InitialsAvatar :name="member.profile.full_name || member.profile.email" />
+        <div class="min-w-40 flex-1">
+          <div class="truncate font-semibold text-ink-gray-9">
+            {{ member.profile.full_name || member.profile.email }}
+            <span v-if="member.user_id === user?.id" class="font-normal text-ink-gray-5"
+              >(you)</span
+            >
+          </div>
+          <div class="truncate text-sm text-ink-gray-6">{{ member.profile.email }}</div>
+        </div>
+        <TonePill :tone="ROLE_TONES[member.role]" :label="ROLE_LABELS[member.role]" />
         <Dropdown
           v-if="member.user_id !== user?.id && canManage(member.role)"
           :options="memberMenu(member)"
-          :button="{ icon: 'lucide-ellipsis', label: 'Member options', variant: 'ghost' }"
+          align="end"
+          :button="{ icon: 'lucide-ellipsis', label: 'Member options', variant: 'subtle' }"
         />
         <Button
           v-else-if="member.user_id === user?.id"
@@ -177,40 +170,44 @@ function confirmLeave() {
           @click="confirmLeave"
         />
       </div>
-    </li>
-  </ul>
 
-  <section v-if="isAdmin" class="flex flex-col gap-2">
-    <h2 class="font-medium text-ink-gray-9">Open invites</h2>
-    <p v-if="invites.length === 0" class="text-sm text-ink-gray-6">No open invites.</p>
-    <ul v-else class="divide-y divide-outline-gray-1 rounded-lg border border-outline-gray-2">
-      <li
-        v-for="invite in invites"
-        :key="invite.id"
-        class="flex items-center justify-between gap-2 px-4 py-3"
-      >
-        <div class="flex min-w-0 flex-col">
-          <span class="truncate text-ink-gray-9">{{ invite.email }}</span>
-          <span class="text-sm text-ink-gray-6">
-            {{ ROLE_LABELS[invite.role] }} · ends {{ formatDate(invite.expires_at) }}
+      <div v-if="isAdmin" class="border-t border-edge-soft bg-canvas px-4 py-3.5">
+        <div class="section-label mb-2">Open invites</div>
+        <p v-if="invites.length === 0" class="text-sm text-ink-gray-6">No open invites.</p>
+        <div
+          v-for="invite in invites"
+          :key="invite.id"
+          class="flex flex-wrap items-center gap-3 py-1.5"
+        >
+          <span
+            class="grid size-8 place-items-center rounded-full border-[1.5px] border-dashed border-edge-strong text-ink-gray-5"
+            aria-hidden="true"
+          >
+            <span class="lucide-mail size-3.5" />
           </span>
+          <div class="min-w-40 flex-1">
+            <div class="truncate text-sm text-ink-gray-9">{{ invite.email }}</div>
+            <div class="text-xs text-ink-gray-6">
+              {{ ROLE_LABELS[invite.role] }} · ends {{ formatDate(invite.expires_at) }}
+            </div>
+          </div>
+          <Button
+            variant="ghost"
+            theme="red"
+            label="Cancel invite"
+            @click="
+              run(
+                async () => unwrap(await deleteInvite.executeMutation({ id: invite.id })),
+                'Invite cancelled.',
+              )
+            "
+          />
         </div>
-        <Button
-          variant="ghost"
-          label="Cancel invite"
-          @click="
-            run(
-              async () => unwrap(await deleteInvite.executeMutation({ id: invite.id })),
-              'Invite cancelled.',
-            )
-          "
-        />
-      </li>
-    </ul>
-  </section>
+      </div>
+    </section>
 
-  <InviteMemberDialog
-    v-model:open="inviting"
-    @invited="invitesQuery.executeQuery({ requestPolicy: 'network-only' })"
-  />
+    <div v-if="isAdmin" class="min-w-0 flex-[2_1_300px]">
+      <InviteMemberCard @invited="invitesQuery.executeQuery({ requestPolicy: 'network-only' })" />
+    </div>
+  </div>
 </template>

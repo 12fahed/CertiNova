@@ -5,14 +5,16 @@ import {
   ErrorMessage,
   FormControl,
   LoadingText,
-  PageHeader,
-  PageHeaderTitle,
   Select,
+  TabButtons,
   toast,
 } from 'frappe-ui'
 import { computed, reactive, ref, watch } from 'vue'
 import RevokeDialog from '@/components/RevokeDialog.vue'
-import StatusBadge from '@/components/StatusBadge.vue'
+import PageTitle from '@/components/ui/PageTitle.vue'
+import TonePill from '@/components/ui/TonePill.vue'
+import StatusBadge from '@/components/ui/StatusBadge.vue'
+import { toneFor } from '@/components/ui/tones'
 import { CertificatesSearchQuery, RevokeCertificateMutation } from '@/graphql/operations/batches'
 import { EventOptionsQuery } from '@/graphql/operations/events'
 import { certificatesWhere, type HistoryFilters } from '@/history/filters'
@@ -94,75 +96,94 @@ async function restore(id: string) {
 </script>
 
 <template>
-  <PageHeader>
-    <PageHeaderTitle title="History" />
-  </PageHeader>
+  <PageTitle title="History" subtitle="Every certificate your organisation issued." />
 
-  <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-[2fr_1.5fr_1fr_1fr_1fr]">
-    <FormControl
-      v-model="searchInput"
-      type="search"
-      label="Search"
-      placeholder="Name, email or certificate ID"
-    />
-    <Select v-model="filters.eventId" label="Event" :options="eventOptions" />
-    <FormControl v-model="filters.from" type="date" label="From" />
-    <FormControl v-model="filters.to" type="date" label="To" />
-    <Select v-model="filters.status" label="Status" :options="statusOptions" />
-  </div>
+  <section
+    class="card grid items-end gap-3 p-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,2fr)_minmax(0,1.3fr)_minmax(0,1fr)_minmax(0,1fr)_auto]"
+  >
+    <div class="sm:col-span-2 lg:col-span-1">
+      <FormControl
+        v-model="searchInput"
+        variant="outline"
+        type="search"
+        label="Search"
+        placeholder="Name, email or certificate ID"
+      >
+        <template #prefix>
+          <span class="lucide-search size-4 text-ink-gray-5" aria-hidden="true" />
+        </template>
+      </FormControl>
+    </div>
+    <div>
+      <Select v-model="filters.eventId" variant="outline" label="Event" :options="eventOptions" />
+    </div>
+    <div>
+      <FormControl v-model="filters.from" variant="outline" type="date" label="From" />
+    </div>
+    <div>
+      <FormControl v-model="filters.to" variant="outline" type="date" label="To" />
+    </div>
+    <div class="flex flex-col gap-1.5">
+      <span class="text-xs text-ink-gray-5">Status</span>
+      <TabButtons v-model="filters.status" :options="statusOptions" />
+    </div>
+  </section>
 
   <ErrorMessage v-if="search.error.value" :message="errorMessage(search.error.value)" />
   <LoadingText v-else-if="search.fetching.value && !search.data.value" />
   <template v-else>
     <p class="text-sm text-ink-gray-6">{{ plural(total, 'certificate') }}</p>
-    <div class="overflow-x-auto rounded-lg border border-outline-gray-2">
-      <table class="w-full min-w-[48rem] text-sm">
-        <thead class="bg-surface-gray-1 text-left text-xs text-ink-gray-6">
+    <div class="card overflow-x-auto">
+      <table class="data-table min-w-[48rem]">
+        <thead>
           <tr>
-            <th class="px-3 py-2 font-medium">Name</th>
-            <th class="px-3 py-2 font-medium">Email</th>
-            <th class="px-3 py-2 font-medium">Event</th>
-            <th class="px-3 py-2 font-medium">Issued</th>
-            <th class="px-3 py-2 font-medium">Status</th>
-            <th class="px-3 py-2" />
+            <th>Recipient</th>
+            <th>Event</th>
+            <th>Issued</th>
+            <th>Status</th>
+            <th><span class="sr-only">Actions</span></th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="row in rows" :key="row.id" class="border-t border-outline-gray-1">
-            <td class="px-3 py-2 text-ink-gray-9">
-              {{ row.recipient_name ?? 'Locked' }}
-              <span v-if="row.rank" class="text-ink-gray-5">· {{ row.rank }}</span>
+          <tr v-for="row in rows" :key="row.id" :class="{ 'bg-bad-25': row.revoked_at }">
+            <td>
+              <div
+                class="font-semibold"
+                :class="row.recipient_name ? 'text-ink-gray-9' : 'text-ink-gray-5'"
+              >
+                {{ row.recipient_name ?? 'Locked (old data)' }}
+              </div>
+              <div class="text-xs text-ink-gray-6">
+                {{ [row.recipient_email, row.rank].filter(Boolean).join(' · ') || '—' }}
+              </div>
             </td>
-            <td class="px-3 py-2 text-ink-gray-7">{{ row.recipient_email ?? '—' }}</td>
-            <td class="px-3 py-2">
+            <td>
               <RouterLink
                 v-if="row.batch?.event"
-                class="text-ink-gray-7 underline hover:text-ink-gray-9"
                 :to="{ name: 'batch', params: { id: row.batch.id } }"
               >
-                {{ row.batch.event.name }}
+                <TonePill :tone="toneFor(row.batch.event.id)" :label="row.batch.event.name" />
               </RouterLink>
             </td>
-            <td class="px-3 py-2 text-ink-gray-7">{{ formatDate(row.created_at) }}</td>
-            <td class="px-3 py-2">
-              <StatusBadge
-                :status="row.revoked_at ? 'revoked' : 'done'"
-                :title="row.revoked_reason ?? undefined"
-              />
+            <td class="text-ink-gray-7">{{ formatDate(row.created_at) }}</td>
+            <td>
+              <StatusBadge :status="row.revoked_at ? 'revoked' : 'valid'" />
+              <div v-if="row.revoked_reason" class="mt-1 text-xs text-bad-700">
+                {{ row.revoked_reason }}
+              </div>
             </td>
-            <td class="px-3 py-2">
+            <td>
               <div class="flex justify-end gap-1">
                 <Button
                   variant="ghost"
-                  icon="lucide-shield-check"
-                  label="Open verify page"
-                  tooltip="Open verify page"
+                  theme="blue"
+                  label="Verify page"
                   :href="`/verify/${row.id}`"
                 />
                 <template v-if="isAdmin">
                   <Button
                     v-if="row.revoked_at"
-                    variant="ghost"
+                    variant="outline"
                     label="Restore"
                     @click="restore(row.id)"
                   />
@@ -178,15 +199,14 @@ async function restore(id: string) {
             </td>
           </tr>
           <tr v-if="rows.length === 0">
-            <td colspan="6" class="px-3 py-8 text-center text-ink-gray-5">
-              No certificates match.
-            </td>
+            <td colspan="5" class="!py-10 text-center text-ink-gray-5">No certificates match.</td>
           </tr>
         </tbody>
       </table>
     </div>
     <div v-if="pageCount > 1" class="flex items-center justify-end gap-2 text-sm text-ink-gray-6">
       <Button
+        variant="outline"
         icon="lucide-chevron-left"
         label="Previous page"
         :disabled="page === 0"
@@ -194,6 +214,7 @@ async function restore(id: string) {
       />
       Page {{ page + 1 }} of {{ pageCount }}
       <Button
+        variant="outline"
         icon="lucide-chevron-right"
         label="Next page"
         :disabled="page + 1 >= pageCount"
