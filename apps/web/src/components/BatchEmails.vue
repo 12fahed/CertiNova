@@ -5,10 +5,14 @@ import { computed, watch } from 'vue'
 import { useFeatureFlag } from '@/composables/useFeatureFlag'
 import { DeliveryCountsQuery, SendBatchEmailsMutation } from '@/graphql/operations/batches'
 import { unwrap } from '@/lib/errors'
-import { plural } from '@/lib/format'
 import { useTask } from '@/lib/useTask'
+import TonePill from './ui/TonePill.vue'
 
-const props = defineProps<{ batchId: string; emailJob: { status: string } | null }>()
+const props = defineProps<{
+  batchId: string
+  emailJob: { status: string } | null
+  withoutEmail: number
+}>()
 
 const enabled = useFeatureFlag('email-certificates')
 const countsQuery = useQuery({
@@ -50,23 +54,31 @@ function confirmSend() {
 </script>
 
 <template>
-  <section class="flex flex-col gap-3 rounded-lg border border-outline-gray-2 p-4">
-    <h2 class="font-medium text-ink-gray-9">Email</h2>
+  <section class="card flex flex-col gap-3 p-4">
+    <h2 class="font-semibold text-ink-gray-9">Email</h2>
     <p v-if="!enabled" class="text-sm text-ink-gray-6">
       Email sending is not turned on for your organisation.
     </p>
     <template v-else>
-      <p v-if="started" class="text-sm text-ink-gray-7">
-        {{ plural(counts.sent, 'email') }} sent · {{ counts.failed }} failed ·
-        {{ counts.queued }} waiting
+      <div v-if="started" class="flex flex-wrap gap-2">
+        <TonePill tone="good" :label="`${counts.sent} sent`" />
+        <TonePill v-if="counts.failed" tone="bad" :label="`${counts.failed} failed`" />
+        <TonePill v-if="counts.queued" tone="brand" :label="`${counts.queued} waiting`" />
+        <TonePill v-if="withoutEmail" tone="neutral" :label="`${withoutEmail} with no email`" />
+      </div>
+      <p class="text-sm text-ink-gray-6">
+        {{
+          started
+            ? 'Each recipient got their certificate and its verify link.'
+            : 'Each recipient with an email address gets their certificate and its verify link.'
+        }}
       </p>
-      <p v-else class="text-sm text-ink-gray-6">No emails were sent for this batch yet.</p>
-      <div>
+      <div v-if="!started || counts.failed > 0">
         <Button
-          v-if="!started || counts.failed > 0"
           variant="solid"
+          theme="blue"
           icon-left="lucide-send"
-          :label="started ? 'Send failed emails again' : 'Email certificates'"
+          :label="started ? 'Send the failed emails again' : 'Email certificates'"
           :loading="send.loading || busy"
           @click="confirmSend"
         />

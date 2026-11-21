@@ -25,16 +25,22 @@ const save = useTask(async () => {
 
 <template>
   <div v-if="!isSignedIn" class="flex flex-col gap-4">
-    <h1 class="text-xl font-semibold text-ink-gray-9">Link not valid</h1>
+    <h1 class="text-h1 font-bold text-ink-gray-9">Link not valid</h1>
     <p class="text-p-sm text-ink-gray-7">
       The link is old or was used already. Ask for a new link.
     </p>
-    <Button variant="solid" label="Ask for a new link" :route="{ name: 'forgot-password' }" />
+    <Button
+      variant="solid"
+      theme="blue"
+      label="Ask for a new link"
+      :route="{ name: 'forgot-password' }"
+    />
   </div>
   <form v-else class="flex flex-col gap-4" @submit.prevent="save.run()">
-    <h1 class="text-xl font-semibold text-ink-gray-9">Set a new password</h1>
+    <h1 class="text-h1 font-bold text-ink-gray-9">Set a new password</h1>
     <FormControl
       v-model="password"
+      variant="outline"
       label="New password"
       type="password"
       autocomplete="new-password"
@@ -43,12 +49,19 @@ const save = useTask(async () => {
     />
     <FormControl
       v-model="confirm"
+      variant="outline"
       label="Type it again"
       type="password"
       autocomplete="new-password"
       required
     />
     <ErrorMessage :message="save.error" />
-    <Button type="submit" variant="solid" label="Save password" :loading="save.loading" />
+    <Button
+      type="submit"
+      variant="solid"
+      theme="blue"
+      label="Save password"
+      :loading="save.loading"
+    />
   </form>
 </template>

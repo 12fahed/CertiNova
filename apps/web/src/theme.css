@@ -1,0 +1,18 @@
+/* Ocean & Coral: point Frappe UI's blue tokens at the brand colour, so theme="blue"
+   buttons, links and focus rings use it. Values match brand-* in tailwind.config.js. */
+:root {
+  --surface-blue-1: #f3f8fd;
+  --surface-blue-2: #e7f1fb;
+  --surface-blue-3: #d3e5f7;
+  --surface-blue-4: #b5d3f0;
+  --surface-blue-5: #7fb2e5;
+  --surface-blue-6: #0b6bcb;
+  --surface-blue-7: #095caf;
+  --surface-blue-8: #0b4f94;
+  --surface-blue-9: #073f78;
+  --ink-blue-5: #0b5cad;
+  --ink-blue-link: #0b5cad;
+  --outline-blue-1: #cfe2f6;
+  --outline-blue-4: #7fb2e5;
+  --focus-outline-blue: 2px solid #0b6bcb80;
+}

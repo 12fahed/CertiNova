@@ -39,23 +39,37 @@ async function logOut() {
 
 <template>
   <form class="flex flex-col gap-4" @submit.prevent="create.run()">
-    <h1 class="text-xl font-semibold text-ink-gray-9">Create your organisation</h1>
+    <h1 class="text-h1 font-bold text-ink-gray-9">Create your organisation</h1>
     <p class="text-p-sm text-ink-gray-7">
       Certificates are issued in the name of the organisation. You can invite your team later.
     </p>
-    <FormControl v-model="name" label="Organisation name" required minlength="2" maxlength="100" />
+    <FormControl
+      v-model="name"
+      variant="outline"
+      label="Organisation name"
+      required
+      minlength="2"
+      maxlength="100"
+    />
     <FormControl
       v-model="slug"
+      variant="outline"
       label="Short name"
       description="Lowercase letters, digits and hyphens. It must be unique."
       required
       @input="slugEdited = true"
     />
     <ErrorMessage :message="create.error" />
-    <Button type="submit" variant="solid" label="Create organisation" :loading="create.loading" />
+    <Button
+      type="submit"
+      variant="solid"
+      theme="blue"
+      label="Create organisation"
+      :loading="create.loading"
+    />
     <p class="text-sm text-ink-gray-6">
       To join a team, open the invite link from your email.
-      <button type="button" class="underline hover:text-ink-gray-9" @click="logOut">Log out</button>
+      <button type="button" class="link" @click="logOut">Log out</button>
     </p>
   </form>
 </template>

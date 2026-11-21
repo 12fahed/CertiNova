@@ -56,16 +56,30 @@ const save = useTask(async () => {
 <template>
   <Dialog v-model:open="open" :title="event ? 'Edit event' : 'New event'" size="md">
     <form id="event-form" class="flex flex-col gap-4" @submit.prevent="save.run()">
-      <FormControl v-model="form.name" label="Event name" required minlength="2" maxlength="200" />
+      <FormControl
+        v-model="form.name"
+        variant="outline"
+        label="Event name"
+        required
+        minlength="2"
+        maxlength="200"
+      />
       <FormControl
         v-model="form.issuer_name"
+        variant="outline"
         label="Issued by"
         description="The person or body that signs the certificates."
         required
         minlength="2"
         maxlength="100"
       />
-      <FormControl v-model="form.event_date" label="Event date" type="date" required />
+      <FormControl
+        v-model="form.event_date"
+        variant="outline"
+        label="Event date"
+        type="date"
+        required
+      />
       <ErrorMessage :message="save.error" />
     </form>
     <template #actions>
@@ -75,6 +89,7 @@ const save = useTask(async () => {
           type="submit"
           form="event-form"
           variant="solid"
+          theme="blue"
           :label="event ? 'Save' : 'Create event'"
           :loading="save.loading"
         />

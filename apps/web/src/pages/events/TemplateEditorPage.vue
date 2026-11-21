@@ -1,19 +1,12 @@
 <script setup lang="ts">
 import { useMutation, useQuery } from '@urql/vue'
-import {
-  Alert,
-  Button,
-  ErrorMessage,
-  LoadingText,
-  PageHeader,
-  PageHeaderTitle,
-  TabButtons,
-  toast,
-} from 'frappe-ui'
+import { Button, ErrorMessage, LoadingText, TabButtons, toast } from 'frappe-ui'
 import { computed, onBeforeUnmount, ref, shallowRef, watch } from 'vue'
 import { onBeforeRouteLeave, useRouter } from 'vue-router'
 import CertificatePreview from '@/components/CertificatePreview.vue'
+import FocusHeader from '@/components/ui/FocusHeader.vue'
 import FieldStylePanel from '@/editor/FieldStylePanel.vue'
+import { FIELD_COLORS } from '@/editor/fieldColors'
 import TemplateCanvas from '@/editor/TemplateCanvas.vue'
 import { clampBox, type Size } from '@/editor/geometry'
 import {
@@ -209,24 +202,45 @@ const sample = {
 </script>
 
 <template>
-  <ErrorMessage v-if="eventQuery.error.value" :message="errorMessage(eventQuery.error.value)" />
-  <LoadingText v-else-if="!event" />
+  <ErrorMessage
+    v-if="eventQuery.error.value"
+    class="m-6"
+    :message="errorMessage(eventQuery.error.value)"
+  />
+  <LoadingText v-else-if="!event" class="m-6" />
   <template v-else>
-    <PageHeader>
-      <PageHeaderTitle :title="`Design · ${event.name}`" />
-      <div class="flex items-center gap-2">
-        <Button label="Cancel" :route="{ name: 'event', params: { id: event.id } }" />
+    <FocusHeader
+      :back="{ name: 'event', params: { id: event.id } }"
+      :eyebrow="event.name"
+      title="Certificate design"
+    >
+      <template v-if="imageUrl && imageSize" #center>
+        <TabButtons
+          v-model="mode"
+          :options="[
+            { label: 'Edit', value: 'edit' },
+            { label: 'Preview', value: 'preview' },
+          ]"
+        />
+      </template>
+      <template #actions>
+        <Button
+          v-if="imageUrl"
+          variant="outline"
+          icon-left="lucide-image-up"
+          label="Replace image"
+          @click="fileInput?.click()"
+        />
         <Button
           variant="solid"
+          theme="blue"
           label="Save design"
           :disabled="!canSave"
           :loading="save.loading"
           @click="save.run()"
         />
-      </div>
-    </PageHeader>
-
-    <ErrorMessage :message="save.error ?? uploadError" />
+      </template>
+    </FocusHeader>
 
     <input
       ref="fileInput"
@@ -236,37 +250,74 @@ const sample = {
       @change="onFile"
     />
 
-    <div
-      v-if="!imageUrl || !imageSize"
-      class="flex flex-col items-center gap-3 rounded-lg border border-dashed border-outline-gray-3 px-6 py-16 text-center"
-    >
-      <span class="lucide-image-up size-6 text-ink-gray-5" aria-hidden="true" />
-      <p class="font-medium text-ink-gray-9">Upload the certificate image</p>
-      <p class="max-w-md text-p-sm text-ink-gray-6">
-        PNG, JPEG or WebP, up to 10 MB. Use a large image (for example 2000 px wide) for sharp
-        print.
-      </p>
-      <Button variant="solid" label="Choose image" @click="fileInput?.click()" />
+    <ErrorMessage
+      v-if="save.error ?? uploadError"
+      class="mx-5 mt-4"
+      :message="save.error ?? uploadError"
+    />
+
+    <div v-if="!imageUrl || !imageSize" class="grid flex-1 place-items-center p-6">
+      <div
+        class="flex w-full max-w-xl flex-col items-center gap-3 rounded-2xl border-[1.5px] border-dashed border-brand-200 bg-brand-50 px-6 py-14 text-center"
+      >
+        <span class="grid size-12 place-items-center rounded-xl bg-brand-100" aria-hidden="true">
+          <span class="lucide-image-up size-6 text-brand-600" />
+        </span>
+        <p class="text-lg font-semibold text-ink-gray-9">Upload the certificate image</p>
+        <p class="max-w-md text-p-sm text-ink-gray-6">
+          PNG, JPEG or WebP, up to 10 MB. Use a large image (for example 2000 px wide) for sharp
+          print.
+        </p>
+        <Button
+          variant="solid"
+          theme="blue"
+          size="md"
+          label="Choose image"
+          @click="fileInput?.click()"
+        />
+      </div>
     </div>
 
-    <div v-else class="grid gap-4 lg:grid-cols-[1fr_18rem]">
-      <div class="flex min-w-0 flex-col gap-3">
-        <div class="flex flex-wrap items-center justify-between gap-2">
-          <TabButtons
-            v-model="mode"
-            :options="[
-              { label: 'Edit', value: 'edit' },
-              { label: 'Preview', value: 'preview' },
-            ]"
-          />
-          <Button icon-left="lucide-image-up" label="Replace image" @click="fileInput?.click()" />
-        </div>
-        <Alert
+    <div v-else class="flex flex-1 flex-wrap">
+      <aside
+        class="flex w-full flex-col gap-1 border-b border-edge bg-surface-base p-3 lg:w-60 lg:border-b-0 lg:border-r"
+      >
+        <div class="section-label px-2.5 pb-1.5">Fields</div>
+        <button
+          v-for="key in FIELD_KEYS"
+          :key="key"
+          type="button"
+          class="flex items-center gap-2.5 rounded-lg border px-2.5 py-2 text-left text-sm"
+          :class="
+            selected === key || placing === key
+              ? 'border-brand-200 bg-brand-100 font-semibold text-brand-800'
+              : fieldFor(key)
+                ? 'border-transparent text-ink-gray-8 hover:bg-canvas'
+                : 'border-dashed border-edge-strong text-ink-gray-8 hover:bg-canvas'
+          "
+          @click="startPlacing(key)"
+        >
+          <span class="size-2.5 rounded-sm" :class="FIELD_COLORS[key].dot" aria-hidden="true" />
+          {{ FIELD_LABELS[key] }}
+          <span v-if="fieldFor(key)" class="lucide-check ml-auto size-4 text-good-600" />
+          <span v-else class="ml-auto text-xs font-semibold text-brand-700">+ Place</span>
+        </button>
+        <p class="mt-3 rounded-lg bg-canvas p-2.5 text-xs leading-relaxed text-ink-gray-6">
+          Pick a field, then drag on the image. Arrow keys nudge a box. Delete removes it. The
+          recipient name is required.
+        </p>
+      </aside>
+
+      <main
+        class="editor-stage flex min-w-0 flex-[999_1_480px] flex-col items-center gap-3 p-5 sm:p-7"
+      >
+        <p
           v-if="placing && mode === 'edit'"
-          theme="blue"
-          :title="`Drag on the image to place the ${FIELD_LABELS[placing].toLowerCase()} box.`"
-        />
-        <div class="overflow-hidden rounded-lg border border-outline-gray-2">
+          class="rounded-full bg-brand-600 px-4 py-1.5 text-sm font-medium text-white"
+        >
+          Drag on the image to place the {{ FIELD_LABELS[placing].toLowerCase() }} box.
+        </p>
+        <div class="w-full max-w-4xl bg-surface-base shadow-lift">
           <TemplateCanvas
             v-if="mode === 'edit'"
             :image-url="imageUrl"
@@ -286,26 +337,18 @@ const sample = {
             :data="sample"
           />
         </div>
-        <p class="text-xs text-ink-gray-5">
-          Image size {{ imageSize.width }} × {{ imageSize.height }} px. The preview uses sample
-          data.
-        </p>
-      </div>
+        <span
+          class="rounded-full border border-edge bg-surface-base px-3 py-1 text-xs text-ink-gray-6"
+        >
+          {{ imageSize.width }} × {{ imageSize.height }} px<template v-if="mode === 'preview'">
+            · sample data</template
+          >
+        </span>
+      </main>
 
-      <aside class="flex flex-col gap-5">
-        <div class="flex flex-col gap-2">
-          <h2 class="font-medium text-ink-gray-9">Fields</h2>
-          <Button
-            v-for="key in FIELD_KEYS"
-            :key="key"
-            class="justify-start"
-            :variant="selected === key || placing === key ? 'solid' : 'subtle'"
-            :icon-left="fieldFor(key) ? 'lucide-check' : 'lucide-plus'"
-            :label="FIELD_LABELS[key]"
-            @click="startPlacing(key)"
-          />
-          <p class="text-xs text-ink-gray-5">The recipient name is required.</p>
-        </div>
+      <aside
+        class="w-full border-t border-edge bg-surface-base p-4 lg:w-72 lg:border-l lg:border-t-0"
+      >
         <FieldStylePanel
           v-if="selectedField"
           :field="selectedField"
@@ -313,7 +356,18 @@ const sample = {
           @update="(patch) => update(selectedField!.field_key, patch)"
           @remove="remove(selectedField.field_key)"
         />
+        <p v-else class="text-p-sm text-ink-gray-6">
+          Select a field to change its font and colour.
+        </p>
       </aside>
     </div>
   </template>
 </template>
+
+<style scoped>
+.editor-stage {
+  background-color: #eef2f7;
+  background-image: radial-gradient(#d5dce7 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+</style>

@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import type { Box, FieldKey, TemplateField } from '@/rendering/layout'
 import { FIELD_LABELS } from '@/rendering/layout'
+import { FIELD_COLORS } from './fieldColors'
 import {
   boxFromPoints,
   boxStyle,
@@ -37,14 +38,6 @@ type Gesture =
   | { kind: 'draw'; key: FieldKey; start: Point }
   | { kind: 'move' | 'resize'; key: FieldKey; start: Point; box: Box }
 let gesture: Gesture | null = null
-
-const FIELD_COLORS: Record<FieldKey, string> = {
-  recipient_name: 'border-blue-500 bg-blue-500/15',
-  organisation_name: 'border-green-500 bg-green-500/15',
-  rank: 'border-red-500 bg-red-500/15',
-  certificate_link: 'border-violet-500 bg-violet-500/15',
-  certificate_qr: 'border-amber-500 bg-amber-500/15',
-}
 
 function pointerToNatural(event: PointerEvent): Point {
   const rect = stage.value!.getBoundingClientRect()
@@ -151,7 +144,7 @@ const cursor = computed(() => (props.placing ? 'cursor-crosshair' : 'cursor-defa
       type="button"
       class="absolute cursor-move rounded-sm border-2 text-left outline-none focus-visible:ring-2 focus-visible:ring-outline-gray-5"
       :class="[
-        FIELD_COLORS[field.field_key],
+        FIELD_COLORS[field.field_key].box,
         selected === field.field_key ? 'border-solid' : 'border-dashed',
       ]"
       :style="boxStyle(field, image)"
@@ -160,13 +153,14 @@ const cursor = computed(() => (props.placing ? 'cursor-crosshair' : 'cursor-defa
       @keydown="onKey($event, field)"
     >
       <span
-        class="pointer-events-none absolute -top-5 left-0 whitespace-nowrap rounded bg-surface-gray-9 px-1 text-2xs text-ink-base"
+        :class="FIELD_COLORS[field.field_key].dot"
+        class="pointer-events-none absolute -top-5 left-0 whitespace-nowrap rounded px-1.5 text-2xs font-semibold text-white"
       >
         {{ FIELD_LABELS[field.field_key] }}
       </span>
       <span
         v-if="selected === field.field_key"
-        class="absolute -bottom-1.5 -right-1.5 size-3 cursor-se-resize rounded-sm border border-outline-gray-5 bg-surface-base"
+        class="absolute -bottom-1.5 -right-1.5 size-3 cursor-se-resize rounded-sm border-2 border-brand-600 bg-white"
         aria-hidden="true"
         @pointerdown="startEdit($event, field, 'resize')"
       />

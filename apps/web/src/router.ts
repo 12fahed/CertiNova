@@ -85,6 +85,28 @@ const routes: RouteRecordRaw[] = [
     ],
   },
   {
+    // Full-width work screens without the sidebar.
+    path: '/',
+    component: () => import('@/layouts/FocusLayout.vue'),
+    meta: { requiresAuth: true, requiresOrg: true },
+    children: [
+      {
+        path: 'events/:id/template',
+        name: 'template-editor',
+        component: () => import('@/pages/events/TemplateEditorPage.vue'),
+        props: true,
+        meta: { title: 'Template' },
+      },
+      {
+        path: 'events/:id/generate',
+        name: 'generate',
+        component: () => import('@/pages/events/GeneratePage.vue'),
+        props: true,
+        meta: { title: 'Generate certificates' },
+      },
+    ],
+  },
+  {
     path: '/',
     component: () => import('@/layouts/AppLayout.vue'),
     meta: { requiresAuth: true, requiresOrg: true },
@@ -101,20 +123,6 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/pages/events/EventPage.vue'),
         props: true,
         meta: { title: 'Event' },
-      },
-      {
-        path: 'events/:id/template',
-        name: 'template-editor',
-        component: () => import('@/pages/events/TemplateEditorPage.vue'),
-        props: true,
-        meta: { title: 'Template' },
-      },
-      {
-        path: 'events/:id/generate',
-        name: 'generate',
-        component: () => import('@/pages/events/GeneratePage.vue'),
-        props: true,
-        meta: { title: 'Generate certificates' },
       },
       {
         path: 'batches/:id',

@@ -18,6 +18,7 @@ export const DashboardQuery = graphql(`
       event_date
       template {
         id
+        image_path
       }
       batches_aggregate {
         aggregate {

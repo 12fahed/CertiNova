@@ -55,6 +55,7 @@ const unlock = useTask(async () => {
         </p>
         <FormControl
           v-model="password"
+          variant="outline"
           label="Old password"
           type="password"
           autocomplete="current-password"
@@ -69,6 +70,7 @@ const unlock = useTask(async () => {
             type="submit"
             form="unlock-form"
             variant="solid"
+            theme="blue"
             label="Unlock"
             :loading="unlock.loading"
           />
