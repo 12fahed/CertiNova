@@ -15,7 +15,7 @@ services:
       HASURA_GRAPHQL_ADMIN_SECRET: local-admin-secret
       HASURA_GRAPHQL_JWT_SECRET: '{"jwk_url": "http://supabase_kong_certinova:8000/auth/v1/.well-known/jwks.json"}'
       HASURA_GRAPHQL_UNAUTHORIZED_ROLE: anonymous
-      ACTION_BASE_URL: http://host.docker.internal:5000
+      ACTION_BASE_URL: ${ACTION_BASE_URL:-http://host.docker.internal:5000}
       HASURA_ACTION_SECRET: local-action-secret
       HASURA_GRAPHQL_ENABLE_CONSOLE: 'false'
       HASURA_GRAPHQL_DEV_MODE: 'true'
